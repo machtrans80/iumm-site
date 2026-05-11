@@ -189,6 +189,8 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
   .footer-links{flex-wrap:wrap;justify-content:center}
 }
 </style>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+<script>Kakao.init('d37fe286e0256c9199a29236ed10c244');</script>
 </head>
 <body>
 
@@ -201,7 +203,7 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
     <a href="#pricing">요금제</a>
     <a href="#" id="nav-expert-link" onclick="handleExpertNav();return false" style="color:rgba(255,255,255,0.25);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.15);padding:6px 14px;border-radius:2px;font-size:12px;letter-spacing:0.5px;transition:all 0.3s" title="로그인 후 이용 가능">전문가 소개 🔒</a>
     <a href="#" id="nav-login-link" onclick="showPage('login');return false" style="color:rgba(255,255,255,0.5)">로그인</a>
-    <button class="nav-cta" onclick="showPage('signup')">회원가입</button>
+    <button class="nav-cta" onclick="showPage('login')">카카오로 시작</button>
   </div>
 </nav>
 
@@ -240,140 +242,25 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
   </div>
 </div>
 
-<!-- 회원가입 -->
-<div id="page-signup" style="display:none;position:fixed;inset:0;background:var(--black);z-index:200;overflow-y:auto">
-  <div style="max-width:520px;margin:0 auto;padding:60px 32px 80px">
-    <div style="text-align:center;margin-bottom:36px">
-      <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:400;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
-      <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:6px">회원가입</h2>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300">가입 즉시 100단어 무료 체험 제공 · 1회 한정</p>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div>
-        <label class="lbl">이메일 주소 (아이디)</label>
-        <input type="email" class="inp" placeholder="hello@company.com">
-        <p style="font-size:11px;color:rgba(201,168,76,0.7);margin-top:6px;font-weight:300">✦ 정확하게 입력해주세요. 해당 메일로 납품됩니다.</p>
-      </div>
-      <div>
-        <label class="lbl">비밀번호</label>
-        <input type="password" class="inp" placeholder="8자 이상 입력">
-      </div>
-      <div>
-        <label class="lbl">이름</label>
-        <input type="text" class="inp" placeholder="홍길동">
-      </div>
-      <div>
-        <label class="lbl">전화번호</label>
-        <input type="tel" class="inp" placeholder="010-0000-0000">
-      </div>
-      <div>
-        <label class="lbl">주요 번역 언어</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div>
-            <label style="font-size:11px;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px">시작 언어</label>
-            <select class="inp" style="padding:11px 14px;font-size:13px">
-              <option value="">선택</option>
-              <option style="background:#1a1a1a;color:#fafaf8">한국어</option><option style="background:#1a1a1a;color:#fafaf8">영어</option><option style="background:#1a1a1a;color:#fafaf8">일본어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">중국어(간체)</option><option style="background:#1a1a1a;color:#fafaf8">중국어(번체)</option>
-              <option style="background:#1a1a1a;color:#fafaf8">프랑스어</option><option style="background:#1a1a1a;color:#fafaf8">독일어</option><option style="background:#1a1a1a;color:#fafaf8">스페인어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">이탈리아어</option><option style="background:#1a1a1a;color:#fafaf8">포르투갈어</option><option style="background:#1a1a1a;color:#fafaf8">러시아어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">아랍어</option><option style="background:#1a1a1a;color:#fafaf8">힌디어</option><option style="background:#1a1a1a;color:#fafaf8">태국어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">베트남어</option><option style="background:#1a1a1a;color:#fafaf8">인도네시아어</option><option style="background:#1a1a1a;color:#fafaf8">말레이어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">네덜란드어</option><option style="background:#1a1a1a;color:#fafaf8">폴란드어</option><option style="background:#1a1a1a;color:#fafaf8">터키어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">기타</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size:11px;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px">도착 언어</label>
-            <select class="inp" style="padding:11px 14px;font-size:13px">
-              <option value="">선택</option>
-              <option style="background:#1a1a1a;color:#fafaf8">한국어</option><option style="background:#1a1a1a;color:#fafaf8">영어</option><option style="background:#1a1a1a;color:#fafaf8">일본어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">중국어(간체)</option><option style="background:#1a1a1a;color:#fafaf8">중국어(번체)</option>
-              <option style="background:#1a1a1a;color:#fafaf8">프랑스어</option><option style="background:#1a1a1a;color:#fafaf8">독일어</option><option style="background:#1a1a1a;color:#fafaf8">스페인어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">이탈리아어</option><option style="background:#1a1a1a;color:#fafaf8">포르투갈어</option><option style="background:#1a1a1a;color:#fafaf8">러시아어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">아랍어</option><option style="background:#1a1a1a;color:#fafaf8">힌디어</option><option style="background:#1a1a1a;color:#fafaf8">태국어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">베트남어</option><option style="background:#1a1a1a;color:#fafaf8">인도네시아어</option><option style="background:#1a1a1a;color:#fafaf8">말레이어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">네덜란드어</option><option style="background:#1a1a1a;color:#fafaf8">폴란드어</option><option style="background:#1a1a1a;color:#fafaf8">터키어</option>
-              <option style="background:#1a1a1a;color:#fafaf8">기타</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div>
-        <label class="lbl">회사명 (선택)</label>
-        <input type="text" class="inp" placeholder="회사명을 입력하세요">
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-top:4px">
-        <input type="checkbox" id="agree" style="margin-top:3px;accent-color:var(--gold)">
-        <label for="agree" style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300;line-height:1.7">이용약관 및 개인정보처리방침에 동의합니다.<br>가입 시 100단어 무료 번역이 즉시 제공됩니다. (1회 한정)</label>
-      </div>
-      <button class="btn-primary" style="width:100%;margin-top:8px;padding:16px" onclick="doSignup()">회원가입 완료</button>
-      <p style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35);font-weight:300">이미 계정이 있으신가요? <a href="#" onclick="showPage('login');return false" style="color:var(--gold);text-decoration:none">로그인</a></p>
-    </div>
-  </div>
-</div>
 
-<!-- 로그인 -->
+<!-- 로그인 (카카오 단독) -->
 <div id="page-login" style="display:none;position:fixed;inset:0;background:var(--black);z-index:200;overflow-y:auto">
   <div style="max-width:480px;margin:0 auto;padding:70px 32px">
-    <div style="text-align:center;margin-bottom:48px">
+    <div style="text-align:center;margin-bottom:52px">
       <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:400;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
-      <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:6px">로그인</h2>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300">IUMM에 오신 것을 환영합니다</p>
+      <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:10px">시작하기</h2>
+      <p style="font-size:14px;color:rgba(255,255,255,0.55);font-weight:300">카카오 계정으로 1초 만에 시작하세요</p>
     </div>
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div>
-        <label class="lbl">이메일 주소 (아이디)</label>
-        <input type="email" class="inp" placeholder="hello@company.com">
-      </div>
-      <div>
-        <label class="lbl">비밀번호</label>
-        <input type="password" class="inp" placeholder="비밀번호 입력">
-      </div>
-      <div style="text-align:right"><a href="#" style="font-size:12px;color:rgba(255,255,255,0.35);text-decoration:none;font-weight:300">비밀번호를 잊으셨나요?</a></div>
-      <button class="btn-primary" style="width:100%;padding:16px" onclick="doLogin()">로그인</button>
-      <p style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35);font-weight:300">아직 계정이 없으신가요? <a href="#" onclick="showPage('signup');return false" style="color:var(--gold);text-decoration:none">회원가입</a></p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
+      <button onclick="kakaoLogin()" style="width:100%;max-width:380px;padding:18px 24px;background:#FEE500;border:none;border-radius:4px;font-size:15px;font-weight:700;color:#191919;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.3px;transition:all 0.2s" onmouseover="this.style.background='#f5dc00'" onmouseout="this.style.background='#FEE500'">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 2C5.582 2 2 4.832 2 8.333c0 2.19 1.319 4.115 3.323 5.294l-.845 3.098a.263.263 0 0 0 .385.295L8.84 14.87A9.87 9.87 0 0 0 10 14.667c4.418 0 8-2.832 8-6.334C18 4.832 14.418 2 10 2Z" fill="#191919"/></svg>
+        카카오로 시작하기
+      </button>
+      <p style="font-size:13px;color:rgba(255,255,255,0.3);font-weight:300;letter-spacing:0.5px;text-align:center">✦ 가입 즉시 100단어 무료 번역 제공 ✦</p>
     </div>
   </div>
 </div>
 
-<!-- 이메일 인증 페이지 -->
-<div id="page-verify" style="display:none;position:fixed;inset:0;background:var(--black);z-index:200;overflow-y:auto">
-  <div style="max-width:480px;margin:0 auto;padding:70px 32px">
-    <div style="text-align:center;margin-bottom:44px">
-      <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:400;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
-    </div>
-    <div id="verify-form">
-      <div style="text-align:center;margin-bottom:36px">
-        <div style="font-size:48px;margin-bottom:16px">📧</div>
-        <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:10px">이메일 인증</h2>
-        <p style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.8">가입하신 이메일로 인증 코드를 발송했습니다.<br>6자리 코드를 입력해주세요.</p>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div>
-          <label class="lbl">인증 코드</label>
-          <input type="text" id="verify-input" class="inp" placeholder="6자리 코드 입력" maxlength="6" style="text-align:center;font-size:24px;font-weight:700;letter-spacing:8px" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-          <p id="verify-error" style="display:none;font-size:12px;color:#e05555;margin-top:6px;font-weight:300">✗ 인증 코드가 올바르지 않습니다. 다시 확인해주세요.</p>
-        </div>
-        <button class="btn-primary" style="width:100%;padding:16px" onclick="verifyCode()">인증 완료</button>
-        <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.3);font-weight:300">
-          코드를 받지 못하셨나요?
-          <a href="#" onclick="resendCode();return false" style="color:var(--gold);text-decoration:none">재발송</a>
-        </p>
-        <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.2);font-weight:300;margin-top:4px">인증 코드는 10분 후 만료됩니다</p>
-      </div>
-    </div>
-    <div id="verify-complete" style="display:none;text-align:center;padding:20px 0">
-      <div style="font-size:52px;margin-bottom:20px">✓</div>
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;color:var(--gold);margin-bottom:14px">인증 완료!</h3>
-      <p style="font-size:15px;color:rgba(255,255,255,0.55);line-height:1.9;font-weight:300;margin-bottom:32px">
-        이메일 인증이 완료되었습니다.<br>
-        가입 즉시 100단어 무료 번역이 제공됩니다.
-      </p>
-      <button class="btn-primary" style="padding:16px 48px" onclick="doLogin()">IUMM 시작하기</button>
-    </div>
-  </div>
-</div>
 
 <!-- HERO -->
 <section class="hero" id="top">
@@ -825,7 +712,7 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
           <p style="color:rgba(255,255,255,0.8);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px">🔒 고객 문서 보안 안내</p>
           <p style="word-break:keep-all">ChatGPT 등 일반 AI 서비스와 달리, IUMM은 고객 문서가 AI 학습에 사용되거나 외부에 노출되지 않습니다. 모든 문서는 번역 완료 후 <strong style="color:var(--gold)">21일 이내 완전 삭제</strong>되며, 기밀 계약서·특허·재무 자료도 안심하고 의뢰하실 수 있습니다.</p>
         </div>
-        <div onclick="document.getElementById('fileInput').click()" ondrop="handleFileDrop(event)" ondragover="event.preventDefault()" id="file-attach-zone" style="border:1px dashed rgba(255,255,255,0.12);padding:20px 24px;text-align:center;cursor:pointer;border-radius:2px;transition:border-color 0.3s" onclick="addMoreFiles()" onmouseover="this.style.borderColor='rgba(201,168,76,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
+        <div onclick="addMoreFiles()" ondrop="handleFileDrop(event)" ondragover="event.preventDefault()" id="file-attach-zone" style="border:1px dashed rgba(255,255,255,0.12);padding:20px 24px;text-align:center;cursor:pointer;border-radius:2px;transition:border-color 0.3s" onmouseover="this.style.borderColor='rgba(201,168,76,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
           <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300">📎 클릭하여 파일 첨부 (최대 3개) · Excel · PPT</p>
           <input type="file" id="fileInput" style="display:none" accept=".doc,.docx,.pdf,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png" multiple onchange="handleFileAttach(this)">
         </div>
@@ -1033,7 +920,10 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
         <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:900;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:6px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
         <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700">마이페이지</h2>
       </div>
-      <button onclick="showPage('main')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">← 홈으로</button>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button onclick="showPage('main')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">← 홈으로</button>
+        <button onclick="kakaoLogout()" style="background:none;border:1px solid rgba(224,85,85,0.3);color:rgba(224,85,85,0.7);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(224,85,85,0.6)';this.style.color='rgba(224,85,85,1)'" onmouseout="this.style.borderColor='rgba(224,85,85,0.3)';this.style.color='rgba(224,85,85,0.7)'">로그아웃</button>
+      </div>
     </div>
 
     <!-- 탭 -->
@@ -1362,6 +1252,8 @@ var currentPlan='standard';
 var freeTrialUsed=false;
 var isFreeTrialOrder=false;
 var currentUser='';
+var currentUserKakaoId=null;
+var currentUserName='';
 
 // 전문가 데이터 (Airtable 연동 후 자동 교체)
 var expertsData=[
@@ -1462,7 +1354,7 @@ function showReviewerPanel(){
   filterReviewers('전체');
 }
 function handleFreeTrial(){
-  if(!isLoggedIn){showPage('signup');return;}
+  if(!isLoggedIn){showPage('login');return;}
   if(freeTrialUsed){showToast('첫 주문 혜택은 이미 사용하셨습니다');handleAI();return;}
   isFreeTrialOrder=true;
   currentPlan='ai';
@@ -1473,13 +1365,11 @@ function handleFreeTrial(){
   if(banner) banner.style.display='block';
 }
 function showPage(p){
-  ['signup','login','verify','mypage','experts'].forEach(function(id){
+  ['login','mypage','experts'].forEach(function(id){
     var el=document.getElementById('page-'+id);
     if(el) el.style.display='none';
   });
-  if(p==='signup'){document.getElementById('page-signup').style.display='block';window.scrollTo(0,0);}
-  else if(p==='login'){document.getElementById('page-login').style.display='block';window.scrollTo(0,0);}
-  else if(p==='verify'){document.getElementById('page-verify').style.display='block';window.scrollTo(0,0);}
+  if(p==='login'){document.getElementById('page-login').style.display='block';window.scrollTo(0,0);}
   else if(p==='mypage'){document.getElementById('page-mypage').style.display='block';window.scrollTo(0,0);}
   else if(p==='experts'){document.getElementById('page-experts').style.display='block';window.scrollTo(0,0);renderExpertList();}
 }
@@ -1487,48 +1377,102 @@ function handleExpertNav(){
   if(!isLoggedIn){showPage('login');return;}
   showPage('experts');
 }
-function doSignup(){
-  showPage('verify');
+function checkFreeTrialUsed(kakaoId){
+  if(!kakaoId) return false;
+  var usedIds=JSON.parse(localStorage.getItem('iumm_free_trial_used')||'[]');
+  return usedIds.indexOf(String(kakaoId))>-1;
 }
-function doLogin(){
-  isLoggedIn=true;
-  var emailInput=document.getElementById('login-email')||document.getElementById('signup-email');
-  if(emailInput) currentUser=emailInput.value;
-  showPage('main');
-  // 전문가 소개 메뉴 활성화
+function markFreeTrialUsed(kakaoId){
+  if(!kakaoId) return;
+  var usedIds=JSON.parse(localStorage.getItem('iumm_free_trial_used')||'[]');
+  if(usedIds.indexOf(String(kakaoId))===-1){
+    usedIds.push(String(kakaoId));
+    localStorage.setItem('iumm_free_trial_used',JSON.stringify(usedIds));
+  }
+}
+function updateNavAfterLogin(){
   var expLink=document.getElementById('nav-expert-link');
-  expLink.textContent='전문가 소개';
-  expLink.style.color='var(--gold)';
-  expLink.style.background='rgba(201,168,76,0.12)';
-  expLink.style.borderColor='rgba(201,168,76,0.35)';
-  document.getElementById('nav-login-link').textContent='마이페이지';
-  document.getElementById('nav-login-link').onclick=function(){showPage('mypage');return false;};
+  if(expLink){
+    expLink.textContent='전문가 소개';
+    expLink.style.color='var(--gold)';
+    expLink.style.background='rgba(201,168,76,0.12)';
+    expLink.style.borderColor='rgba(201,168,76,0.35)';
+  }
+  var loginLink=document.getElementById('nav-login-link');
+  if(loginLink){
+    loginLink.textContent='마이페이지';
+    loginLink.onclick=function(){showPage('mypage');return false;};
+  }
   var cta=document.querySelector('.nav-cta');
-  cta.innerHTML='전문가 검수 의뢰하기<br><span style="font-size:11px;font-weight:500;letter-spacing:0.5px;opacity:0.85">IUMM AI 번역 포함</span>';
-  document.querySelector('.nav-cta').onclick=function(){showModal('order');};
-  // AI 프리미엄 카드 활성화
-  document.getElementById('badge-ai').textContent='추천';
-  document.getElementById('badge-ai').style.background='#1a3580';
-  document.getElementById('badge-ai').style.color='#fff';
-  document.getElementById('btn-ai').style.background='rgba(120,160,255,0.2)';
-  document.getElementById('btn-ai').style.color='#8ba8ff';
-  document.getElementById('btn-ai').style.border='1px solid rgba(120,160,255,0.5)';
-  // 스탠다드 카드 활성화
-  document.getElementById('badge-standard').textContent='인기';
-  document.getElementById('badge-standard').style.background='#639922';
-  document.getElementById('badge-standard').style.color='#fff';
-  document.getElementById('btn-standard').style.background='rgba(99,153,34,0.2)';
-  document.getElementById('btn-standard').style.color='#97c459';
-  document.getElementById('btn-standard').style.border='1px solid rgba(99,153,34,0.5)';
-  // 비즈니스 카드 활성화
-  document.getElementById('badge-biz').textContent='정기·대량';
-  document.getElementById('badge-biz').style.background='#185fa5';
-  document.getElementById('badge-biz').style.color='#fff';
-  document.getElementById('btn-biz').style.background='rgba(55,138,221,0.15)';
-  document.getElementById('btn-biz').style.color='#85b7eb';
-  document.getElementById('btn-biz').style.border='1px solid rgba(55,138,221,0.4)';
-  // 로그인 완료 토스트
-  showToast('로그인되었습니다 ✓');
+  if(cta){
+    cta.innerHTML='전문가 검수 의뢰하기<br><span style="font-size:11px;font-weight:500;letter-spacing:0.5px;opacity:0.85">IUMM AI 번역 포함</span>';
+    cta.onclick=function(){showModal('order');};
+  }
+  var badgeAi=document.getElementById('badge-ai');
+  if(badgeAi){badgeAi.textContent='추천';badgeAi.style.background='#1a3580';badgeAi.style.color='#fff';}
+  var btnAi=document.getElementById('btn-ai');
+  if(btnAi){btnAi.style.background='rgba(120,160,255,0.2)';btnAi.style.color='#8ba8ff';btnAi.style.border='1px solid rgba(120,160,255,0.5)';}
+  var badgeStd=document.getElementById('badge-standard');
+  if(badgeStd){badgeStd.textContent='인기';badgeStd.style.background='#639922';badgeStd.style.color='#fff';}
+  var btnStd=document.getElementById('btn-standard');
+  if(btnStd){btnStd.style.background='rgba(99,153,34,0.2)';btnStd.style.color='#97c459';btnStd.style.border='1px solid rgba(99,153,34,0.5)';}
+  var badgeBiz=document.getElementById('badge-biz');
+  if(badgeBiz){badgeBiz.textContent='정기·대량';badgeBiz.style.background='#185fa5';badgeBiz.style.color='#fff';}
+  var btnBiz=document.getElementById('btn-biz');
+  if(btnBiz){btnBiz.style.background='rgba(55,138,221,0.15)';btnBiz.style.color='#85b7eb';btnBiz.style.border='1px solid rgba(55,138,221,0.4)';}
+}
+function kakaoLogin(){
+  Kakao.Auth.login({
+    scope:'profile_nickname,account_email',
+    success:function(authObj){
+      Kakao.API.request({
+        url:'/v2/user/me',
+        success:function(res){
+          var kakaoId=res.id;
+          var nickname=(res.kakao_account&&res.kakao_account.profile&&res.kakao_account.profile.nickname)||'사용자';
+          var email=(res.kakao_account&&res.kakao_account.email)||'';
+          isLoggedIn=true;
+          currentUserKakaoId=kakaoId;
+          currentUserName=nickname;
+          currentUser=email;
+          freeTrialUsed=checkFreeTrialUsed(kakaoId);
+          localStorage.setItem('iumm_user',JSON.stringify({
+            kakaoId:kakaoId,name:nickname,email:email,loginTime:Date.now()
+          }));
+          showPage('main');
+          updateNavAfterLogin();
+          showToast(nickname+'님 환영합니다! ✓');
+        },
+        fail:function(err){showToast('사용자 정보를 가져올 수 없습니다');}
+      });
+    },
+    fail:function(err){showToast('로그인에 실패했습니다');}
+  });
+}
+function kakaoLogout(){
+  if(Kakao.Auth.getAccessToken()){
+    Kakao.Auth.logout(function(){doLogout();});
+  } else {doLogout();}
+}
+function doLogout(){
+  localStorage.removeItem('iumm_user');
+  location.reload();
+}
+function restoreLogin(){
+  var saved=localStorage.getItem('iumm_user');
+  if(!saved) return;
+  try{
+    var user=JSON.parse(saved);
+    if(Date.now()-user.loginTime>24*60*60*1000){
+      localStorage.removeItem('iumm_user');return;
+    }
+    isLoggedIn=true;
+    currentUserKakaoId=user.kakaoId;
+    currentUserName=user.name;
+    currentUser=user.email;
+    freeTrialUsed=checkFreeTrialUsed(user.kakaoId);
+    updateNavAfterLogin();
+  }catch(e){localStorage.removeItem('iumm_user');}
 }
 function showToast(msg){
   var t=document.createElement('div');
@@ -1567,11 +1511,14 @@ function showModal(id){document.getElementById('modal-'+id).style.display='block
 function closeModal(id){
   window._attachedFiles=[];
   renderFileList();
+  var fi=document.getElementById('fileInput');
+  if(fi) fi.value=''; // 같은 파일 재첨부 가능하도록 input 초기화
   document.getElementById('modal-'+id).style.display='none';
   document.body.style.overflow='';
   if(id==='order'){document.getElementById('order-step1').style.display='block';document.getElementById('order-step2').style.display='none';}
   if(id==='bizinquiry'){document.getElementById('biz-form').style.display='block';document.getElementById('biz-complete').style.display='none';}
   if(id==='payment'){document.getElementById('payment-form').style.display='block';document.getElementById('payment-complete').style.display='none';}
+  console.log('[closeModal] '+id+' — 파일 상태 초기화 완료');
 }
 function switchTab(t){}
 function calcDelivery(words){
@@ -1697,6 +1644,9 @@ function selectReviewer(el,name){
   document.getElementById('reviewer-panel').style.display='none';
 }
 function goToPayment(){
+  // 파일을 먼저 저장 — closeModal('order')가 _attachedFiles를 초기화하므로 반드시 선행
+  var savedFiles=(window._attachedFiles||[]).slice();
+  console.log('[goToPayment] 저장된 파일:', savedFiles.map(function(f){return f.name;}));
   var amtText=document.getElementById('estimate-amount').textContent.replace(/[^0-9]/g,'');
   var base=parseInt(amtText)||0;
   var discount=isFreeTrialOrder&&!freeTrialUsed?6000:0;
@@ -1708,6 +1658,9 @@ function goToPayment(){
   var langVal=langSelect&&langSelect.value==='직접 입력'?(langCustom?langCustom.value:'직접 입력'):((langSelect&&langSelect.value)||'-');
   var delivery=document.getElementById('delivery-time')?document.getElementById('delivery-time').textContent:'-';
   closeModal('order');
+  // closeModal이 _attachedFiles를 []로 비웠으므로 저장한 파일을 복원
+  window._attachedFiles=savedFiles;
+  console.log('[goToPayment] 복원된 파일:', window._attachedFiles.map(function(f){return f.name;}));
   document.getElementById('payment-amount-base').textContent=base.toLocaleString()+'원';
   // 할인 행 표시
   var discRow=document.getElementById('payment-discount-row');
@@ -1849,6 +1802,7 @@ function completePayment(){
   if(isFreeTrialOrder&&!freeTrialUsed){
     freeTrialUsed=true;
     isFreeTrialOrder=false;
+    markFreeTrialUsed(currentUserKakaoId);
   }
   // Make.com Webhook 전송
   var webhookUrl='https://hook.eu2.make.com/mcujf5mztle5zf7qonaepniee5efe1g8';
@@ -1880,12 +1834,10 @@ function completePayment(){
     // 첫 줄만 사용 (너무 긴 텍스트 방지)
     payMethod=labelText.split('\n')[0].trim()||'신용카드';
   }
-  // 파일첨부 수집
-  var fileInput=document.getElementById('file-upload');
-  var fileName='첨부파일 없음';
-  if(fileInput&&fileInput.files&&fileInput.files.length>0){
-    fileName=Array.from(fileInput.files).map(function(f){return f.name;}).join(', ');
-  }
+  // 파일첨부 수집 — window._attachedFiles 사용 (file-upload id는 존재하지 않음)
+  var attachedFiles=window._attachedFiles||[];
+  var fileName=attachedFiles.length>0?attachedFiles.map(function(f){return f.name;}).join(', '):'첨부파일 없음';
+  console.log('[completePayment] 플랜:',currentPlan,'| 첨부파일:', fileName, '| 파일 수:', attachedFiles.length);
   var data={
     주문번호: 'IUM-'+Date.now(),
     플랜: currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스',
@@ -1913,16 +1865,12 @@ function closeAllAndReset(){
   document.getElementById('payment-complete').style.display='none';
 }
 function submitBizInquiry(){document.getElementById('biz-form').style.display='none';document.getElementById('biz-complete').style.display='block';}
-function verifyCode(){
-  var code=document.getElementById('verify-input').value;
-  if(code.length===6){
-    document.getElementById('verify-form').style.display='none';
-    document.getElementById('verify-complete').style.display='block';
-  } else {
-    document.getElementById('verify-error').style.display='block';
+window.addEventListener('DOMContentLoaded',function(){
+  if(typeof Kakao!=='undefined'&&!Kakao.isInitialized()){
+    Kakao.init('d37fe286e0256c9199a29236ed10c244');
   }
-}
-function resendCode(){showToast('인증코드를 재발송했습니다 ✓');}
+  restoreLogin();
+});
 </script>
 </body>
 </html>
