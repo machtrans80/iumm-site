@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IUMM 검수자 포털</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;--gray:#888;--border:rgba(201,168,76,0.15)}
+html,body{height:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--white);min-height:100vh;line-height:1.7}
+
+/* ─ 공통 ─ */
+.page{display:none;min-height:100vh}
+.page.active{display:flex}
+.inp{width:100%;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color 0.2s}
+.inp:focus{border-color:rgba(201,168,76,0.5)}
+.btn-gold{width:100%;padding:15px;background:var(--gold);color:var(--black);border:none;border-radius:3px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;letter-spacing:0.5px;transition:all 0.2s}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-gold:disabled{opacity:0.5;cursor:not-allowed}
+.logo-text{font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:800;letter-spacing:4px;text-decoration:none;display:inline-block}
+.logo-text .iu{color:var(--gold)}
+.logo-text .mm{color:var(--white)}
+
+/* ─ 로그인 페이지 ─ */
+#page-login{align-items:center;justify-content:center;padding:40px 20px;position:relative;overflow:hidden}
+#page-login::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(201,168,76,0.06) 0%,transparent 60%)}
+.login-box{position:relative;z-index:1;width:100%;max-width:440px}
+.login-header{text-align:center;margin-bottom:44px}
+.login-header .portal-label{font-size:11px;letter-spacing:3px;color:rgba(201,168,76,0.7);text-transform:uppercase;margin-top:8px;margin-bottom:32px;display:block}
+.login-header h1{font-family:'Nanum Myeongjo',serif;font-size:clamp(22px,4vw,28px);font-weight:700;line-height:1.45;color:var(--white);word-break:keep-all}
+.login-header h1 em{color:var(--gold);font-style:italic}
+.login-form{background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:36px 32px;border-radius:4px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.error-box{display:none;background:rgba(224,85,85,0.1);border:1px solid rgba(224,85,85,0.3);border-radius:3px;padding:12px 16px;font-size:13px;color:#e05555;margin-bottom:20px;line-height:1.6}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.3);border-top-color:var(--black);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login-footer{text-align:center;margin-top:32px;padding-top:28px;border-top:1px solid rgba(255,255,255,0.06)}
+.login-footer p{font-size:12px;color:var(--gray);font-weight:300}
+.login-footer a{color:var(--gold);text-decoration:none}
+.login-footer a:hover{text-decoration:underline}
+
+/* ─ 대시보드 ─ */
+#page-dashboard{flex-direction:column}
+.dash-nav{background:rgba(10,10,10,0.95);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.dash-nav-logo{font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:800;color:var(--gold);letter-spacing:3px}
+.dash-nav-logo span{color:var(--white)}
+.dash-nav-right{display:flex;align-items:center;gap:16px}
+.reviewer-badge{font-size:13px;color:rgba(255,255,255,0.6);font-weight:300}
+.reviewer-badge strong{color:var(--gold);font-weight:500}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:7px 16px;border-radius:2px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-logout:hover{border-color:rgba(224,85,85,0.4);color:rgba(224,85,85,0.8)}
+.dash-body{flex:1;padding:48px 32px;max-width:800px;margin:0 auto;width:100%}
+.dash-welcome{margin-bottom:40px}
+.dash-welcome h2{font-family:'Nanum Myeongjo',serif;font-size:clamp(22px,3vw,28px);font-weight:700;margin-bottom:6px}
+.dash-welcome h2 em{color:var(--gold);font-style:normal}
+.dash-welcome p{font-size:14px;color:var(--gray);font-weight:300}
+.dash-card{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:4px;padding:28px 32px;margin-bottom:20px}
+.dash-card-title{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.7);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.info-item label{font-size:11px;color:var(--gray);display:block;margin-bottom:4px;font-weight:300}
+.info-item p{font-size:14px;color:var(--white);font-weight:400}
+.badge-type{display:inline-block;padding:2px 10px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:20px;font-size:11px;color:var(--gold);letter-spacing:0.5px}
+.coming-soon{background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:4px;padding:36px;text-align:center}
+.coming-soon .icon{font-size:32px;margin-bottom:12px}
+.coming-soon h3{font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.coming-soon p{font-size:13px;color:var(--gray);font-weight:300}
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--black)}
+.loading-screen .dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:pulse 1.2s ease-in-out infinite}
+.loading-screen .dot:nth-child(2){animation-delay:0.2s}
+.loading-screen .dot:nth-child(3){animation-delay:0.4s}
+.dots{display:flex;gap:8px}
+@keyframes pulse{0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+
+@media(max-width:600px){
+  .login-form{padding:28px 20px}
+  .dash-nav{padding:12px 16px}
+  .dash-body{padding:28px 16px}
+  .info-grid{grid-template-columns:1fr}
+  .dash-nav-right .reviewer-badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- 로딩 화면 -->
+<div id="loading-screen" class="loading-screen">
+  <div class="dots">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+</div>
+
+<!-- ─ 로그인 페이지 ─ -->
+<div id="page-login" class="page">
+  <div class="login-box">
+    <div class="login-header">
+      <a href="https://iumm.kr" class="logo-text"><span class="iu">IU</span><span class="mm">MM</span></a>
+      <span class="portal-label">검수자 포털</span>
+      <h1>전문가만의 정밀한 검수,<br><em>IUMM</em>과 함께합니다.</h1>
+    </div>
+
+    <div class="login-form">
+      <div id="error-box" class="error-box"></div>
+
+      <div class="form-group">
+        <label for="email">이메일</label>
+        <input type="email" id="email" class="inp" placeholder="your@email.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" class="inp" placeholder="비밀번호 입력" autocomplete="current-password">
+      </div>
+
+      <button id="login-btn" class="btn-gold" onclick="doLogin()">로그인</button>
+    </div>
+
+    <div class="login-footer">
+      <p>검수자 계정 관련 문의</p>
+      <p style="margin-top:4px"><a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a></p>
+      <p style="margin-top:16px"><a href="https://iumm.kr" style="color:rgba(255,255,255,0.3);font-size:11px">← IUMM 메인 사이트</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ─ 대시보드 ─ -->
+<div id="page-dashboard" class="page">
+  <nav class="dash-nav">
+    <div class="dash-nav-logo">IU<span>MM</span></div>
+    <div class="dash-nav-right">
+      <span class="reviewer-badge">검수자: <strong id="nav-name">—</strong></span>
+      <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+    </div>
+  </nav>
+
+  <div class="dash-body">
+    <div class="dash-welcome">
+      <h2>환영합니다, <em id="welcome-name">—</em>님!</h2>
+      <p>IUMM 검수자 포털에 오신 것을 환영합니다.</p>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">📊 본인 정보</div>
+      <div class="info-grid">
+        <div class="info-item"><label>이름</label><p id="info-name">—</p></div>
+        <div class="info-item"><label>이메일</label><p id="info-email">—</p></div>
+        <div class="info-item"><label>검수자 타입</label><p id="info-type">—</p></div>
+        <div class="info-item"><label>전문 분야</label><p id="info-expertise">—</p></div>
+        <div class="info-item"><label>검수 언어</label><p id="info-languages">—</p></div>
+        <div class="info-item"><label>처리 건수</label><p id="info-count">—</p></div>
+      </div>
+    </div>
+
+    <div class="coming-soon">
+      <div class="icon">🚧</div>
+      <h3>작업 대시보드 준비 중</h3>
+      <p>신규 요청 확인 및 검수 작업 기능은<br>다음 업데이트에서 구현될 예정입니다.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── 설정 ────────────────────────────────────────────────────
+const API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+// Railway 커스텀 도메인 설정 시 위 URL을 변경하세요
+
+// ─── 초기화 ──────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async function() {
+  const token = localStorage.getItem('reviewerToken');
+  if (!token) {
+    showPage('login');
+    return;
+  }
+  // 토큰 있으면 유효성 검증 후 대시보드
+  try {
+    const res = await fetch(API_BASE + '/api/reviewer/me', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('invalid');
+    const data = await res.json();
+    if (data.success) {
+      fillDashboard(data.reviewer);
+      showPage('dashboard');
+    } else {
+      throw new Error('invalid');
+    }
+  } catch {
+    localStorage.removeItem('reviewerToken');
+    showPage('login');
+  }
+});
+
+// ─── 페이지 토글 ─────────────────────────────────────────────
+function showPage(name) {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-' + name).classList.add('active');
+}
+
+// ─── 대시보드 데이터 채우기 ──────────────────────────────────
+function fillDashboard(r) {
+  document.getElementById('nav-name').textContent     = r.name || '—';
+  document.getElementById('welcome-name').textContent = r.name || '—';
+  document.getElementById('info-name').textContent    = r.name || '—';
+  document.getElementById('info-email').textContent   = r.email || '—';
+  document.getElementById('info-type').innerHTML      = '<span class="badge-type">' + (r.type || '일반') + '</span>';
+  document.getElementById('info-expertise').textContent = r.expertise || '—';
+  document.getElementById('info-languages').textContent = Array.isArray(r.languages) ? r.languages.join(', ') : (r.languages || '—');
+  document.getElementById('info-count').textContent   = (r.count || 0) + '건';
+}
+
+// ─── 로그인 ──────────────────────────────────────────────────
+async function doLogin() {
+  var email    = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value;
+  var btn      = document.getElementById('login-btn');
+  var errBox   = document.getElementById('error-box');
+
+  errBox.style.display = 'none';
+  if (!email || !password) {
+    showError('이메일과 비밀번호를 모두 입력하세요.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>로그인 중...';
+
+  try {
+    var res = await fetch(API_BASE + '/api/reviewer/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.toLowerCase(), password: password })
+    });
+    var data = await res.json();
+
+    if (data.success && data.token) {
+      localStorage.setItem('reviewerToken', data.token);
+      fillDashboard(data.reviewer);
+      showPage('dashboard');
+    } else {
+      showError(data.error || '로그인에 실패했습니다.');
+    }
+  } catch (e) {
+    showError('서버 연결에 실패했습니다. 잠시 후 다시 시도하세요.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '로그인';
+  }
+}
+
+function showError(msg) {
+  var box = document.getElementById('error-box');
+  box.textContent = msg;
+  box.style.display = 'block';
+}
+
+// ─── 로그아웃 ────────────────────────────────────────────────
+function doLogout() {
+  localStorage.removeItem('reviewerToken');
+  showPage('login');
+  document.getElementById('email').value    = '';
+  document.getElementById('password').value = '';
+}
+
+// ─── Enter 키 로그인 ─────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) {
+    doLogin();
+  }
+});
+</script>
+</body>
+</html>
