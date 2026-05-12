@@ -10,3 +10,18 @@
   from = "/reviewer/"
   to   = "/reviewer/index.html"
   status = 200
+
+[[redirects]]
+  from = "/reviewer/job/*"
+  to   = "/reviewer/job.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to   = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/"
+  to   = "/admin/index.html"
+  status = 200

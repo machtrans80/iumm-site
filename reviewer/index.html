@@ -554,27 +554,48 @@ function runConfirmAction() {
   if (cb) cb();
 }
 
-function showDetailModal(jobId) {
-  var job = pendingJobsCache.find(function(j) { return j.orderId === jobId; });
-  if (!job) return;
-  var deadline = job.translationDeadline ? new Date(job.translationDeadline).toLocaleString('ko-KR') : '—';
-  document.getElementById('detail-body').innerHTML = [
-    '<div class="detail-grid">',
-    '  <div class="detail-item"><div class="di-label">분야 / 플랜</div><div class="di-val">' + (job.fieldName || '—') + '</div></div>',
-    '  <div class="detail-item"><div class="di-label">번역 방향</div><div class="di-val">' + (job.sourceLang||'—') + ' → ' + (job.targetLang||'—') + '</div></div>',
-    '  <div class="detail-item"><div class="di-label">글자수</div><div class="di-val">' + (job.charCount||0).toLocaleString() + '자</div></div>',
-    '  <div class="detail-item"><div class="di-label">검수료</div><div class="di-val gold">' + won(job.reviewFee) + '</div></div>',
-    '</div>',
-    '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:8px">마감: ' + deadline + '</div>',
-    '<p style="font-size:12px;color:var(--gray);border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">수락 후 전체 원문 및 번역문 확인 가능합니다.</p>',
-  ].join('');
-  var acceptBtn = document.getElementById('detail-accept-btn');
-  acceptBtn.textContent = '✅ 수락하기';
-  acceptBtn.className   = 'modal-confirm';
-  acceptBtn.onclick     = function() { closeDetailModal(); onAccept(jobId); };
+async function showDetailModal(jobId) {
+  document.getElementById('detail-body').innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray)">로딩 중…</div>';
   document.getElementById('detail-modal').classList.add('open');
+  try {
+    var prev = await authFetch('/api/reviewer/job/' + jobId + '/preview');
+    if (!prev.success) { document.getElementById('detail-body').innerHTML = '<p style="color:var(--red)">' + (prev.error||'오류') + '</p>'; return; }
+    var deadline = prev.deadline ? new Date(prev.deadline).toLocaleString('ko-KR') : '—';
+    var ndaText = '본인은 본 작업을 통해 열람하는 원문 및 번역본의 내용을 외부에 유출하지 않으며, 별도로 보관·수집·복제하지 않을 것을 서약합니다. 작업 종료 후 모든 자료는 폐기합니다.';
+    document.getElementById('detail-body').innerHTML = [
+      '<div class="detail-grid">',
+      '  <div class="detail-item"><div class="di-label">분야 / 플랜</div><div class="di-val">' + (prev.fieldName||'—') + '</div></div>',
+      '  <div class="detail-item"><div class="di-label">글자수 / 예상 보수</div><div class="di-val gold">₩' + (prev.estimatedPay||0).toLocaleString() + '</div></div>',
+      '</div>',
+      '<div style="font-size:11px;color:var(--gray);margin-bottom:6px">원문 미리보기 (300자)</div>',
+      '<div style="background:#0e0e0e;border:1px solid rgba(255,255,255,0.06);border-radius:3px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.55);max-height:70px;overflow:hidden;line-height:1.6;margin-bottom:14px">' + (prev.sourcePreview||'—') + '</div>',
+      '<div style="background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:3px;padding:12px 14px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:14px">' + ndaText + '</div>',
+      '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:4px">',
+      '  <input type="checkbox" id="nda-chk-' + jobId + '" style="width:15px;height:15px;cursor:pointer">',
+      '  <span style="font-size:13px;color:rgba(255,255,255,0.6)">위 서약 내용에 동의합니다</span>',
+      '</label>',
+    ].join('');
+    var acceptBtn = document.getElementById('detail-accept-btn');
+    acceptBtn.textContent = '✅ 수락하고 작업 시작';
+    acceptBtn.className   = 'modal-confirm';
+    acceptBtn.onclick     = function() { doNdaAcceptFromDashboard(jobId); };
+  } catch(e) { document.getElementById('detail-body').innerHTML = '<p style="color:var(--red)">오류: ' + e.message + '</p>'; }
 }
 function closeDetailModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+async function doNdaAcceptFromDashboard(jobId) {
+  var chk = document.getElementById('nda-chk-' + jobId);
+  if (!chk?.checked) { showToast('⚠️ NDA 서약에 동의해주세요', 'error'); return; }
+  try {
+    var res = await authFetch('/api/reviewer/job/' + jobId + '/accept', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ndaAgreed: true })
+    });
+    if (res.ok) { closeDetailModal(); location.href = res.redirectTo || '/reviewer/job/' + jobId; }
+    else showToast('⚠️ ' + (res.error||'오류'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
+}
 
 function showToast(msg, type) {
   var el = document.getElementById('toast');

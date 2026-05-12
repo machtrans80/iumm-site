@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IUMM 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
+  --gray:#888;--border:rgba(201,168,76,0.15);--red:#e05555;--green:#97c459;
+  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+}
+html,body{height:100%;background:var(--black);color:var(--white);font-family:'Noto Sans KR',sans-serif;line-height:1.6}
+
+/* ─ 로그인 ─ */
+#login-view{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{width:100%;max-width:400px}
+.login-logo{font-family:'Nanum Myeongjo',serif;font-size:32px;font-weight:800;color:var(--gold);letter-spacing:4px;text-align:center;margin-bottom:6px}
+.login-logo span{color:var(--white)}
+.login-sub{text-align:center;font-size:12px;color:rgba(201,168,76,0.6);letter-spacing:3px;margin-bottom:36px}
+.login-form{background:var(--card-bg);border:1px solid var(--border);padding:32px;border-radius:4px}
+.inp{width:100%;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:16px;transition:border-color 0.2s}
+.inp:focus{border-color:rgba(201,168,76,0.5)}
+.btn-login{width:100%;padding:14px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-login:hover{background:var(--gold-light)}
+.err{font-size:13px;color:var(--red);margin-top:12px;text-align:center;min-height:20px}
+
+/* ─ 대시보드 ─ */
+#admin-view{display:none;flex-direction:column;min-height:100vh}
+.admin-nav{background:rgba(10,10,10,0.96);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.admin-logo{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:800;color:var(--gold);letter-spacing:3px}
+.admin-logo span{color:var(--white)}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.45);padding:6px 14px;border-radius:2px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-logout:hover{border-color:rgba(224,85,85,0.4);color:rgba(224,85,85,0.8)}
+
+.admin-body{flex:1;padding:28px;max-width:1100px;margin:0 auto;width:100%}
+
+/* ─ 탭 ─ */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--card-border);margin-bottom:24px}
+.tab-btn{padding:12px 28px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-size:14px;font-weight:500;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,0.7)}
+
+/* ─ 주문 테이블 ─ */
+.orders-table{width:100%;border-collapse:collapse;font-size:13px}
+.orders-table th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--card-border);color:var(--gray);font-weight:400;font-size:11px;letter-spacing:0.5px}
+.orders-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);vertical-align:middle}
+.orders-table tr:hover td{background:rgba(255,255,255,0.02);cursor:pointer}
+.orders-table tr.selected td{background:rgba(201,168,76,0.06);border-bottom-color:rgba(201,168,76,0.2)}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px}
+.tag-pp{background:rgba(201,168,76,0.12);color:var(--gold)}
+.tag-ap{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5)}
+.empty-row td{text-align:center;color:var(--gray);padding:36px;font-weight:300}
+
+/* ─ 컨펌 패널 ─ */
+#confirm-panel{display:none;margin-top:24px;border:1px solid rgba(201,168,76,0.2);border-radius:4px;overflow:hidden}
+.panel-header{background:rgba(201,168,76,0.06);padding:14px 20px;border-bottom:1px solid rgba(201,168,76,0.15);display:flex;justify-content:space-between;align-items:center}
+.panel-title{font-size:14px;font-weight:500;color:var(--white)}
+.panel-meta{font-size:12px;color:var(--gray)}
+.panel-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.panel-pane{display:flex;flex-direction:column}
+.panel-pane + .panel-pane{border-left:1px solid var(--card-border)}
+.panel-pane-label{padding:10px 16px;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray);letter-spacing:0.5px}
+.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:280px}
+.panel-ta.editable{color:var(--white)}
+.panel-ta.editable:focus{background:#111}
+.panel-footer{padding:16px 20px;border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center}
+.panel-info{font-size:13px;color:rgba(255,255,255,0.5)}
+.panel-info strong{color:var(--white)}
+.panel-info .amount{color:var(--gold);font-weight:700}
+.btn-deliver{padding:12px 32px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-deliver:hover{background:var(--gold-light)}
+.btn-deliver:disabled{opacity:0.4;cursor:not-allowed}
+
+/* ─ 토스트 ─ */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:#1c1c1c;border:1px solid rgba(255,255,255,0.12);color:var(--white);padding:13px 28px;border-radius:4px;font-size:14px;z-index:600;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
+.toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
+
+@media(max-width:768px){
+  .panel-body{grid-template-columns:1fr}
+  .admin-body{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="login-view">
+  <div class="login-box">
+    <div class="login-logo">IU<span>MM</span></div>
+    <div class="login-sub">ADMIN PANEL</div>
+    <div class="login-form">
+      <input type="password" class="inp" id="admin-pw" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      <button class="btn-login" onclick="doAdminLogin()">로그인</button>
+      <div class="err" id="login-err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 대시보드 -->
+<div id="admin-view">
+  <nav class="admin-nav">
+    <div class="admin-logo">IU<span>MM</span> <span style="font-size:13px;color:rgba(255,255,255,0.3);font-weight:300;letter-spacing:1px">ADMIN</span></div>
+    <button class="btn-logout" onclick="doAdminLogout()">로그아웃</button>
+  </nav>
+  <div class="admin-body">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
+      <button class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
+    </div>
+    <div id="orders-wrap">
+      <table class="orders-table">
+        <thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜</th><th>접수일</th><th>금액</th></tr></thead>
+        <tbody id="orders-tbody"><tr class="empty-row"><td colspan="6">로딩 중…</td></tr></tbody>
+      </table>
+    </div>
+    <div id="confirm-panel">
+      <div class="panel-header">
+        <span class="panel-title" id="panel-ordnum">—</span>
+        <span class="panel-meta" id="panel-meta"></span>
+      </div>
+      <div class="panel-body">
+        <div class="panel-pane">
+          <div class="panel-pane-label">원문 (읽기 전용)</div>
+          <textarea class="panel-ta" id="panel-source" readonly></textarea>
+        </div>
+        <div class="panel-pane">
+          <div class="panel-pane-label">번역본 (수정 가능 후 납품)</div>
+          <textarea class="panel-ta editable" id="panel-translation"></textarea>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <div class="panel-info">
+          고객: <strong id="panel-email">—</strong> &nbsp;·&nbsp;
+          금액: <span class="amount" id="panel-amount">—</span>
+        </div>
+        <button class="btn-deliver" id="btn-deliver" onclick="doDeliver()">최종 납품</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+var currentTab = 'ai_premium';
+var selectedOrder = null;
+
+function adminToken() { return localStorage.getItem('adminToken') || ''; }
+function adminFetch(path, opts) {
+  return fetch(API_BASE + path, Object.assign({ headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' } }, opts||{}))
+    .then(function(r){ return r.json(); });
+}
+function showToast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast '+(type||'');
+  void el.offsetWidth; el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 3500);
+}
+function ymd(iso) {
+  if (!iso) return '—';
+  var d = new Date(iso); return (d.getMonth()+1)+'/'+d.getDate();
+}
+
+async function doAdminLogin() {
+  var pw = document.getElementById('admin-pw').value;
+  document.getElementById('login-err').textContent = '';
+  if (!pw) { document.getElementById('login-err').textContent = '비밀번호를 입력하세요'; return; }
+  try {
+    var res = await fetch(API_BASE + '/api/admin/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: pw })
+    }).then(function(r){ return r.json(); });
+    if (res.success) {
+      localStorage.setItem('adminToken', res.token);
+      document.getElementById('login-view').style.display = 'none';
+      document.getElementById('admin-view').style.display = 'flex';
+      loadOrders();
+    } else {
+      document.getElementById('login-err').textContent = res.error || '로그인 실패';
+    }
+  } catch(e) { document.getElementById('login-err').textContent = '서버 연결 실패'; }
+}
+
+function doAdminLogout() {
+  localStorage.removeItem('adminToken');
+  location.reload();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  selectedOrder = null;
+  document.getElementById('confirm-panel').style.display = 'none';
+  document.getElementById('tab-ai').className = 'tab-btn' + (tab==='ai_premium' ? ' active' : '');
+  document.getElementById('tab-pp').className = 'tab-btn' + (tab==='premium_plus' ? ' active' : '');
+  loadOrders();
+}
+
+async function loadOrders() {
+  document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">로딩 중…</td></tr>';
+  try {
+    var res = await adminFetch('/api/admin/orders?tab=' + currentTab);
+    if (!res.success) { document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
+    var orders = res.orders || [];
+    if (!orders.length) {
+      document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">해당 주문이 없습니다</td></tr>';
+      return;
+    }
+    document.getElementById('orders-tbody').innerHTML = orders.map(function(o) {
+      var planTag = o.plan.includes('plus') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
+      return '<tr onclick="selectOrder(\'' + o.orderId + '\',this)" data-id="' + o.orderId + '">' +
+        '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>' +
+        '<td>' + (o.customerEmail||'—') + '</td>' +
+        '<td>' + (o.charCount||0).toLocaleString() + '자</td>' +
+        '<td>' + planTag + '</td>' +
+        '<td>' + ymd(o.receivedAt) + '</td>' +
+        '<td>₩' + (o.paymentAmount||0).toLocaleString() + '</td>' +
+        '</tr>';
+    }).join('');
+    window._orders = orders;
+  } catch(e) { document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>'; }
+}
+
+function selectOrder(id, row) {
+  document.querySelectorAll('#orders-tbody tr').forEach(function(r){ r.classList.remove('selected'); });
+  row.classList.add('selected');
+  var order = (window._orders||[]).find(function(o){ return o.orderId === id; });
+  if (!order) return;
+  selectedOrder = order;
+  document.getElementById('panel-ordnum').textContent = order.orderNumber || order.orderId;
+  document.getElementById('panel-meta').textContent = (order.sourceLang||'—') + ' → ' + (order.targetLang||'—') + ' · ' + (order.charCount||0).toLocaleString() + '자';
+  document.getElementById('panel-email').textContent = order.customerEmail || '—';
+  document.getElementById('panel-amount').textContent = '₩' + (order.paymentAmount||0).toLocaleString();
+  document.getElementById('panel-source').value = order.originalText || '';
+  // AI프리미엄: AI번역 prefill / 프리미엄플러스: 검수자 제출본 prefill
+  document.getElementById('panel-translation').value = (currentTab==='premium_plus' && order.reviewerTranslation) ? order.reviewerTranslation : order.aiTranslation;
+  document.getElementById('confirm-panel').style.display = 'block';
+}
+
+async function doDeliver() {
+  if (!selectedOrder) return;
+  var finalText = document.getElementById('panel-translation').value.trim();
+  if (!finalText) { showToast('⚠️ 번역본이 비어 있습니다', 'error'); return; }
+  if (!confirm('주문 ' + (selectedOrder.orderNumber||selectedOrder.orderId) + '을(를) 납품하시겠습니까?\n고객(' + selectedOrder.customerEmail + ')에게 이메일이 발송됩니다.')) return;
+
+  var btn = document.getElementById('btn-deliver');
+  btn.disabled = true; btn.textContent = '발송 중…';
+  try {
+    var res = await adminFetch('/api/admin/deliver/' + selectedOrder.orderId, {
+      method: 'POST', body: JSON.stringify({ finalText })
+    });
+    if (res.success) {
+      showToast('✅ 납품 완료! 이메일 발송됨', 'success');
+      document.getElementById('confirm-panel').style.display = 'none';
+      selectedOrder = null;
+      loadOrders();
+    } else showToast('⚠️ ' + (res.error||'납품 실패'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류: ' + e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '최종 납품'; }
+}
+
+// 초기화
+window.addEventListener('DOMContentLoaded', function() {
+  var tok = localStorage.getItem('adminToken');
+  if (tok) {
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('admin-view').style.display = 'flex';
+    loadOrders();
+  }
+});
+</script>
+</body>
+</html>

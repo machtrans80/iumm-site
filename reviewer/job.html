@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IUMM 검수 작업</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
+  --gray:#888;--border:rgba(201,168,76,0.15);--red:#e05555;--green:#97c459;--yellow:#f5c842;
+  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+}
+html,body{height:100%;background:var(--black);color:var(--white);font-family:'Noto Sans KR',sans-serif;line-height:1.6}
+body{display:flex;flex-direction:column;min-height:100vh}
+
+/* ─ 헤더 ─ */
+.job-nav{background:rgba(10,10,10,0.96);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);flex-shrink:0}
+.nav-logo{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:800;color:var(--gold);letter-spacing:3px}
+.nav-logo span{color:var(--white)}
+.nav-meta{display:flex;align-items:center;gap:16px;font-size:13px}
+.nav-ordnum{color:var(--gray);font-weight:300}
+.nav-deadline{color:var(--yellow);font-weight:500}
+.nav-deadline.ok{color:rgba(151,196,89,0.9)}
+.nav-actions{display:flex;gap:8px}
+.btn-save{padding:8px 18px;background:none;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-save:hover{border-color:rgba(255,255,255,0.4);color:var(--white)}
+.btn-save.saving{opacity:0.5;pointer-events:none}
+.btn-submit{padding:8px 22px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-submit:hover:not(:disabled){background:var(--gold-light)}
+.btn-submit:disabled{opacity:0.3;cursor:not-allowed}
+
+/* ─ 작업 영역 ─ */
+.job-body{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr auto;min-height:0}
+.pane{display:flex;flex-direction:column;border-right:1px solid var(--card-border);min-height:0}
+.pane:last-of-type{border-right:none}
+.pane-header{padding:10px 20px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.pane-title{font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:1px;text-transform:uppercase}
+.pane-badge{font-size:11px;color:var(--gray);font-weight:300}
+.pane-ta{flex:1;width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:14px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:20px;resize:none;outline:none}
+.pane-ta.editable{background:#0e0e0e;color:var(--white)}
+.pane-ta.editable:focus{background:#111}
+.char-count{padding:6px 20px;font-size:11px;color:var(--gray);text-align:right;border-top:1px solid var(--card-border);flex-shrink:0}
+
+/* ─ 체크리스트 ─ */
+.checklist-section{grid-column:1/-1;border-top:1px solid var(--card-border);padding:20px 24px}
+.cl-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.cl-title{font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);letter-spacing:0.3px}
+.cl-progress{font-size:12px;color:var(--gray)}
+.cl-progress span{color:var(--gold);font-weight:700}
+.cl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 16px}
+.cl-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;cursor:pointer}
+.cl-item input[type=checkbox]{appearance:none;width:16px;height:16px;min-width:16px;border:1px solid rgba(255,255,255,0.2);border-radius:2px;cursor:pointer;margin-top:1px;transition:all 0.15s;position:relative}
+.cl-item input[type=checkbox]:checked{background:var(--gold);border-color:var(--gold)}
+.cl-item input[type=checkbox]:checked::after{content:'✓';position:absolute;top:-1px;left:2px;font-size:11px;color:var(--black);font-weight:700}
+.cl-item label{font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;line-height:1.5;transition:color 0.15s}
+.cl-item input:checked + label{color:rgba(255,255,255,0.85)}
+
+/* ─ 모달 오버레이 (로딩/에러) ─ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:flex;align-items:center;justify-content:center}
+.overlay-box{background:#111;border:1px solid rgba(201,168,76,0.25);border-radius:6px;padding:36px;max-width:500px;width:90%;text-align:center}
+.overlay-box h2{font-family:'Nanum Myeongjo',serif;font-size:22px;color:var(--white);margin-bottom:12px}
+.overlay-box p{font-size:14px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:20px}
+.overlay-box .nda-text{background:#0e0e0e;border:1px solid var(--card-border);border-radius:3px;padding:16px;font-size:13px;color:rgba(255,255,255,0.6);text-align:left;line-height:1.7;margin-bottom:16px}
+.overlay-check{display:flex;align-items:center;gap:10px;margin-bottom:20px;justify-content:center;cursor:pointer}
+.overlay-check input{appearance:none;width:18px;height:18px;border:1px solid rgba(255,255,255,0.25);border-radius:2px;cursor:pointer;flex-shrink:0;position:relative;transition:all 0.15s}
+.overlay-check input:checked{background:var(--gold);border-color:var(--gold)}
+.overlay-check input:checked::after{content:'✓';position:absolute;top:-1px;left:2px;font-size:12px;color:var(--black);font-weight:700}
+.overlay-check label{font-size:14px;color:rgba(255,255,255,0.7);cursor:pointer}
+.btn-nda{width:100%;padding:14px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;margin-bottom:10px;transition:all 0.2s}
+.btn-nda:hover:not(:disabled){background:var(--gold-light)}
+.btn-nda:disabled{opacity:0.4;cursor:not-allowed}
+.btn-back{width:100%;padding:11px;background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif}
+.btn-back:hover{color:rgba(255,255,255,0.7)}
+
+/* ─ 토스트 ─ */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:#1c1c1c;border:1px solid rgba(255,255,255,0.12);color:var(--white);padding:13px 28px;border-radius:4px;font-size:14px;z-index:600;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
+.toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
+
+/* ─ 로딩 ─ */
+.loading{display:flex;align-items:center;justify-content:center;height:100%;font-size:14px;color:var(--gray)}
+.dots{display:flex;gap:8px}
+.dots span{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:dp 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+@media(max-width:768px){
+  .job-body{grid-template-columns:1fr}
+  .pane{min-height:240px}
+  .cl-grid{grid-template-columns:1fr 1fr}
+  .nav-meta{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<nav class="job-nav">
+  <div class="nav-logo">IU<span>MM</span></div>
+  <div class="nav-meta">
+    <span class="nav-ordnum" id="nav-ordnum">로딩 중...</span>
+    <span class="nav-deadline" id="nav-deadline"></span>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-save" id="btn-save" onclick="saveDraft()">임시저장</button>
+    <button class="btn-submit" id="btn-submit" disabled onclick="doSubmit()">검수 완료 제출</button>
+  </div>
+</nav>
+
+<!-- 작업 영역 -->
+<div class="job-body" id="job-body">
+  <div class="loading"><div class="dots"><span></span><span></span><span></span></div></div>
+</div>
+
+<!-- 토스트 -->
+<div id="toast" class="toast"></div>
+
+<!-- NDA 모달 (필요시 표시) -->
+<div id="nda-overlay" class="overlay" style="display:none">
+  <div class="overlay-box">
+    <h2>비밀유지 서약</h2>
+    <p>작업을 시작하기 전에 아래 서약 내용을 확인하고 동의해주세요.</p>
+    <div id="preview-area"></div>
+    <div class="nda-text">
+      본인은 본 작업을 통해 열람하는 원문 및 번역본의 내용을 외부에 유출하지 않으며,
+      별도로 보관·수집·복제하지 않을 것을 서약합니다.
+      작업 종료 후 모든 자료는 폐기합니다.
+    </div>
+    <label class="overlay-check">
+      <input type="checkbox" id="nda-check" onchange="document.getElementById('btn-nda-agree').disabled=!this.checked">
+      <span style="font-size:14px;color:rgba(255,255,255,0.7)">위 서약 내용에 동의합니다</span>
+    </label>
+    <button class="btn-nda" id="btn-nda-agree" disabled onclick="doNdaAccept()">수락하고 작업 시작</button>
+    <button class="btn-back" onclick="location.href='/reviewer/'">← 대시보드로 돌아가기</button>
+  </div>
+</div>
+
+<script>
+var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+var orderId = window.location.pathname.split('/').filter(Boolean).pop();
+var jobData = null;
+
+var CHECKLIST = [
+  "원문의 모든 내용이 빠짐없이 번역되었다",
+  "추가되거나 창작된 내용이 없다",
+  "전문 용어가 일관되게 사용되었다",
+  "고유명사 표기가 정확하다",
+  "숫자, 날짜, 단위가 정확하다",
+  "맞춤법 오류가 없다",
+  "띄어쓰기 오류가 없다",
+  "문장부호 사용이 적절하다",
+  "한국어 어순이 자연스럽다",
+  "직역투 표현이 정리되었다",
+  "수동태/능동태 사용이 적절하다",
+  "경어체 또는 평어체가 일관된다",
+  "문체와 어조가 원문과 일치한다",
+  "문화적 맥락이 적절히 반영되었다",
+  "중복 표현이 정리되었다",
+  "단락 구조가 원문과 일치한다",
+  "줄바꿈, 들여쓰기 등 서식이 유지되었다",
+  "괄호, 따옴표 등 보조 부호가 정확하다",
+  "전문 분야(법률/의학/기술 등) 표현을 검토하였다",
+  "최종 가독성을 확인하였다",
+  "전체 재검토를 마쳤다"
+];
+
+function token() { return localStorage.getItem('reviewerToken') || ''; }
+function authFetch(path, opts) {
+  return fetch(API_BASE + path, Object.assign({ headers: { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' } }, opts || {}))
+    .then(function(r) { return r.json(); });
+}
+
+function showToast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + (type||'');
+  void el.offsetWidth; el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 3000);
+}
+
+function updateDeadline(iso) {
+  if (!iso) return;
+  var el = document.getElementById('nav-deadline');
+  var diff = (new Date(iso) - new Date()) / 3600000;
+  if (diff < 0) { el.textContent = '⚠️ 마감 초과'; return; }
+  var h = Math.floor(diff), m = Math.floor((diff - h) * 60);
+  el.textContent = '마감 ' + (diff < 24 ? h + '시간 ' + m + '분 남음' : Math.ceil(diff/24) + '일 남음');
+  el.className = 'nav-deadline' + (diff < 4 ? '' : ' ok');
+}
+
+function getChecklist() {
+  return CHECKLIST.map(function(_, i) { return document.getElementById('cl-' + i)?.checked || false; });
+}
+
+function updateSubmitBtn() {
+  var all = CHECKLIST.every(function(_, i) { return document.getElementById('cl-' + i)?.checked; });
+  var txt = (document.getElementById('translation-ta')?.value || '').trim();
+  document.getElementById('btn-submit').disabled = !(all && txt);
+}
+
+function updateProgress() {
+  var n = CHECKLIST.filter(function(_, i) { return document.getElementById('cl-' + i)?.checked; }).length;
+  var el = document.getElementById('cl-progress');
+  if (el) el.innerHTML = '<span>' + n + '</span>/' + CHECKLIST.length;
+  updateSubmitBtn();
+}
+
+function renderJob(job) {
+  jobData = job;
+  document.getElementById('nav-ordnum').textContent = job.orderNumber || job.orderId;
+  updateDeadline(job.deadline);
+
+  var initCl = job.checklistState || CHECKLIST.map(function(){ return false; });
+
+  document.getElementById('job-body').innerHTML = [
+    '<div class="pane">',
+    '  <div class="pane-header"><span class="pane-title">원문</span><span class="pane-badge">' + (job.sourceLang||'—') + ' · ' + (job.charCount||0).toLocaleString() + '자</span></div>',
+    '  <textarea class="pane-ta" readonly id="source-ta">' + escHtml(job.originalText) + '</textarea>',
+    '</div>',
+    '<div class="pane">',
+    '  <div class="pane-header"><span class="pane-title">번역본 수정</span><span class="pane-badge">' + (job.targetLang||'—') + ' · 예상 보수 ₩' + (job.estimatedPay||0).toLocaleString() + '</span></div>',
+    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn()" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '  <div class="char-count" id="char-count"></div>',
+    '</div>',
+    '<div class="checklist-section">',
+    '  <div class="cl-header"><span class="cl-title">✅ 검수 체크리스트</span><span class="cl-progress" id="cl-progress"><span>0</span>/' + CHECKLIST.length + '</span></div>',
+    '  <div class="cl-grid">',
+    CHECKLIST.map(function(text, i) {
+      return [
+        '<div class="cl-item">',
+        '  <input type="checkbox" id="cl-' + i + '" ' + (initCl[i] ? 'checked' : '') + ' onchange="updateProgress()">',
+        '  <label for="cl-' + i + '">' + escHtml(text) + '</label>',
+        '</div>',
+      ].join('');
+    }).join(''),
+    '  </div>',
+    '</div>',
+  ].join('');
+
+  updateProgress();
+  setInterval(function(){ updateDeadline(job.deadline); }, 60000);
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function saveDraft() {
+  var btn = document.getElementById('btn-save');
+  btn.textContent = '저장 중…'; btn.classList.add('saving');
+  try {
+    var res = await authFetch('/api/reviewer/job/' + orderId + '/draft', {
+      method: 'POST',
+      body: JSON.stringify({ translation: document.getElementById('translation-ta')?.value || '', checklist: getChecklist() })
+    });
+    if (res.ok) showToast('임시저장되었습니다', 'success');
+    else showToast('⚠️ ' + (res.error || '저장 실패'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
+  finally { btn.textContent = '임시저장'; btn.classList.remove('saving'); }
+}
+
+async function doSubmit() {
+  if (!confirm('검수를 최종 제출하시겠습니까?\n제출 후에는 수정할 수 없습니다.')) return;
+  try {
+    var res = await authFetch('/api/reviewer/job/' + orderId + '/submit', {
+      method: 'POST',
+      body: JSON.stringify({ translation: document.getElementById('translation-ta')?.value || '', checklist: getChecklist() })
+    });
+    if (res.ok) {
+      showToast('✅ 제출 완료! 대시보드로 이동합니다.', 'success');
+      setTimeout(function(){ location.href = '/reviewer/'; }, 2000);
+    } else showToast('⚠️ ' + (res.error || '제출 실패'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
+}
+
+// ── NDA 로직 ──
+async function doNdaAccept() {
+  try {
+    var res = await authFetch('/api/reviewer/job/' + orderId + '/accept', {
+      method: 'POST',
+      body: JSON.stringify({ ndaAgreed: true })
+    });
+    if (res.ok) { document.getElementById('nda-overlay').style.display = 'none'; loadJob(); }
+    else showToast('⚠️ ' + (res.error || 'NDA 오류'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
+}
+
+async function loadJob() {
+  if (!localStorage.getItem('reviewerToken')) { location.href = '/reviewer/'; return; }
+  try {
+    var res = await authFetch('/api/reviewer/job/' + orderId);
+    if (res.success) { renderJob(res.job); return; }
+    if (res.ndaRequired) { await showNdaModal(); return; }
+    if (res.error) { location.href = '/reviewer/'; return; }
+  } catch(e) { location.href = '/reviewer/'; }
+}
+
+async function showNdaModal() {
+  try {
+    var prev = await authFetch('/api/reviewer/job/' + orderId + '/preview');
+    if (prev.success) {
+      document.getElementById('preview-area').innerHTML = [
+        '<div style="margin-bottom:14px">',
+        '  <div style="font-size:11px;color:var(--gray);margin-bottom:6px">원문 미리보기 (300자)</div>',
+        '  <div style="background:#0e0e0e;border:1px solid var(--card-border);border-radius:3px;padding:12px;font-size:13px;color:rgba(255,255,255,0.6);max-height:80px;overflow:hidden;line-height:1.6">' + escHtml(prev.sourcePreview) + '</div>',
+        '  <div style="margin-top:8px;font-size:11px;color:var(--gray)">예상 보수: <strong style="color:var(--gold)">₩' + (prev.estimatedPay||0).toLocaleString() + '</strong> · 글자수: ' + (prev.charCount||0).toLocaleString() + '자</div>',
+        '</div>',
+      ].join('');
+    }
+  } catch(e) {}
+  document.getElementById('nda-overlay').style.display = 'flex';
+}
+
+window.addEventListener('DOMContentLoaded', loadJob);
+</script>
+</body>
+</html>
