@@ -7,7 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;--gray:#888;--border:rgba(201,168,76,0.15)}
+:root{
+  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
+  --gray:#888;--border:rgba(201,168,76,0.15);
+  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+  --red:#e05555;--green:#97c459;--yellow:#f5c842;
+}
 html,body{height:100%}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--white);min-height:100vh;line-height:1.7}
 
@@ -19,24 +24,32 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
 .btn-gold{width:100%;padding:15px;background:var(--gold);color:var(--black);border:none;border-radius:3px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;letter-spacing:0.5px;transition:all 0.2s}
 .btn-gold:hover{background:var(--gold-light)}
 .btn-gold:disabled{opacity:0.5;cursor:not-allowed}
-.logo-text{font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:800;letter-spacing:4px;text-decoration:none;display:inline-block}
-.logo-text .iu{color:var(--gold)}
-.logo-text .mm{color:var(--white)}
 
-/* ─ 로그인 페이지 ─ */
+/* ─ 로딩 ─ */
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--black)}
+.dots{display:flex;gap:8px}
+.dots span{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:dotpulse 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:0.2s}
+.dots span:nth-child(3){animation-delay:0.4s}
+@keyframes dotpulse{0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.3);border-top-color:var(--black);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─ 로그인 ─ */
 #page-login{align-items:center;justify-content:center;padding:40px 20px;position:relative;overflow:hidden}
 #page-login::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(201,168,76,0.06) 0%,transparent 60%)}
 .login-box{position:relative;z-index:1;width:100%;max-width:440px}
 .login-header{text-align:center;margin-bottom:44px}
-.login-header .portal-label{font-size:11px;letter-spacing:3px;color:rgba(201,168,76,0.7);text-transform:uppercase;margin-top:8px;margin-bottom:32px;display:block}
+.logo-text{font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:800;letter-spacing:4px;text-decoration:none;display:inline-block}
+.logo-text .iu{color:var(--gold)}
+.logo-text .mm{color:var(--white)}
+.portal-label{font-size:11px;letter-spacing:3px;color:rgba(201,168,76,0.7);text-transform:uppercase;margin-top:8px;margin-bottom:32px;display:block}
 .login-header h1{font-family:'Nanum Myeongjo',serif;font-size:clamp(22px,4vw,28px);font-weight:700;line-height:1.45;color:var(--white);word-break:keep-all}
 .login-header h1 em{color:var(--gold);font-style:italic}
-.login-form{background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:36px 32px;border-radius:4px}
+.login-form{background:var(--card-bg);border:1px solid var(--border);padding:36px 32px;border-radius:4px}
 .form-group{margin-bottom:20px}
 .form-group label{display:block;font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
-.error-box{display:none;background:rgba(224,85,85,0.1);border:1px solid rgba(224,85,85,0.3);border-radius:3px;padding:12px 16px;font-size:13px;color:#e05555;margin-bottom:20px;line-height:1.6}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,0.3);border-top-color:var(--black);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{display:none;background:rgba(224,85,85,0.1);border:1px solid rgba(224,85,85,0.3);border-radius:3px;padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:20px;line-height:1.6}
 .login-footer{text-align:center;margin-top:32px;padding-top:28px;border-top:1px solid rgba(255,255,255,0.06)}
 .login-footer p{font-size:12px;color:var(--gray);font-weight:300}
 .login-footer a{color:var(--gold);text-decoration:none}
@@ -44,57 +57,106 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
 
 /* ─ 대시보드 ─ */
 #page-dashboard{flex-direction:column}
-.dash-nav{background:rgba(10,10,10,0.95);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.dash-nav{background:rgba(10,10,10,0.96);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
 .dash-nav-logo{font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:800;color:var(--gold);letter-spacing:3px}
 .dash-nav-logo span{color:var(--white)}
-.dash-nav-right{display:flex;align-items:center;gap:16px}
-.reviewer-badge{font-size:13px;color:rgba(255,255,255,0.6);font-weight:300}
-.reviewer-badge strong{color:var(--gold);font-weight:500}
-.btn-logout{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:7px 16px;border-radius:2px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.nav-right{display:flex;align-items:center;gap:14px}
+.nav-name{font-size:13px;color:rgba(255,255,255,0.6);font-weight:300}
+.nav-name strong{color:var(--gold);font-weight:500}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:6px 14px;border-radius:2px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
 .btn-logout:hover{border-color:rgba(224,85,85,0.4);color:rgba(224,85,85,0.8)}
-.dash-body{flex:1;padding:48px 32px;max-width:800px;margin:0 auto;width:100%}
-.dash-welcome{margin-bottom:40px}
-.dash-welcome h2{font-family:'Nanum Myeongjo',serif;font-size:clamp(22px,3vw,28px);font-weight:700;margin-bottom:6px}
-.dash-welcome h2 em{color:var(--gold);font-style:normal}
-.dash-welcome p{font-size:14px;color:var(--gray);font-weight:300}
-.dash-card{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:4px;padding:28px 32px;margin-bottom:20px}
-.dash-card-title{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(201,168,76,0.7);margin-bottom:20px;display:flex;align-items:center;gap:8px}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.info-item label{font-size:11px;color:var(--gray);display:block;margin-bottom:4px;font-weight:300}
-.info-item p{font-size:14px;color:var(--white);font-weight:400}
-.badge-type{display:inline-block;padding:2px 10px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:20px;font-size:11px;color:var(--gold);letter-spacing:0.5px}
-.coming-soon{background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:4px;padding:36px;text-align:center}
-.coming-soon .icon{font-size:32px;margin-bottom:12px}
-.coming-soon h3{font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:8px}
-.coming-soon p{font-size:13px;color:var(--gray);font-weight:300}
-.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--black)}
-.loading-screen .dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:pulse 1.2s ease-in-out infinite}
-.loading-screen .dot:nth-child(2){animation-delay:0.2s}
-.loading-screen .dot:nth-child(3){animation-delay:0.4s}
-.dots{display:flex;gap:8px}
-@keyframes pulse{0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
 
-@media(max-width:600px){
-  .login-form{padding:28px 20px}
+.dash-body{flex:1;padding:36px 28px;max-width:860px;margin:0 auto;width:100%}
+.section-gap{margin-bottom:32px}
+
+/* ─ 통계 카드 ─ */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:4px;padding:20px 22px;text-align:center}
+.stat-card .val{font-family:'Nanum Myeongjo',serif;font-size:28px;font-weight:700;color:var(--white);line-height:1}
+.stat-card .val.gold{color:var(--gold)}
+.stat-card .lbl{font-size:11px;color:var(--gray);margin-top:6px;font-weight:300;letter-spacing:0.5px}
+.income-row{display:flex;align-items:center;gap:28px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:4px;padding:18px 24px;margin-bottom:6px}
+.income-item{display:flex;flex-direction:column}
+.income-item .il{font-size:11px;color:var(--gray);font-weight:300}
+.income-item .iv{font-size:18px;font-weight:700;color:var(--gold);font-family:'Nanum Myeongjo',serif}
+.income-item .iv.white{color:var(--white)}
+
+/* ─ 섹션 타이틀 ─ */
+.sec-title{font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:12px;display:flex;align-items:center;gap:8px;letter-spacing:0.3px}
+.sec-count{background:rgba(201,168,76,0.15);color:var(--gold);font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px}
+
+/* ─ 신규 요청 카드 ─ */
+.pending-card{background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:20px 22px;margin-bottom:12px;transition:border-color 0.2s}
+.pending-card:hover{border-color:rgba(201,168,76,0.4)}
+.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.pcard-meta{display:flex;flex-direction:column;gap:3px}
+.pcard-num{font-size:12px;color:var(--gray);font-weight:300}
+.pcard-field{font-size:15px;font-weight:500;color:var(--white)}
+.countdown{font-family:'Nanum Myeongjo',serif;font-size:26px;font-weight:700;color:var(--gold);text-align:right;white-space:nowrap;min-width:80px}
+.countdown.warning{color:var(--yellow)}
+.countdown.urgent{color:var(--red);animation:blink 0.8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.countdown-label{font-size:10px;color:var(--gray);text-align:right;margin-top:2px;letter-spacing:0.5px}
+.pcard-info{display:flex;flex-wrap:wrap;gap:10px 20px;margin-bottom:14px}
+.pcard-info span{font-size:13px;color:rgba(255,255,255,0.6);font-weight:300}
+.pcard-info strong{color:var(--white);font-weight:500}
+.pcard-actions{display:flex;gap:10px}
+.btn-detail{flex:1;padding:9px;background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-detail:hover{border-color:rgba(255,255,255,0.35);color:var(--white)}
+.btn-accept{flex:2;padding:9px;background:rgba(99,153,34,0.15);border:1px solid rgba(99,153,34,0.4);color:var(--green);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-accept:hover{background:rgba(99,153,34,0.25);border-color:var(--green)}
+.btn-reject{flex:1;padding:9px;background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.25);color:rgba(224,85,85,0.7);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-reject:hover{background:rgba(224,85,85,0.15);border-color:var(--red);color:var(--red)}
+
+/* ─ 진행중 카드 ─ */
+.active-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:4px;padding:18px 22px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.active-card:hover{border-color:rgba(255,255,255,0.2)}
+.acard-left{display:flex;flex-direction:column;gap:4px}
+.acard-num{font-size:12px;color:var(--gray)}
+.acard-field{font-size:14px;font-weight:500}
+.acard-deadline{font-size:12px;color:rgba(255,255,255,0.45)}
+.acard-deadline.soon{color:var(--yellow)}
+.btn-work{padding:9px 18px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);border-radius:3px;cursor:pointer;font-size:13px;font-weight:500;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:all 0.2s}
+.btn-work:hover{background:rgba(201,168,76,0.22);border-color:var(--gold)}
+
+/* ─ 완료 목록 ─ */
+.completed-list{background:var(--card-bg);border:1px solid var(--card-border);border-radius:4px;overflow:hidden}
+.comp-item{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
+.comp-item:last-child{border-bottom:none}
+.comp-item:hover{background:rgba(255,255,255,0.02)}
+.comp-num{color:var(--gray);font-weight:300;min-width:110px}
+.comp-field{color:var(--white);flex:1;padding:0 12px}
+.comp-date{color:var(--gray);font-weight:300;font-size:12px;min-width:60px;text-align:right}
+.comp-fee{color:var(--gold);font-weight:500;min-width:80px;text-align:right}
+
+/* ─ 빈 상태 ─ */
+.empty-state{padding:36px 20px;text-align:center}
+.empty-state .ei{font-size:28px;margin-bottom:10px}
+.empty-state p{font-size:13px;color:var(--gray);font-weight:300}
+
+/* ─ 반응형 ─ */
+@media(max-width:640px){
   .dash-nav{padding:12px 16px}
-  .dash-body{padding:28px 16px}
-  .info-grid{grid-template-columns:1fr}
-  .dash-nav-right .reviewer-badge{display:none}
+  .dash-body{padding:24px 16px}
+  .stats-row{grid-template-columns:1fr 1fr;gap:10px}
+  .stats-row .stat-card:last-child{grid-column:1/-1}
+  .income-row{flex-direction:column;gap:14px;align-items:flex-start}
+  .nav-right .nav-name{display:none}
+  .login-form{padding:28px 20px}
+  .pcard-actions{flex-wrap:wrap}
+  .active-card{flex-direction:column;align-items:flex-start;gap:12px}
+  .countdown{font-size:22px}
 }
 </style>
 </head>
 <body>
 
-<!-- 로딩 화면 -->
+<!-- 로딩 -->
 <div id="loading-screen" class="loading-screen">
-  <div class="dots">
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-  </div>
+  <div class="dots"><span></span><span></span><span></span></div>
 </div>
 
-<!-- ─ 로그인 페이지 ─ -->
+<!-- ══ 로그인 ══ -->
 <div id="page-login" class="page">
   <div class="login-box">
     <div class="login-header">
@@ -102,10 +164,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
       <span class="portal-label">검수자 포털</span>
       <h1>전문가만의 정밀한 검수,<br><em>IUMM</em>과 함께합니다.</h1>
     </div>
-
     <div class="login-form">
       <div id="error-box" class="error-box"></div>
-
       <div class="form-group">
         <label for="email">이메일</label>
         <input type="email" id="email" class="inp" placeholder="your@email.com" autocomplete="username">
@@ -114,10 +174,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
         <label for="password">비밀번호</label>
         <input type="password" id="password" class="inp" placeholder="비밀번호 입력" autocomplete="current-password">
       </div>
-
       <button id="login-btn" class="btn-gold" onclick="doLogin()">로그인</button>
     </div>
-
     <div class="login-footer">
       <p>검수자 계정 관련 문의</p>
       <p style="margin-top:4px"><a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a></p>
@@ -126,72 +184,121 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
   </div>
 </div>
 
-<!-- ─ 대시보드 ─ -->
+<!-- ══ 대시보드 ══ -->
 <div id="page-dashboard" class="page">
+  <!-- 네비 -->
   <nav class="dash-nav">
     <div class="dash-nav-logo">IU<span>MM</span></div>
-    <div class="dash-nav-right">
-      <span class="reviewer-badge">검수자: <strong id="nav-name">—</strong></span>
+    <div class="nav-right">
+      <span class="nav-name">검수자: <strong id="nav-name">—</strong></span>
       <button class="btn-logout" onclick="doLogout()">로그아웃</button>
     </div>
   </nav>
 
   <div class="dash-body">
-    <div class="dash-welcome">
-      <h2>환영합니다, <em id="welcome-name">—</em>님!</h2>
-      <p>IUMM 검수자 포털에 오신 것을 환영합니다.</p>
-    </div>
 
-    <div class="dash-card">
-      <div class="dash-card-title">📊 본인 정보</div>
-      <div class="info-grid">
-        <div class="info-item"><label>이름</label><p id="info-name">—</p></div>
-        <div class="info-item"><label>이메일</label><p id="info-email">—</p></div>
-        <div class="info-item"><label>검수자 타입</label><p id="info-type">—</p></div>
-        <div class="info-item"><label>전문 분야</label><p id="info-expertise">—</p></div>
-        <div class="info-item"><label>검수 언어</label><p id="info-languages">—</p></div>
-        <div class="info-item"><label>처리 건수</label><p id="info-count">—</p></div>
+    <!-- 통계 -->
+    <div class="section-gap">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="val" id="stat-pending">—</div>
+          <div class="lbl">🔔 신규 요청</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" id="stat-active">—</div>
+          <div class="lbl">🔄 진행 중</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" id="stat-monthly">—</div>
+          <div class="lbl">✅ 이번 달 완료</div>
+        </div>
+      </div>
+      <div class="income-row">
+        <div class="income-item">
+          <span class="il">💰 이번 달 수입</span>
+          <span class="iv" id="stat-earnings">—</span>
+        </div>
+        <div class="income-item">
+          <span class="il">📊 누적 처리</span>
+          <span class="iv white" id="stat-total">—</span>
+        </div>
+        <div class="income-item">
+          <span class="il">⭐ 평점</span>
+          <span class="iv white" id="stat-rating">—</span>
+        </div>
       </div>
     </div>
 
-    <div class="coming-soon">
-      <div class="icon">🚧</div>
-      <h3>작업 대시보드 준비 중</h3>
-      <p>신규 요청 확인 및 검수 작업 기능은<br>다음 업데이트에서 구현될 예정입니다.</p>
+    <!-- 신규 요청 -->
+    <div class="section-gap">
+      <div class="sec-title">
+        🔔 신규 검수 요청
+        <span class="sec-count" id="pending-count-badge">0</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--gray);font-weight:300">30초마다 자동 갱신</span>
+      </div>
+      <div id="pending-list">
+        <div class="empty-state"><div class="ei">📭</div><p>대기 중인 신규 요청이 없습니다</p></div>
+      </div>
     </div>
+
+    <!-- 진행 중 -->
+    <div class="section-gap">
+      <div class="sec-title">🔄 진행 중 <span class="sec-count" id="active-count-badge">0</span></div>
+      <div id="active-list">
+        <div class="empty-state"><div class="ei">📂</div><p>진행 중인 작업이 없습니다</p></div>
+      </div>
+    </div>
+
+    <!-- 완료 이력 -->
+    <div class="section-gap">
+      <div class="sec-title">✅ 최근 완료 <span class="sec-count" id="completed-count-badge">0</span></div>
+      <div id="completed-list">
+        <div class="completed-list">
+          <div class="comp-item" style="justify-content:center;color:var(--gray);font-size:13px">완료된 작업이 없습니다</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <script>
 // ─── 설정 ────────────────────────────────────────────────────
-const API_BASE = 'https://iumm-pipeline-production.up.railway.app';
-// Railway 커스텀 도메인 설정 시 위 URL을 변경하세요
+var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+var timerMap = {}; // { jobId: intervalId }
+var refreshTimer = null;
 
 // ─── 초기화 ──────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async function() {
-  const token = localStorage.getItem('reviewerToken');
-  if (!token) {
-    showPage('login');
-    return;
-  }
-  // 토큰 있으면 유효성 검증 후 대시보드
-  try {
-    const res = await fetch(API_BASE + '/api/reviewer/me', {
-      headers: { Authorization: 'Bearer ' + token }
-    });
-    if (!res.ok) throw new Error('invalid');
-    const data = await res.json();
-    if (data.success) {
-      fillDashboard(data.reviewer);
-      showPage('dashboard');
-    } else {
-      throw new Error('invalid');
-    }
-  } catch {
-    localStorage.removeItem('reviewerToken');
-    showPage('login');
-  }
+window.addEventListener('DOMContentLoaded', function() {
+  var token = localStorage.getItem('reviewerToken');
+  if (!token) { showPage('login'); return; }
+  authFetch('/api/reviewer/me')
+    .then(function(d) {
+      if (d.success) { fillNavName(d.reviewer.name); loadDashboard(); showPage('dashboard'); }
+      else throw new Error();
+    })
+    .catch(function() { localStorage.removeItem('reviewerToken'); showPage('login'); });
 });
+
+// ─── 유틸 ────────────────────────────────────────────────────
+function token() { return localStorage.getItem('reviewerToken') || ''; }
+function authFetch(path, opts) {
+  return fetch(API_BASE + path, Object.assign({ headers: { 'Authorization': 'Bearer ' + token() } }, opts || {}))
+    .then(function(r) { return r.json(); });
+}
+function won(n) { return '₩' + Number(n || 0).toLocaleString(); }
+function ymd(iso) {
+  if (!iso) return '—';
+  var d = new Date(iso);
+  return (d.getMonth()+1) + '/' + d.getDate();
+}
+function remainHours(iso) {
+  if (!iso) return '';
+  var diff = (new Date(iso) - new Date()) / 3600000;
+  if (diff < 0) return '마감';
+  if (diff < 1) return Math.ceil(diff * 60) + '분 남음';
+  return Math.floor(diff) + '시간 남음';
+}
 
 // ─── 페이지 토글 ─────────────────────────────────────────────
 function showPage(name) {
@@ -199,18 +306,179 @@ function showPage(name) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.getElementById('page-' + name).classList.add('active');
 }
-
-// ─── 대시보드 데이터 채우기 ──────────────────────────────────
-function fillDashboard(r) {
-  document.getElementById('nav-name').textContent     = r.name || '—';
-  document.getElementById('welcome-name').textContent = r.name || '—';
-  document.getElementById('info-name').textContent    = r.name || '—';
-  document.getElementById('info-email').textContent   = r.email || '—';
-  document.getElementById('info-type').innerHTML      = '<span class="badge-type">' + (r.type || '일반') + '</span>';
-  document.getElementById('info-expertise').textContent = r.expertise || '—';
-  document.getElementById('info-languages').textContent = Array.isArray(r.languages) ? r.languages.join(', ') : (r.languages || '—');
-  document.getElementById('info-count').textContent   = (r.count || 0) + '건';
+function fillNavName(name) {
+  document.getElementById('nav-name').textContent = name || '—';
 }
+
+// ─── 대시보드 전체 로드 ───────────────────────────────────────
+function loadDashboard() {
+  clearAllTimers();
+  Promise.all([
+    authFetch('/api/reviewer/stats'),
+    authFetch('/api/reviewer/jobs/pending'),
+    authFetch('/api/reviewer/jobs/active'),
+    authFetch('/api/reviewer/jobs/completed'),
+  ]).then(function(results) {
+    renderStats(results[0].stats || {});
+    renderPending(results[1].jobs || []);
+    renderActive(results[2].jobs || []);
+    renderCompleted(results[3].jobs || []);
+  }).catch(function(e) {
+    console.error('[대시보드 로드 오류]', e);
+  });
+
+  // 30초 자동 갱신
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(refreshPending, 30000);
+}
+
+function refreshPending() {
+  authFetch('/api/reviewer/jobs/pending').then(function(d) {
+    if (d.success) renderPending(d.jobs || []);
+  });
+}
+
+// ─── 통계 렌더 ───────────────────────────────────────────────
+function renderStats(s) {
+  document.getElementById('stat-pending').textContent  = (s.pendingCount || 0) + '건';
+  document.getElementById('stat-active').textContent   = (s.activeCount  || 0) + '건';
+  document.getElementById('stat-monthly').textContent  = (s.monthlyCount || 0) + '건';
+  document.getElementById('stat-earnings').textContent = won(s.monthlyEarnings);
+  document.getElementById('stat-total').textContent    = (s.totalCompleted || 0) + '건';
+  document.getElementById('stat-rating').textContent   = (s.averageRating || '—') + ' ⭐';
+}
+
+// ─── 신규 요청 렌더 + 카운트다운 ────────────────────────────
+function renderPending(jobs) {
+  var el = document.getElementById('pending-list');
+  var badge = document.getElementById('pending-count-badge');
+  badge.textContent = jobs.length;
+  clearAllTimers();
+
+  if (!jobs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">📭</div><p>대기 중인 신규 요청이 없습니다</p></div>';
+    return;
+  }
+
+  el.innerHTML = jobs.map(function(j) {
+    var cdId = 'cd-' + j.orderId;
+    return [
+      '<div class="pending-card" id="job-' + j.orderId + '">',
+      '  <div class="pcard-top">',
+      '    <div class="pcard-meta">',
+      '      <span class="pcard-num">' + (j.orderNumber || j.orderId) + '</span>',
+      '      <span class="pcard-field">' + (j.fieldName || j.fieldCode || '—') + '</span>',
+      '    </div>',
+      '    <div>',
+      '      <div class="countdown" id="' + cdId + '">--:--</div>',
+      '      <div class="countdown-label">수락 마감</div>',
+      '    </div>',
+      '  </div>',
+      '  <div class="pcard-info">',
+      '    <span>' + (j.sourceLang||'—') + ' → ' + (j.targetLang||'—') + '</span>',
+      '    <span>글자수: <strong>' + (j.charCount||0).toLocaleString() + '자</strong></span>',
+      '    <span>검수료: <strong>' + won(j.reviewFee) + '</strong></span>',
+      '    <span>마감: <strong>' + remainHours(j.translationDeadline) + '</strong></span>',
+      '  </div>',
+      '  <div class="pcard-actions">',
+      '    <button class="btn-detail" onclick="onDetail(\'' + j.orderId + '\')">상세 보기</button>',
+      '    <button class="btn-accept" onclick="onAccept(\'' + j.orderId + '\')">✅ 수락</button>',
+      '    <button class="btn-reject" onclick="onReject(\'' + j.orderId + '\')">❌ 거절</button>',
+      '  </div>',
+      '</div>',
+    ].join('');
+  }).join('');
+
+  // 카운트다운 시작
+  jobs.forEach(function(j) {
+    if (j.responseDeadline) startCountdown(j.orderId, j.responseDeadline, 'cd-' + j.orderId);
+  });
+}
+
+// ─── 카운트다운 타이머 ────────────────────────────────────────
+function clearAllTimers() {
+  Object.keys(timerMap).forEach(function(id) { clearInterval(timerMap[id]); });
+  timerMap = {};
+}
+
+function startCountdown(jobId, deadline, elemId) {
+  if (timerMap[jobId]) clearInterval(timerMap[jobId]);
+
+  function tick() {
+    var el = document.getElementById(elemId);
+    if (!el) { clearInterval(timerMap[jobId]); delete timerMap[jobId]; return; }
+    var diff = Math.max(0, Math.floor((new Date(deadline) - new Date()) / 1000));
+    var mm = String(Math.floor(diff / 60)).padStart(2, '0');
+    var ss = String(diff % 60).padStart(2, '0');
+    el.textContent = mm + ':' + ss;
+
+    if (diff < 60) { el.className = 'countdown urgent'; }
+    else if (diff < 300) { el.className = 'countdown warning'; }
+    else { el.className = 'countdown'; }
+
+    if (diff === 0) {
+      clearInterval(timerMap[jobId]); delete timerMap[jobId];
+      var card = document.getElementById('job-' + jobId);
+      if (card) { card.style.opacity='0.3'; card.style.pointerEvents='none'; }
+      setTimeout(function() { if (card) card.remove(); refreshPending(); }, 1500);
+    }
+  }
+  tick();
+  timerMap[jobId] = setInterval(tick, 1000);
+}
+
+// ─── 진행 중 렌더 ────────────────────────────────────────────
+function renderActive(jobs) {
+  var el = document.getElementById('active-list');
+  var badge = document.getElementById('active-count-badge');
+  badge.textContent = jobs.length;
+  if (!jobs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">📂</div><p>진행 중인 작업이 없습니다</p></div>';
+    return;
+  }
+  el.innerHTML = jobs.map(function(j) {
+    var rh = remainHours(j.translationDeadline);
+    var soon = rh.indexOf('시간') !== -1 && parseInt(rh) < 4;
+    return [
+      '<div class="active-card">',
+      '  <div class="acard-left">',
+      '    <span class="acard-num">' + (j.orderNumber || j.orderId) + ' · ' + (j.fieldName || j.fieldCode || '—') + '</span>',
+      '    <span class="acard-field">' + (j.sourceLang||'—') + ' → ' + (j.targetLang||'—') + ' · ' + (j.charCount||0).toLocaleString() + '자</span>',
+      '    <span class="acard-deadline' + (soon ? ' soon' : '') + '">⏰ ' + rh + '</span>',
+      '  </div>',
+      '  <button class="btn-work" onclick="onWork(\'' + j.orderId + '\')">작업 페이지로 이동 →</button>',
+      '</div>',
+    ].join('');
+  }).join('');
+}
+
+// ─── 완료 이력 렌더 ──────────────────────────────────────────
+function renderCompleted(jobs) {
+  var el = document.getElementById('completed-list');
+  var badge = document.getElementById('completed-count-badge');
+  badge.textContent = jobs.length;
+  if (!jobs.length) {
+    el.innerHTML = '<div class="completed-list"><div class="comp-item" style="justify-content:center;color:var(--gray);font-size:13px">완료된 작업이 없습니다</div></div>';
+    return;
+  }
+  var rows = jobs.slice(0, 30).map(function(j) {
+    return [
+      '<div class="comp-item">',
+      '  <span class="comp-num">' + (j.orderNumber || j.orderId).substring(0,14) + '</span>',
+      '  <span class="comp-field">' + (j.fieldName || j.fieldCode || '—') + '</span>',
+      '  <span class="comp-date">' + ymd(j.completedAt) + '</span>',
+      '  <span class="comp-fee">' + won(j.reviewFee) + '</span>',
+      '</div>',
+    ].join('');
+  }).join('');
+  el.innerHTML = '<div class="completed-list">' + rows + '</div>';
+}
+
+// ─── 버튼 액션 (Day 3에서 구현) ──────────────────────────────
+function onDetail(id) { alert('상세 보기는 Day 4에서 구현 예정입니다.\norderId: ' + id); }
+function onAccept(id) { alert('✅ 수락 기능은 Day 3에서 구현 예정입니다.\norderId: ' + id); }
+function onReject(id) { alert('❌ 거절 기능은 Day 3에서 구현 예정입니다.\norderId: ' + id); }
+function onWork(id)   { alert('📝 작업 페이지는 Day 4에서 구현 예정입니다.\norderId: ' + id); }
 
 // ─── 로그인 ──────────────────────────────────────────────────
 async function doLogin() {
@@ -218,58 +486,43 @@ async function doLogin() {
   var password = document.getElementById('password').value;
   var btn      = document.getElementById('login-btn');
   var errBox   = document.getElementById('error-box');
-
   errBox.style.display = 'none';
-  if (!email || !password) {
-    showError('이메일과 비밀번호를 모두 입력하세요.');
-    return;
-  }
-
+  if (!email || !password) { showError('이메일과 비밀번호를 모두 입력하세요.'); return; }
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>로그인 중...';
-
   try {
-    var res = await fetch(API_BASE + '/api/reviewer/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    var res  = await fetch(API_BASE + '/api/reviewer/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.toLowerCase(), password: password })
     });
     var data = await res.json();
-
     if (data.success && data.token) {
       localStorage.setItem('reviewerToken', data.token);
-      fillDashboard(data.reviewer);
+      fillNavName(data.reviewer.name);
+      loadDashboard();
       showPage('dashboard');
-    } else {
-      showError(data.error || '로그인에 실패했습니다.');
-    }
-  } catch (e) {
-    showError('서버 연결에 실패했습니다. 잠시 후 다시 시도하세요.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '로그인';
-  }
+    } else { showError(data.error || '로그인에 실패했습니다.'); }
+  } catch { showError('서버 연결에 실패했습니다. 잠시 후 다시 시도하세요.'); }
+  finally { btn.disabled = false; btn.textContent = '로그인'; }
 }
-
 function showError(msg) {
   var box = document.getElementById('error-box');
-  box.textContent = msg;
-  box.style.display = 'block';
+  box.textContent = msg; box.style.display = 'block';
 }
 
 // ─── 로그아웃 ────────────────────────────────────────────────
 function doLogout() {
+  clearAllTimers();
+  if (refreshTimer) clearInterval(refreshTimer);
   localStorage.removeItem('reviewerToken');
   showPage('login');
   document.getElementById('email').value    = '';
   document.getElementById('password').value = '';
 }
 
-// ─── Enter 키 로그인 ─────────────────────────────────────────
+// ─── Enter 키 ────────────────────────────────────────────────
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) {
-    doLogin();
-  }
+  if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) doLogin();
 });
 </script>
 </body>
