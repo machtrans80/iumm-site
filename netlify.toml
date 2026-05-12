@@ -1,0 +1,12 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/reviewer"
+  to   = "/reviewer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/reviewer/"
+  to   = "/reviewer/index.html"
+  status = 200
