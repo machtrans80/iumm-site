@@ -147,6 +147,32 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
   .active-card{flex-direction:column;align-items:flex-start;gap:12px}
   .countdown{font-size:22px}
 }
+
+/* ─ 모달 ─ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:#111;border:1px solid rgba(201,168,76,0.25);border-radius:6px;padding:32px;max-width:440px;width:100%;transform:translateY(8px);transition:transform 0.2s}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-title{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:10px}
+.modal-body{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.75;margin-bottom:24px}
+.modal-body strong{color:var(--white)}
+.modal-actions{display:flex;gap:10px}
+.modal-cancel{flex:1;padding:12px;background:none;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.45);border-radius:3px;cursor:pointer;font-size:14px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
+.modal-cancel:hover{border-color:rgba(255,255,255,0.35);color:var(--white)}
+.modal-confirm{flex:2;padding:12px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
+.modal-confirm:hover{background:var(--gold-light)}
+.modal-confirm.danger{background:rgba(224,85,85,0.85);color:var(--white)}
+.modal-confirm.danger:hover{background:var(--red)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin-bottom:16px}
+.detail-item .di-label{font-size:11px;color:var(--gray);letter-spacing:0.5px;margin-bottom:3px}
+.detail-item .di-val{font-size:15px;font-weight:500;color:var(--white)}
+.detail-item .di-val.gold{color:var(--gold)}
+
+/* ─ 토스트 ─ */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:#1c1c1c;border:1px solid rgba(255,255,255,0.12);color:var(--white);padding:13px 28px;border-radius:4px;font-size:14px;z-index:600;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
+.toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
 </style>
 </head>
 <body>
@@ -262,14 +288,47 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
   </div>
 </div>
 
+<!-- ── 확인 모달 ── -->
+<div id="confirm-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="confirm-title">확인</div>
+    <div class="modal-body" id="confirm-body"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeConfirmModal()">취소</button>
+      <button class="modal-confirm" id="confirm-ok-btn" onclick="runConfirmAction()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 상세 모달 ── -->
+<div id="detail-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">작업 상세 정보</div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeDetailModal()">닫기</button>
+      <button class="modal-confirm" id="detail-accept-btn">✅ 수락하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 토스트 ── -->
+<div id="toast" class="toast"></div>
+
 <script>
 // ─── 설정 ────────────────────────────────────────────────────
 var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
 var timerMap = {}; // { jobId: intervalId }
 var refreshTimer = null;
+var pendingJobsCache = []; // 상세 모달에서 사용
+var _confirmCallback = null;
 
 // ─── 초기화 ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function() {
+  // 모달 배경 클릭 시 닫기
+  document.getElementById('confirm-modal').addEventListener('click', function(e) { if (e.target === this) closeConfirmModal(); });
+  document.getElementById('detail-modal').addEventListener('click', function(e)  { if (e.target === this) closeDetailModal(); });
+
   var token = localStorage.getItem('reviewerToken');
   if (!token) { showPage('login'); return; }
   authFetch('/api/reviewer/me')
@@ -350,6 +409,7 @@ function renderStats(s) {
 
 // ─── 신규 요청 렌더 + 카운트다운 ────────────────────────────
 function renderPending(jobs) {
+  pendingJobsCache = jobs; // 상세 모달에서 참조
   var el = document.getElementById('pending-list');
   var badge = document.getElementById('pending-count-badge');
   badge.textContent = jobs.length;
@@ -474,11 +534,98 @@ function renderCompleted(jobs) {
   el.innerHTML = '<div class="completed-list">' + rows + '</div>';
 }
 
-// ─── 버튼 액션 (Day 3에서 구현) ──────────────────────────────
-function onDetail(id) { alert('상세 보기는 Day 4에서 구현 예정입니다.\norderId: ' + id); }
-function onAccept(id) { alert('✅ 수락 기능은 Day 3에서 구현 예정입니다.\norderId: ' + id); }
-function onReject(id) { alert('❌ 거절 기능은 Day 3에서 구현 예정입니다.\norderId: ' + id); }
-function onWork(id)   { alert('📝 작업 페이지는 Day 4에서 구현 예정입니다.\norderId: ' + id); }
+// ─── 모달 유틸 ───────────────────────────────────────────────
+function showConfirmModal(title, bodyHtml, okLabel, isDanger, callback) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-body').innerHTML   = bodyHtml;
+  var okBtn = document.getElementById('confirm-ok-btn');
+  okBtn.textContent = okLabel;
+  okBtn.className   = 'modal-confirm' + (isDanger ? ' danger' : '');
+  _confirmCallback  = callback;
+  document.getElementById('confirm-modal').classList.add('open');
+}
+function closeConfirmModal() {
+  document.getElementById('confirm-modal').classList.remove('open');
+  _confirmCallback = null;
+}
+function runConfirmAction() {
+  var cb = _confirmCallback;
+  closeConfirmModal();
+  if (cb) cb();
+}
+
+function showDetailModal(jobId) {
+  var job = pendingJobsCache.find(function(j) { return j.orderId === jobId; });
+  if (!job) return;
+  var deadline = job.translationDeadline ? new Date(job.translationDeadline).toLocaleString('ko-KR') : '—';
+  document.getElementById('detail-body').innerHTML = [
+    '<div class="detail-grid">',
+    '  <div class="detail-item"><div class="di-label">분야 / 플랜</div><div class="di-val">' + (job.fieldName || '—') + '</div></div>',
+    '  <div class="detail-item"><div class="di-label">번역 방향</div><div class="di-val">' + (job.sourceLang||'—') + ' → ' + (job.targetLang||'—') + '</div></div>',
+    '  <div class="detail-item"><div class="di-label">글자수</div><div class="di-val">' + (job.charCount||0).toLocaleString() + '자</div></div>',
+    '  <div class="detail-item"><div class="di-label">검수료</div><div class="di-val gold">' + won(job.reviewFee) + '</div></div>',
+    '</div>',
+    '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:8px">마감: ' + deadline + '</div>',
+    '<p style="font-size:12px;color:var(--gray);border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">수락 후 전체 원문 및 번역문 확인 가능합니다.</p>',
+  ].join('');
+  var acceptBtn = document.getElementById('detail-accept-btn');
+  acceptBtn.textContent = '✅ 수락하기';
+  acceptBtn.className   = 'modal-confirm';
+  acceptBtn.onclick     = function() { closeDetailModal(); onAccept(jobId); };
+  document.getElementById('detail-modal').classList.add('open');
+}
+function closeDetailModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+function showToast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'toast ' + (type || '');
+  // 리셋 후 표시
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 3000);
+}
+
+// ─── 버튼 액션 ───────────────────────────────────────────────
+function onDetail(id) { showDetailModal(id); }
+
+function onAccept(id) {
+  showConfirmModal(
+    '작업 수락',
+    '이 작업을 수락하시겠습니까?<br><br><span style="color:var(--yellow);font-size:13px">⚠️ 마감 시각까지 검수를 완료해야 합니다.</span>',
+    '✅ 수락하기', false,
+    function() { doAccept(id); }
+  );
+}
+
+function onReject(id) {
+  showConfirmModal(
+    '작업 거절',
+    '정말 거절하시겠습니까?<br><br><span style="font-size:13px;color:rgba(255,255,255,0.45)">다른 검수자에게 자동으로 재배정됩니다.</span>',
+    '❌ 거절하기', true,
+    function() { doReject(id); }
+  );
+}
+
+function onWork(id) { alert('📝 작업 페이지는 Day 4에서 구현 예정입니다.\norderId: ' + id); }
+
+async function doAccept(id) {
+  try {
+    var res = await authFetch('/api/reviewer/jobs/' + id + '/accept', { method: 'POST' });
+    if (res.success) { showToast('수락되었습니다!', 'success'); loadDashboard(); }
+    else showToast('⚠️ ' + (res.error || '수락 실패'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류가 발생했습니다', 'error'); }
+}
+
+async function doReject(id) {
+  try {
+    var res = await authFetch('/api/reviewer/jobs/' + id + '/reject', { method: 'POST' });
+    if (res.success) {
+      showToast(res.reassigned ? '거절 처리 및 재배정 완료' : '거절 처리되었습니다', 'success');
+      loadDashboard();
+    } else showToast('⚠️ ' + (res.error || '거절 실패'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류가 발생했습니다', 'error'); }
+}
 
 // ─── 로그인 ──────────────────────────────────────────────────
 async function doLogin() {
