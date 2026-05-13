@@ -7,6 +7,36 @@
   status = 200
 
 [[redirects]]
+  from = "/reviewer/login"
+  to   = "/reviewer/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/reviewer/login/"
+  to   = "/reviewer/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/reviewer/signup"
+  to   = "/reviewer/signup.html"
+  status = 200
+
+[[redirects]]
+  from = "/reviewer/signup/"
+  to   = "/reviewer/signup.html"
+  status = 200
+
+[[redirects]]
+  from = "/reviewer/pending"
+  to   = "/reviewer/pending.html"
+  status = 200
+
+[[redirects]]
+  from = "/reviewer/pending/"
+  to   = "/reviewer/pending.html"
+  status = 200
+
+[[redirects]]
   from = "/reviewer/"
   to   = "/reviewer/index.html"
   status = 200
