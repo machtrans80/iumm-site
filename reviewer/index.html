@@ -611,12 +611,16 @@ function showToast(msg, type) {
 function onDetail(id) { showDetailModal(id); }
 
 function onAccept(id) {
-  showConfirmModal(
-    '작업 수락',
-    '이 작업을 수락하시겠습니까?<br><br><span style="color:var(--yellow);font-size:13px">⚠️ 마감 시각까지 검수를 완료해야 합니다.</span>',
-    '✅ 수락하기', false,
-    function() { doAccept(id); }
-  );
+  var j = pendingJobsCache.find(function(x) { return x.orderId === id; }) || {};
+  openAcceptanceModal({
+    orderNumber: j.orderNumber || j.orderId || id,
+    field: j.fieldName || j.fieldCode || '—',
+    direction: (j.sourceLang || '—') + ' → ' + (j.targetLang || '—'),
+    wordCount: (j.charCount || 0).toLocaleString(),
+    deadline: j.translationDeadline ? new Date(j.translationDeadline).toLocaleString('ko-KR') : '—',
+    fee: j.reviewFee ? j.reviewFee.toLocaleString() : '—'
+  });
+  currentAcceptOrderId = id;
 }
 
 function onReject(id) {
@@ -692,6 +696,172 @@ function doLogout() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) doLogin();
 });
+</script>
+
+<!-- 검수 수락 확인 모달 -->
+<div id="acceptance-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;overflow-y:auto;padding:40px 20px;box-sizing:border-box">
+  <div style="max-width:520px;margin:40px auto;background:#0f0f0f;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:32px;box-sizing:border-box">
+
+    <h3 style="font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;margin-bottom:24px;color:#fafaf8">
+      검수 작업 수락
+    </h3>
+
+    <!-- 주문 정보 -->
+    <div id="acceptance-order-info" style="padding:18px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:4px;margin-bottom:20px">
+      <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;letter-spacing:1px">주문 정보</p>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:rgba(255,255,255,0.85)">
+        <div style="display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,0.5)">주문번호:</span> <strong id="acc-order-no">-</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,0.5)">분야:</span> <strong id="acc-field">-</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,0.5)">번역방향:</span> <strong id="acc-direction">-</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,0.5)">분량:</span> <strong id="acc-words">-</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,0.5)">마감시각:</span> <strong id="acc-deadline" style="color:#e05555">-</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,0.5)">검수료:</span> <strong id="acc-fee" style="color:var(--gold)">-</strong></div>
+      </div>
+    </div>
+
+    <!-- 책임 사항 -->
+    <div style="padding:18px 20px;background:rgba(224,85,85,0.06);border:1px solid rgba(224,85,85,0.25);border-radius:4px;margin-bottom:24px">
+      <p style="font-weight:700;color:#e05555;margin-bottom:12px;font-size:13px;letter-spacing:0.5px">⚠️ 검수자 책임 사항 확인</p>
+      <ul style="padding-left:18px;margin:0;font-size:12px;line-height:1.9;color:rgba(255,255,255,0.75)">
+        <li>마감 시간 내 검수 완료 의무</li>
+        <li>마감 초과 시 <strong style="color:#e05555">검수료의 5배</strong> 손해배상</li>
+        <li>고객 이탈로 인한 추가 손실 책임</li>
+        <li>객관적 불가 사유 시 즉시 담당자 카카오톡 통보</li>
+      </ul>
+      <p style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.4)">
+        자세한 내용은 <a href="/terms#reviewer" target="_blank" style="color:var(--gold);text-decoration:underline">이용약관 제8조</a> 참조
+      </p>
+    </div>
+
+    <!-- 체크박스 3개 -->
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:3px">
+        <input type="checkbox" class="acc-check" id="acc-check1" style="margin-top:3px;width:16px;height:16px;cursor:pointer">
+        <span style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
+          마감 시간(<strong id="acc-deadline-inline" style="color:#e05555">-</strong>) 내 완료가 가능합니다.
+        </span>
+      </label>
+
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:3px">
+        <input type="checkbox" class="acc-check" id="acc-check2" style="margin-top:3px;width:16px;height:16px;cursor:pointer">
+        <span style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
+          마감 초과 시 <strong style="color:#e05555">검수료 5배 손해배상</strong> 조항을 숙지했습니다.
+        </span>
+      </label>
+
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:3px">
+        <input type="checkbox" class="acc-check" id="acc-check3" style="margin-top:3px;width:16px;height:16px;cursor:pointer">
+        <span style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
+          위 책임 사항에 모두 동의하고 검수 작업을 수락합니다.
+        </span>
+      </label>
+    </div>
+
+    <!-- 버튼 -->
+    <div style="display:flex;gap:10px">
+      <button id="acc-cancel-btn" onclick="closeAcceptanceModal()" style="flex:1;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer;border-radius:3px;font-family:'Noto Sans KR',sans-serif">
+        취소
+      </button>
+      <button id="acc-confirm-btn" onclick="confirmAcceptance()" disabled style="flex:2;padding:14px;background:rgba(99,153,34,0.2);border:1px solid rgba(99,153,34,0.4);color:rgba(151,196,89,0.5);font-size:13px;cursor:not-allowed;border-radius:3px;font-family:'Noto Sans KR',sans-serif">
+        수락 (3개 체크 필수)
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// 검수 수락 모달 관련 변수
+let currentAcceptOrderId = null;
+
+// 모달 열기 함수
+function openAcceptanceModal(orderData) {
+  currentAcceptOrderId = orderData.orderNumber;
+
+  // 주문 정보 채우기
+  document.getElementById('acc-order-no').textContent = orderData.orderNumber || '-';
+  document.getElementById('acc-field').textContent = orderData.field || '-';
+  document.getElementById('acc-direction').textContent = orderData.direction || '-';
+  document.getElementById('acc-words').textContent = (orderData.wordCount || '-') + '자';
+  document.getElementById('acc-deadline').textContent = orderData.deadline || '-';
+  document.getElementById('acc-deadline-inline').textContent = orderData.deadline || '-';
+  document.getElementById('acc-fee').textContent = (orderData.fee || '-') + '원';
+
+  // 체크박스 초기화
+  document.querySelectorAll('.acc-check').forEach(cb => cb.checked = false);
+  updateConfirmButton();
+
+  // 모달 표시
+  document.getElementById('acceptance-modal').style.display = 'block';
+}
+
+// 모달 닫기
+function closeAcceptanceModal() {
+  document.getElementById('acceptance-modal').style.display = 'none';
+  currentAcceptOrderId = null;
+}
+
+// 체크박스 변경 시 버튼 활성화
+function updateConfirmButton() {
+  const checks = document.querySelectorAll('.acc-check');
+  const allChecked = Array.from(checks).every(cb => cb.checked);
+  const btn = document.getElementById('acc-confirm-btn');
+
+  if (allChecked) {
+    btn.disabled = false;
+    btn.style.background = 'rgba(99,153,34,0.4)';
+    btn.style.color = '#97c459';
+    btn.style.cursor = 'pointer';
+    btn.textContent = '수락하기';
+  } else {
+    btn.disabled = true;
+    btn.style.background = 'rgba(99,153,34,0.2)';
+    btn.style.color = 'rgba(151,196,89,0.5)';
+    btn.style.cursor = 'not-allowed';
+    btn.textContent = '수락 (3개 체크 필수)';
+  }
+}
+
+// 체크박스 이벤트 등록
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.acc-check').forEach(cb => {
+    cb.addEventListener('change', updateConfirmButton);
+  });
+});
+
+// 수락 확정 함수 (서버로 전송)
+async function confirmAcceptance() {
+  if (!currentAcceptOrderId) return;
+
+  // 모든 체크박스 검증
+  const allChecked = Array.from(document.querySelectorAll('.acc-check')).every(cb => cb.checked);
+  if (!allChecked) {
+    alert('모든 책임 사항에 동의해야 수락 가능합니다.');
+    return;
+  }
+
+  try {
+    const response = await authFetch('/api/reviewer/jobs/' + currentAcceptOrderId + '/accept', {
+      method: 'POST',
+      body: JSON.stringify({
+        orderId: currentAcceptOrderId,
+        agreedAt: new Date().toISOString(),
+        agreedItems: ['deadline', 'penalty', 'overall']
+      })
+    });
+
+    if (response.success) {
+      showToast('검수 작업을 수락했습니다!', 'success');
+      closeAcceptanceModal();
+      loadDashboard();
+    } else {
+      showToast('⚠️ ' + (response.error || '수락 처리 중 오류가 발생했습니다.'), 'error');
+    }
+  } catch (e) {
+    console.error('수락 오류:', e);
+    showToast('⚠️ 서버 오류가 발생했습니다', 'error');
+  }
+}
 </script>
 </body>
 </html>

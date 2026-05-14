@@ -300,6 +300,30 @@ footer{background:var(--navy);color:rgba(255,255,255,0.4);font-size:12px;text-al
       </div>
     </div>
 
+    <div style="margin:24px 0;padding:18px 20px;background:rgba(224,85,85,0.05);border:1px solid rgba(224,85,85,0.25);border-radius:4px">
+      <p style="font-weight:700;color:#e05555;margin-bottom:12px;font-size:13px;letter-spacing:0.5px">⚠️ 검수자 책임 및 손해배상 동의 (필수)</p>
+
+      <div style="font-size:12px;line-height:1.8;color:rgba(255,255,255,0.7);margin-bottom:14px;padding:12px 14px;background:rgba(0,0,0,0.2);border-radius:3px">
+        <p style="margin-bottom:8px"><strong style="color:rgba(255,180,180,0.95)">검수자 가입 시 다음 사항에 동의해야 합니다:</strong></p>
+        <ul style="padding-left:18px;margin:0">
+          <li>수락한 검수 작업은 마감 시간 내 완료 의무</li>
+          <li>마감 초과 시 <strong style="color:#e05555">검수료의 5배 손해배상금</strong> 부과</li>
+          <li>고객 이탈로 인한 매출 손실 등 추가 손해 배상 책임</li>
+          <li>반복 위반 시 검수자 자격 정지 또는 해지</li>
+          <li>객관적 불가 사유 발생 시 즉시 담당자 카카오톡 통보</li>
+        </ul>
+      </div>
+
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+        <input type="checkbox" id="reviewer-responsibility-agree" required style="margin-top:3px;width:16px;height:16px;cursor:pointer">
+        <span style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
+          위 검수자 책임 및 손해배상 조항을 모두 확인하였으며 동의합니다.
+          <a href="/index.html#reviewer" target="_blank" style="color:var(--gold);text-decoration:underline">이용약관 제8조</a> 참조
+          <span style="color:rgba(255,107,107,0.8)">(필수)</span>
+        </span>
+      </label>
+    </div>
+
     <button type="submit" class="btn-submit" id="submit-btn">가입 신청하기</button>
   </form>
 </main>
@@ -537,6 +561,11 @@ async function doSignup(event) {
   if (attachedFiles.length === 0) { showFormErr('자격증/학위 사진을 1개 이상 업로드해주세요'); return; }
   if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked || !document.getElementById('agree3').checked) {
     showFormErr('모든 동의사항에 체크해주세요'); return;
+  }
+  var responsibilityAgree = document.getElementById('reviewer-responsibility-agree');
+  if (!responsibilityAgree || !responsibilityAgree.checked) {
+    alert('검수자 책임 및 손해배상 조항에 동의해야 가입이 가능합니다.');
+    return false;
   }
 
   var btn = document.getElementById('submit-btn');
