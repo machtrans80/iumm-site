@@ -192,6 +192,15 @@ footer{background:var(--navy);color:rgba(255,255,255,0.4);font-size:12px;text-al
       <div class="field-hint" id="spec-hint" style="margin-top:10px;color:var(--error);display:none">전문 분야를 1개 이상 선택해주세요</div>
     </div>
 
+    <!-- 검수 가능 언어 -->
+    <div class="section">
+      <div class="section-title">🌐 검수 가능 언어 (복수 선택 가능)</div>
+      <div class="spec-grid" id="lang-grid">
+        <!-- JS로 렌더링 -->
+      </div>
+      <div class="field-hint">검수 가능한 언어쌍을 모두 선택해주세요. 자격증/경력으로 증명 가능한 언어만 선택하세요.</div>
+    </div>
+
     <!-- 자격증 종류 -->
     <div class="section">
       <div class="section-title">📋 자격증 종류 <span style="font-size:12px;font-weight:400;color:var(--gray)">(선택 필수)</span></div>
@@ -371,6 +380,7 @@ var kakaoInfo   = null;
 var selectedCertGroup = null; // 'premium' | 'standard'
 var selectedCertValue = '';
 var selectedSpecs  = new Set();
+var selectedLangs  = new Set();
 var attachedFiles  = [];
 
 // ─── 상수 ──────────────────────────────────────────────────
@@ -379,6 +389,69 @@ var SPECIALTIES = [
   "의료·제약","학술·논문","기술·IT","비즈니스 일반","금융·재무","회계·세무",
   "마케팅·광고","문학·출판","예술·문화","게임·엔터테인먼트","건설·엔지니어링",
   "환경·ESG","일반"
+];
+
+var LANGUAGES = [
+  "한국어 → 영어",
+  "한국어 → 일본어",
+  "한국어 → 중국어(간체)",
+  "한국어 → 중국어(번체)",
+  "한국어 → 스페인어",
+  "한국어 → 프랑스어",
+  "한국어 → 독일어",
+  "한국어 → 이탈리아어",
+  "한국어 → 포르투갈어",
+  "한국어 → 러시아어",
+  "한국어 → 베트남어",
+  "한국어 → 인도네시아어",
+  "한국어 → 태국어",
+  "한국어 → 말레이어",
+  "한국어 → 터키어",
+  "한국어 → 폴란드어",
+  "한국어 → 네덜란드어",
+  "한국어 → 우크라이나어",
+  "한국어 → 체코어",
+  "한국어 → 스웨덴어",
+  "한국어 → 아랍어",
+  "한국어 → 힌디어",
+  "한국어 → 노르웨이어",
+  "한국어 → 핀란드어",
+  "한국어 → 덴마크어",
+  "한국어 → 헝가리어",
+  "한국어 → 루마니아어",
+  "한국어 → 그리스어",
+  "한국어 → 불가리아어",
+  "한국어 → 슬로바키아어",
+  "영어 → 한국어",
+  "일본어 → 한국어",
+  "중국어(간체) → 한국어",
+  "중국어(번체) → 한국어",
+  "스페인어 → 한국어",
+  "프랑스어 → 한국어",
+  "독일어 → 한국어",
+  "이탈리아어 → 한국어",
+  "포르투갈어 → 한국어",
+  "러시아어 → 한국어",
+  "베트남어 → 한국어",
+  "인도네시아어 → 한국어",
+  "태국어 → 한국어",
+  "말레이어 → 한국어",
+  "터키어 → 한국어",
+  "폴란드어 → 한국어",
+  "네덜란드어 → 한국어",
+  "우크라이나어 → 한국어",
+  "체코어 → 한국어",
+  "스웨덴어 → 한국어",
+  "아랍어 → 한국어",
+  "힌디어 → 한국어",
+  "노르웨이어 → 한국어",
+  "핀란드어 → 한국어",
+  "덴마크어 → 한국어",
+  "헝가리어 → 한국어",
+  "루마니아어 → 한국어",
+  "그리스어 → 한국어",
+  "불가리아어 → 한국어",
+  "슬로바키아어 → 한국어",
 ];
 
 var CERT_GROUPS = {
@@ -418,6 +491,7 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('email').value = kakaoInfo.email || '';
 
   renderSpecialties();
+  renderLanguages();
   renderCertOptions();
   renderBanks();
 
@@ -464,6 +538,20 @@ function toggleSpec(label, value) {
   cb.checked = !cb.checked;
   if (cb.checked) { selectedSpecs.add(value); label.classList.add('checked'); }
   else { selectedSpecs.delete(value); label.classList.remove('checked'); }
+}
+
+// ─── 검수 언어 렌더링 + 토글 ─────────────────────────────────
+function renderLanguages() {
+  var grid = document.getElementById('lang-grid');
+  grid.innerHTML = LANGUAGES.map(function(l) {
+    return '<label class="spec-item" onclick="toggleLang(this,\''+l+'\')"><input type="checkbox" onclick="event.stopPropagation()"><span>'+l+'</span></label>';
+  }).join('');
+}
+function toggleLang(label, value) {
+  var cb = label.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  if (cb.checked) { selectedLangs.add(value); label.classList.add('checked'); }
+  else { selectedLangs.delete(value); label.classList.remove('checked'); }
 }
 
 // ─── 자격증 종류 선택 ─────────────────────────────────────────
@@ -553,6 +641,7 @@ async function doSignup(event) {
 
   // 검증
   if (selectedSpecs.size === 0) { showFormErr('전문 분야를 1개 이상 선택해주세요'); return; }
+  if (selectedLangs.size === 0) { showFormErr('검수 가능 언어를 1개 이상 선택해주세요'); return; }
   if (!selectedCertGroup) { showFormErr('자격증 종류를 선택해주세요'); return; }
   var isCustom = CERT_GROUPS[selectedCertGroup].customItems.includes(selectedCertValue);
   if (isCustom && !document.getElementById('custom-cert').value.trim()) {
@@ -581,6 +670,7 @@ async function doSignup(event) {
   fd.append('이메일',              document.getElementById('email').value.trim());
   fd.append('전화번호',            document.getElementById('phone').value);
   fd.append('전문분야',            JSON.stringify(Array.from(selectedSpecs)));
+  fd.append('검수언어',            JSON.stringify(Array.from(selectedLangs)));
   fd.append('자격증종류',           selectedCertValue);
   fd.append('자격증종류직접입력',     certFinal);
   fd.append('검수자등급',           g.grade);
