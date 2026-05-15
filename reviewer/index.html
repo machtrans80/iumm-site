@@ -182,34 +182,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
   <div class="dots"><span></span><span></span><span></span></div>
 </div>
 
-<!-- ══ 로그인 ══ -->
-<div id="page-login" class="page">
-  <div class="login-box">
-    <div class="login-header">
-      <a href="https://iumm.kr" class="logo-text"><span class="iu">IU</span><span class="mm">MM</span></a>
-      <span class="portal-label">검수자 포털</span>
-      <h1>전문가만의 정밀한 검수,<br><em>IUMM</em>과 함께합니다.</h1>
-    </div>
-    <div class="login-form">
-      <div id="error-box" class="error-box"></div>
-      <div class="form-group">
-        <label for="email">이메일</label>
-        <input type="email" id="email" class="inp" placeholder="your@email.com" autocomplete="username">
-      </div>
-      <div class="form-group">
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" class="inp" placeholder="비밀번호 입력" autocomplete="current-password">
-      </div>
-      <button id="login-btn" class="btn-gold" onclick="doLogin()">로그인</button>
-    </div>
-    <div class="login-footer">
-      <p>검수자 계정 관련 문의</p>
-      <p style="margin-top:4px"><a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a></p>
-      <p style="margin-top:16px"><a href="https://iumm.kr" style="color:rgba(255,255,255,0.3);font-size:11px">← IUMM 메인 사이트</a></p>
-    </div>
-  </div>
-</div>
-
 <!-- ══ 대시보드 ══ -->
 <div id="page-dashboard" class="page">
   <!-- 네비 -->
@@ -330,13 +302,13 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('detail-modal').addEventListener('click', function(e)  { if (e.target === this) closeDetailModal(); });
 
   var token = localStorage.getItem('reviewerToken');
-  if (!token) { showPage('login'); return; }
+  if (!token) { location.href = '/reviewer/login'; return; }
   authFetch('/api/reviewer/me')
     .then(function(d) {
       if (d.success) { fillNavName(d.reviewer.name); loadDashboard(); showPage('dashboard'); }
       else throw new Error();
     })
-    .catch(function() { localStorage.removeItem('reviewerToken'); showPage('login'); });
+    .catch(function() { localStorage.removeItem('reviewerToken'); location.href = '/reviewer/login'; });
 });
 
 // ─── 유틸 ────────────────────────────────────────────────────
@@ -652,50 +624,13 @@ async function doReject(id) {
   } catch(e) { showToast('⚠️ 서버 오류가 발생했습니다', 'error'); }
 }
 
-// ─── 로그인 ──────────────────────────────────────────────────
-async function doLogin() {
-  var email    = document.getElementById('email').value.trim();
-  var password = document.getElementById('password').value;
-  var btn      = document.getElementById('login-btn');
-  var errBox   = document.getElementById('error-box');
-  errBox.style.display = 'none';
-  if (!email || !password) { showError('이메일과 비밀번호를 모두 입력하세요.'); return; }
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>로그인 중...';
-  try {
-    var res  = await fetch(API_BASE + '/api/reviewer/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.toLowerCase(), password: password })
-    });
-    var data = await res.json();
-    if (data.success && data.token) {
-      localStorage.setItem('reviewerToken', data.token);
-      fillNavName(data.reviewer.name);
-      loadDashboard();
-      showPage('dashboard');
-    } else { showError(data.error || '로그인에 실패했습니다.'); }
-  } catch { showError('서버 연결에 실패했습니다. 잠시 후 다시 시도하세요.'); }
-  finally { btn.disabled = false; btn.textContent = '로그인'; }
-}
-function showError(msg) {
-  var box = document.getElementById('error-box');
-  box.textContent = msg; box.style.display = 'block';
-}
-
 // ─── 로그아웃 ────────────────────────────────────────────────
 function doLogout() {
   clearAllTimers();
   if (refreshTimer) clearInterval(refreshTimer);
   localStorage.removeItem('reviewerToken');
-  showPage('login');
-  document.getElementById('email').value    = '';
-  document.getElementById('password').value = '';
+  location.href = '/reviewer/login';
 }
-
-// ─── Enter 키 ────────────────────────────────────────────────
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) doLogin();
-});
 </script>
 
 <!-- 검수 수락 확인 모달 -->
