@@ -266,13 +266,14 @@ async function loadOrders() {
   wrap.innerHTML = '<table class="orders-table"><thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜</th><th>접수일</th><th>금액</th></tr></thead><tbody id="orders-tbody"><tr class="empty-row"><td colspan="6">로딩 중…</td></tr></tbody></table>';
   try {
     var res = await adminFetch('/api/admin/orders?tab=' + currentTab);
-    if (!res.success) { document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
+    if (!res.success) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
     var orders = res.orders || [];
     if (!orders.length) {
-      document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">해당 주문이 없습니다</td></tr>';
+      var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">해당 주문이 없습니다</td></tr>';
       return;
     }
-    document.getElementById('orders-tbody').innerHTML = orders.map(function(o) {
+    var tb = document.getElementById('orders-tbody');
+    if (tb) tb.innerHTML = orders.map(function(o) {
       var planTag = o.plan.includes('plus') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
       return '<tr onclick="selectOrder(\'' + o.orderId + '\',this)" data-id="' + o.orderId + '">' +
         '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>' +
@@ -284,7 +285,7 @@ async function loadOrders() {
         '</tr>';
     }).join('');
     window._orders = orders;
-  } catch(e) { document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>'; }
+  } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>'; }
 }
 
 function selectOrder(id, row) {
@@ -332,15 +333,16 @@ async function loadReviewers() {
   try {
     var res = await adminFetch('/api/admin/reviewers/pending');
     if (!res.success) {
-      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>';
+      var tb = document.getElementById('rv-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>';
       return;
     }
     var reviewers = res.reviewers || [];
     if (!reviewers.length) {
-      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">대기 중인 신청이 없습니다</td></tr>';
+      var tb = document.getElementById('rv-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">대기 중인 신청이 없습니다</td></tr>';
       return;
     }
-    document.getElementById('rv-tbody').innerHTML = reviewers.map(function(r) {
+    var tb = document.getElementById('rv-tbody');
+    if (tb) tb.innerHTML = reviewers.map(function(r) {
       var exp = (r.expertise||[]).slice(0,2).join(', ') + ((r.expertise||[]).length > 2 ? ' 외' : '');
       var lng = (r.languages||[]).slice(0,2).join(', ') + ((r.languages||[]).length > 2 ? ' 외' : '');
       return '<tr onclick="selectReviewer(\'' + r.id + '\',this)" data-id="' + r.id + '">' +
@@ -354,7 +356,7 @@ async function loadReviewers() {
     }).join('');
     window._reviewers = reviewers;
   } catch(e) {
-    document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>';
+    var tb = document.getElementById('rv-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>';
   }
 }
 
