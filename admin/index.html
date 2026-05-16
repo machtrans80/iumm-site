@@ -84,6 +84,43 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
   .panel-body{grid-template-columns:1fr}
   .admin-body{padding:16px}
 }
+
+/* ── 검수자 승인 탭 추가 스타일 ── */
+.reviewers-table { width:100%; border-collapse:collapse; font-size:13px }
+.reviewers-table th, .reviewers-table td { padding:10px 12px; text-align:left; border-bottom:1px solid var(--border) }
+.reviewers-table thead th { background:rgba(201,168,76,0.08); color:var(--gold); font-weight:500; font-size:12px; letter-spacing:0.5px }
+.reviewers-table tbody tr { cursor:pointer; transition:background 0.15s }
+.reviewers-table tbody tr:hover { background:rgba(201,168,76,0.05) }
+.reviewers-table tbody tr.selected { background:rgba(201,168,76,0.1) }
+/* 모달 오버레이 */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; padding:20px; overflow-y:auto }
+.modal-overlay.active { display:flex }
+.modal-box { background:var(--black); border:1px solid var(--border); border-radius:8px; max-width:900px; width:100%; max-height:90vh; overflow-y:auto; color:var(--white) }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center }
+.modal-title { font-size:18px; font-weight:500; color:var(--gold) }
+.modal-close { background:none; border:none; color:var(--gray); font-size:24px; cursor:pointer; padding:0; line-height:1 }
+.modal-close:hover { color:var(--white) }
+.modal-body { padding:20px 24px }
+.modal-section { margin-bottom:20px }
+.modal-section-title { font-size:12px; color:var(--gold); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; font-weight:500 }
+.modal-row { display:flex; gap:12px; margin-bottom:6px; font-size:13px }
+.modal-row .label { color:var(--gray); min-width:90px; flex-shrink:0 }
+.modal-row .value { color:var(--white); flex:1; word-break:break-all }
+.modal-tag { display:inline-block; padding:3px 10px; background:rgba(201,168,76,0.1); color:var(--gold); border-radius:10px; font-size:11px; margin-right:4px; margin-bottom:4px }
+.modal-grade { display:flex; flex-direction:column; gap:8px; margin-top:8px }
+.modal-grade label { display:flex; align-items:center; gap:8px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid var(--card-border); border-radius:6px; cursor:pointer; font-size:13px }
+.modal-grade label:hover { background:rgba(201,168,76,0.05); border-color:rgba(201,168,76,0.3) }
+.modal-grade label input[type="radio"] { accent-color:var(--gold) }
+.modal-grade label.checked { background:rgba(201,168,76,0.08); border-color:var(--gold) }
+.modal-cert-link { display:inline-block; padding:6px 12px; background:rgba(201,168,76,0.1); color:var(--gold); border-radius:4px; text-decoration:none; font-size:12px; margin-right:6px; margin-bottom:6px; border:1px solid rgba(201,168,76,0.2) }
+.modal-cert-link:hover { background:rgba(201,168,76,0.18) }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end }
+.btn-approve { padding:10px 24px; background:var(--green); color:var(--black); border:none; border-radius:6px; font-weight:500; cursor:pointer; font-size:14px }
+.btn-approve:hover { opacity:0.85 }
+.btn-approve:disabled { opacity:0.4; cursor:not-allowed }
+.btn-reject { padding:10px 24px; background:var(--red); color:var(--white); border:none; border-radius:6px; font-weight:500; cursor:pointer; font-size:14px }
+.btn-reject:hover { opacity:0.85 }
+.btn-reject:disabled { opacity:0.4; cursor:not-allowed }
 </style>
 </head>
 <body>
@@ -111,6 +148,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
     <div class="tabs">
       <button class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
       <button class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
+      <button class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
     </div>
     <div id="orders-wrap">
       <table class="orders-table">
@@ -139,6 +177,23 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           금액: <span class="amount" id="panel-amount">—</span>
         </div>
         <button class="btn-deliver" id="btn-deliver" onclick="doDeliver()">최종 납품</button>
+      </div>
+    </div>
+
+    <!-- 검수자 상세 모달 -->
+    <div id="reviewer-modal" class="modal-overlay" onclick="if(event.target===this) closeReviewerModal()">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title" id="rmodal-title">검수자 상세</div>
+          <button class="modal-close" onclick="closeReviewerModal()">×</button>
+        </div>
+        <div class="modal-body" id="rmodal-body">
+          <!-- JS로 렌더링 -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn-reject" id="btn-reject" onclick="doReject()">거절</button>
+          <button class="btn-approve" id="btn-approve" onclick="doApprove()">승인</button>
+        </div>
       </div>
     </div>
   </div>
@@ -198,7 +253,12 @@ function switchTab(tab) {
   document.getElementById('confirm-panel').style.display = 'none';
   document.getElementById('tab-ai').className = 'tab-btn' + (tab==='ai_premium' ? ' active' : '');
   document.getElementById('tab-pp').className = 'tab-btn' + (tab==='premium_plus' ? ' active' : '');
-  loadOrders();
+  document.getElementById('tab-rv').className = 'tab-btn' + (tab==='reviewers' ? ' active' : '');
+  if (tab === 'reviewers') {
+    loadReviewers();
+  } else {
+    loadOrders();
+  }
 }
 
 async function loadOrders() {
@@ -262,6 +322,143 @@ async function doDeliver() {
     } else showToast('⚠️ ' + (res.error||'납품 실패'), 'error');
   } catch(e) { showToast('⚠️ 서버 오류: ' + e.message, 'error'); }
   finally { btn.disabled = false; btn.textContent = '최종 납품'; }
+}
+
+// ─── 검수자 승인 탭 ───
+async function loadReviewers() {
+  var wrap = document.getElementById('orders-wrap');
+  wrap.innerHTML = '<table class="reviewers-table"><thead><tr><th>이름</th><th>등급 신청</th><th>전문분야</th><th>검수언어</th><th>전화</th><th>신청일</th></tr></thead><tbody id="rv-tbody"><tr class="empty-row"><td colspan="6">로딩 중…</td></tr></tbody></table>';
+  try {
+    var res = await adminFetch('/api/admin/reviewers/pending');
+    if (!res.success) {
+      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>';
+      return;
+    }
+    var reviewers = res.reviewers || [];
+    if (!reviewers.length) {
+      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">대기 중인 신청이 없습니다</td></tr>';
+      return;
+    }
+    document.getElementById('rv-tbody').innerHTML = reviewers.map(function(r) {
+      var exp = (r.expertise||[]).slice(0,2).join(', ') + ((r.expertise||[]).length > 2 ? ' 외' : '');
+      var lng = (r.languages||[]).slice(0,2).join(', ') + ((r.languages||[]).length > 2 ? ' 외' : '');
+      return '<tr onclick="selectReviewer(\'' + r.id + '\',this)" data-id="' + r.id + '">' +
+        '<td>' + (r.name||'—') + '</td>' +
+        '<td>' + (r.grade||'—') + '</td>' +
+        '<td>' + (exp||'—') + '</td>' +
+        '<td>' + (lng||'—') + '</td>' +
+        '<td>' + (r.phone||'—') + '</td>' +
+        '<td>' + ymd(r.signupAt) + '</td>' +
+        '</tr>';
+    }).join('');
+    window._reviewers = reviewers;
+  } catch(e) {
+    document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>';
+  }
+}
+
+function selectReviewer(id) {
+  var r = (window._reviewers||[]).find(function(x){ return x.id === id; });
+  if (!r) return;
+  window._selectedReviewer = r;
+  document.getElementById('rmodal-title').textContent = (r.name || '검수자') + ' 상세';
+  var certLinks = (r.certPhotos||[]).map(function(p) {
+    return '<a class="modal-cert-link" href="' + p.url + '" target="_blank">📎 ' + (p.filename||'자격증') + '</a>';
+  }).join('');
+  if (!certLinks) certLinks = '<span style="color:var(--gray);font-size:12px">자격증 파일 없음</span>';
+  var expTags = (r.expertise||[]).map(function(e){ return '<span class="modal-tag">'+e+'</span>'; }).join('');
+  var lngTags = (r.languages||[]).map(function(l){ return '<span class="modal-tag">'+l+'</span>'; }).join('');
+  var initialGrade = r.grade || '전문 검수자';
+  var html =
+    '<div class="modal-section">' +
+    '<div class="modal-section-title">기본 정보</div>' +
+    '<div class="modal-row"><span class="label">이름</span><span class="value">' + (r.name||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">이메일</span><span class="value">' + (r.email||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">전화</span><span class="value">' + (r.phone||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">카카오ID</span><span class="value">' + (r.kakaoId||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">신청일</span><span class="value">' + ymd(r.signupAt) + '</span></div>' +
+    '</div>' +
+    '<div class="modal-section">' +
+    '<div class="modal-section-title">자격 / 학력</div>' +
+    '<div class="modal-row"><span class="label">자격증종류</span><span class="value">' + (r.certType||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">자격증 파일</span><span class="value">' + certLinks + '</span></div>' +
+    '<div class="modal-row"><span class="label">최종학력</span><span class="value">' + (r.education||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">경력</span><span class="value">' + ((r.career||'—').replace(/\n/g,'<br>')) + '</span></div>' +
+    '<div class="modal-row"><span class="label">어필메시지</span><span class="value">' + ((r.appeal||'—').replace(/\n/g,'<br>')) + '</span></div>' +
+    '</div>' +
+    '<div class="modal-section">' +
+    '<div class="modal-section-title">전문 분야 / 검수 언어</div>' +
+    '<div class="modal-row"><span class="label">전문분야</span><span class="value">' + (expTags||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">검수언어</span><span class="value">' + (lngTags||'—') + '</span></div>' +
+    '</div>' +
+    '<div class="modal-section">' +
+    '<div class="modal-section-title">정산 계좌</div>' +
+    '<div class="modal-row"><span class="label">은행</span><span class="value">' + (r.bank||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">계좌번호</span><span class="value">' + (r.account||'—') + '</span></div>' +
+    '<div class="modal-row"><span class="label">예금주</span><span class="value">' + (r.accountHolder||'—') + '</span></div>' +
+    '</div>' +
+    '<div class="modal-section">' +
+    '<div class="modal-section-title">최종 등급 결정 (승인 시 적용)</div>' +
+    '<div class="modal-grade">' +
+    '<label><input type="radio" name="grade" value="전문 자격사 프리미엄"' + (initialGrade==='전문 자격사 프리미엄'?' checked':'') + '> 전문 자격사 프리미엄 (20원/자)</label>' +
+    '<label><input type="radio" name="grade" value="전문 검수자"' + (initialGrade==='전문 검수자'?' checked':'') + '> 전문 검수자 (10원/자)</label>' +
+    '</div>' +
+    '</div>';
+  document.getElementById('rmodal-body').innerHTML = html;
+  document.getElementById('reviewer-modal').classList.add('active');
+}
+
+function closeReviewerModal() {
+  document.getElementById('reviewer-modal').classList.remove('active');
+  window._selectedReviewer = null;
+}
+
+async function doApprove() {
+  var r = window._selectedReviewer;
+  if (!r) return;
+  var selected = document.querySelector('input[name="grade"]:checked');
+  var grade = selected ? selected.value : '전문 검수자';
+  if (!confirm(r.name + '님을 [' + grade + ']로 승인하시겠습니까?\n검수자에게 알림이 발송됩니다.')) return;
+  var btn = document.getElementById('btn-approve');
+  var rbtn = document.getElementById('btn-reject');
+  btn.disabled = true; rbtn.disabled = true; btn.textContent = '처리 중…';
+  try {
+    var res = await adminFetch('/api/admin/reviewers/' + r.id + '/approve', {
+      method: 'POST',
+      body: JSON.stringify({ 검수자등급: grade }),
+    });
+    if (!res.success) throw new Error(res.error || '승인 실패');
+    alert('승인 완료');
+    closeReviewerModal();
+    loadReviewers();
+  } catch(e) {
+    alert('오류: ' + e.message);
+  } finally {
+    btn.disabled = false; rbtn.disabled = false; btn.textContent = '승인';
+  }
+}
+
+async function doReject() {
+  var r = window._selectedReviewer;
+  if (!r) return;
+  if (!confirm(r.name + '님의 검수자 가입을 거절하시겠습니까?\n거절 사유가 자동 발송됩니다.')) return;
+  var btn = document.getElementById('btn-approve');
+  var rbtn = document.getElementById('btn-reject');
+  btn.disabled = true; rbtn.disabled = true; rbtn.textContent = '처리 중…';
+  try {
+    var res = await adminFetch('/api/admin/reviewers/' + r.id + '/reject', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+    if (!res.success) throw new Error(res.error || '거절 실패');
+    alert('거절 완료');
+    closeReviewerModal();
+    loadReviewers();
+  } catch(e) {
+    alert('오류: ' + e.message);
+  } finally {
+    btn.disabled = false; rbtn.disabled = false; rbtn.textContent = '거절';
+  }
 }
 
 // 초기화
