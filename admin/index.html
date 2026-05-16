@@ -262,7 +262,8 @@ function switchTab(tab) {
 }
 
 async function loadOrders() {
-  document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">로딩 중…</td></tr>';
+  var wrap = document.getElementById('orders-wrap');
+  wrap.innerHTML = '<table class="orders-table"><thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜</th><th>접수일</th><th>금액</th></tr></thead><tbody id="orders-tbody"><tr class="empty-row"><td colspan="6">로딩 중…</td></tr></tbody></table>';
   try {
     var res = await adminFetch('/api/admin/orders?tab=' + currentTab);
     if (!res.success) { document.getElementById('orders-tbody').innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
