@@ -604,7 +604,10 @@ function onReject(id) {
   );
 }
 
-function onWork(id) { alert('📝 작업 페이지는 Day 4에서 구현 예정입니다.\norderId: ' + id); }
+function onWork(id) {
+  // 검수자가 진행 중 작업 화면으로 이동
+  location.href = '/reviewer/job/' + id;
+}
 
 async function doAccept(id) {
   try {
