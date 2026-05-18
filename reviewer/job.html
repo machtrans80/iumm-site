@@ -93,7 +93,33 @@ body{display:flex;flex-direction:column;min-height:100vh}
   .pane{min-height:240px}
   .cl-grid{grid-template-columns:1fr 1fr}
   .nav-meta{display:none}
+  .glossary-panel-body{grid-template-columns:1fr}
 }
+.nav-field{font-size:11px;color:var(--gold-light);font-weight:400;padding:2px 8px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:2px}
+.nav-direction{font-size:11px;color:var(--gray)}
+.glossary-panel{border-bottom:1px solid var(--card-border);background:rgba(201,168,76,0.03)}
+.glossary-panel-header{padding:10px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;font-size:13px;color:var(--gold-light)}
+.glossary-panel-header:hover{background:rgba(201,168,76,0.06)}
+.glossary-panel-body{padding:0 24px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.glossary-section-title{font-size:11px;color:var(--gray);letter-spacing:0.5px;margin-bottom:6px;font-weight:500;text-transform:uppercase}
+.glossary-section-content{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;white-space:pre-wrap;background:#0e0e0e;border:1px solid var(--card-border);border-radius:3px;padding:10px 12px;max-height:120px;overflow-y:auto}
+.comment-section{padding:14px 24px 18px;border-top:1px solid var(--card-border);grid-column:1/-1}
+.comment-label{font-size:12px;color:var(--gray);margin-bottom:6px;font-weight:500}
+.comment-textarea{width:100%;padding:10px 14px;background:#0e0e0e;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.6;resize:vertical;min-height:72px;outline:none;transition:border 0.15s}
+.comment-textarea:focus{border-color:rgba(201,168,76,0.4)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal-box{background:#1a1a1a;border:1px solid var(--border);border-radius:6px;max-width:480px;width:100%;padding:28px}
+.modal-title{font-size:16px;font-weight:600;color:var(--gold);margin-bottom:16px}
+.modal-body{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.8;margin-bottom:16px}
+.modal-body p{margin-bottom:10px}
+.modal-checklist{padding-left:20px;margin-bottom:10px}
+.modal-checklist li{margin-bottom:6px;color:rgba(255,255,255,0.7)}
+.modal-buttons{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.btn-modal-cancel{padding:10px 20px;background:none;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
+.btn-modal-cancel:hover{border-color:rgba(255,255,255,0.4);color:var(--white)}
+.btn-modal-submit{padding:10px 24px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
+.btn-modal-submit:hover{background:var(--gold-light)}
 </style>
 </head>
 <body>
@@ -111,6 +137,24 @@ body{display:flex;flex-direction:column;min-height:100vh}
   </div>
 </nav>
 
+<!-- 용어집 패널 -->
+<div class="glossary-panel" id="glossary-panel" style="display:none">
+  <div class="glossary-panel-header" onclick="toggleGlossary()">
+    <span>📖 용어집</span>
+    <span id="glossary-toggle">▼</span>
+  </div>
+  <div class="glossary-panel-body" id="glossary-body">
+    <div id="ai-glossary-section">
+      <div class="glossary-section-title">AI 생성 용어집</div>
+      <div class="glossary-section-content" id="ai-glossary-content"></div>
+    </div>
+    <div id="customer-glossary-section" style="display:none">
+      <div class="glossary-section-title">고객이 요청한 용어집</div>
+      <div class="glossary-section-content" id="customer-glossary-content"></div>
+    </div>
+  </div>
+</div>
+
 <!-- 작업 영역 -->
 <div class="job-body" id="job-body">
   <div class="loading"><div class="dots"><span></span><span></span><span></span></div></div>
@@ -118,6 +162,29 @@ body{display:flex;flex-direction:column;min-height:100vh}
 
 <!-- 토스트 -->
 <div id="toast" class="toast"></div>
+
+<!-- 최종 제출 컨펌 모달 -->
+<div class="modal-overlay" id="submit-modal">
+  <div class="modal-box">
+    <div class="modal-title">최종 검수본 제출 안내</div>
+    <div class="modal-body">
+      <p>검수 작업을 모두 마치셨습니다.<br>
+      본 검수본은 제출 즉시 관리자에게 전달되며,<br>
+      이후 수정·취소가 불가능합니다.</p>
+      <p>제출 전 다음 사항을 다시 한 번 확인해 주십시오:</p>
+      <ul class="modal-checklist">
+        <li>21개 체크리스트 항목을 신의성실하게 모두 확인하셨습니까?</li>
+        <li>원문 누락 및 오역이 없는지 재검토하셨습니까?</li>
+      </ul>
+      <p>본 제출은 약관 제8조의2(검수자 책임)에 따라 검수자께서<br>
+      고객에게 보증하는 최종 결과물입니다.</p>
+    </div>
+    <div class="modal-buttons">
+      <button class="btn-modal-cancel" onclick="closeSubmitModal()">다시 검토</button>
+      <button class="btn-modal-submit" onclick="confirmSubmit()">제출하기</button>
+    </div>
+  </div>
+</div>
 
 <!-- NDA 모달 (필요시 표시) -->
 <div id="nda-overlay" class="overlay" style="display:none">
@@ -143,6 +210,14 @@ body{display:flex;flex-direction:column;min-height:100vh}
 var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
 var orderId = window.location.pathname.split('/').filter(Boolean).pop();
 var jobData = null;
+
+var FIELD_CODE_TO_LABEL = {
+  general:'일반', legal:'법률·계약', patent:'특허·지식재산', criminal:'범죄·수사·공문',
+  immigration:'이민·비자·증명서', medical:'의료·제약', academic:'학술·논문',
+  tech:'기술·IT', business:'비즈니스', finance:'금융·재무', accounting:'회계·세무',
+  marketing:'마케팅·광고', literary:'문학·출판', arts:'예술·문화',
+  gaming:'게임·엔터테인먼트', construction:'건설·엔지니어링', esg:'환경·ESG'
+};
 
 var CHECKLIST = [
   "원문의 모든 내용이 빠짐없이 번역되었다",
@@ -212,6 +287,16 @@ function renderJob(job) {
   jobData = job;
   document.getElementById('nav-ordnum').textContent = job.orderNumber || job.orderId;
   updateDeadline(job.deadline);
+  // 헤더: 번역방향 + 전문분야
+  var metaEl = document.getElementById('nav-meta-extra');
+  if (!metaEl) {
+    metaEl = document.createElement('span');
+    metaEl.id = 'nav-meta-extra';
+    metaEl.style.cssText = 'display:flex;gap:8px;align-items:center';
+    document.getElementById('nav-ordnum').parentElement.appendChild(metaEl);
+  }
+  metaEl.innerHTML = (job.direction ? '<span class="nav-direction">' + escHtml(job.direction) + '</span>' : '')
+    + (job.fieldCode ? '<span class="nav-field">' + escHtml(FIELD_CODE_TO_LABEL[job.fieldCode] || job.fieldCode) + '</span>' : '');
 
   var initCl = job.checklistState || CHECKLIST.map(function(){ return false; });
 
@@ -238,10 +323,30 @@ function renderJob(job) {
     }).join(''),
     '  </div>',
     '</div>',
+    '<div class="comment-section">',
+    '  <div class="comment-label">검수자 코멘트 (선택)</div>',
+    '  <textarea class="comment-textarea" id="comment-ta" placeholder="관리자에게 전달할 내용이 있으면 작성해주세요. (예: 표현 선택 사유, 참고사항 등)"></textarea>',
+    '</div>',
   ].join('');
 
   updateProgress();
   setInterval(function(){ updateDeadline(job.deadline); }, 60000);
+
+  // 기존 코멘트 복원
+  if (job.existingComment) {
+    var cta = document.getElementById('comment-ta');
+    if (cta) cta.value = job.existingComment;
+  }
+
+  // 용어집 렌더링
+  if (job.aiGlossary || job.customerGlossary) {
+    document.getElementById('glossary-panel').style.display = '';
+    if (job.aiGlossary) document.getElementById('ai-glossary-content').textContent = job.aiGlossary;
+    if (job.customerGlossary) {
+      document.getElementById('customer-glossary-section').style.display = '';
+      document.getElementById('customer-glossary-content').textContent = job.customerGlossary;
+    }
+  }
 }
 
 function escHtml(s) {
@@ -254,7 +359,7 @@ async function saveDraft() {
   try {
     var res = await authFetch('/api/reviewer/job/' + orderId + '/draft', {
       method: 'POST',
-      body: JSON.stringify({ translation: document.getElementById('translation-ta')?.value || '', checklist: getChecklist() })
+      body: JSON.stringify({ translation: document.getElementById('translation-ta')?.value || '', checklist: getChecklist(), comment: document.getElementById('comment-ta')?.value || '' })
     });
     if (res.ok) showToast('임시저장되었습니다', 'success');
     else showToast('⚠️ ' + (res.error || '저장 실패'), 'error');
@@ -262,18 +367,8 @@ async function saveDraft() {
   finally { btn.textContent = '임시저장'; btn.classList.remove('saving'); }
 }
 
-async function doSubmit() {
-  if (!confirm('검수를 최종 제출하시겠습니까?\n제출 후에는 수정할 수 없습니다.')) return;
-  try {
-    var res = await authFetch('/api/reviewer/job/' + orderId + '/submit', {
-      method: 'POST',
-      body: JSON.stringify({ translation: document.getElementById('translation-ta')?.value || '', checklist: getChecklist() })
-    });
-    if (res.ok) {
-      showToast('✅ 제출 완료! 대시보드로 이동합니다.', 'success');
-      setTimeout(function(){ location.href = '/reviewer/'; }, 2000);
-    } else showToast('⚠️ ' + (res.error || '제출 실패'), 'error');
-  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
+function doSubmit() {
+  openSubmitModal();
 }
 
 // ── NDA 로직 ──
@@ -312,6 +407,40 @@ async function showNdaModal() {
     }
   } catch(e) {}
   document.getElementById('nda-overlay').style.display = 'flex';
+}
+
+function toggleGlossary() {
+  var body = document.getElementById('glossary-body');
+  var toggle = document.getElementById('glossary-toggle');
+  var hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  toggle.textContent = hidden ? '▼' : '▶';
+}
+
+function openSubmitModal() {
+  document.getElementById('submit-modal').classList.add('open');
+}
+
+function closeSubmitModal() {
+  document.getElementById('submit-modal').classList.remove('open');
+}
+
+async function confirmSubmit() {
+  closeSubmitModal();
+  try {
+    var res = await authFetch('/api/reviewer/job/' + orderId + '/submit', {
+      method: 'POST',
+      body: JSON.stringify({
+        translation: document.getElementById('translation-ta')?.value || '',
+        checklist: getChecklist(),
+        comment: document.getElementById('comment-ta')?.value || ''
+      })
+    });
+    if (res.ok) {
+      showToast('✅ 제출 완료! 대시보드로 이동합니다.', 'success');
+      setTimeout(function(){ location.href = '/reviewer/'; }, 2000);
+    } else showToast('⚠️ ' + (res.error || '제출 실패'), 'error');
+  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
 }
 
 window.addEventListener('DOMContentLoaded', loadJob);
