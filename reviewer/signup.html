@@ -676,19 +676,19 @@ async function doSignup(e){
     const fd = new FormData();
     fd.append('kakaoId',    kakaoInfo.kakaoId);
     fd.append('kakaoToken', kakaoInfo.token);
-    fd.append('이름',        document.getElementById('name').value.trim());
-    fd.append('이메일',      document.getElementById('email').value.trim());
-    fd.append('전화번호',    document.getElementById('phone').value.trim());
-    fd.append('전문분야',    JSON.stringify(Array.from(selectedSpecs)));
-    fd.append('검수언어',    JSON.stringify(Array.from(selectedLangs)));
-    fd.append('자격증종류',  selectedCert.name);
-    fd.append('검수자등급',  selectedCert.group === 'premium' ? '전문 자격사 프리미엄' : '전문 검수자');
-    fd.append('최종학력',    document.getElementById('education').value.trim());
-    fd.append('경력',        document.getElementById('career').value.trim());
-    fd.append('어필메시지',  document.getElementById('appeal').value.trim());
-    fd.append('은행명',      document.getElementById('bank').value);
-    fd.append('예금주',      document.getElementById('account-holder').value.trim());
-    fd.append('계좌번호',    document.getElementById('account-number').value.trim());
+    fd.append('name',          document.getElementById('name').value.trim());
+    fd.append('email',         document.getElementById('email').value.trim());
+    fd.append('phone',         document.getElementById('phone').value.trim());
+    fd.append('specialties',   JSON.stringify(Array.from(selectedSpecs)));
+    fd.append('languages',     JSON.stringify(Array.from(selectedLangs)));
+    fd.append('certType',      selectedCert.name);
+    fd.append('certGrade',     selectedCert.group === 'premium' ? '전문 자격사 프리미엄' : '전문 검수자');
+    fd.append('education',     document.getElementById('education').value.trim());
+    fd.append('career',        document.getElementById('career').value.trim());
+    fd.append('appeal',        document.getElementById('appeal').value.trim());
+    fd.append('bank',          document.getElementById('bank').value);
+    fd.append('accountHolder', document.getElementById('account-holder').value.trim());
+    fd.append('accountNumber', document.getElementById('account-number').value.trim());
     uploadedFiles.forEach(function(f){ fd.append('certPhotos', f); });
 
     const res = await fetch(API_BASE + '/api/reviewer/signup', {
