@@ -2,174 +2,210 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IUMM 검수자 로그인</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>검수자 로그인 - IUMM</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --navy:#1A2B4A;--navy-light:#2A3B5A;--gold:#C9A961;--gold-light:#DEC17A;
-  --bg:#FAFAFA;--white:#FFFFFF;--text:#2D3748;--text-light:#4A5568;
-  --gray:#718096;--border:#E2E8F0;--error:#E53E3E;
+  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
+  --gray:#888;--border:rgba(201,168,76,0.15);
+  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+  --red:#e05555;--green:#97c459;
 }
-html,body{height:100%;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text)}
-body{display:flex;flex-direction:column;min-height:100vh}
-
-/* ─ 헤더 ─ */
-.top-bar{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-size:22px;font-weight:700;color:var(--white);letter-spacing:2px;text-decoration:none}
-.logo span{color:var(--gold)}
-.top-link{font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none}
-.top-link:hover{color:rgba(255,255,255,0.8)}
-
-/* ─ 메인 ─ */
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
-.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:48px 40px;max-width:420px;width:100%;box-shadow:0 4px 24px rgba(26,43,74,0.08)}
-
-.card-badge{display:inline-block;background:rgba(201,169,97,0.12);color:var(--gold);font-size:11px;font-weight:600;letter-spacing:2px;padding:4px 12px;border-radius:20px;margin-bottom:20px;text-transform:uppercase}
-.card-title{font-size:26px;font-weight:700;color:var(--navy);margin-bottom:8px;line-height:1.3}
-.card-sub{font-size:14px;color:var(--gray);margin-bottom:36px;line-height:1.6}
-
-/* ─ 카카오 버튼 ─ */
-.btn-kakao{width:100%;padding:16px 20px;background:#FEE500;color:#191919;border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;letter-spacing:0.3px}
-.btn-kakao:hover:not(:disabled){background:#FDD900;transform:translateY(-1px);box-shadow:0 4px 14px rgba(254,229,0,0.4)}
-.btn-kakao:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-.kakao-icon{width:22px;height:22px}
-
-/* ─ 구분선 ─ */
-.divider{display:flex;align-items:center;gap:12px;margin:28px 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.divider span{font-size:12px;color:var(--gray);white-space:nowrap}
-
-/* ─ 링크 ─ */
-.signup-link{text-align:center;font-size:14px;color:var(--gray)}
-.signup-link a{color:var(--navy);font-weight:600;text-decoration:none}
-.signup-link a:hover{color:var(--gold);text-decoration:underline}
-
-/* ─ 에러/로딩 ─ */
-.err-box{background:#FFF5F5;border:1px solid #FED7D7;color:var(--error);padding:12px 16px;border-radius:6px;font-size:13px;margin-bottom:20px;display:none;line-height:1.5}
-.loading-tip{font-size:12px;color:var(--gray);text-align:center;margin-top:16px;display:none}
-
-/* ─ 푸터 ─ */
-footer{background:var(--navy);color:rgba(255,255,255,0.4);font-size:12px;text-align:center;padding:20px}
-footer a{color:rgba(255,255,255,0.5);text-decoration:none}
-
-@media(max-width:480px){.card{padding:32px 24px}.card-title{font-size:22px}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;
+  background:var(--black);color:var(--white);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.container{width:100%;max-width:420px}
+.brand{text-align:center;margin-bottom:40px}
+.brand-logo{font-size:28px;font-weight:300;letter-spacing:3px;color:var(--gold);margin-bottom:8px}
+.brand-sub{font-size:12px;color:var(--gray);letter-spacing:2px;text-transform:uppercase}
+.card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:6px;padding:36px 32px;
+}
+.card-title{font-size:18px;font-weight:500;color:var(--white);margin-bottom:8px;text-align:center}
+.card-desc{font-size:13px;color:var(--gray);text-align:center;margin-bottom:28px;line-height:1.6}
+.btn-kakao{
+  width:100%;padding:14px;font-size:15px;font-weight:600;
+  background:#FEE500;color:#181600;border:none;border-radius:6px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity 0.15s;
+  font-family:inherit;
+}
+.btn-kakao:hover{opacity:0.9}
+.btn-kakao:disabled{opacity:0.5;cursor:not-allowed}
+.btn-kakao svg{width:18px;height:18px}
+.signup-hint{
+  margin-top:20px;padding-top:20px;border-top:1px solid var(--border);
+  text-align:center;font-size:12px;color:var(--gray);line-height:1.6;
+}
+.status-box{
+  margin-top:20px;padding:14px 16px;border-radius:4px;font-size:13px;line-height:1.6;
+  display:none;
+}
+.status-box.show{display:block}
+.status-box.info{background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);color:var(--gold-light)}
+.status-box.error{background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.3);color:var(--red)}
+.status-box a{color:var(--gold);text-decoration:none;font-weight:500}
+.status-box a:hover{text-decoration:underline}
+.loading-spinner{
+  display:inline-block;width:14px;height:14px;border:2px solid var(--gold);
+  border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;
+  margin-right:8px;vertical-align:middle;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer{margin-top:24px;text-align:center;font-size:11px;color:var(--gray)}
+.footer a{color:var(--gray);text-decoration:none;border-bottom:1px solid transparent}
+.footer a:hover{border-color:var(--gray)}
 </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <a href="https://iumm.kr" class="logo">IU<span>MM</span></a>
-  <a href="https://iumm.kr" class="top-link">← 메인 사이트</a>
+<div class="container">
+
+  <div class="brand">
+    <div class="brand-logo">IUMM</div>
+    <div class="brand-sub">Reviewer Portal</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">검수자 로그인</div>
+    <div class="card-desc">
+      카카오 계정으로 안전하게 로그인합니다.
+    </div>
+
+    <button id="btn-kakao" class="btn-kakao" onclick="startKakaoLogin()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.48 3 2 6.48 2 10.8c0 2.77 1.85 5.2 4.6 6.55l-1.15 4.2c-.1.36.31.66.62.46l4.97-3.27c.31.04.62.06.96.06 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"/></svg>
+      <span id="btn-kakao-text">카카오로 로그인</span>
+    </button>
+
+    <div id="status" class="status-box"></div>
+
+    <div class="signup-hint">
+      처음이신가요? 카카오 로그인 후 자동으로 가입 신청 페이지로 안내됩니다.
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="/">← IUMM 메인으로</a>
+  </div>
+
 </div>
 
-<main>
-  <div class="card">
-    <span class="card-badge">Reviewer Portal</span>
-    <h1 class="card-title">IUMM 검수자 로그인</h1>
-    <p class="card-sub">카카오 계정으로 간편하게 로그인하세요.<br>전문 검수자로 등록된 회원만 이용 가능합니다.</p>
-
-    <div class="err-box" id="err-box"></div>
-
-    <button class="btn-kakao" id="kakao-btn" onclick="doKakaoLogin()">
-      <svg class="kakao-icon" viewBox="0 0 24 24" fill="none"><path d="M12 3C6.477 3 2 6.477 2 10.909c0 2.8 1.713 5.258 4.29 6.713-.19.703-.69 2.55-.788 2.944-.124.49.178.484.374.352.154-.103 2.45-1.664 3.439-2.337.548.08 1.113.12 1.685.12 5.523 0 10-3.477 10-7.792C21 6.477 17.523 3 12 3z" fill="#191919"/></svg>
-      카카오로 로그인
-    </button>
-    <p class="loading-tip" id="loading-tip">카카오 로그인 창이 열렸습니다. 팝업이 차단된 경우 허용해주세요.</p>
-
-    <div class="divider"><span>처음 방문하신가요?</span></div>
-    <p class="signup-link"><a href="/reviewer/signup">검수자로 신청하기 →</a></p>
-  </div>
-</main>
-
-<footer>
-  문의: <a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a>
-  &nbsp;|&nbsp; © 2025 IUMM. All rights reserved.
-</footer>
-
 <script>
-var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+var SERVER_BASE = 'https://iumm-pipeline-production.up.railway.app';
+var REDIRECT_URI = window.location.origin + '/reviewer/login';
 var KAKAO_JS_KEY = 'd37fe286e0256c9199a29236ed10c244';
 
-window.addEventListener('DOMContentLoaded', function() {
-  if (!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
-
-  // 이미 로그인된 경우 바로 이동
-  var token = localStorage.getItem('reviewerToken');
-  if (token) {
-    fetch(API_BASE + '/api/reviewer/me', { headers: { Authorization: 'Bearer ' + token } })
-      .then(function(r){ return r.json(); })
-      .then(function(d) {
-        if (d.success) {
-          location.href = d.reviewer.active ? '/reviewer/' : '/reviewer/pending';
-        }
-      }).catch(function(){});
-  }
-});
-
-function showError(msg) {
-  var el = document.getElementById('err-box');
-  el.textContent = msg; el.style.display = 'block';
-  document.getElementById('kakao-btn').disabled = false;
-  document.getElementById('kakao-btn').textContent = '카카오로 로그인';
-  document.getElementById('loading-tip').style.display = 'none';
+function showStatus(type, message){
+  var box = document.getElementById('status');
+  box.className = 'status-box show ' + type;
+  box.innerHTML = message;
 }
 
-function doKakaoLogin() {
-  var btn = document.getElementById('kakao-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span style="font-size:13px">로그인 처리 중...</span>';
-  document.getElementById('loading-tip').style.display = 'block';
-  document.getElementById('err-box').style.display = 'none';
+function setButtonLoading(loading){
+  var btn = document.getElementById('btn-kakao');
+  var txt = document.getElementById('btn-kakao-text');
+  btn.disabled = loading;
+  txt.textContent = loading ? '처리 중...' : '카카오로 로그인';
+}
 
-  Kakao.Auth.login({
-    success: function(authObj) {
-      Kakao.API.request({
-        url: '/v2/user/me',
-        success: function(userInfo) {
-          var kakaoId = String(userInfo.id);
-          var email   = (userInfo.kakao_account && userInfo.kakao_account.email) || '';
-          var name    = (userInfo.kakao_account && userInfo.kakao_account.name)
-                        || (userInfo.properties && userInfo.properties.nickname) || '';
-
-          fetch(API_BASE + '/api/reviewer/kakao-login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ kakaoToken: authObj.access_token, kakaoId: kakaoId, email: email, name: name })
-          })
-          .then(function(r){ return r.json(); })
-          .then(function(data) {
-            document.getElementById('loading-tip').style.display = 'none';
-            if (data.error) { showError(data.error); return; }
-
-            if (data.status === 'active') {
-              localStorage.setItem('reviewerToken', data.token);
-              location.href = '/reviewer/';
-            } else if (data.status === 'pending') {
-              localStorage.setItem('reviewerToken', data.token);
-              localStorage.setItem('pendingReviewerInfo', JSON.stringify(data.reviewer || {}));
-              location.href = '/reviewer/pending';
-            } else {
-              // 미등록 → 가입 페이지
-              localStorage.setItem('kakaoInfo', JSON.stringify({
-                kakaoId: kakaoId, email: email, name: name, token: authObj.access_token
-              }));
-              location.href = '/reviewer/signup';
-            }
-          })
-          .catch(function(e) { showError('서버 연결 오류가 발생했습니다: ' + e.message); });
-        },
-        fail: function(err) { showError('카카오 사용자 정보를 가져오지 못했습니다.'); }
-      });
-    },
-    fail: function(err) {
-      showError('카카오 로그인에 실패했습니다. 다시 시도해주세요.');
-    }
+function startKakaoLogin(){
+  if (typeof Kakao === 'undefined'){
+    showStatus('error', '카카오 SDK를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
+    return;
+  }
+  if (!Kakao.isInitialized()){
+    try { Kakao.init(KAKAO_JS_KEY); }
+    catch(e){ showStatus('error', '카카오 초기화 실패. 새로고침해주세요.'); return; }
+  }
+  Kakao.Auth.authorize({
+    redirectUri: REDIRECT_URI,
+    scope: 'profile_nickname,account_email'
   });
 }
+
+async function handleKakaoCallback(code){
+  setButtonLoading(true);
+  showStatus('info', '<span class="loading-spinner"></span>카카오 인증 확인 중...');
+  try {
+    var res = await fetch(SERVER_BASE + '/api/reviewer/kakao-callback', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ code: code, redirectUri: REDIRECT_URI })
+    });
+    var data = await res.json();
+
+    if (!res.ok){
+      showStatus('error', (data.error || '로그인에 실패했습니다.') + '<br><br><a href="/reviewer/login">다시 시도하기 →</a>');
+      setButtonLoading(false);
+      return;
+    }
+
+    if (data.status === 'unregistered'){
+      localStorage.setItem('kakaoInfo', JSON.stringify({
+        kakaoId: data.kakaoInfo.kakaoId,
+        email:   data.kakaoInfo.email,
+        name:    data.kakaoInfo.name,
+        token:   data.kakaoInfo.token
+      }));
+      showStatus('info', '신규 검수자로 확인됐습니다. 가입 신청 페이지로 이동합니다.');
+      setTimeout(function(){ location.href = '/reviewer/signup'; }, 800);
+      return;
+    }
+
+    if (data.status === 'pending'){
+      localStorage.setItem('reviewerToken', data.token);
+      localStorage.setItem('pendingReviewerInfo', JSON.stringify(data.reviewer));
+      showStatus('info', '가입 승인 대기 중입니다. 안내 페이지로 이동합니다.');
+      setTimeout(function(){ location.href = '/reviewer/pending'; }, 800);
+      return;
+    }
+
+    if (data.status === 'active'){
+      localStorage.setItem('reviewerToken', data.token);
+      showStatus('info', data.reviewer.name + '님 환영합니다. 대시보드로 이동합니다.');
+      setTimeout(function(){ location.href = '/reviewer/'; }, 600);
+      return;
+    }
+
+    showStatus('error', '알 수 없는 응답입니다.<br><br><a href="/reviewer/login">다시 시도하기 →</a>');
+    setButtonLoading(false);
+  } catch(err){
+    console.error('카카오 콜백 처리 오류:', err);
+    showStatus('error', '서버 연결에 실패했습니다.<br><br><a href="/reviewer/login">다시 시도하기 →</a>');
+    setButtonLoading(false);
+  }
+}
+
+(function init(){
+  var existingToken = localStorage.getItem('reviewerToken');
+  if (existingToken){
+    location.href = '/reviewer/';
+    return;
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get('code');
+  var error = params.get('error');
+
+  if (error){
+    showStatus('error', '카카오 로그인이 취소됐거나 거부되었습니다.<br><br><a href="/reviewer/login">다시 시도하기 →</a>');
+    history.replaceState(null, '', '/reviewer/login');
+    return;
+  }
+
+  if (code){
+    history.replaceState(null, '', '/reviewer/login');
+    handleKakaoCallback(code);
+    return;
+  }
+})();
 </script>
+
 </body>
 </html>
