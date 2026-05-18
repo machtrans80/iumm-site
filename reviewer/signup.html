@@ -682,7 +682,7 @@ async function doSignup(e){
     fd.append('전문분야',    JSON.stringify(Array.from(selectedSpecs)));
     fd.append('검수언어',    JSON.stringify(Array.from(selectedLangs)));
     fd.append('자격증종류',  selectedCert.name);
-    fd.append('검수자등급',  selectedCert.group);
+    fd.append('검수자등급',  selectedCert.group === 'premium' ? '전문 자격사 프리미엄' : '전문 검수자');
     fd.append('최종학력',    document.getElementById('education').value.trim());
     fd.append('경력',        document.getElementById('career').value.trim());
     fd.append('어필메시지',  document.getElementById('appeal').value.trim());
