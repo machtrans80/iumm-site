@@ -3282,6 +3282,31 @@ function showPage(p){
   else if(p==='privacy'){document.getElementById('page-privacy').style.display='block';window.scrollTo(0,0);}
   else if(p==='faq'){document.getElementById('page-faq').style.display='block';window.scrollTo(0,0);}
 }
+
+// ─── URL hash로 약관 앵커 진입 처리 ──────────────────────
+// /index.html#article-8-2 같은 직접 링크로 접속 시 자동으로 약관 페이지 열고 해당 앵커로 스크롤
+function openTermsAtAnchor(anchorId){
+  showPage('terms');
+  requestAnimationFrame(function(){
+    setTimeout(function(){
+      var el = document.getElementById(anchorId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  });
+}
+
+// 페이지 진입 시 URL hash 확인 → 약관 앵커면 자동 처리
+function handleInitialHash(){
+  var hash = window.location.hash;
+  if (!hash) return;
+  var anchorId = hash.replace(/^#/, '');
+  if (anchorId === 'article-8-2' || anchorId.indexOf('article-8-2-section-') === 0) {
+    openTermsAtAnchor(anchorId);
+  }
+}
+
 function handleExpertNav(){
   if(!isLoggedIn){showPage('login');return;}
   showPage('experts');
@@ -4317,6 +4342,11 @@ window.addEventListener('DOMContentLoaded', function(){
     try{ Kakao.init('d37fe286e0256c9199a29236ed10c244'); }catch(e){}
   }
   restoreLogin();
+  handleInitialHash();
+});
+// 약관 페이지 내에서 다른 앵커로 이동 시도 시 처리
+window.addEventListener('hashchange', function(){
+  handleInitialHash();
 });
 </script>
 </body>
