@@ -2,124 +2,155 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IUMM 검수자 신청 접수</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>가입 신청 완료 - IUMM</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --navy:#1A2B4A;--navy-light:#2A3B5A;--gold:#C9A961;
-  --bg:#FAFAFA;--white:#FFFFFF;--text:#2D3748;--text-light:#4A5568;
-  --gray:#718096;--border:#E2E8F0;--green:#38A169;
+  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
+  --gray:#888;--border:rgba(201,168,76,0.15);
+  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+  --red:#e05555;--green:#97c459;
 }
-html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text);display:flex;flex-direction:column}
-.top-bar{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-size:20px;font-weight:700;color:var(--white);letter-spacing:2px;text-decoration:none}
-.logo span{color:var(--gold)}
-.progress{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.5)}
-.progress .step.active{color:var(--gold)}
-.progress .arrow{color:rgba(255,255,255,0.2)}
-
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
-.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:48px 40px;max-width:520px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(26,43,74,0.08)}
-
-.check-icon{width:72px;height:72px;background:linear-gradient(135deg,#48BB78,#38A169);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:34px;box-shadow:0 8px 24px rgba(56,161,105,0.25)}
-.card-title{font-size:24px;font-weight:700;color:var(--navy);margin-bottom:8px}
-.card-sub{font-size:14px;color:var(--gray);line-height:1.7;margin-bottom:32px}
-.card-sub strong{color:var(--text)}
-
-/* 신청 요약 */
-.summary{background:#F7FAFC;border:1px solid var(--border);border-radius:8px;padding:20px;text-align:left;margin-bottom:28px}
-.summary-title{font-size:12px;font-weight:700;color:var(--navy);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
-.summary-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
-.summary-row:last-child{border-bottom:none;padding-bottom:0}
-.summary-key{color:var(--gray);min-width:80px;flex-shrink:0}
-.summary-val{color:var(--text);font-weight:500;word-break:break-all}
-.grade-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700}
-.grade-badge.premium{background:rgba(201,169,97,0.15);color:#8B6914}
-.grade-badge.standard{background:rgba(26,43,74,0.1);color:var(--navy)}
-
-/* 안내 메시지 */
-.notice{background:rgba(56,161,105,0.06);border:1px solid rgba(56,161,105,0.2);border-radius:8px;padding:16px 18px;text-align:left;margin-bottom:24px}
-.notice p{font-size:13px;color:var(--text-light);line-height:1.7}
-.notice p + p{margin-top:6px}
-.notice strong{color:var(--green)}
-
-.btn-logout{width:100%;padding:14px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:background 0.2s;margin-bottom:12px}
-.btn-logout:hover{background:var(--navy-light)}
-.contact{font-size:13px;color:var(--gray)}
-.contact a{color:var(--navy);font-weight:500;text-decoration:none}
-.contact a:hover{color:var(--gold)}
-
-footer{background:var(--navy);color:rgba(255,255,255,0.4);font-size:12px;text-align:center;padding:20px}
-footer a{color:rgba(255,255,255,0.5);text-decoration:none}
-@media(max-width:480px){.card{padding:32px 20px}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;
+  background:var(--black);color:var(--white);min-height:100vh;
+}
+.top-bar{
+  background:var(--black);border-bottom:1px solid var(--border);
+  padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+}
+.top-bar .logo{font-size:18px;font-weight:300;letter-spacing:2px;color:var(--gold)}
+.top-bar .progress{display:flex;gap:8px;font-size:11px;color:var(--gray)}
+.top-bar .progress .step{padding:4px 10px;border:1px solid var(--border);border-radius:3px}
+.top-bar .progress .step.done{color:var(--gold-light);border-color:rgba(201,168,76,0.4)}
+.top-bar .progress .step.active{color:var(--gold);border-color:var(--gold);background:rgba(201,168,76,0.05)}
+main{max-width:560px;margin:60px auto;padding:0 24px}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;padding:48px 36px;text-align:center}
+.check-icon{
+  width:64px;height:64px;margin:0 auto 24px;
+  background:rgba(151,196,89,0.1);border:2px solid var(--green);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:var(--green);font-weight:300;
+}
+.card-title{font-size:20px;font-weight:500;color:var(--white);margin-bottom:12px}
+.card-desc{font-size:13px;color:var(--gray);line-height:1.7;margin-bottom:32px}
+.card-desc strong{color:var(--gold-light);font-weight:500}
+.summary-box{background:rgba(201,168,76,0.04);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:24px;text-align:left}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(201,168,76,0.08);font-size:13px}
+.summary-row:last-child{border-bottom:none}
+.summary-label{color:var(--gray);font-size:12px}
+.summary-value{color:var(--white);font-weight:500}
+.summary-value.empty{color:var(--gray);font-weight:400;font-style:italic}
+.grade-badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;background:rgba(201,168,76,0.15);color:var(--gold-light);border:1px solid rgba(201,168,76,0.3)}
+.notice{background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:16px 20px;margin-bottom:24px;font-size:12px;color:var(--gold-light);line-height:1.8;text-align:left}
+.notice strong{color:var(--gold)}
+.notice ul{padding-left:18px;margin-top:6px}
+.notice li{margin-bottom:4px}
+.btn-logout{width:100%;padding:14px;font-size:14px;font-weight:500;background:transparent;color:var(--gray);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn-logout:hover{color:var(--white);border-color:var(--gold)}
+.contact-link{display:block;text-align:center;margin-top:24px;font-size:12px;color:var(--gray);text-decoration:none}
+.contact-link a{color:var(--gold);text-decoration:none}
+.contact-link a:hover{text-decoration:underline}
+footer{margin-top:40px;text-align:center;font-size:11px;color:var(--gray);padding:24px}
+footer a{color:var(--gray);text-decoration:none}
+footer a:hover{color:var(--gold-light)}
 </style>
 </head>
 <body>
+
 <div class="top-bar">
-  <a href="https://iumm.kr" class="logo">IU<span>MM</span></a>
+  <div class="logo">IUMM</div>
   <div class="progress">
-    <span class="step">1. 카카오 인증</span>
-    <span class="arrow">›</span>
-    <span class="step">2. 정보 입력</span>
-    <span class="arrow">›</span>
-    <span class="step active">3. 신청 완료</span>
+    <div class="step done">1. 카카오 로그인</div>
+    <div class="step done">2. 정보 입력</div>
+    <div class="step active">3. 신청 완료</div>
   </div>
 </div>
 
 <main>
   <div class="card">
     <div class="check-icon">✓</div>
-    <h1 class="card-title">검수자 신청이 접수되었습니다</h1>
-    <p class="card-sub">소중한 신청을 받았습니다.<br><strong>관리자 검토 후 1~2 영업일 이내</strong>에<br>카카오톡으로 결과를 안내드립니다.</p>
+    <div class="card-title">검수자 신청이 접수되었습니다</div>
+    <div class="card-desc">
+      <strong>1~2 영업일</strong> 내에 자격 검토 후<br>
+      카카오톡 또는 이메일로 결과를 안내해 드립니다.
+    </div>
 
-    <div class="summary" id="summary-box">
-      <div class="summary-title">📋 신청 정보</div>
-      <div id="summary-rows">
-        <div class="summary-row"><span class="summary-key">이름</span><span class="summary-val" id="s-name">—</span></div>
-        <div class="summary-row"><span class="summary-key">등급</span><span class="summary-val" id="s-grade">—</span></div>
-        <div class="summary-row"><span class="summary-key">자격증</span><span class="summary-val" id="s-cert">—</span></div>
-        <div class="summary-row"><span class="summary-key">전문분야</span><span class="summary-val" id="s-spec">—</span></div>
+    <div class="summary-box">
+      <div class="summary-row">
+        <span class="summary-label">이름</span>
+        <span class="summary-value" id="s-name">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">검수자 등급</span>
+        <span class="summary-value" id="s-grade">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">자격증 종류</span>
+        <span class="summary-value" id="s-cert">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">전문 분야</span>
+        <span class="summary-value" id="s-spec">-</span>
       </div>
     </div>
 
     <div class="notice">
-      <p>📱 카카오톡 알림을 <strong>반드시 허용</strong>해주세요.</p>
-      <p>📧 결과는 가입 시 입력하신 이메일로도 전달됩니다.</p>
-      <p>⏱ 승인 후 즉시 검수자 포털에 접속 가능합니다.</p>
+      <strong>💡 안내사항</strong>
+      <ul>
+        <li>카카오톡 알림을 허용해 주세요 (결과 알림 발송)</li>
+        <li>승인 완료 후 다시 로그인하시면 검수 작업을 시작하실 수 있습니다</li>
+        <li>심사 기간 중 추가 자료 요청이 있을 수 있습니다</li>
+      </ul>
     </div>
 
     <button class="btn-logout" onclick="doLogout()">로그아웃</button>
-    <p class="contact">문의: <a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a></p>
+
+    <div class="contact-link">
+      문의: <a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a>
+    </div>
   </div>
 </main>
 
-<footer>© 2025 IUMM. All rights reserved. &nbsp;|&nbsp; <a href="https://iumm.kr">메인 사이트</a></footer>
+<footer>
+  <a href="/">← IUMM 메인으로</a>
+</footer>
 
 <script>
-window.addEventListener('DOMContentLoaded', function() {
-  // 신청 정보 표시
+document.addEventListener('DOMContentLoaded', function(){
   var info = JSON.parse(localStorage.getItem('pendingReviewerInfo') || '{}');
-  if (info.name)  document.getElementById('s-name').textContent  = info.name;
+  if (info.name) document.getElementById('s-name').textContent = info.name;
   if (info.grade) {
-    var badge = info.grade === '전문 자격사 프리미엄' ? 'premium' : 'standard';
-    document.getElementById('s-grade').innerHTML = '<span class="grade-badge '+badge+'">'+info.grade+'</span>';
+    document.getElementById('s-grade').innerHTML = '<span class="grade-badge">' + info.grade + '</span>';
   }
-  if (info.certType)  document.getElementById('s-cert').textContent = info.certType;
-  if (info.expertise) {
-    var specs = Array.isArray(info.expertise) ? info.expertise : [info.expertise];
-    document.getElementById('s-spec').textContent = specs.join(', ') || '—';
+  if (info.certType) {
+    document.getElementById('s-cert').textContent = info.certType;
+  } else {
+    var certEl = document.getElementById('s-cert');
+    certEl.textContent = '미선택';
+    certEl.classList.add('empty');
+  }
+  if (info.expertise && Array.isArray(info.expertise) && info.expertise.length) {
+    document.getElementById('s-spec').textContent = info.expertise.join(', ');
+  } else {
+    var specEl = document.getElementById('s-spec');
+    specEl.textContent = '미선택';
+    specEl.classList.add('empty');
   }
 });
 
-function doLogout() {
-  localStorage.removeItem('reviewerToken');
-  localStorage.removeItem('pendingReviewerInfo');
-  localStorage.removeItem('kakaoInfo');
+function doLogout(){
+  if (!confirm('로그아웃 하시겠습니까?')) return;
+  try {
+    localStorage.removeItem('reviewerToken');
+    localStorage.removeItem('pendingReviewerInfo');
+    localStorage.removeItem('kakaoInfo');
+  } catch(e){}
   location.href = '/reviewer/login';
 }
 </script>
+
 </body>
 </html>

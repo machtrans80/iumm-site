@@ -2,491 +2,518 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IUMM 검수자 신청</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>검수자 가입 신청 - IUMM</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --navy:#1A2B4A;--navy-light:#2A3B5A;--gold:#C9A961;--gold-light:#DEC17A;
-  --bg:#FAFAFA;--white:#FFFFFF;--text:#2D3748;--text-light:#4A5568;
-  --gray:#718096;--border:#E2E8F0;--error:#E53E3E;--success:#38A169;
+  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
+  --gray:#888;--border:rgba(201,168,76,0.15);
+  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+  --red:#e05555;--green:#97c459;--input-bg:#1a1a1a;
 }
-html,body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text);line-height:1.6}
-
-/* ─ 헤더 ─ */
-.top-bar{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{font-size:20px;font-weight:700;color:var(--white);letter-spacing:2px;text-decoration:none}
-.logo span{color:var(--gold)}
-.progress{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.5)}
-.progress .step{display:flex;align-items:center;gap:4px}
-.progress .step.active{color:var(--gold)}
-.progress .arrow{color:rgba(255,255,255,0.2)}
-
-/* ─ 메인 ─ */
-main{max-width:680px;margin:0 auto;padding:32px 20px 60px}
-h1.page-title{font-size:26px;font-weight:700;color:var(--navy);margin-bottom:6px}
-.page-sub{font-size:14px;color:var(--gray);margin-bottom:28px}
-
-/* ─ 안내 박스 ─ */
-.info-box{border-radius:8px;padding:18px 20px;margin-bottom:20px;font-size:13px;line-height:1.7}
-.info-box.security{background:#F0F7FF;border:1px solid #BEE3F8}
-.info-box.fee{background:#FFFFF0;border:1px solid #F6E05E}
-.info-box.settlement{background:#F0FFF4;border:1px solid #9AE6B4}
-.info-box h3{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.info-box ul{margin-left:16px}
-.info-box li{margin-bottom:3px}
-.info-box p{color:var(--text-light)}
-
-/* ─ 섹션 ─ */
-.section{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px}
-.section-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
-
-/* ─ 폼 필드 ─ */
-.field{margin-bottom:16px}
-.field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
-.field label .req{color:var(--error);margin-left:2px}
-.field label .opt{color:var(--gray);font-weight:400;font-size:12px;margin-left:4px}
-.inp{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--text);background:var(--white);transition:border-color 0.2s;outline:none}
-.inp:focus{border-color:var(--navy)}
-.inp:read-only{background:#F7FAFC;color:var(--gray)}
-.inp.error{border-color:var(--error);background:#FFF5F5}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;
+  background:var(--black);color:var(--white);min-height:100vh;
+}
+.top-bar{
+  background:var(--black);border-bottom:1px solid var(--border);
+  padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+}
+.top-bar .logo{font-size:18px;font-weight:300;letter-spacing:2px;color:var(--gold)}
+.top-bar .progress{display:flex;gap:8px;font-size:11px;color:var(--gray)}
+.top-bar .progress .step{padding:4px 10px;border:1px solid var(--border);border-radius:3px}
+.top-bar .progress .step.done{color:var(--gold-light);border-color:rgba(201,168,76,0.4)}
+.top-bar .progress .step.active{color:var(--gold);border-color:var(--gold);background:rgba(201,168,76,0.05)}
+main{max-width:720px;margin:32px auto;padding:0 24px 60px}
+h1{font-size:22px;font-weight:500;color:var(--white);margin-bottom:8px;text-align:center}
+.page-desc{text-align:center;color:var(--gray);font-size:13px;margin-bottom:32px;line-height:1.7}
+.info-box{
+  padding:14px 18px;border-radius:4px;font-size:12px;line-height:1.7;margin-bottom:16px;
+}
+.info-box.security{background:rgba(151,196,89,0.06);border:1px solid rgba(151,196,89,0.25);color:var(--green)}
+.info-box.fee{background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.25);color:var(--gold-light)}
+.info-box.settlement{background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.25);color:var(--gold-light)}
+.info-box strong{color:var(--white);font-weight:500}
+.form-err{
+  display:none;background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.3);
+  color:var(--red);padding:12px 16px;border-radius:4px;font-size:13px;margin-bottom:16px;
+}
+.form-err.show{display:block}
+section{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:6px;padding:24px;margin-bottom:16px;
+}
+.section-title{
+  font-size:14px;font-weight:500;color:var(--gold);margin-bottom:16px;
+  letter-spacing:0.5px;display:flex;align-items:center;gap:8px;
+}
+.section-title::before{content:'▸';color:var(--gold-light)}
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+label{display:block;font-size:12px;color:var(--gray);margin-bottom:6px;font-weight:500}
+label .req{color:var(--red);margin-left:2px}
+.inp{
+  width:100%;padding:11px 14px;font-size:14px;
+  background:var(--input-bg);color:var(--white);
+  border:1px solid rgba(255,255,255,0.12);border-radius:4px;
+  font-family:inherit;transition:border 0.15s;
+}
+.inp:focus{outline:none;border-color:var(--gold)}
+.inp:disabled{background:rgba(255,255,255,0.03);color:var(--gray);cursor:not-allowed}
+textarea.inp{resize:vertical;min-height:80px;line-height:1.6}
+select.inp{cursor:pointer}
+.field-hint{font-size:11px;color:var(--gray);margin-top:4px;line-height:1.5}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field-hint{font-size:11px;color:var(--gray);margin-top:4px}
-
-/* ─ 전문 분야 ─ */
-.spec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.spec-item{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all 0.15s;font-size:13px}
-.spec-item:hover{border-color:var(--navy);background:#F7FAFC}
-.spec-item input[type=checkbox]{accent-color:var(--navy);width:14px;height:14px;cursor:pointer;flex-shrink:0}
-.spec-item.checked{border-color:var(--navy);background:#EBF4FF}
-
-/* ─ 자격증 종류 ─ */
-.cert-group{margin-bottom:12px}
-.cert-group-label{font-size:12px;font-weight:700;color:var(--navy-light);letter-spacing:0.5px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:8px}
-.cert-group-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-left:6px}
-.cert-group-badge.premium{background:rgba(201,169,97,0.15);color:#8B6914}
-.cert-group-badge.standard{background:rgba(26,43,74,0.1);color:var(--navy)}
-.cert-options{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
-.cert-option{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;transition:all 0.15s}
-.cert-option:hover{border-color:var(--gold)}
-.cert-option input[type=radio]{accent-color:var(--gold);cursor:pointer;flex-shrink:0}
-.cert-option.selected{border-color:var(--gold);background:rgba(201,169,97,0.06)}
-
-/* ─ 자격증 등급 표시 ─ */
-.grade-display{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);color:var(--white);border-radius:8px;padding:14px 18px;margin-top:12px;display:none}
-.grade-display.show{display:block}
-.grade-name{font-size:16px;font-weight:700;color:var(--gold)}
-.grade-rate{font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px}
-
-/* ─ 직접 입력 ─ */
-.custom-input{margin-top:8px;display:none}
-.custom-input.show{display:block}
-
-/* ─ 파일 업로드 ─ */
-.upload-area{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--white)}
-.upload-area:hover,.upload-area.drag{border-color:var(--navy);background:#F7FAFC}
-.upload-area input[type=file]{display:none}
-.upload-icon{font-size:32px;margin-bottom:8px}
-.upload-text{font-size:14px;color:var(--gray)}
-.upload-text strong{color:var(--navy);cursor:pointer}
-.upload-text strong:hover{color:var(--gold);text-decoration:underline}
-.upload-formats{font-size:11px;color:var(--gray);margin-top:4px}
-.file-list{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
-.file-tag{background:#EBF4FF;border:1px solid #BEE3F8;color:#2B6CB0;padding:4px 10px;border-radius:4px;font-size:12px;display:flex;align-items:center;gap:6px}
-.file-tag button{background:none;border:none;cursor:pointer;color:#E53E3E;font-size:14px;line-height:1;padding:0 2px}
-
-/* ─ 동의 ─ */
-.consent-item{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
-.consent-item:last-child{border-bottom:none}
-.consent-item input[type=checkbox]{accent-color:var(--navy);width:16px;height:16px;margin-top:2px;cursor:pointer;flex-shrink:0}
-.consent-item label{font-size:13px;color:var(--text);cursor:pointer;flex:1}
-.consent-item .detail-btn{font-size:12px;color:var(--gray);text-decoration:underline;background:none;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.consent-item .detail-btn:hover{color:var(--navy)}
-
-/* ─ 제출 버튼 ─ */
-.btn-submit{width:100%;padding:16px;background:var(--navy);color:var(--white);border:none;border-radius:8px;font-size:16px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all 0.2s;margin-top:4px}
-.btn-submit:hover:not(:disabled){background:var(--navy-light);transform:translateY(-1px)}
-.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-
-/* ─ 에러 ─ */
-.form-err{background:#FFF5F5;border:1px solid #FED7D7;color:var(--error);padding:14px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;line-height:1.6}
-
-/* ─ 모달 ─ */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal-box{background:var(--white);border-radius:10px;padding:28px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto}
-.modal-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px}
-.modal-content{font-size:13px;color:var(--text-light);line-height:1.8}
-.modal-close{display:block;margin-top:20px;padding:10px;background:var(--navy);color:var(--white);border:none;border-radius:6px;width:100%;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
-
-footer{background:var(--navy);color:rgba(255,255,255,0.4);font-size:12px;text-align:center;padding:20px}
-
-@media(max-width:600px){
-  .spec-grid{grid-template-columns:repeat(2,1fr)}
-  .cert-options{grid-template-columns:1fr}
-  .row2{grid-template-columns:1fr}
+@media(max-width:540px){.row2{grid-template-columns:1fr}}
+.spec-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:8px;margin-top:8px;
 }
+.spec-item{
+  padding:10px 12px;background:var(--input-bg);
+  border:1px solid rgba(255,255,255,0.1);border-radius:4px;
+  font-size:13px;cursor:pointer;text-align:center;
+  transition:all 0.15s;color:var(--white);
+}
+.spec-item:hover{border-color:rgba(201,168,76,0.4)}
+.spec-item.selected{background:rgba(201,168,76,0.12);border-color:var(--gold);color:var(--gold-light)}
+.lang-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:6px;margin-top:8px;max-height:280px;overflow-y:auto;
+  padding:10px;background:var(--input-bg);border-radius:4px;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.lang-item{
+  padding:8px 10px;background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);border-radius:3px;
+  font-size:12px;cursor:pointer;color:var(--white);transition:all 0.15s;
+  text-align:center;
+}
+.lang-item:hover{border-color:rgba(201,168,76,0.3)}
+.lang-item.selected{background:rgba(201,168,76,0.12);border-color:var(--gold);color:var(--gold-light)}
+.cert-option{
+  display:flex;align-items:center;gap:10px;padding:12px;
+  background:var(--input-bg);border:1px solid rgba(255,255,255,0.08);
+  border-radius:4px;margin-bottom:6px;cursor:pointer;transition:all 0.15s;
+}
+.cert-option:hover{border-color:rgba(201,168,76,0.3)}
+.cert-option input[type="radio"]{margin:0;cursor:pointer}
+.cert-option label{margin:0;cursor:pointer;font-size:13px;color:var(--white);font-weight:400;flex:1}
+.cert-option.selected{background:rgba(201,168,76,0.08);border-color:var(--gold)}
+.cert-group-title{font-size:11px;color:var(--gold);margin:14px 0 6px;text-transform:uppercase;letter-spacing:1px}
+.cert-group-title:first-child{margin-top:0}
+.file-area{
+  border:1px dashed rgba(201,168,76,0.3);border-radius:4px;
+  padding:24px;text-align:center;background:rgba(255,255,255,0.02);
+  cursor:pointer;transition:all 0.15s;
+}
+.file-area:hover{border-color:var(--gold);background:rgba(201,168,76,0.04)}
+.file-area p{font-size:13px;color:var(--gray);margin:0}
+.file-area strong{color:var(--gold-light);font-weight:500}
+.file-list{margin-top:10px}
+.file-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);border-radius:3px;
+  font-size:12px;margin-bottom:4px;
+}
+.file-item .name{color:var(--white)}
+.file-item .remove{color:var(--red);cursor:pointer;font-size:11px;background:none;border:none;font-family:inherit}
+.consent-item{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.consent-item:last-child{border-bottom:none}
+.consent-item input[type="checkbox"]{margin-top:3px;width:16px;height:16px;cursor:pointer;accent-color:var(--gold)}
+.consent-item label{margin:0;font-size:12px;color:var(--white);line-height:1.6;cursor:pointer;flex:1;font-weight:400}
+.consent-item .btn-detail{
+  background:none;border:none;color:var(--gold);font-size:11px;
+  cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;
+}
+
+.responsibility-section{
+  background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.25);
+  border-radius:5px;padding:20px 22px;margin-top:18px;margin-bottom:18px;
+}
+.responsibility-title{
+  font-size:13px;font-weight:600;color:var(--gold);margin-bottom:14px;
+  letter-spacing:0.3px;
+}
+.responsibility-intro{
+  font-size:12px;color:var(--white);line-height:1.7;margin-bottom:14px;opacity:0.85;
+}
+.responsibility-intro strong{color:var(--gold-light);font-weight:500}
+.resp-item{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:10px 12px;margin-bottom:6px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+  border-radius:3px;
+}
+.resp-item-text{flex:1}
+.resp-item-title{
+  font-size:13px;color:var(--white);font-weight:500;line-height:1.5;
+  display:flex;align-items:center;gap:6px;
+}
+.resp-item-title::before{content:'▸';color:var(--gold);font-weight:500}
+.resp-item-desc{font-size:11px;color:var(--gray);margin-top:3px;line-height:1.5;padding-left:14px}
+.resp-detail-link{
+  font-size:11px;color:var(--gold);text-decoration:none;
+  border:1px solid rgba(201,168,76,0.3);border-radius:3px;
+  padding:4px 10px;white-space:nowrap;flex-shrink:0;transition:all 0.15s;
+}
+.resp-detail-link:hover{background:rgba(201,168,76,0.1);border-color:var(--gold)}
+.resp-divider{height:1px;background:rgba(201,168,76,0.15);margin:14px 0 12px}
+.resp-final-agree{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 0;cursor:pointer;
+}
+.resp-final-agree input[type="checkbox"]{
+  margin-top:2px;width:18px;height:18px;cursor:pointer;accent-color:var(--gold);flex-shrink:0;
+}
+.resp-final-agree label{
+  margin:0;font-size:12px;color:var(--white);line-height:1.65;cursor:pointer;font-weight:500;
+}
+.resp-final-agree label .req{color:var(--red);margin-left:2px}
+
+.btn-submit{
+  width:100%;padding:15px;font-size:15px;font-weight:600;
+  background:var(--gold);color:var(--black);
+  border:none;border-radius:5px;cursor:pointer;
+  font-family:inherit;transition:opacity 0.15s;margin-top:16px;
+}
+.btn-submit:hover{opacity:0.9}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed}
+
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  z-index:1000;align-items:center;justify-content:center;padding:24px;
+}
+.modal-overlay.open{display:flex}
+.modal-content{
+  background:#1a1a1a;border:1px solid var(--border);border-radius:6px;
+  max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:28px;
+}
+.modal-title{font-size:16px;font-weight:600;color:var(--gold);margin-bottom:14px}
+.modal-body{font-size:13px;color:var(--white);line-height:1.7}
+.modal-body p{margin-bottom:8px}
+.modal-close{
+  margin-top:18px;padding:10px 24px;background:var(--gold);color:var(--black);
+  border:none;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer;
+  font-family:inherit;
+}
+
+footer{margin-top:40px;text-align:center;font-size:11px;color:var(--gray);padding:24px;border-top:1px solid var(--border)}
+footer a{color:var(--gray);text-decoration:none;margin:0 8px}
+footer a:hover{color:var(--gold-light)}
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <a href="https://iumm.kr" class="logo">IU<span>MM</span></a>
+  <div class="logo">IUMM</div>
   <div class="progress">
-    <span class="step">1. 카카오 인증</span>
-    <span class="arrow">›</span>
-    <span class="step active">2. 정보 입력</span>
-    <span class="arrow">›</span>
-    <span class="step">3. 신청 완료</span>
+    <div class="step done">1. 카카오 로그인</div>
+    <div class="step active">2. 정보 입력</div>
+    <div class="step">3. 신청 완료</div>
   </div>
 </div>
 
 <main>
-  <h1 class="page-title">검수자 가입 신청</h1>
-  <p class="page-sub">IUMM 전문 검수자 시스템에 오신 것을 환영합니다. 정확한 정보를 입력해주세요.</p>
 
-  <!-- 자격증 보호 안내 -->
-  <div class="info-box security">
-    <h3>🔒 자격증/학위 자료 사용 안내</h3>
-    <p>귀하가 제공하시는 자격증 및 학위 사진은 다음 용도로만 사용됩니다:</p>
-    <ul style="margin-top:8px">
-      <li>✓ 검수자 자격 검증</li>
-      <li>✓ 고객 대상 검수자 어필 (분야별 전문성 표시)</li>
-      <li>✓ 인력 인증 및 증명</li>
-    </ul>
-    <p style="margin-top:8px">본 자료는 위 외 용도로 사용되거나 제3자에게 유출되지 않으며, 도용의 위험이 없음을 보장합니다. 자료는 안전하게 암호화되어 보관되며, 권한 있는 관리자만 접근 가능합니다.</p>
+<h1>검수자 가입 신청</h1>
+<p class="page-desc">전문 검수자로서 활동하기 위한 정보를 입력해 주세요.<br>모든 정보는 안전하게 암호화 저장됩니다.</p>
+
+<div class="info-box security">
+  🔒 <strong>개인정보 안전 보장</strong> · 자격증 사진과 계좌 정보는 외부 공개되지 않으며, 회사 내부 검증·정산 목적으로만 사용됩니다.
+</div>
+
+<div id="form-err" class="form-err"></div>
+
+<form id="signup-form" onsubmit="return doSignup(event)">
+
+  <section>
+    <div class="section-title">기본 정보</div>
+    <div class="row2">
+      <div class="field">
+        <label>이름<span class="req">*</span></label>
+        <input type="text" id="name" class="inp" required>
+      </div>
+      <div class="field">
+        <label>이메일<span class="req">*</span></label>
+        <input type="email" id="email" class="inp" required>
+        <div class="field-hint">카카오 계정 이메일이 자동 입력됩니다</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>전화번호<span class="req">*</span></label>
+      <input type="tel" id="phone" class="inp" placeholder="010-0000-0000" required oninput="formatPhone(this)">
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">전문 분야 (1개 이상 선택)<span class="req">*</span></div>
+    <div id="spec-grid" class="spec-grid"></div>
+  </section>
+
+  <section>
+    <div class="section-title">검수 가능 언어 (1개 이상 선택)<span class="req">*</span></div>
+    <div class="field-hint" style="margin-bottom:8px">한국어와 외국어 간의 양방향 검수 가능 언어쌍을 선택해 주세요.</div>
+    <div id="lang-grid" class="lang-grid"></div>
+  </section>
+
+  <section>
+    <div class="section-title">자격증 종류<span class="req">*</span></div>
+    <div id="cert-options"></div>
+  </section>
+
+  <div class="info-box fee">
+    💰 <strong>검수료 안내</strong> · 전문 자격사 프리미엄: 20원/글자 부터 / 전문 검수자: 10원/글자 부터 (자격 검증 후 등급별 책정)
   </div>
 
-  <div class="form-err" id="form-err"></div>
+  <section>
+    <div class="section-title">자격증·학위 파일 업로드<span class="req">*</span></div>
+    <div class="field-hint" style="margin-bottom:10px">선택한 자격증/학위 증빙 파일을 업로드해 주세요 (이미지, PDF / 최대 10개)</div>
+    <div class="file-area" onclick="document.getElementById('cert-files').click()">
+      <p><strong>클릭하여 파일 선택</strong><br>또는 드래그 앤 드롭</p>
+    </div>
+    <input type="file" id="cert-files" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFileSelect(event)">
+    <div id="file-list" class="file-list"></div>
+  </section>
 
-  <form id="signup-form" onsubmit="doSignup(event)">
+  <section>
+    <div class="section-title">추가 정보</div>
+    <div class="field">
+      <label>최종 학력<span class="req">*</span></label>
+      <input type="text" id="education" class="inp" placeholder="예: OO대학교 영어영문학과 졸업" required>
+    </div>
+    <div class="field">
+      <label>경력<span class="req">*</span></label>
+      <textarea id="career" class="inp" placeholder="번역·검수 관련 경력을 자유롭게 작성해 주세요" required></textarea>
+    </div>
+    <div class="field">
+      <label>어필 메시지 (선택)</label>
+      <textarea id="appeal" class="inp" placeholder="본인의 강점, 특기 등을 자유롭게 작성해 주세요"></textarea>
+    </div>
+  </section>
 
-    <!-- 기본 정보 -->
-    <div class="section">
-      <div class="section-title">👤 기본 정보</div>
+  <div class="info-box settlement">
+    💸 <strong>정산 안내</strong> · 납품 21일 경과 후 정산 대상, 월별 일괄 정산하며 익월 말일에 입금됩니다. (예: 4월 검수완료 → 5월 31일 입금)
+  </div>
+
+  <section>
+    <div class="section-title">계좌 정보</div>
+    <div class="field">
+      <label>은행<span class="req">*</span></label>
+      <select id="bank" class="inp" required>
+        <option value="">은행 선택</option>
+      </select>
+    </div>
+    <div class="row2">
       <div class="field">
-        <label for="name">이름 (실명) <span class="req">*</span></label>
-        <input type="text" class="inp" id="name" placeholder="홍길동" required>
+        <label>예금주<span class="req">*</span></label>
+        <input type="text" id="account-holder" class="inp" required>
       </div>
-      <div class="row2">
-        <div class="field">
-          <label for="email">이메일 <span class="req">*</span></label>
-          <input type="email" class="inp" id="email" placeholder="your@email.com" required>
+      <div class="field">
+        <label>계좌번호<span class="req">*</span></label>
+        <input type="text" id="account-number" class="inp" placeholder="- 없이 숫자만" required>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">약관 동의</div>
+    <div class="consent-item">
+      <input type="checkbox" id="agree1" required>
+      <label for="agree1">개인정보 수집·이용에 동의합니다 (필수)</label>
+      <button type="button" class="btn-detail" onclick="openModal('modal-privacy')">자세히</button>
+    </div>
+    <div class="consent-item">
+      <input type="checkbox" id="agree2" required>
+      <label for="agree2">자격증·학위 검증을 위한 정보 제공에 동의합니다 (필수)</label>
+      <button type="button" class="btn-detail" onclick="openModal('modal-cert')">자세히</button>
+    </div>
+    <div class="consent-item">
+      <input type="checkbox" id="agree3" required>
+      <label for="agree3">정산 처리를 위한 계좌 정보 제공에 동의합니다 (필수)</label>
+      <button type="button" class="btn-detail" onclick="openModal('modal-payment')">자세히</button>
+    </div>
+
+    <div class="responsibility-section">
+      <div class="responsibility-title">검수자 책임 사항 (필수 확인)</div>
+      <div class="responsibility-intro">
+        검수자로 가입하시면 다음 책임을 부담합니다. 각 항목의 <strong>"자세히 보기"</strong>에서 약관 본문을 확인하실 수 있습니다.
+      </div>
+
+      <div class="resp-item">
+        <div class="resp-item-text">
+          <div class="resp-item-title">가입 정보의 진실성</div>
+          <div class="resp-item-desc">허위 정보 시 책임이 발생합니다</div>
         </div>
-        <div class="field">
-          <label for="phone">전화번호 <span class="req">*</span></label>
-          <input type="tel" class="inp" id="phone" placeholder="010-1234-5678" oninput="formatPhone(this)" required>
+        <a href="/index.html#article-8-2-section-1" target="_blank" class="resp-detail-link">자세히 보기 →</a>
+      </div>
+
+      <div class="resp-item">
+        <div class="resp-item-text">
+          <div class="resp-item-title">마감 준수 의무</div>
+          <div class="resp-item-desc">소통하면 면책 가능합니다</div>
         </div>
+        <a href="/index.html#article-8-2-section-2" target="_blank" class="resp-detail-link">자세히 보기 →</a>
       </div>
-    </div>
 
-    <!-- 전문 분야 -->
-    <div class="section">
-      <div class="section-title">🎯 전문 분야 <span style="font-size:12px;font-weight:400;color:var(--gray)">(1개 이상 선택 필수)</span></div>
-      <div class="spec-grid" id="spec-grid">
-        <!-- JS로 렌더링 -->
-      </div>
-      <div class="field-hint" id="spec-hint" style="margin-top:10px;color:var(--error);display:none">전문 분야를 1개 이상 선택해주세요</div>
-    </div>
-
-    <!-- 검수 가능 언어 -->
-    <div class="section">
-      <div class="section-title">🌐 검수 가능 언어 (복수 선택 가능)</div>
-      <div class="spec-grid" id="lang-grid">
-        <!-- JS로 렌더링 -->
-      </div>
-      <div class="field-hint">검수 가능한 언어쌍을 모두 선택해주세요. 자격증/경력으로 증명 가능한 언어만 선택하세요.</div>
-    </div>
-
-    <!-- 자격증 종류 -->
-    <div class="section">
-      <div class="section-title">📋 자격증 종류 <span style="font-size:12px;font-weight:400;color:var(--gray)">(선택 필수)</span></div>
-      <div id="cert-options-container"></div>
-      <div class="custom-input" id="custom-cert-wrap">
-        <label class="field" style="margin-top:8px">
-          <span style="font-size:13px;font-weight:600">자격증/학력 직접 입력 <span class="req">*</span></span>
-          <input type="text" class="inp" id="custom-cert" placeholder="예: 법학박사, 특허사무소 10년 경력 등" style="margin-top:6px">
-        </label>
-      </div>
-      <div class="grade-display" id="grade-display">
-        <div class="grade-name" id="grade-name">등급 미선택</div>
-        <div class="grade-rate" id="grade-rate">자격증 종류를 선택하면 등급이 자동으로 결정됩니다</div>
-      </div>
-    </div>
-
-    <!-- 검수료 안내 -->
-    <div class="info-box fee">
-      <h3>💰 검수료 안내</h3>
-      <ul>
-        <li><strong>전문 자격사 프리미엄</strong> — 글자당 20원~ (변호사, 의사, 회계사 등)</li>
-        <li><strong>전문 검수자</strong> — 글자당 10원~ (석사, 전문번역사, 경력 5년+ 등)</li>
-      </ul>
-      <p style="margin-top:6px;font-size:12px">선택하신 자격증 종류에 따라 자동으로 등급이 결정됩니다.</p>
-    </div>
-
-    <!-- 파일 업로드 -->
-    <div class="section">
-      <div class="section-title">📎 자격증/학위 사진 <span style="font-size:12px;font-weight:400;color:var(--gray)">(필수, 최대 10개)</span></div>
-      <div class="upload-area" id="upload-area" onclick="document.getElementById('cert-file').click()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-        <div class="upload-icon">📷</div>
-        <p class="upload-text"><strong>파일 선택</strong> 또는 여기에 드래그하세요</p>
-        <p class="upload-formats">JPG, PNG, PDF · 파일당 최대 10MB</p>
-        <input type="file" id="cert-file" accept=".jpg,.jpeg,.png,.pdf" multiple onchange="addFiles(this.files)">
-      </div>
-      <div class="file-list" id="file-list"></div>
-    </div>
-
-    <!-- 추가 정보 -->
-    <div class="section">
-      <div class="section-title">📝 추가 정보</div>
-      <div class="field">
-        <label for="education">최종 학력 <span class="opt">(선택)</span></label>
-        <input type="text" class="inp" id="education" placeholder="예: OO대학교 법학과 석사 졸업">
-      </div>
-      <div class="field">
-        <label for="career">경력 <span class="opt">(선택)</span></label>
-        <textarea class="inp" id="career" rows="3" placeholder="관련 경력을 작성해주세요" style="resize:vertical"></textarea>
-      </div>
-      <div class="field">
-        <label for="appeal">어필 메시지 <span class="opt">(선택, 200자 이내)</span></label>
-        <textarea class="inp" id="appeal" rows="3" maxlength="200" placeholder="본인의 전문성을 어필해주세요" style="resize:vertical" oninput="document.getElementById('appeal-count').textContent=this.value.length"></textarea>
-        <div class="field-hint"><span id="appeal-count">0</span>/200자</div>
-      </div>
-    </div>
-
-    <!-- 정산 일정 -->
-    <div class="info-box settlement">
-      <h3>📅 정산 일정 안내</h3>
-      <ul>
-        <li>검수 완료 = 최종 납품 후 <strong>21일 경과</strong> 시점</li>
-        <li>정산 주기 = <strong>월별</strong> (해당 월 검수완료 작업)</li>
-        <li>입금일 = <strong>다음 달 말일</strong> (말일이 공휴일/주말이면 다음 평일)</li>
-      </ul>
-      <p style="margin-top:6px;font-size:12px">예: 4월 중 검수완료 → 5월 31일 입금</p>
-    </div>
-
-    <!-- 계좌 정보 -->
-    <div class="section">
-      <div class="section-title">🏦 계좌 정보 <span style="font-size:12px;font-weight:400;color:var(--gray)">(정산 입금용)</span></div>
-      <div class="row2">
-        <div class="field">
-          <label for="bank">은행명 <span class="req">*</span></label>
-          <select class="inp" id="bank" required>
-            <option value="">은행 선택</option>
-          </select>
+      <div class="resp-item">
+        <div class="resp-item-text">
+          <div class="resp-item-title">검수 품질 보증</div>
+          <div class="resp-item-desc">납품 후 지정된 기간 동안 품질 책임이 있습니다</div>
         </div>
-        <div class="field">
-          <label for="account-holder">예금주 <span class="req">*</span></label>
-          <input type="text" class="inp" id="account-holder" placeholder="예금주 이름" required>
+        <a href="/index.html#article-8-2-section-3" target="_blank" class="resp-detail-link">자세히 보기 →</a>
+      </div>
+
+      <div class="resp-item">
+        <div class="resp-item-text">
+          <div class="resp-item-title">최종 확정본 납품</div>
+          <div class="resp-item-desc">납품 전 꼼꼼한 재확인이 필요합니다</div>
         </div>
+        <a href="/index.html#article-8-2-section-3" target="_blank" class="resp-detail-link">자세히 보기 →</a>
       </div>
-      <div class="field">
-        <label for="account">계좌번호 <span class="req">*</span></label>
-        <input type="text" class="inp" id="account" placeholder="숫자만 입력 (하이픈 자동 제거)" oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
+
+      <div class="resp-divider"></div>
+
+      <div class="resp-final-agree">
+        <input type="checkbox" id="reviewer-responsibility-agree" required>
+        <label for="reviewer-responsibility-agree">위 책임 사항 및 <strong>이용약관 제8조의2</strong>의 모든 내용을 충분히 확인하였으며, 검수자로서 동의합니다.<span class="req">*</span></label>
       </div>
     </div>
+  </section>
 
-    <!-- 동의 -->
-    <div class="section">
-      <div class="section-title">✅ 동의사항 <span style="font-size:12px;font-weight:400;color:var(--gray)">(모두 필수)</span></div>
-      <div class="consent-item">
-        <input type="checkbox" id="agree1" required>
-        <label for="agree1">개인정보 수집 및 이용 동의</label>
-        <button type="button" class="detail-btn" onclick="openModal('modal-privacy')">자세히 보기</button>
-      </div>
-      <div class="consent-item">
-        <input type="checkbox" id="agree2" required>
-        <label for="agree2">자격증/학위 자료 사용 동의</label>
-        <button type="button" class="detail-btn" onclick="openModal('modal-cert')">자세히 보기</button>
-      </div>
-      <div class="consent-item">
-        <input type="checkbox" id="agree3" required>
-        <label for="agree3">검수료 정산 정책 동의</label>
-        <button type="button" class="detail-btn" onclick="openModal('modal-payment')">자세히 보기</button>
-      </div>
-    </div>
+  <button type="submit" id="submit-btn" class="btn-submit">가입 신청하기</button>
 
-    <div style="margin:24px 0;padding:18px 20px;background:rgba(224,85,85,0.05);border:1px solid rgba(224,85,85,0.25);border-radius:4px">
-      <p style="font-weight:700;color:#e05555;margin-bottom:12px;font-size:13px;letter-spacing:0.5px">⚠️ 검수자 책임 및 손해배상 동의 (필수)</p>
+</form>
 
-      <div style="font-size:12px;line-height:1.8;color:rgba(255,255,255,0.7);margin-bottom:14px;padding:12px 14px;background:rgba(0,0,0,0.2);border-radius:3px">
-        <p style="margin-bottom:8px"><strong style="color:rgba(255,180,180,0.95)">검수자 가입 시 다음 사항에 동의해야 합니다:</strong></p>
-        <ul style="padding-left:18px;margin:0">
-          <li>수락한 검수 작업은 마감 시간 내 완료 의무</li>
-          <li>마감 초과 시 <strong style="color:#e05555">검수료의 5배 손해배상금</strong> 부과</li>
-          <li>고객 이탈로 인한 매출 손실 등 추가 손해 배상 책임</li>
-          <li>반복 위반 시 검수자 자격 정지 또는 해지</li>
-          <li>객관적 불가 사유 발생 시 즉시 담당자 카카오톡 통보</li>
-        </ul>
-      </div>
-
-      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
-        <input type="checkbox" id="reviewer-responsibility-agree" required style="margin-top:3px;width:16px;height:16px;cursor:pointer">
-        <span style="font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
-          위 검수자 책임 및 손해배상 조항을 모두 확인하였으며 동의합니다.
-          <a href="/index.html#reviewer" target="_blank" style="color:var(--gold);text-decoration:underline">이용약관 제8조</a> 참조
-          <span style="color:rgba(255,107,107,0.8)">(필수)</span>
-        </span>
-      </label>
-    </div>
-
-    <button type="submit" class="btn-submit" id="submit-btn">가입 신청하기</button>
-  </form>
 </main>
 
-<!-- 모달들 -->
-<div class="modal-overlay" id="modal-privacy"><div class="modal-box">
-  <div class="modal-title">개인정보 수집 및 이용 동의</div>
+<div id="modal-privacy" class="modal-overlay">
   <div class="modal-content">
-    <p><strong>수집 항목:</strong> 이름, 이메일, 전화번호, 카카오ID, 전문분야, 자격증 정보, 계좌 정보</p>
-    <p style="margin-top:8px"><strong>수집 목적:</strong> 검수자 자격 검증, 업무 배정, 검수료 정산</p>
-    <p style="margin-top:8px"><strong>보유 기간:</strong> 회원 탈퇴 시까지 (단, 세법상 의무 기간 5년)</p>
-    <p style="margin-top:8px">본인은 위 내용에 따른 개인정보 수집 및 이용에 동의합니다.</p>
+    <div class="modal-title">개인정보 수집·이용 안내</div>
+    <div class="modal-body">
+      <p><strong>수집 항목</strong>: 성명, 이메일, 전화번호, 카카오ID, 학력, 경력, 자격증, 계좌정보</p>
+      <p><strong>이용 목적</strong>: 검수자 자격 검증, 검수 작업 배정, 정산 처리, 알림 발송</p>
+      <p><strong>보유 기간</strong>: 회원 탈퇴 시까지 (단, 관계 법령에 따른 보존 기간 적용)</p>
+      <p><strong>제3자 제공</strong>: 원칙적으로 제공하지 않으며, 정산 처리를 위한 은행 정보만 해당 금융기관에 제공됩니다.</p>
+    </div>
+    <button class="modal-close" onclick="closeModal('modal-privacy')">확인</button>
   </div>
-  <button class="modal-close" onclick="closeModal('modal-privacy')">확인</button>
-</div></div>
+</div>
 
-<div class="modal-overlay" id="modal-cert"><div class="modal-box">
-  <div class="modal-title">자격증/학위 자료 사용 동의</div>
+<div id="modal-cert" class="modal-overlay">
   <div class="modal-content">
-    <p>귀하가 제공하시는 자격증 및 학위 사진은 검수자 자격 검증, 고객 대상 전문성 표시, 인력 인증 목적으로만 사용됩니다.</p>
-    <p style="margin-top:8px">자료는 제3자에게 유출되지 않으며, 도용 위험이 없음을 보장합니다. 안전하게 암호화 보관되며, 권한 있는 관리자만 접근할 수 있습니다.</p>
-    <p style="margin-top:8px">검수자 활동 종료 후 해당 자료 삭제를 요청할 수 있습니다.</p>
+    <div class="modal-title">자격증·학위 검증 안내</div>
+    <div class="modal-body">
+      <p>제출하신 자격증·학위 증빙 자료는 다음 목적으로만 활용됩니다.</p>
+      <p>• 검수자 등급 책정 (전문 자격사 프리미엄 / 전문 검수자)</p>
+      <p>• 발급 기관 또는 관련 협회를 통한 자격 진위 확인</p>
+      <p>• 허위 자격 발견 시 검수자 자격 박탈 근거 자료</p>
+      <p>업로드된 자격증 이미지는 외부에 공개되지 않으며, 회사 내부 검증 인원만 열람 가능합니다.</p>
+    </div>
+    <button class="modal-close" onclick="closeModal('modal-cert')">확인</button>
   </div>
-  <button class="modal-close" onclick="closeModal('modal-cert')">확인</button>
-</div></div>
+</div>
 
-<div class="modal-overlay" id="modal-payment"><div class="modal-box">
-  <div class="modal-title">검수료 정산 정책 동의</div>
+<div id="modal-payment" class="modal-overlay">
   <div class="modal-content">
-    <p><strong>정산 기준:</strong> 최종 납품 완료 후 21일 경과 시점</p>
-    <p style="margin-top:8px"><strong>정산 주기:</strong> 월별 (해당 월 검수완료 작업 일괄 정산)</p>
-    <p style="margin-top:8px"><strong>입금일:</strong> 다음 달 말일 (말일이 공휴일/주말이면 다음 평일)</p>
-    <p style="margin-top:8px"><strong>세금:</strong> 3.3% 원천징수 후 지급 (사업소득)</p>
-    <p style="margin-top:8px">정산 관련 문의: iumm.master@gmail.com</p>
+    <div class="modal-title">정산 계좌 정보 안내</div>
+    <div class="modal-body">
+      <p>입력하신 계좌 정보는 검수료 정산 입금 목적으로만 사용됩니다.</p>
+      <p>• 정산 주기: 납품 21일 경과 후 월별 일괄 정산</p>
+      <p>• 입금 일자: 정산 확정 다음 달 말일</p>
+      <p>• 계좌 명의는 검수자 본인 명의여야 합니다.</p>
+      <p>• 입력하신 계좌 정보는 암호화되어 안전하게 저장됩니다.</p>
+    </div>
+    <button class="modal-close" onclick="closeModal('modal-payment')">확인</button>
   </div>
-  <button class="modal-close" onclick="closeModal('modal-payment')">확인</button>
-</div></div>
+</div>
 
-<footer>문의: <a href="mailto:iumm.master@gmail.com" style="color:rgba(255,255,255,0.5)">iumm.master@gmail.com</a></footer>
+<footer>
+  <a href="/">메인으로</a> |
+  <a href="/index.html#article-8-2" target="_blank">검수자 책임 약관</a> |
+  <a href="mailto:iumm.master@gmail.com">문의</a>
+</footer>
 
 <script>
-var API_BASE    = 'https://iumm-pipeline-production.up.railway.app';
-var KAKAO_JS_KEY = 'd37fe286e0256c9199a29236ed10c244';
-var kakaoInfo   = null;
-var selectedCertGroup = null; // 'premium' | 'standard'
-var selectedCertValue = '';
-var selectedSpecs  = new Set();
-var selectedLangs  = new Set();
-var attachedFiles  = [];
+const API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+const KAKAO_JS_KEY = 'd37fe286e0256c9199a29236ed10c244';
 
-// ─── 상수 ──────────────────────────────────────────────────
-var SPECIALTIES = [
-  "법률·계약","특허·지식재산","범죄·수사·공문","이민·비자·증명서",
-  "의료·제약","학술·논문","기술·IT","비즈니스 일반","금융·재무","회계·세무",
-  "마케팅·광고","문학·출판","예술·문화","게임·엔터테인먼트","건설·엔지니어링",
-  "환경·ESG","일반"
+const SPECIALTIES = [
+  '법률·법무','의료·의약','금융·회계·세무','경영·경제','IT·기술','과학·연구',
+  '공학·기계','건설·건축','마케팅·광고','문학·예술','교육·학술','정치·외교',
+  '에너지·환경','농업·식품','관광·여행','패션·뷰티','일반·기타'
 ];
 
-var LANGUAGES = [
-  "한국어 → 영어",
-  "한국어 → 일본어",
-  "한국어 → 중국어(간체)",
-  "한국어 → 중국어(번체)",
-  "한국어 → 스페인어",
-  "한국어 → 프랑스어",
-  "한국어 → 독일어",
-  "한국어 → 이탈리아어",
-  "한국어 → 포르투갈어",
-  "한국어 → 러시아어",
-  "한국어 → 베트남어",
-  "한국어 → 인도네시아어",
-  "한국어 → 태국어",
-  "한국어 → 말레이어",
-  "한국어 → 터키어",
-  "한국어 → 폴란드어",
-  "한국어 → 네덜란드어",
-  "한국어 → 우크라이나어",
-  "한국어 → 체코어",
-  "한국어 → 스웨덴어",
-  "한국어 → 아랍어",
-  "한국어 → 힌디어",
-  "한국어 → 노르웨이어",
-  "한국어 → 핀란드어",
-  "한국어 → 덴마크어",
-  "한국어 → 헝가리어",
-  "한국어 → 루마니아어",
-  "한국어 → 그리스어",
-  "한국어 → 불가리아어",
-  "한국어 → 슬로바키아어",
-  "영어 → 한국어",
-  "일본어 → 한국어",
-  "중국어(간체) → 한국어",
-  "중국어(번체) → 한국어",
-  "스페인어 → 한국어",
-  "프랑스어 → 한국어",
-  "독일어 → 한국어",
-  "이탈리아어 → 한국어",
-  "포르투갈어 → 한국어",
-  "러시아어 → 한국어",
-  "베트남어 → 한국어",
-  "인도네시아어 → 한국어",
-  "태국어 → 한국어",
-  "말레이어 → 한국어",
-  "터키어 → 한국어",
-  "폴란드어 → 한국어",
-  "네덜란드어 → 한국어",
-  "우크라이나어 → 한국어",
-  "체코어 → 한국어",
-  "스웨덴어 → 한국어",
-  "아랍어 → 한국어",
-  "힌디어 → 한국어",
-  "노르웨이어 → 한국어",
-  "핀란드어 → 한국어",
-  "덴마크어 → 한국어",
-  "헝가리어 → 한국어",
-  "루마니아어 → 한국어",
-  "그리스어 → 한국어",
-  "불가리아어 → 한국어",
-  "슬로바키아어 → 한국어",
+const LANGUAGES = [
+  '한국어 → 영어','영어 → 한국어',
+  '한국어 → 일본어','일본어 → 한국어',
+  '한국어 → 중국어(간체)','중국어(간체) → 한국어',
+  '한국어 → 중국어(번체)','중국어(번체) → 한국어',
+  '한국어 → 베트남어','베트남어 → 한국어',
+  '한국어 → 스페인어','스페인어 → 한국어',
+  '한국어 → 러시아어','러시아어 → 한국어',
+  '한국어 → 태국어','태국어 → 한국어',
+  '한국어 → 프랑스어','프랑스어 → 한국어',
+  '한국어 → 인도네시아어','인도네시아어 → 한국어',
+  '한국어 → 독일어','독일어 → 한국어',
+  '한국어 → 이탈리아어','이탈리아어 → 한국어',
+  '한국어 → 포르투갈어','포르투갈어 → 한국어',
+  '한국어 → 말레이어','말레이어 → 한국어',
+  '한국어 → 터키어','터키어 → 한국어',
+  '한국어 → 폴란드어','폴란드어 → 한국어',
+  '한국어 → 네덜란드어','네덜란드어 → 한국어',
+  '한국어 → 우크라이나어','우크라이나어 → 한국어',
+  '한국어 → 체코어','체코어 → 한국어',
+  '한국어 → 스웨덴어','스웨덴어 → 한국어',
+  '한국어 → 아랍어','아랍어 → 한국어',
+  '한국어 → 힌디어','힌디어 → 한국어',
+  '한국어 → 노르웨이어','노르웨이어 → 한국어',
+  '한국어 → 핀란드어','핀란드어 → 한국어',
+  '한국어 → 덴마크어','덴마크어 → 한국어',
+  '한국어 → 헝가리어','헝가리어 → 한국어',
+  '한국어 → 루마니아어','루마니아어 → 한국어',
+  '한국어 → 그리스어','그리스어 → 한국어',
+  '한국어 → 불가리아어','불가리아어 → 한국어',
+  '한국어 → 슬로바키아어','슬로바키아어 → 한국어'
 ];
 
-var CERT_GROUPS = {
+const CERT_GROUPS = {
   premium: {
-    label: "전문 자격사 프리미엄",
-    badge: "글자당 20원~",
-    grade: "전문 자격사 프리미엄",
-    rate: 20,
-    items: ["변호사","감평사","노무사","법무사","의사","한의사","변리사","회계사","세무사","관세사","약사","수의사","기타 전문 자격사","해당 분야 교수급"],
-    customItems: ["기타 전문 자격사","해당 분야 교수급"]
+    label: '전문 자격사 (프리미엄 등급)',
+    items: ['변호사','의사','변리사','법무사','노무사','감정평가사','관세사','세무사','공인회계사','한의사']
   },
   standard: {
-    label: "전문 검수자",
-    badge: "글자당 10원~",
-    grade: "전문 검수자",
-    rate: 10,
-    items: ["해당 분야 석사학위 보유자 (통번역대학원 등)","전문 번역사","외국어 전문가","분야 실무 경력 5년 이상","기타 검증 가능한 자격","기타 전문가"],
-    customItems: ["기타 검증 가능한 자격","기타 전문가"]
+    label: '전문 검수자 (일반 등급)',
+    items: ['석사 학위','박사 학위','전문번역사','통역사','경력 5년 이상 번역가','기타 전문 자격']
   }
 };
 
-var BANKS = ["국민","신한","우리","하나","농협","IBK기업","카카오뱅크","토스뱅크","케이뱅크","새마을금고","신협","우체국","SC제일","시티","부산","대구","광주","전북","경남","제주"];
+const BANKS = [
+  'KB국민은행','신한은행','우리은행','하나은행','NH농협은행','IBK기업은행',
+  'SC제일은행','한국씨티은행','KDB산업은행','SH수협은행','대구은행','부산은행',
+  '광주은행','제주은행','전북은행','경남은행','새마을금고','신협','우체국',
+  '카카오뱅크','케이뱅크','토스뱅크'
+];
 
-// ─── 초기화 ─────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', function() {
-  if (!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
+let kakaoInfo = null;
+let selectedSpecs = new Set();
+let selectedLangs = new Set();
+let selectedCert = null;
+let uploadedFiles = [];
 
-  // 카카오 인증 확인
+document.addEventListener('DOMContentLoaded', function(){
   kakaoInfo = JSON.parse(localStorage.getItem('kakaoInfo') || 'null');
   if (!kakaoInfo || !kakaoInfo.kakaoId) {
     location.href = '/reviewer/login';
     return;
   }
 
-  // 폼 프리필
   document.getElementById('name').value  = kakaoInfo.name  || '';
   document.getElementById('email').value = kakaoInfo.email || '';
 
@@ -494,217 +521,201 @@ window.addEventListener('DOMContentLoaded', function() {
   renderLanguages();
   renderCertOptions();
   renderBanks();
-
-  // 이미 신청 완료 계정인지 체크
-  var token = localStorage.getItem('reviewerToken');
-  if (token) {
-    fetch(API_BASE + '/api/reviewer/me', { headers: { Authorization: 'Bearer ' + token } })
-      .then(function(r){ return r.json(); }).then(function(d) {
-        if (d.success) location.href = d.reviewer.active ? '/reviewer/' : '/reviewer/pending';
-      }).catch(function(){});
-  }
 });
 
-// ─── 렌더링 ─────────────────────────────────────────────────
-function renderSpecialties() {
-  var grid = document.getElementById('spec-grid');
-  grid.innerHTML = SPECIALTIES.map(function(s) {
-    return '<label class="spec-item" onclick="toggleSpec(this,\''+s+'\')"><input type="checkbox" onclick="event.stopPropagation()"><span>'+s+'</span></label>';
+function renderSpecialties(){
+  const grid = document.getElementById('spec-grid');
+  grid.innerHTML = SPECIALTIES.map(function(s){
+    return '<div class="spec-item" onclick="toggleSpec(this,\'' + s + '\')">' + s + '</div>';
   }).join('');
 }
 
-function renderCertOptions() {
-  var container = document.getElementById('cert-options-container');
-  container.innerHTML = Object.keys(CERT_GROUPS).map(function(key) {
-    var g = CERT_GROUPS[key];
-    return '<div class="cert-group"><div class="cert-group-label">'+g.label+'<span class="cert-group-badge '+key+'">'+g.badge+'</span></div><div class="cert-options">'+
-      g.items.map(function(item) {
-        return '<label class="cert-option"><input type="radio" name="certType" value="'+key+'::'+item+'" onchange="onCertChange(\''+key+'\',\''+item+'\')"><span>'+item+'</span></label>';
-      }).join('')+'</div></div>';
+function toggleSpec(el, name){
+  if (selectedSpecs.has(name)) {
+    selectedSpecs.delete(name);
+    el.classList.remove('selected');
+  } else {
+    selectedSpecs.add(name);
+    el.classList.add('selected');
+  }
+}
+
+function renderLanguages(){
+  const grid = document.getElementById('lang-grid');
+  grid.innerHTML = LANGUAGES.map(function(l){
+    return '<div class="lang-item" onclick="toggleLang(this,\'' + l + '\')">' + l + '</div>';
   }).join('');
 }
 
-function renderBanks() {
-  var sel = document.getElementById('bank');
-  BANKS.forEach(function(b) {
-    var opt = document.createElement('option'); opt.value = b; opt.textContent = b;
-    sel.appendChild(opt);
+function toggleLang(el, name){
+  if (selectedLangs.has(name)) {
+    selectedLangs.delete(name);
+    el.classList.remove('selected');
+  } else {
+    selectedLangs.add(name);
+    el.classList.add('selected');
+  }
+}
+
+function renderCertOptions(){
+  const container = document.getElementById('cert-options');
+  let html = '';
+  for (const key in CERT_GROUPS) {
+    const group = CERT_GROUPS[key];
+    html += '<div class="cert-group-title">' + group.label + '</div>';
+    group.items.forEach(function(item){
+      const id = 'cert-' + item.replace(/\s+/g,'-');
+      html += '<div class="cert-option" onclick="selectCert(this,\'' + item + '\',\'' + key + '\')">'
+            + '<input type="radio" name="cert" id="' + id + '" value="' + item + '">'
+            + '<label for="' + id + '">' + item + '</label>'
+            + '</div>';
+    });
+  }
+  container.innerHTML = html;
+}
+
+function selectCert(el, name, group){
+  document.querySelectorAll('.cert-option').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+  const radio = el.querySelector('input[type="radio"]');
+  if (radio) radio.checked = true;
+  selectedCert = { name: name, group: group };
+}
+
+function renderBanks(){
+  const select = document.getElementById('bank');
+  BANKS.forEach(function(b){
+    const opt = document.createElement('option');
+    opt.value = b;
+    opt.textContent = b;
+    select.appendChild(opt);
   });
 }
 
-// ─── 전문 분야 토글 ──────────────────────────────────────────
-function toggleSpec(label, value) {
-  var cb = label.querySelector('input[type=checkbox]');
-  cb.checked = !cb.checked;
-  if (cb.checked) { selectedSpecs.add(value); label.classList.add('checked'); }
-  else { selectedSpecs.delete(value); label.classList.remove('checked'); }
+function formatPhone(input){
+  let v = input.value.replace(/[^0-9]/g,'');
+  if (v.length > 3 && v.length <= 7) v = v.slice(0,3) + '-' + v.slice(3);
+  else if (v.length > 7) v = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+  input.value = v;
 }
 
-// ─── 검수 언어 렌더링 + 토글 ─────────────────────────────────
-function renderLanguages() {
-  var grid = document.getElementById('lang-grid');
-  grid.innerHTML = LANGUAGES.map(function(l) {
-    return '<label class="spec-item" onclick="toggleLang(this,\''+l+'\')"><input type="checkbox" onclick="event.stopPropagation()"><span>'+l+'</span></label>';
-  }).join('');
-}
-function toggleLang(label, value) {
-  var cb = label.querySelector('input[type=checkbox]');
-  cb.checked = !cb.checked;
-  if (cb.checked) { selectedLangs.add(value); label.classList.add('checked'); }
-  else { selectedLangs.delete(value); label.classList.remove('checked'); }
-}
-
-// ─── 자격증 종류 선택 ─────────────────────────────────────────
-function onCertChange(groupKey, item) {
-  var g = CERT_GROUPS[groupKey];
-  selectedCertGroup = groupKey;
-  selectedCertValue = item;
-
-  // 모든 cert-option 스타일 초기화
-  document.querySelectorAll('.cert-option').forEach(function(el) { el.classList.remove('selected'); });
-  // 선택된 것 강조
-  var radios = document.querySelectorAll('input[name=certType]');
-  radios.forEach(function(r) { if (r.checked) r.parentElement.classList.add('selected'); });
-
-  // 직접 입력 필드
-  var isCustom = g.customItems.includes(item);
-  var wrap = document.getElementById('custom-cert-wrap');
-  wrap.classList.toggle('show', isCustom);
-  if (!isCustom) document.getElementById('custom-cert').value = '';
-
-  // 등급 표시
-  var disp = document.getElementById('grade-display');
-  document.getElementById('grade-name').textContent = g.grade;
-  document.getElementById('grade-rate').textContent = '글자당 ' + g.rate + '원 이상 · 검수 건당 지급';
-  disp.classList.add('show');
-}
-
-// ─── 전화번호 포맷 ──────────────────────────────────────────
-function formatPhone(el) {
-  var v = el.value.replace(/[^0-9]/g, '');
-  if (v.length <= 3) { el.value = v; return; }
-  if (v.length <= 7) { el.value = v.slice(0,3)+'-'+v.slice(3); return; }
-  el.value = v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
-}
-
-// ─── 파일 업로드 ─────────────────────────────────────────────
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('upload-area').classList.remove('drag');
-  addFiles(e.dataTransfer.files);
-}
-function handleDragOver(e) { e.preventDefault(); document.getElementById('upload-area').classList.add('drag'); }
-function handleDragLeave() { document.getElementById('upload-area').classList.remove('drag'); }
-
-function addFiles(fileList) {
-  for (var i = 0; i < fileList.length; i++) {
-    var f = fileList[i];
-    if (attachedFiles.length >= 10) { showFormErr('최대 10개까지 업로드 가능합니다'); break; }
-    if (f.size > 10 * 1024 * 1024) { showFormErr(f.name + ' 파일이 10MB를 초과합니다'); continue; }
-    if (!['image/jpeg','image/png','application/pdf'].includes(f.type)) { showFormErr(f.name + ': jpg, png, pdf만 허용됩니다'); continue; }
-    attachedFiles.push(f);
+function handleFileSelect(e){
+  const files = Array.from(e.target.files);
+  if (uploadedFiles.length + files.length > 10) {
+    showFormErr('최대 10개 파일까지 업로드 가능합니다.');
+    return;
   }
+  files.forEach(function(f){ uploadedFiles.push(f); });
   renderFileList();
 }
 
-function removeFile(idx) {
-  attachedFiles.splice(idx, 1);
-  renderFileList();
-}
-
-function renderFileList() {
-  var el = document.getElementById('file-list');
-  el.innerHTML = attachedFiles.map(function(f, i) {
-    return '<div class="file-tag">📄 '+f.name+'<button type="button" onclick="removeFile('+i+')" title="제거">✕</button></div>';
+function renderFileList(){
+  const list = document.getElementById('file-list');
+  list.innerHTML = uploadedFiles.map(function(f, i){
+    return '<div class="file-item">'
+         + '<span class="name">' + f.name + ' (' + Math.round(f.size/1024) + ' KB)</span>'
+         + '<button type="button" class="remove" onclick="removeFile(' + i + ')">삭제</button>'
+         + '</div>';
   }).join('');
 }
 
-// ─── 모달 ───────────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.addEventListener('click', function(e) {
+function removeFile(i){
+  uploadedFiles.splice(i, 1);
+  renderFileList();
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', function(e){
   if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
 });
 
-// ─── 에러 ───────────────────────────────────────────────────
-function showFormErr(msg) {
-  var el = document.getElementById('form-err');
-  el.textContent = msg; el.style.display = 'block';
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function showFormErr(msg){
+  const el = document.getElementById('form-err');
+  el.textContent = msg;
+  el.classList.add('show');
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
 }
-function clearFormErr() { document.getElementById('form-err').style.display = 'none'; }
 
-// ─── 제출 ───────────────────────────────────────────────────
-async function doSignup(event) {
-  event.preventDefault();
+function clearFormErr(){
+  document.getElementById('form-err').classList.remove('show');
+}
+
+async function doSignup(e){
+  e.preventDefault();
   clearFormErr();
 
-  // 검증
-  if (selectedSpecs.size === 0) { showFormErr('전문 분야를 1개 이상 선택해주세요'); return; }
-  if (selectedLangs.size === 0) { showFormErr('검수 가능 언어를 1개 이상 선택해주세요'); return; }
-  if (!selectedCertGroup) { showFormErr('자격증 종류를 선택해주세요'); return; }
-  var isCustom = CERT_GROUPS[selectedCertGroup].customItems.includes(selectedCertValue);
-  if (isCustom && !document.getElementById('custom-cert').value.trim()) {
-    showFormErr('자격증/학력을 직접 입력해주세요'); return;
+  if (selectedSpecs.size === 0) {
+    showFormErr('전문 분야를 1개 이상 선택해 주세요.');
+    return false;
   }
-  if (attachedFiles.length === 0) { showFormErr('자격증/학위 사진을 1개 이상 업로드해주세요'); return; }
-  if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked || !document.getElementById('agree3').checked) {
-    showFormErr('모든 동의사항에 체크해주세요'); return;
+  if (selectedLangs.size === 0) {
+    showFormErr('검수 가능 언어를 1개 이상 선택해 주세요.');
+    return false;
   }
-  var responsibilityAgree = document.getElementById('reviewer-responsibility-agree');
+  if (!selectedCert) {
+    showFormErr('자격증 종류를 선택해 주세요.');
+    return false;
+  }
+  if (uploadedFiles.length === 0) {
+    showFormErr('자격증/학위 증빙 파일을 1개 이상 업로드해 주세요.');
+    return false;
+  }
+  const responsibilityAgree = document.getElementById('reviewer-responsibility-agree');
   if (!responsibilityAgree || !responsibilityAgree.checked) {
-    alert('검수자 책임 및 손해배상 조항에 동의해야 가입이 가능합니다.');
+    showFormErr('검수자 책임 사항 및 이용약관 제8조의2 동의가 필요합니다.');
     return false;
   }
 
-  var btn = document.getElementById('submit-btn');
-  btn.disabled = true; btn.textContent = '신청 처리 중...';
-
-  var g = CERT_GROUPS[selectedCertGroup];
-  var certFinal = isCustom ? document.getElementById('custom-cert').value.trim() : selectedCertValue;
-
-  var fd = new FormData();
-  fd.append('kakaoId',           kakaoInfo.kakaoId);
-  fd.append('kakaoToken',        kakaoInfo.token);
-  fd.append('이름',               document.getElementById('name').value.trim());
-  fd.append('이메일',              document.getElementById('email').value.trim());
-  fd.append('전화번호',            document.getElementById('phone').value);
-  fd.append('전문분야',            JSON.stringify(Array.from(selectedSpecs)));
-  fd.append('검수언어',            JSON.stringify(Array.from(selectedLangs)));
-  fd.append('자격증종류',           selectedCertValue);
-  fd.append('자격증종류직접입력',     certFinal);
-  fd.append('검수자등급',           g.grade);
-  fd.append('검수료단가',           String(g.rate));
-  fd.append('최종학력',            document.getElementById('education').value);
-  fd.append('경력',               document.getElementById('career').value);
-  fd.append('어필메시지',           document.getElementById('appeal').value);
-  fd.append('은행명',              document.getElementById('bank').value);
-  fd.append('계좌번호',            document.getElementById('account').value);
-  fd.append('예금주',              document.getElementById('account-holder').value);
-  attachedFiles.forEach(function(f) { fd.append('certPhotos', f); });
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '신청 처리 중...';
 
   try {
-    var res  = await fetch(API_BASE + '/api/reviewer/signup', { method: 'POST', body: fd });
-    var data = await res.json();
+    const fd = new FormData();
+    fd.append('kakaoId',    kakaoInfo.kakaoId);
+    fd.append('kakaoToken', kakaoInfo.token);
+    fd.append('name',       document.getElementById('name').value.trim());
+    fd.append('email',      document.getElementById('email').value.trim());
+    fd.append('phone',      document.getElementById('phone').value.trim());
+    fd.append('specialties', JSON.stringify(Array.from(selectedSpecs)));
+    fd.append('languages',   JSON.stringify(Array.from(selectedLangs)));
+    fd.append('certType',    selectedCert.name);
+    fd.append('certGroup',   selectedCert.group);
+    fd.append('education',   document.getElementById('education').value.trim());
+    fd.append('career',      document.getElementById('career').value.trim());
+    fd.append('appeal',      document.getElementById('appeal').value.trim());
+    fd.append('bank',           document.getElementById('bank').value);
+    fd.append('accountHolder',  document.getElementById('account-holder').value.trim());
+    fd.append('accountNumber',  document.getElementById('account-number').value.trim());
+    uploadedFiles.forEach(function(f){ fd.append('certPhotos', f); });
 
-    if (data.success) {
-      localStorage.setItem('reviewerToken', data.token);
-      localStorage.setItem('pendingReviewerInfo', JSON.stringify(data.reviewer || {}));
-      localStorage.removeItem('kakaoInfo');
-      location.href = '/reviewer/pending';
-    } else if (data.error?.includes('이미 등록')) {
-      localStorage.removeItem('kakaoInfo');
-      showFormErr(data.error + ' 로그인 페이지로 이동합니다...');
-      setTimeout(function(){ location.href = '/reviewer/login'; }, 2000);
-    } else {
-      showFormErr(data.error || '신청 처리 중 오류가 발생했습니다');
-      btn.disabled = false; btn.textContent = '가입 신청하기';
+    const res = await fetch(API_BASE + '/api/reviewer/signup', {
+      method: 'POST',
+      body: fd
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showFormErr(data.error || '가입 신청 처리 중 오류가 발생했습니다.');
+      btn.disabled = false;
+      btn.textContent = '가입 신청하기';
+      return false;
     }
-  } catch (e) {
-    showFormErr('서버 연결 오류: ' + e.message);
-    btn.disabled = false; btn.textContent = '가입 신청하기';
+
+    if (data.token) localStorage.setItem('reviewerToken', data.token);
+    if (data.reviewer) localStorage.setItem('pendingReviewerInfo', JSON.stringify(data.reviewer));
+
+    location.href = '/reviewer/pending';
+  } catch(err){
+    console.error('signup error:', err);
+    showFormErr('서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+    btn.disabled = false;
+    btn.textContent = '가입 신청하기';
   }
+  return false;
 }
 </script>
+
 </body>
 </html>
