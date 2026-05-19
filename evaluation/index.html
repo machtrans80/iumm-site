@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IUMM 검수 평가</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
+  --gray:#888;--border:rgba(201,168,76,0.15);--red:#e05555;
+  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+}
+html,body{height:100%;background:var(--black);color:var(--white);font-family:'Noto Sans KR',sans-serif;line-height:1.6}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:44px 40px;max-width:480px;width:100%}
+.logo{font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:800;color:var(--gold);letter-spacing:4px;text-align:center;margin-bottom:30px}
+.logo span{color:var(--white)}
+
+.card-title{font-size:18px;font-weight:600;color:var(--white);text-align:center;margin-bottom:6px}
+.card-sub{font-size:13px;color:var(--gray);text-align:center;margin-bottom:28px}
+
+.order-info{background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:4px;padding:12px 16px;margin-bottom:28px;font-size:13px}
+.order-info div{display:flex;gap:8px}
+.order-info div+div{margin-top:4px}
+.order-label{color:var(--gray);min-width:64px;flex-shrink:0}
+.order-value{color:var(--white)}
+
+.section-label{font-size:11px;color:var(--gray);letter-spacing:0.5px;margin-bottom:14px;font-weight:500;text-transform:uppercase}
+.required{color:var(--red);margin-left:2px}
+.optional{color:var(--gray);font-weight:300;text-transform:none;letter-spacing:0;font-size:11px}
+
+/* ─ 별점 ─ */
+.stars{display:flex;gap:6px;justify-content:center;margin-bottom:6px}
+.star{font-size:46px;cursor:pointer;color:rgba(255,255,255,0.1);transition:color 0.12s,transform 0.1s;line-height:1;user-select:none;-webkit-user-select:none}
+.star:hover{transform:scale(1.08)}
+.star.lit{color:var(--gold)}
+.star-label{text-align:center;font-size:13px;color:var(--gray);margin-bottom:26px;min-height:22px;transition:color 0.15s}
+.star-label.chosen{color:var(--gold-light)}
+
+/* ─ 코멘트 ─ */
+.comment-ta{width:100%;background:#0e0e0e;border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.7;padding:12px 14px;resize:vertical;min-height:80px;outline:none;transition:border-color 0.15s;margin-bottom:26px}
+.comment-ta:focus{border-color:rgba(201,168,76,0.4)}
+.comment-ta::placeholder{color:var(--gray)}
+
+/* ─ 버튼 ─ */
+.btn-submit{width:100%;padding:14px;background:var(--gold);color:var(--black);border:none;border-radius:4px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-submit:hover:not(:disabled){background:var(--gold-light)}
+.btn-submit:disabled{opacity:0.35;cursor:not-allowed}
+.err{font-size:13px;color:var(--red);text-align:center;margin-top:12px;min-height:20px}
+
+/* ─ 상태 화면 ─ */
+.state-screen{text-align:center;padding:12px 0}
+.state-icon{font-size:52px;margin-bottom:18px}
+.state-title{font-size:19px;font-weight:600;color:var(--white);margin-bottom:10px}
+.state-msg{font-size:14px;color:rgba(255,255,255,0.55);line-height:1.8}
+.state-msg strong{color:var(--gold)}
+
+.loading-dots{display:flex;gap:8px;justify-content:center;align-items:center;padding:24px 0}
+.loading-dots span{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:dp 1.2s ease-in-out infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+@media(max-width:520px){
+  .card{padding:32px 22px}
+  .star{font-size:38px;gap:4px}
+}
+</style>
+</head>
+<body>
+<div class="card" id="app">
+  <div class="logo">IU<span>MM</span></div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<script>
+var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+var token    = window.location.pathname.split('/').filter(Boolean).pop();
+var selected = 0;
+var LABELS   = ['', '매우 불만족', '불만족', '보통', '만족', '매우 만족'];
+
+async function init() {
+  if (!token || token.length < 10) { renderError('유효하지 않은 평가 링크입니다.'); return; }
+  try {
+    var r    = await fetch(API_BASE + '/api/evaluation/' + token);
+    var data = await r.json();
+    if (!data.ok) {
+      if (data.error === 'already_evaluated') renderAlready();
+      else renderError('유효하지 않은 평가 링크입니다.');
+      return;
+    }
+    renderForm(data);
+  } catch(e) { renderError('서버 연결에 실패했습니다.'); }
+}
+
+function renderForm(info) {
+  document.getElementById('app').innerHTML =
+    '<div class="logo">IU<span>MM</span></div>' +
+    '<div class="card-title">검수 서비스 평가</div>' +
+    '<div class="card-sub">소중한 평가가 검수자 성장에 도움이 됩니다.</div>' +
+    '<div class="order-info">' +
+      '<div><span class="order-label">주문번호</span><span class="order-value">' + esc(info.주문번호) + '</span></div>' +
+      '<div><span class="order-label">검수자</span><span class="order-value">' + esc(info.검수자이름 || '—') + '</span></div>' +
+    '</div>' +
+    '<div class="section-label">별점 평가<span class="required">*</span></div>' +
+    '<div class="stars" id="stars">' +
+      '<span class="star" data-v="1">★</span>' +
+      '<span class="star" data-v="2">★</span>' +
+      '<span class="star" data-v="3">★</span>' +
+      '<span class="star" data-v="4">★</span>' +
+      '<span class="star" data-v="5">★</span>' +
+    '</div>' +
+    '<div class="star-label" id="star-label">별점을 선택해주세요</div>' +
+    '<div class="section-label">코멘트 <span class="optional">(선택)</span></div>' +
+    '<textarea class="comment-ta" id="comment-ta" placeholder="검수자에게 전하실 말씀이 있으시면 자유롭게 작성해주세요"></textarea>' +
+    '<button class="btn-submit" id="btn-submit" disabled onclick="doSubmit()">평가 제출하기</button>' +
+    '<div class="err" id="err-msg"></div>';
+
+  var stars = document.querySelectorAll('.star');
+  stars.forEach(function(s) {
+    s.addEventListener('click', function() {
+      selected = parseInt(this.dataset.v);
+      lightStars(selected, true);
+      var lbl = document.getElementById('star-label');
+      lbl.textContent = LABELS[selected];
+      lbl.className = 'star-label chosen';
+      document.getElementById('btn-submit').disabled = false;
+    });
+    s.addEventListener('mouseenter', function() {
+      lightStars(parseInt(this.dataset.v), false);
+    });
+    s.addEventListener('mouseleave', function() {
+      lightStars(selected, selected > 0);
+    });
+  });
+}
+
+function lightStars(n, permanent) {
+  document.querySelectorAll('.star').forEach(function(s, i) {
+    s.style.color = (i < n) ? 'var(--gold)' : (permanent ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.1)');
+    s.classList.toggle('lit', i < n);
+  });
+}
+
+async function doSubmit() {
+  if (!selected) return;
+  var btn     = document.getElementById('btn-submit');
+  var comment = (document.getElementById('comment-ta').value || '').trim();
+  btn.disabled = true; btn.textContent = '제출 중…';
+  document.getElementById('err-msg').textContent = '';
+  try {
+    var r   = await fetch(API_BASE + '/api/evaluation/' + token, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:   JSON.stringify({ 평점: selected, 코멘트: comment }),
+    });
+    var res = await r.json();
+    if (res.ok) { renderComplete(); return; }
+    document.getElementById('err-msg').textContent = res.message || '제출에 실패했습니다. 다시 시도해주세요.';
+    btn.disabled = false; btn.textContent = '평가 제출하기';
+  } catch(e) {
+    document.getElementById('err-msg').textContent = '서버 오류가 발생했습니다.';
+    btn.disabled = false; btn.textContent = '평가 제출하기';
+  }
+}
+
+function renderComplete() {
+  document.getElementById('app').innerHTML =
+    '<div class="logo">IU<span>MM</span></div>' +
+    '<div class="state-screen">' +
+      '<div class="state-icon">✅</div>' +
+      '<div class="state-title">평가 감사합니다</div>' +
+      '<div class="state-msg">회원님의 평가는 <strong>검수자 평점</strong>에 반영됩니다.<br><br>IUMM을 이용해주셔서 감사합니다.</div>' +
+    '</div>';
+}
+
+function renderAlready() {
+  document.getElementById('app').innerHTML =
+    '<div class="logo">IU<span>MM</span></div>' +
+    '<div class="state-screen">' +
+      '<div class="state-icon">📋</div>' +
+      '<div class="state-title">이미 평가를 완료하셨습니다</div>' +
+      '<div class="state-msg">소중한 평가를 남겨주셔서 감사합니다.</div>' +
+    '</div>';
+}
+
+function renderError(msg) {
+  document.getElementById('app').innerHTML =
+    '<div class="logo">IU<span>MM</span></div>' +
+    '<div class="state-screen">' +
+      '<div class="state-icon">⚠️</div>' +
+      '<div class="state-title">링크 오류</div>' +
+      '<div class="state-msg">' + esc(msg) + '</div>' +
+    '</div>';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
