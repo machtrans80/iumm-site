@@ -149,6 +149,8 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <button class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
       <button class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
       <button class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
+      <button class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
+      <button class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
     </div>
     <div id="orders-wrap">
       <table class="orders-table">
@@ -190,7 +192,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
         <div class="modal-body" id="rmodal-body">
           <!-- JS로 렌더링 -->
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" id="modal-footer">
           <button class="btn-reject" id="btn-reject" onclick="doReject()">거절</button>
           <button class="btn-approve" id="btn-approve" onclick="doApprove()">승인</button>
         </div>
@@ -254,8 +256,14 @@ function switchTab(tab) {
   document.getElementById('tab-ai').className = 'tab-btn' + (tab==='ai_premium' ? ' active' : '');
   document.getElementById('tab-pp').className = 'tab-btn' + (tab==='premium_plus' ? ' active' : '');
   document.getElementById('tab-rv').className = 'tab-btn' + (tab==='reviewers' ? ' active' : '');
+  document.getElementById('tab-rv-approved').className = 'tab-btn' + (tab==='reviewers_approved' ? ' active' : '');
+  document.getElementById('tab-rv-rejected').className = 'tab-btn' + (tab==='reviewers_rejected' ? ' active' : '');
   if (tab === 'reviewers') {
     loadReviewers();
+  } else if (tab === 'reviewers_approved') {
+    loadApprovedReviewers();
+  } else if (tab === 'reviewers_rejected') {
+    loadRejectedReviewers();
   } else {
     loadOrders();
   }
@@ -360,10 +368,15 @@ async function loadReviewers() {
   }
 }
 
-function selectReviewer(id) {
-  var r = (window._reviewers||[]).find(function(x){ return x.id === id; });
+function selectReviewer(id, context) {
+  var ctx = (typeof context === 'string') ? context : 'reviewers';
+  var pool = ctx === 'reviewers_approved' ? (window._approvedReviewers||[])
+           : ctx === 'reviewers_rejected'  ? (window._rejectedReviewers||[])
+           : (window._reviewers||[]);
+  var r = pool.find(function(x){ return x.id === id; });
   if (!r) return;
   window._selectedReviewer = r;
+  window._reviewerContext  = ctx;
   document.getElementById('rmodal-title').textContent = (r.name || '검수자') + ' 상세';
   var certLinks = (r.certPhotos||[]).map(function(p) {
     return '<a class="modal-cert-link" href="' + p.url + '" target="_blank">📎 ' + (p.filename||'자격증') + '</a>';
@@ -372,6 +385,19 @@ function selectReviewer(id) {
   var expTags = (r.expertise||[]).map(function(e){ return '<span class="modal-tag">'+e+'</span>'; }).join('');
   var lngTags = (r.languages||[]).map(function(l){ return '<span class="modal-tag">'+l+'</span>'; }).join('');
   var initialGrade = r.grade || '전문 검수자';
+  var lastSection = ctx === 'reviewers'
+    ? '<div class="modal-section">' +
+      '<div class="modal-section-title">최종 등급 결정 (승인 시 적용)</div>' +
+      '<div class="modal-grade">' +
+      '<label><input type="radio" name="grade" value="전문 자격사 프리미엄"' + (initialGrade==='전문 자격사 프리미엄'?' checked':'') + '> 전문 자격사 프리미엄 (20원/자)</label>' +
+      '<label><input type="radio" name="grade" value="전문 검수자"' + (initialGrade==='전문 검수자'?' checked':'') + '> 전문 검수자 (10원/자)</label>' +
+      '</div></div>'
+    : '<div class="modal-section">' +
+      '<div class="modal-section-title">검수자 현황</div>' +
+      '<div class="modal-row"><span class="label">등급</span><span class="value">' + (r.grade||'—') + '</span></div>' +
+      '<div class="modal-row"><span class="label">평점</span><span class="value">' + (typeof r.rating === 'number' ? r.rating.toFixed(1) : '5.0') + ' ⭐</span></div>' +
+      '<div class="modal-row"><span class="label">처리건수</span><span class="value">' + (r.processedCount||0) + '건</span></div>' +
+      '</div>';
   var html =
     '<div class="modal-section">' +
     '<div class="modal-section-title">기본 정보</div>' +
@@ -400,14 +426,19 @@ function selectReviewer(id) {
     '<div class="modal-row"><span class="label">계좌번호</span><span class="value">' + (r.account||'—') + '</span></div>' +
     '<div class="modal-row"><span class="label">예금주</span><span class="value">' + (r.accountHolder||'—') + '</span></div>' +
     '</div>' +
-    '<div class="modal-section">' +
-    '<div class="modal-section-title">최종 등급 결정 (승인 시 적용)</div>' +
-    '<div class="modal-grade">' +
-    '<label><input type="radio" name="grade" value="전문 자격사 프리미엄"' + (initialGrade==='전문 자격사 프리미엄'?' checked':'') + '> 전문 자격사 프리미엄 (20원/자)</label>' +
-    '<label><input type="radio" name="grade" value="전문 검수자"' + (initialGrade==='전문 검수자'?' checked':'') + '> 전문 검수자 (10원/자)</label>' +
-    '</div>' +
-    '</div>';
+    lastSection;
   document.getElementById('rmodal-body').innerHTML = html;
+  // footer 동적 처리
+  var footer = document.getElementById('modal-footer');
+  if (ctx === 'reviewers_approved') {
+    footer.innerHTML = '<button class="btn-reject" onclick="closeReviewerModal()" style="background:rgba(136,136,136,0.15);color:#aaa;border-color:rgba(136,136,136,0.3)">닫기</button>';
+  } else if (ctx === 'reviewers_rejected') {
+    footer.innerHTML = '<button class="btn-reject" onclick="closeReviewerModal()" style="background:rgba(136,136,136,0.15);color:#aaa;border-color:rgba(136,136,136,0.3)">닫기</button>' +
+      '<button class="btn-approve" onclick="reapproveReviewer(\'' + r.id + '\')">재승인</button>';
+  } else {
+    footer.innerHTML = '<button class="btn-reject" id="btn-reject" onclick="doReject()">거절</button>' +
+      '<button class="btn-approve" id="btn-approve" onclick="doApprove()">승인</button>';
+  }
   document.getElementById('reviewer-modal').classList.add('active');
 }
 
@@ -461,6 +492,113 @@ async function doReject() {
     alert('오류: ' + e.message);
   } finally {
     btn.disabled = false; rbtn.disabled = false; rbtn.textContent = '거절';
+  }
+}
+
+// ─── 승인된 검수자 탭 ───
+async function loadApprovedReviewers() {
+  var wrap = document.getElementById('orders-wrap');
+  wrap.innerHTML = '<table class="reviewers-table"><thead><tr><th>이름</th><th>등급</th><th>★ 평점</th><th>처리건수</th><th>전문분야</th><th>검수언어</th><th>전화</th><th>신청일</th><th>가용상태</th></tr></thead><tbody id="rv-tbody"><tr class="empty-row"><td colspan="9">로딩 중…</td></tr></tbody></table>';
+  try {
+    var res = await adminFetch('/api/admin/reviewers/approved');
+    if (!res.success) {
+      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="9">로드 실패: ' + (res.error||'') + '</td></tr>';
+      return;
+    }
+    var reviewers = res.reviewers || [];
+    window._approvedReviewers = reviewers;
+    if (!reviewers.length) {
+      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="9">승인된 검수자가 없습니다</td></tr>';
+      return;
+    }
+    document.getElementById('rv-tbody').innerHTML = reviewers.map(function(r) {
+      var exp = (r.expertise||[]).slice(0,2).join(', ') + ((r.expertise||[]).length > 2 ? ' 외' : '');
+      var lng = (r.languages||[]).slice(0,2).join(', ') + ((r.languages||[]).length > 2 ? ' 외' : '');
+      var rating = typeof r.rating === 'number' ? r.rating.toFixed(1) : '5.0';
+      var availBtn = r.available
+        ? '<button onclick="event.stopPropagation();toggleAvailability(\''+r.id+'\',true)" style="padding:2px 8px;background:rgba(151,196,89,0.2);color:#97c459;border:1px solid rgba(151,196,89,0.4);border-radius:3px;cursor:pointer;font-size:11px">활성</button>'
+        : '<button onclick="event.stopPropagation();toggleAvailability(\''+r.id+'\',false)" style="padding:2px 8px;background:rgba(136,136,136,0.2);color:#888;border:1px solid rgba(136,136,136,0.3);border-radius:3px;cursor:pointer;font-size:11px">비활성</button>';
+      return '<tr onclick="selectReviewer(\''+r.id+'\',\'reviewers_approved\')" data-id="'+r.id+'">' +
+        '<td>' + (r.name||'—') + '</td>' +
+        '<td>' + (r.grade||'—') + '</td>' +
+        '<td>' + rating + ' ⭐</td>' +
+        '<td>' + (r.processedCount||0) + '건</td>' +
+        '<td>' + (exp||'—') + '</td>' +
+        '<td>' + (lng||'—') + '</td>' +
+        '<td>' + (r.phone||'—') + '</td>' +
+        '<td>' + ymd(r.signupAt) + '</td>' +
+        '<td>' + availBtn + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch(e) {
+    var tb = document.getElementById('rv-tbody');
+    if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="9">오류: ' + e.message + '</td></tr>';
+  }
+}
+
+// ─── 반려된 검수자 탭 ───
+async function loadRejectedReviewers() {
+  var wrap = document.getElementById('orders-wrap');
+  wrap.innerHTML = '<table class="reviewers-table"><thead><tr><th>이름</th><th>신청등급</th><th>전문분야</th><th>검수언어</th><th>전화</th><th>신청일</th><th>재승인</th></tr></thead><tbody id="rv-tbody"><tr class="empty-row"><td colspan="7">로딩 중…</td></tr></tbody></table>';
+  try {
+    var res = await adminFetch('/api/admin/reviewers/rejected');
+    if (!res.success) {
+      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">로드 실패: ' + (res.error||'') + '</td></tr>';
+      return;
+    }
+    var reviewers = res.reviewers || [];
+    window._rejectedReviewers = reviewers;
+    if (!reviewers.length) {
+      document.getElementById('rv-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">반려된 검수자가 없습니다</td></tr>';
+      return;
+    }
+    document.getElementById('rv-tbody').innerHTML = reviewers.map(function(r) {
+      var exp = (r.expertise||[]).slice(0,2).join(', ') + ((r.expertise||[]).length > 2 ? ' 외' : '');
+      var lng = (r.languages||[]).slice(0,2).join(', ') + ((r.languages||[]).length > 2 ? ' 외' : '');
+      return '<tr onclick="selectReviewer(\''+r.id+'\',\'reviewers_rejected\')" data-id="'+r.id+'">' +
+        '<td>' + (r.name||'—') + '</td>' +
+        '<td>' + (r.grade||'—') + '</td>' +
+        '<td>' + (exp||'—') + '</td>' +
+        '<td>' + (lng||'—') + '</td>' +
+        '<td>' + (r.phone||'—') + '</td>' +
+        '<td>' + ymd(r.signupAt) + '</td>' +
+        '<td><button onclick="event.stopPropagation();reapproveReviewer(\''+r.id+'\')" style="padding:4px 10px;background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:12px">재승인</button></td>' +
+        '</tr>';
+    }).join('');
+  } catch(e) {
+    var tb = document.getElementById('rv-tbody');
+    if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>';
+  }
+}
+
+async function toggleAvailability(id, current) {
+  if (!confirm('가용상태를 ' + (current ? '비활성' : '활성') + '으로 변경하시겠습니까?')) return;
+  try {
+    var res = await adminFetch('/api/admin/reviewers/' + id + '/availability', {
+      method: 'POST',
+      body: JSON.stringify({ available: !current }),
+    });
+    if (!res.ok && !res.success) throw new Error(res.error || '변경 실패');
+    showToast((current ? '비활성' : '활성') + '으로 변경되었습니다', 'success');
+    loadApprovedReviewers();
+  } catch(e) {
+    showToast('⚠️ ' + e.message, 'error');
+  }
+}
+
+async function reapproveReviewer(id) {
+  if (!confirm('이 검수자를 재승인하시겠습니까?\n알림이 발송됩니다.')) return;
+  try {
+    var res = await adminFetch('/api/admin/reviewers/' + id + '/reapprove', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+    if (!res.ok && !res.success) throw new Error(res.error || '재승인 실패');
+    showToast('✅ 재승인 완료', 'success');
+    closeReviewerModal();
+    loadRejectedReviewers();
+  } catch(e) {
+    showToast('⚠️ ' + e.message, 'error');
   }
 }
 
