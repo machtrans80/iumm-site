@@ -80,6 +80,9 @@ body{display:flex;flex-direction:column;min-height:100vh}
 .toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
 .toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
 
+/* ─ 복사 차단 ─ */
+.no-copy{user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}
+
 /* ─ 로딩 ─ */
 .loading{display:flex;align-items:center;justify-content:center;height:100%;font-size:14px;color:var(--gray)}
 .dots{display:flex;gap:8px}
@@ -303,11 +306,11 @@ function renderJob(job) {
   document.getElementById('job-body').innerHTML = [
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">원문</span><span class="pane-badge">' + (job.sourceLang||'—') + ' · ' + (job.charCount||0).toLocaleString() + '자</span></div>',
-    '  <textarea class="pane-ta" readonly id="source-ta">' + escHtml(job.originalText) + '</textarea>',
+    '  <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea>',
     '</div>',
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">번역본 수정</span><span class="pane-badge">' + (job.targetLang||'—') + ' · 예상 보수 ₩' + (job.estimatedPay||0).toLocaleString() + '</span></div>',
-    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn()" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
     '  <div class="char-count" id="char-count"></div>',
     '</div>',
     '<div class="checklist-section">',
@@ -331,6 +334,16 @@ function renderJob(job) {
 
   updateProgress();
   setInterval(function(){ updateDeadline(job.deadline); }, 60000);
+
+  // 복사 차단 — Ctrl+C / Cmd+C 키 이벤트
+  var _srcTa = document.getElementById('source-ta');
+  if (_srcTa) _srcTa.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c') e.preventDefault();
+  });
+  var _trTa = document.getElementById('translation-ta');
+  if (_trTa) _trTa.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c') e.preventDefault();
+  });
 
   // 기존 코멘트 복원
   if (job.existingComment) {
