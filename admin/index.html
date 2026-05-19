@@ -85,6 +85,15 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
   .admin-body{padding:16px}
 }
 
+/* ── 검수자 결과 섹션 ── */
+#rv-info-section{border-top:1px solid var(--card-border);padding:14px 20px;display:flex;gap:20px;align-items:flex-start}
+.rv-section-label{font-size:11px;color:var(--gold);letter-spacing:0.5px;font-weight:500;margin-bottom:7px;text-transform:uppercase}
+.rv-comment-box{background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.2);border-radius:4px;padding:11px 13px;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;white-space:pre-wrap;min-height:48px}
+.rv-cl-toggle-row{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0}
+.rv-cl-toggle-row:hover .rv-section-label{color:var(--gold-light)}
+.rv-cl-body{margin-top:8px;display:none;column-count:3;column-gap:10px}
+.rv-cl-item{font-size:12px;padding:2px 0;line-height:1.5;break-inside:avoid}
+
 /* ── 검수자 승인 탭 추가 스타일 ── */
 .reviewers-table { width:100%; border-collapse:collapse; font-size:13px }
 .reviewers-table th, .reviewers-table td { padding:10px 12px; text-align:left; border-bottom:1px solid var(--border) }
@@ -173,6 +182,21 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           <textarea class="panel-ta editable" id="panel-translation"></textarea>
         </div>
       </div>
+      <!-- 검수자 결과: 코멘트 + 21항목 (프미플 탭에서만 표시) -->
+      <div id="rv-info-section" style="display:none">
+        <div style="flex:0 0 220px">
+          <div class="rv-section-label">검수자 코멘트</div>
+          <div class="rv-comment-box" id="rv-comment-text">코멘트 없음</div>
+        </div>
+        <div style="flex:1">
+          <div class="rv-cl-toggle-row" onclick="toggleChecklist()">
+            <span class="rv-section-label" style="margin-bottom:0">검수자 보증 21항목</span>
+            <span id="rv-cl-summary" style="font-size:11px;color:var(--gray)"></span>
+            <span id="cl-toggle-icon" style="font-size:11px;color:var(--gray);margin-left:auto">▶ 펼치기</span>
+          </div>
+          <div class="rv-cl-body" id="rv-checklist-body"></div>
+        </div>
+      </div>
       <div class="panel-footer">
         <div class="panel-info">
           고객: <strong id="panel-email">—</strong> &nbsp;·&nbsp;
@@ -207,6 +231,30 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 var API_BASE = 'https://iumm-pipeline-production.up.railway.app';
 var currentTab = 'ai_premium';
 var selectedOrder = null;
+
+var ADMIN_CHECKLIST = [
+  "원문의 모든 내용이 빠짐없이 번역되었다",
+  "추가되거나 창작된 내용이 없다",
+  "전문 용어가 일관되게 사용되었다",
+  "고유명사 표기가 정확하다",
+  "숫자, 날짜, 단위가 정확하다",
+  "맞춤법 오류가 없다",
+  "띄어쓰기 오류가 없다",
+  "문장부호 사용이 적절하다",
+  "한국어 어순이 자연스럽다",
+  "직역투 표현이 정리되었다",
+  "수동태/능동태 사용이 적절하다",
+  "경어체 또는 평어체가 일관된다",
+  "문체와 어조가 원문과 일치한다",
+  "문화적 맥락이 적절히 반영되었다",
+  "중복 표현이 정리되었다",
+  "단락 구조가 원문과 일치한다",
+  "줄바꿈, 들여쓰기 등 서식이 유지되었다",
+  "괄호, 따옴표 등 보조 부호가 정확하다",
+  "전문 분야(법률/의학/기술 등) 표현을 검토하였다",
+  "최종 가독성을 확인하였다",
+  "전체 재검토를 마쳤다"
+];
 
 function adminToken() { return localStorage.getItem('adminToken') || ''; }
 function adminFetch(path, opts) {
@@ -309,7 +357,44 @@ function selectOrder(id, row) {
   document.getElementById('panel-source').value = order.originalText || '';
   // AI프리미엄: AI번역 prefill / 프리미엄플러스: 검수자 제출본 prefill
   document.getElementById('panel-translation').value = (currentTab==='premium_plus' && order.reviewerTranslation) ? order.reviewerTranslation : order.aiTranslation;
+  // 프미플: 검수자 코멘트 + 21항목 표시
+  var rvSection = document.getElementById('rv-info-section');
+  if (currentTab === 'premium_plus' && rvSection) {
+    var comment = order.reviewerComment || '';
+    var commentEl = document.getElementById('rv-comment-text');
+    commentEl.textContent = comment || '코멘트 없음';
+    commentEl.style.color = comment ? 'rgba(255,255,255,0.75)' : 'var(--gray)';
+    var clData = order.reviewerChecklist;
+    var clSummary = document.getElementById('rv-cl-summary');
+    var clBody = document.getElementById('rv-checklist-body');
+    if (Array.isArray(clData)) {
+      var done = clData.filter(Boolean).length;
+      clSummary.textContent = '(' + done + '/' + ADMIN_CHECKLIST.length + ' 완료)';
+      clSummary.style.color = done === ADMIN_CHECKLIST.length ? 'var(--green)' : 'var(--red)';
+      clBody.innerHTML = ADMIN_CHECKLIST.map(function(text, i) {
+        var ok = clData[i] === true;
+        return '<div class="rv-cl-item" style="color:' + (ok ? 'rgba(255,255,255,0.65)' : 'var(--red)') + '">' + (ok ? '✅ ' : '⬜ ') + text + '</div>';
+      }).join('');
+    } else {
+      clSummary.textContent = '(데이터 없음)';
+      clSummary.style.color = 'var(--gray)';
+      clBody.innerHTML = '<div style="font-size:12px;color:var(--gray)">체크리스트 정보 없음</div>';
+    }
+    clBody.style.display = 'none';
+    document.getElementById('cl-toggle-icon').textContent = '▶ 펼치기';
+    rvSection.style.display = 'flex';
+  } else if (rvSection) {
+    rvSection.style.display = 'none';
+  }
   document.getElementById('confirm-panel').style.display = 'block';
+}
+
+function toggleChecklist() {
+  var body = document.getElementById('rv-checklist-body');
+  var icon = document.getElementById('cl-toggle-icon');
+  var show = body.style.display === 'none' || body.style.display === '';
+  body.style.display = show ? 'block' : 'none';
+  icon.textContent = show ? '▲ 접기' : '▶ 펼치기';
 }
 
 async function doDeliver() {
