@@ -130,6 +130,10 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .btn-reject { padding:10px 24px; background:var(--red); color:var(--white); border:none; border-radius:6px; font-weight:500; cursor:pointer; font-size:14px }
 .btn-reject:hover { opacity:0.85 }
 .btn-reject:disabled { opacity:0.4; cursor:not-allowed }
+.btn-dl{padding:7px 14px;background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;white-space:nowrap}
+.btn-dl:hover{background:rgba(201,168,76,0.2)}
+.btn-ul{display:inline-block;padding:7px 14px;background:rgba(151,196,89,0.1);color:var(--green);border:1px solid rgba(151,196,89,0.3);border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;white-space:nowrap}
+.btn-ul:hover{background:rgba(151,196,89,0.2)}
 </style>
 </head>
 <body>
@@ -201,6 +205,14 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
         <div class="panel-info">
           고객: <strong id="panel-email">—</strong> &nbsp;·&nbsp;
           금액: <span class="amount" id="panel-amount">—</span>
+        </div>
+        <div id="pp-file-actions" style="display:none;gap:6px;align-items:center">
+          <button class="btn-dl" onclick="downloadResult('txt')">⬇ .txt</button>
+          <button class="btn-dl" onclick="downloadResult('docx')">⬇ .docx</button>
+          <label class="btn-ul">
+            <span id="upload-label-text">⬆ 파일 업로드</span>
+            <input type="file" id="admin-upload-input" style="display:none" onchange="uploadFinalFile(this)">
+          </label>
         </div>
         <button class="btn-deliver" id="btn-deliver" onclick="doDeliver()">최종 납품</button>
       </div>
@@ -386,7 +398,51 @@ function selectOrder(id, row) {
   } else if (rvSection) {
     rvSection.style.display = 'none';
   }
+  var ppActions = document.getElementById('pp-file-actions');
+  if (ppActions) ppActions.style.display = currentTab === 'premium_plus' ? 'flex' : 'none';
   document.getElementById('confirm-panel').style.display = 'block';
+}
+
+async function downloadWithAuth(path, filename) {
+  try {
+    var r = await fetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    if (!r.ok) { showToast('⚠️ 다운로드 실패 (' + r.status + ')', 'error'); return; }
+    var blob = await r.blob();
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { showToast('⚠️ ' + e.message, 'error'); }
+}
+
+function downloadResult(format) {
+  if (!selectedOrder) return;
+  var num = selectedOrder.orderNumber || selectedOrder.orderId;
+  downloadWithAuth('/api/admin/download/' + selectedOrder.orderId + '?format=' + format, '번역본_' + num + '.' + format);
+}
+
+async function uploadFinalFile(input) {
+  if (!selectedOrder || !input.files[0]) return;
+  var labelText = document.getElementById('upload-label-text');
+  if (labelText) labelText.textContent = '업로드 중…';
+  input.disabled = true;
+  try {
+    var fd = new FormData();
+    fd.append('file', input.files[0]);
+    var r = await fetch(API_BASE + '/api/admin/upload/' + selectedOrder.orderId, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + adminToken() },
+      body: fd,
+    });
+    var res = await r.json();
+    if (res.ok) showToast('✅ 파일 업로드 완료: ' + res.filename, 'success');
+    else showToast('⚠️ ' + (res.error || '업로드 실패'), 'error');
+  } catch(e) { showToast('⚠️ ' + e.message, 'error'); }
+  finally {
+    input.value = '';
+    input.disabled = false;
+    if (labelText) labelText.textContent = '⬆ 파일 업로드';
+  }
 }
 
 function toggleChecklist() {
