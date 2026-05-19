@@ -206,6 +206,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           고객: <strong id="panel-email">—</strong> &nbsp;·&nbsp;
           금액: <span class="amount" id="panel-amount">—</span>
         </div>
+        <button class="btn-dl" id="btn-dl-original" style="display:none" onclick="downloadOriginal()">⬇ 고객 원본</button>
         <div id="pp-file-actions" style="display:none;gap:6px;align-items:center">
           <button class="btn-dl" onclick="downloadResult('txt')">⬇ .txt</button>
           <button class="btn-dl" onclick="downloadResult('docx')">⬇ .docx</button>
@@ -400,7 +401,15 @@ function selectOrder(id, row) {
   }
   var ppActions = document.getElementById('pp-file-actions');
   if (ppActions) ppActions.style.display = currentTab === 'premium_plus' ? 'flex' : 'none';
+  var btnOrig = document.getElementById('btn-dl-original');
+  if (btnOrig) btnOrig.style.display = 'inline-block';
   document.getElementById('confirm-panel').style.display = 'block';
+}
+
+function downloadOriginal() {
+  if (!selectedOrder) return;
+  var num = selectedOrder.orderNumber || selectedOrder.orderId;
+  downloadWithAuth('/api/admin/download-original/' + selectedOrder.orderId, '원본_' + num);
 }
 
 async function downloadWithAuth(path, filename) {
@@ -455,18 +464,16 @@ function toggleChecklist() {
 
 async function doDeliver() {
   if (!selectedOrder) return;
-  var finalText = document.getElementById('panel-translation').value.trim();
-  if (!finalText) { showToast('⚠️ 번역본이 비어 있습니다', 'error'); return; }
-  if (!confirm('주문 ' + (selectedOrder.orderNumber||selectedOrder.orderId) + '을(를) 납품하시겠습니까?\n고객(' + selectedOrder.customerEmail + ')에게 이메일이 발송됩니다.')) return;
+  if (!confirm('주문 ' + (selectedOrder.orderNumber||selectedOrder.orderId) + ' 최종 납품 메일을 발송하시겠습니까?\n고객(' + selectedOrder.customerEmail + ')에게 Make.com을 통해 첨부 파일이 전송됩니다.')) return;
 
   var btn = document.getElementById('btn-deliver');
   btn.disabled = true; btn.textContent = '발송 중…';
   try {
     var res = await adminFetch('/api/admin/deliver/' + selectedOrder.orderId, {
-      method: 'POST', body: JSON.stringify({ finalText })
+      method: 'POST', body: JSON.stringify({})
     });
     if (res.success) {
-      showToast('✅ 납품 완료! 이메일 발송됨', 'success');
+      showToast('✅ 납품 완료! 고객 이메일 발송 중', 'success');
       document.getElementById('confirm-panel').style.display = 'none';
       selectedOrder = null;
       loadOrders();
