@@ -2756,6 +2756,56 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
 
         <button onclick="saveMyInfo()" class="btn-primary" style="width:100%;padding:15px;font-size:14px">변경 사항 저장</button>
       </div>
+
+      <!-- ─── 계정 관리 (회원 탈퇴) ─── -->
+      <section style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.08)">
+        <h3 style="font-size:16px;font-weight:500;color:rgba(255,255,255,0.7);margin:0 0 16px 0">⚙️ 계정 관리</h3>
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:14px;color:#fafaf8;margin-bottom:6px">회원 탈퇴</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6">진행 중인 주문이 없고, 납품 후 21일 검토 기간이 지난 경우에만 탈퇴 가능합니다.<br>주문 이력은 전자상거래법에 따라 5년간 보관됩니다.</div>
+            </div>
+            <button onclick="openMemberWithdrawModal()" style="background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.3);color:#e05555;padding:10px 20px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap">회원 탈퇴</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탈퇴 모달 -->
+      <div id="member-withdraw-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
+        <div style="background:#0a0a0a;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:32px;width:520px;max-width:90%;max-height:90vh;overflow:auto">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+            <h3 style="margin:0;color:#e05555;font-size:18px;font-weight:500">⚠️ 회원 탈퇴</h3>
+            <button onclick="closeMemberWithdrawModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:16px;margin-bottom:20px">
+            <div style="font-size:13px;color:rgba(255,255,255,0.8);font-weight:500;margin-bottom:10px">탈퇴 조건</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8">
+              ✓ 진행 중인 주문이 없어야 합니다<br>
+              ✓ 모든 주문이 납품 후 21일 검토 기간이 지나야 합니다
+            </div>
+          </div>
+          <div style="background:rgba(224,85,85,0.04);border:1px solid rgba(224,85,85,0.15);border-radius:8px;padding:16px;margin-bottom:20px">
+            <div style="font-size:13px;color:#e05555;font-weight:500;margin-bottom:10px">탈퇴 시 처리되는 항목</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.8">
+              • 카카오 로그인 해제 (재가입 시 새로 동의 필요)<br>
+              • 카카오ID 익명화 처리<br>
+              • 주문 이력은 전자상거래법에 따라 5년 보관 (이름·이메일·주문 내역)<br>
+              • 주문이 없는 경우 회원 정보 완전 삭제
+            </div>
+          </div>
+          <div style="margin-bottom:24px">
+            <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">탈퇴 사유 (선택)</label>
+            <textarea id="member-withdraw-reason" rows="3" placeholder="개선에 참고할 수 있도록 사유를 남겨주시면 감사하겠습니다." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+          </div>
+          <div id="member-withdraw-error" style="display:none;background:rgba(224,85,85,0.1);border:1px solid rgba(224,85,85,0.3);border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#e05555;line-height:1.6"></div>
+          <div style="display:flex;gap:12px;justify-content:flex-end">
+            <button onclick="closeMemberWithdrawModal()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:inherit">취소</button>
+            <button id="member-withdraw-submit-btn" onclick="submitMemberWithdraw()" style="background:rgba(224,85,85,0.15);border:1px solid #e05555;color:#e05555;padding:10px 20px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:500">탈퇴 처리</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- 주문 목록 탭 -->
@@ -4107,6 +4157,74 @@ function saveMyInfo(){
     showToast('저장 실패. 다시 시도해주세요');
   }
 }
+
+// ─── 회원 탈퇴 ───────────────────────────────────────────────
+var MEMBER_API_BASE = 'https://iumm-pipeline-production.up.railway.app';
+
+function openMemberWithdrawModal() {
+  document.getElementById('member-withdraw-reason').value = '';
+  document.getElementById('member-withdraw-error').style.display = 'none';
+  document.getElementById('member-withdraw-modal').style.display = 'flex';
+}
+
+function closeMemberWithdrawModal() {
+  document.getElementById('member-withdraw-modal').style.display = 'none';
+}
+
+async function submitMemberWithdraw() {
+  var errorEl = document.getElementById('member-withdraw-error');
+  var btn     = document.getElementById('member-withdraw-submit-btn');
+  errorEl.style.display = 'none';
+
+  var ok = confirm('정말 탈퇴하시겠습니까?\n\n탈퇴 후에는 카카오 재로그인이 차단되며 되돌릴 수 없습니다.');
+  if (!ok) return;
+
+  // 카카오 access_token 확인
+  if (typeof Kakao === 'undefined' || !Kakao.Auth || !Kakao.Auth.getAccessToken || !Kakao.Auth.getAccessToken()) {
+    errorEl.textContent = '카카오 로그인 상태가 아닙니다. 다시 로그인 후 시도해주세요.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  var accessToken = Kakao.Auth.getAccessToken();
+  var reason = document.getElementById('member-withdraw-reason').value.trim();
+
+  btn.disabled    = true;
+  btn.textContent = '처리 중...';
+
+  try {
+    var res = await fetch(MEMBER_API_BASE + '/api/member/withdraw', {
+      method:  'POST',
+      headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body:    JSON.stringify(reason ? { reason: reason } : {})
+    });
+
+    var data = await res.json();
+
+    if (!res.ok) {
+      errorEl.textContent   = data.error || '탈퇴 처리 실패';
+      errorEl.style.display = 'block';
+      btn.disabled          = false;
+      btn.textContent       = '탈퇴 처리';
+      return;
+    }
+
+    alert('탈퇴가 완료되었습니다.\n\n' + (data.message || '카카오 로그인이 해제됩니다.'));
+
+    // 카카오 로그아웃 + 로컬 정리
+    try { if (Kakao.Auth.logout) Kakao.Auth.logout(); } catch(e2) {}
+    localStorage.removeItem('iumm_user');
+
+    window.location.href = '/';
+  } catch(e) {
+    errorEl.textContent   = '네트워크 오류: ' + e.message;
+    errorEl.style.display = 'block';
+    btn.disabled          = false;
+    btn.textContent       = '탈퇴 처리';
+    console.error('[member-withdraw] 실패:', e);
+  }
+}
+
 // 추가 정보 입력 완료 처리
 function completeUserInfo(){
   if(!currentUserKakaoId){
