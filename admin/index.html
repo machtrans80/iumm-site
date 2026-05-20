@@ -219,10 +219,49 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           <div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
               <h3 style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);margin:0;letter-spacing:1px">⚖️ 조정 항목</h3>
-              <button onclick="alert('Phase 3에서 구현 예정')" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:8px 16px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">+ 추가</button>
+              <button onclick="openAdjustmentModal()" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:8px 16px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">+ 추가</button>
             </div>
             <div id="adjustments-list" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;min-height:80px">
               <div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">조정 항목 없음</div>
+            </div>
+          </div>
+          <!-- 조정 항목 추가 모달 -->
+          <div id="adjustment-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
+            <div style="background:#0a0a0a;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:32px;width:500px;max-width:90%;max-height:90vh;overflow:auto">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                <h3 style="margin:0;color:var(--gold);font-size:18px;font-weight:500">조정 항목 추가</h3>
+                <button onclick="closeAdjustmentModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
+              </div>
+              <div style="margin-bottom:16px">
+                <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">일자</label>
+                <input type="date" id="adj-date" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit">
+              </div>
+              <div style="margin-bottom:16px">
+                <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">항목</label>
+                <select id="adj-item" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit">
+                  <option value="환불" style="background:#0a0a0a">환불 (지출, -)</option>
+                  <option value="보상" style="background:#0a0a0a">보상 (지출, -)</option>
+                  <option value="기타비용" style="background:#0a0a0a">기타비용 (지출, -)</option>
+                  <option value="가산수익" style="background:#0a0a0a">가산수익 (수익, +)</option>
+                </select>
+              </div>
+              <div style="margin-bottom:16px">
+                <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">금액 (지출은 음수로 입력: 예 -50000)</label>
+                <input type="number" id="adj-amount" placeholder="-50000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit">
+              </div>
+              <div style="margin-bottom:16px">
+                <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">사유 (선택)</label>
+                <textarea id="adj-reason" rows="3" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit;resize:vertical"></textarea>
+              </div>
+              <div style="margin-bottom:24px">
+                <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">관련 주문 record ID (선택)</label>
+                <input type="text" id="adj-related" placeholder="rec... (Airtable 주문 record ID)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit;font-size:12px">
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px">주문 테이블에서 rec... ID를 복사해 붙여넣으세요. 빈칸 가능.</div>
+              </div>
+              <div style="display:flex;gap:12px;justify-content:flex-end">
+                <button onclick="closeAdjustmentModal()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:inherit">취소</button>
+                <button onclick="submitAdjustment()" style="background:rgba(201,168,76,0.2);border:1px solid var(--gold);color:var(--gold);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:500">추가</button>
+              </div>
             </div>
           </div>
         </div>
@@ -868,7 +907,7 @@ function renderSettlement(data) {
           : '<span style="background:rgba(201,168,76,0.12);color:var(--gold);padding:2px 8px;border-radius:4px;font-size:11px">대기</span>';
         const actionBtn = item.completed
           ? `<span style="color:rgba(255,255,255,0.3);font-size:11px">${(item.completedAt || '').slice(0, 10)}</span>`
-          : `<button onclick="alert('Phase 3에서 구현')" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">정산완료</button>`;
+          : `<button onclick="completeSettlement('${item.id}', '${g.name}', '${item.orderNumber}', ${item.fee})" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">정산완료</button>`;
         html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);align-items:center;font-size:13px">
           <div style="color:rgba(255,255,255,0.7)">${item.orderNumber || '-'}</div>
           <div style="color:rgba(255,255,255,0.5);font-size:12px">${(item.deliveredAt || '').slice(0, 10)}</div>
@@ -891,15 +930,121 @@ function renderSettlement(data) {
     data.adjustments.items.forEach(item => {
       const isNeg    = (item.amount || 0) < 0;
       const amtColor = isNeg ? '#e05555' : '#97c459';
-      html += `<div style="display:grid;grid-template-columns:100px 100px 1fr 100px;gap:12px;padding:10px 16px;background:rgba(255,255,255,0.02);border-radius:6px;align-items:center;font-size:13px">
+      html += `<div style="display:grid;grid-template-columns:100px 100px 1fr 100px 32px;gap:12px;padding:10px 16px;background:rgba(255,255,255,0.02);border-radius:6px;align-items:center;font-size:13px">
         <div style="color:rgba(255,255,255,0.5);font-size:12px">${item.date || '-'}</div>
         <div style="color:rgba(255,255,255,0.7)">${item.item || '-'}</div>
         <div style="color:rgba(255,255,255,0.5);font-size:12px">${item.reason || ''}</div>
         <div style="color:${amtColor};text-align:right;font-weight:500">${fmt(item.amount)}</div>
+        <button onclick="deleteAdjustment('${item.id}', '${item.date}', '${item.item}', ${item.amount})" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;padding:0" title="삭제">×</button>
       </div>`;
     });
     html += '</div>';
     adjEl.innerHTML = html;
+  }
+}
+
+async function completeSettlement(orderId, reviewerName, orderNumber, fee) {
+  const fmt = n => '₩' + (n || 0).toLocaleString('ko-KR');
+  const ok = confirm(
+    `${reviewerName}님의 정산을 완료 처리하시겠습니까?\n\n` +
+    `주문: ${orderNumber}\n` +
+    `금액: ${fmt(fee)}\n\n` +
+    `이 작업은 되돌릴 수 없습니다.`
+  );
+  if (!ok) return;
+  try {
+    const token = adminToken();
+    const res = await fetch(`${API_BASE}/api/admin/settlement/${orderId}/complete`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`정산 완료 처리 실패: ${res.status} ${err}`);
+      return;
+    }
+    const data = await res.json();
+    alert(`정산 완료 처리됨\n검수자 누적 입금액: ${fmt(data.newCumulative)}`);
+    loadSettlement();
+  } catch(e) {
+    alert(`네트워크 오류: ${e.message}`);
+    console.error('[settlement] complete 실패:', e);
+  }
+}
+
+function openAdjustmentModal() {
+  const modal = document.getElementById('adjustment-modal');
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('adj-date').value   = today;
+  document.getElementById('adj-item').value   = '환불';
+  document.getElementById('adj-amount').value = '';
+  document.getElementById('adj-reason').value = '';
+  document.getElementById('adj-related').value = '';
+  modal.style.display = 'flex';
+}
+
+function closeAdjustmentModal() {
+  document.getElementById('adjustment-modal').style.display = 'none';
+}
+
+async function submitAdjustment() {
+  const date    = document.getElementById('adj-date').value;
+  const item    = document.getElementById('adj-item').value;
+  const amount  = parseFloat(document.getElementById('adj-amount').value);
+  const reason  = document.getElementById('adj-reason').value.trim();
+  const related = document.getElementById('adj-related').value.trim();
+
+  if (!date)       { alert('일자를 입력하세요'); return; }
+  if (!item)       { alert('항목을 선택하세요'); return; }
+  if (isNaN(amount)) { alert('금액을 숫자로 입력하세요'); return; }
+
+  try {
+    const token = adminToken();
+    const body  = { date, item, amount };
+    if (reason)  body.reason = reason;
+    if (related) body.relatedOrderId = related;
+
+    const res = await fetch(`${API_BASE}/api/admin/settlement/adjustment`, {
+      method:  'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`추가 실패: ${res.status} ${err}`);
+      return;
+    }
+    closeAdjustmentModal();
+    loadSettlement();
+  } catch(e) {
+    alert(`네트워크 오류: ${e.message}`);
+    console.error('[adjustment] submit 실패:', e);
+  }
+}
+
+async function deleteAdjustment(adjId, date, item, amount) {
+  const fmt = n => '₩' + (n || 0).toLocaleString('ko-KR');
+  const ok = confirm(
+    `이 조정 항목을 삭제하시겠습니까?\n\n` +
+    `${date} ${item} ${fmt(amount)}\n\n` +
+    `이 작업은 되돌릴 수 없습니다.`
+  );
+  if (!ok) return;
+  try {
+    const token = adminToken();
+    const res = await fetch(`${API_BASE}/api/admin/settlement/adjustment/${adjId}`, {
+      method:  'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`삭제 실패: ${res.status} ${err}`);
+      return;
+    }
+    loadSettlement();
+  } catch(e) {
+    alert(`네트워크 오류: ${e.message}`);
+    console.error('[adjustment] delete 실패:', e);
   }
 }
 
