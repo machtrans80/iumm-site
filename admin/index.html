@@ -178,8 +178,53 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           정산 데이터 로딩 중...
         </div>
         <div id="settlement-content" style="display:none">
-          <!-- Phase 2에서 채울 영역 -->
-          <pre id="settlement-raw" style="background:rgba(255,255,255,0.03);padding:16px;border-radius:8px;color:rgba(255,255,255,0.6);font-size:11px;overflow:auto;max-height:600px"></pre>
+          <!-- 헤더: 제목 + 월 선택 -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+            <h2 style="font-size:20px;font-weight:500;color:var(--gold);margin:0">정산 관리</h2>
+            <input type="month" id="settlement-month" value="" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:8px 12px;border-radius:6px;font-size:13px;font-family:inherit">
+          </div>
+          <!-- 요약 카드 4개 -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:32px">
+            <div class="settlement-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">💰 매출</div>
+              <div id="card-sales-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
+              <div id="card-sales-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건</div>
+            </div>
+            <div class="settlement-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">⚖️ 조정</div>
+              <div id="card-adj-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
+              <div id="card-adj-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건</div>
+            </div>
+            <div class="settlement-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">💸 정산</div>
+              <div id="card-settle-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
+              <div id="card-settle-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건 (대기 0건)</div>
+            </div>
+            <div class="settlement-card" style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:20px">
+              <div style="font-size:11px;color:var(--gold);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">📊 마진</div>
+              <div id="card-margin" style="font-size:22px;font-weight:500;color:var(--gold);margin-bottom:4px">₩0</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4)">매출 - 정산</div>
+            </div>
+          </div>
+          <!-- 검수자별 정산 목록 -->
+          <div style="margin-bottom:32px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);margin:0;letter-spacing:1px">📋 검수자별 정산 목록</h3>
+            </div>
+            <div id="settlement-list" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;min-height:80px">
+              <div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">불러오는 중...</div>
+            </div>
+          </div>
+          <!-- 조정 항목 목록 -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);margin:0;letter-spacing:1px">⚖️ 조정 항목</h3>
+              <button onclick="alert('Phase 3에서 구현 예정')" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:8px 16px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">+ 추가</button>
+            </div>
+            <div id="adjustments-list" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;min-height:80px">
+              <div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">조정 항목 없음</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -737,40 +782,124 @@ async function loadRejectedReviewers() {
 }
 
 // ─── 정산 관리 탭 ───
-async function loadSettlement() {
-  var loadingEl = document.getElementById('settlement-loading');
-  var contentEl = document.getElementById('settlement-content');
-  var rawEl     = document.getElementById('settlement-raw');
+async function loadSettlement(month) {
+  const loadingEl  = document.getElementById('settlement-loading');
+  const contentEl  = document.getElementById('settlement-content');
+  const monthInput = document.getElementById('settlement-month');
+
+  // 월 입력 초기화 (현재 월 default)
+  if (!monthInput.value) {
+    const now = new Date();
+    monthInput.value = now.toISOString().slice(0, 7);
+    monthInput.onchange = () => loadSettlement(monthInput.value);
+  }
+
+  const targetMonth = month || monthInput.value;
 
   loadingEl.style.display = 'block';
+  loadingEl.textContent = '정산 데이터 로딩 중...';
   contentEl.style.display = 'none';
 
   try {
-    var token = adminToken();
+    const token = adminToken();
     if (!token) {
       loadingEl.textContent = 'admin 인증 필요. 다시 로그인해주세요.';
       return;
     }
 
-    var res = await fetch(API_BASE + '/api/admin/settlement', {
-      headers: { 'Authorization': 'Bearer ' + token }
+    const res = await fetch(`${API_BASE}/api/admin/settlement?month=${encodeURIComponent(targetMonth)}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
     if (!res.ok) {
-      loadingEl.textContent = '오류: ' + res.status + ' ' + (await res.text());
+      loadingEl.textContent = `오류: ${res.status} ${await res.text()}`;
       return;
     }
 
-    var data = await res.json();
-
-    // Phase 1: raw JSON 표시 (Phase 2에서 UI 교체 예정)
-    rawEl.textContent = JSON.stringify(data, null, 2);
+    const data = await res.json();
+    renderSettlement(data);
 
     loadingEl.style.display = 'none';
     contentEl.style.display = 'block';
   } catch(e) {
-    loadingEl.textContent = '네트워크 오류: ' + e.message;
+    loadingEl.textContent = `네트워크 오류: ${e.message}`;
     console.error('[settlement] 로드 실패:', e);
+  }
+}
+
+function renderSettlement(data) {
+  const fmt = n => '₩' + (n || 0).toLocaleString('ko-KR');
+
+  // 요약 카드
+  document.getElementById('card-sales-amount').textContent  = fmt(data.sales.totalAmount);
+  document.getElementById('card-sales-count').textContent   = data.sales.count + '건';
+  document.getElementById('card-adj-amount').textContent    = fmt(data.adjustments.totalAmount);
+  document.getElementById('card-adj-count').textContent     = data.adjustments.count + '건';
+  document.getElementById('card-settle-amount').textContent = fmt(data.settlement.totalAmount);
+  document.getElementById('card-settle-count').textContent  = `${data.settlement.totalCount}건 (대기 ${data.settlement.pendingCount}건)`;
+  document.getElementById('card-margin').textContent        = fmt(data.margin);
+
+  // 검수자별 정산 목록 (그룹핑)
+  const listEl = document.getElementById('settlement-list');
+  if (data.settlement.items.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">정산 대상 없음</div>';
+  } else {
+    const byReviewer = {};
+    data.settlement.items.forEach(item => {
+      const key = item.reviewerId || 'unknown';
+      if (!byReviewer[key]) {
+        byReviewer[key] = { name: item.reviewerName || '(이름 없음)', items: [], total: 0 };
+      }
+      byReviewer[key].items.push(item);
+      byReviewer[key].total += (item.fee || 0);
+    });
+
+    let html = '';
+    Object.entries(byReviewer).forEach(([rid, g]) => {
+      html += `<div style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.04);border-radius:6px 6px 0 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+          <div style="font-weight:500;color:#fafaf8">${g.name} <span style="color:rgba(255,255,255,0.4);font-size:12px;margin-left:8px">${g.items.length}건</span></div>
+          <div style="color:var(--gold);font-weight:500">${fmt(g.total)}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.02);border-radius:0 0 6px 6px">`;
+      g.items.forEach(item => {
+        const statusBadge = item.completed
+          ? '<span style="background:rgba(151,196,89,0.15);color:#97c459;padding:2px 8px;border-radius:4px;font-size:11px">✓ 완료</span>'
+          : '<span style="background:rgba(201,168,76,0.12);color:var(--gold);padding:2px 8px;border-radius:4px;font-size:11px">대기</span>';
+        const actionBtn = item.completed
+          ? `<span style="color:rgba(255,255,255,0.3);font-size:11px">${(item.completedAt || '').slice(0, 10)}</span>`
+          : `<button onclick="alert('Phase 3에서 구현')" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">정산완료</button>`;
+        html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);align-items:center;font-size:13px">
+          <div style="color:rgba(255,255,255,0.7)">${item.orderNumber || '-'}</div>
+          <div style="color:rgba(255,255,255,0.5);font-size:12px">${(item.deliveredAt || '').slice(0, 10)}</div>
+          <div style="color:rgba(255,255,255,0.5);font-size:12px">${item.settlementDate || '-'}</div>
+          <div style="color:#fafaf8">${fmt(item.fee)}</div>
+          <div style="display:flex;align-items:center;gap:8px">${statusBadge}${actionBtn}</div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    });
+    listEl.innerHTML = html;
+  }
+
+  // 조정 항목 목록
+  const adjEl = document.getElementById('adjustments-list');
+  if (data.adjustments.items.length === 0) {
+    adjEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">조정 항목 없음</div>';
+  } else {
+    let html = '<div style="display:grid;gap:8px">';
+    data.adjustments.items.forEach(item => {
+      const isNeg    = (item.amount || 0) < 0;
+      const amtColor = isNeg ? '#e05555' : '#97c459';
+      html += `<div style="display:grid;grid-template-columns:100px 100px 1fr 100px;gap:12px;padding:10px 16px;background:rgba(255,255,255,0.02);border-radius:6px;align-items:center;font-size:13px">
+        <div style="color:rgba(255,255,255,0.5);font-size:12px">${item.date || '-'}</div>
+        <div style="color:rgba(255,255,255,0.7)">${item.item || '-'}</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:12px">${item.reason || ''}</div>
+        <div style="color:${amtColor};text-align:right;font-weight:500">${fmt(item.amount)}</div>
+      </div>`;
+    });
+    html += '</div>';
+    adjEl.innerHTML = html;
   }
 }
 
