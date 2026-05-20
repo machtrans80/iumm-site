@@ -164,12 +164,24 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <button class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
       <button class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
       <button class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
+      <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
     </div>
     <div id="orders-wrap">
       <table class="orders-table">
         <thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜</th><th>접수일</th><th>금액</th></tr></thead>
         <tbody id="orders-tbody"><tr class="empty-row"><td colspan="6">로딩 중…</td></tr></tbody>
       </table>
+    </div>
+    <div id="settlement-wrap" style="display:none">
+      <div style="padding:24px">
+        <div id="settlement-loading" style="color:rgba(255,255,255,0.6);text-align:center;padding:40px">
+          정산 데이터 로딩 중...
+        </div>
+        <div id="settlement-content" style="display:none">
+          <!-- Phase 2에서 채울 영역 -->
+          <pre id="settlement-raw" style="background:rgba(255,255,255,0.03);padding:16px;border-radius:8px;color:rgba(255,255,255,0.6);font-size:11px;overflow:auto;max-height:600px"></pre>
+        </div>
+      </div>
     </div>
     <div id="confirm-panel">
       <div class="panel-header">
@@ -319,12 +331,17 @@ function switchTab(tab) {
   document.getElementById('tab-rv').className = 'tab-btn' + (tab==='reviewers' ? ' active' : '');
   document.getElementById('tab-rv-approved').className = 'tab-btn' + (tab==='reviewers_approved' ? ' active' : '');
   document.getElementById('tab-rv-rejected').className = 'tab-btn' + (tab==='reviewers_rejected' ? ' active' : '');
+  document.getElementById('tab-st').className = 'tab-btn' + (tab==='settlement' ? ' active' : '');
+  document.getElementById('orders-wrap').style.display = tab === 'settlement' ? 'none' : 'block';
+  document.getElementById('settlement-wrap').style.display = tab === 'settlement' ? 'block' : 'none';
   if (tab === 'reviewers') {
     loadReviewers();
   } else if (tab === 'reviewers_approved') {
     loadApprovedReviewers();
   } else if (tab === 'reviewers_rejected') {
     loadRejectedReviewers();
+  } else if (tab === 'settlement') {
+    loadSettlement();
   } else {
     loadOrders();
   }
@@ -716,6 +733,44 @@ async function loadRejectedReviewers() {
   } catch(e) {
     var tb = document.getElementById('rv-tbody');
     if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>';
+  }
+}
+
+// ─── 정산 관리 탭 ───
+async function loadSettlement() {
+  var loadingEl = document.getElementById('settlement-loading');
+  var contentEl = document.getElementById('settlement-content');
+  var rawEl     = document.getElementById('settlement-raw');
+
+  loadingEl.style.display = 'block';
+  contentEl.style.display = 'none';
+
+  try {
+    var token = adminToken();
+    if (!token) {
+      loadingEl.textContent = 'admin 인증 필요. 다시 로그인해주세요.';
+      return;
+    }
+
+    var res = await fetch(API_BASE + '/api/admin/settlement', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    if (!res.ok) {
+      loadingEl.textContent = '오류: ' + res.status + ' ' + (await res.text());
+      return;
+    }
+
+    var data = await res.json();
+
+    // Phase 1: raw JSON 표시 (Phase 2에서 UI 교체 예정)
+    rawEl.textContent = JSON.stringify(data, null, 2);
+
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'block';
+  } catch(e) {
+    loadingEl.textContent = '네트워크 오류: ' + e.message;
+    console.error('[settlement] 로드 실패:', e);
   }
 }
 
