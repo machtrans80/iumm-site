@@ -257,6 +257,35 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
       </div>
     </div>
 
+    <!-- ─── 정산 내역 섹션 ─── -->
+    <section style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.08)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <h2 style="font-size:20px;font-weight:500;color:var(--gold);margin:0">💸 정산 내역</h2>
+        <input type="month" id="settlement-month" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:8px 12px;border-radius:6px;font-size:13px;font-family:inherit">
+      </div>
+      <!-- 요약 카드 2개 -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:24px">
+        <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:20px">
+          <div style="font-size:11px;color:var(--gold);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">💰 이번 달 정산 예정</div>
+          <div id="settle-monthly-amount" style="font-size:22px;font-weight:500;color:var(--gold);margin-bottom:4px">₩0</div>
+          <div id="settle-monthly-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">📊 누적 입금 완료</div>
+          <div id="settle-cumulative-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
+          <div id="settle-cumulative-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건 누적</div>
+        </div>
+      </div>
+      <!-- 안내 -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">
+        💡 정산 기준: 최종 납품일 + 21일 검토 기간 후, 그 다음 달 말일에 입금 (주말/공휴일은 다음 평일)
+      </div>
+      <!-- 작업별 목록 -->
+      <div id="settlement-list" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;min-height:80px">
+        <div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">불러오는 중...</div>
+      </div>
+    </section>
+
   </div>
 </div>
 
@@ -361,12 +390,83 @@ function loadDashboard() {
   // 30초 자동 갱신
   if (refreshTimer) clearInterval(refreshTimer);
   refreshTimer = setInterval(refreshPending, 30000);
+
+  loadMySettlement();
 }
 
 function refreshPending() {
   authFetch('/api/reviewer/jobs/pending').then(function(d) {
     if (d.success) renderPending(d.jobs || []);
   });
+}
+
+// ─── 정산 내역 로드 ──────────────────────────────────────────
+async function loadMySettlement(month) {
+  var monthInput = document.getElementById('settlement-month');
+
+  if (!monthInput.value) {
+    var now = new Date();
+    monthInput.value = now.toISOString().slice(0, 7);
+    monthInput.onchange = function() { loadMySettlement(monthInput.value); };
+  }
+
+  var targetMonth = month || monthInput.value;
+  var listEl = document.getElementById('settlement-list');
+  listEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">불러오는 중...</div>';
+
+  try {
+    var data = await authFetch('/api/reviewer/my-settlement?month=' + encodeURIComponent(targetMonth));
+    if (!data.success) {
+      listEl.innerHTML = '<div style="text-align:center;color:#e05555;padding:24px">로드 실패: ' + (data.error || '알 수 없는 오류') + '</div>';
+      return;
+    }
+    renderMySettlement(data);
+  } catch(e) {
+    listEl.innerHTML = '<div style="text-align:center;color:#e05555;padding:24px">로드 실패: ' + e.message + '</div>';
+    console.error('[my-settlement] 로드 실패:', e);
+  }
+}
+
+function renderMySettlement(data) {
+  var fmt = function(n) { return '₩' + (n || 0).toLocaleString('ko-KR'); };
+
+  // 요약 카드
+  document.getElementById('settle-monthly-amount').textContent    = fmt(data.summary.monthlyExpected);
+  document.getElementById('settle-monthly-count').textContent     = data.summary.monthlyExpectedCount + '건';
+  document.getElementById('settle-cumulative-amount').textContent = fmt(data.summary.cumulativeCompleted);
+  document.getElementById('settle-cumulative-count').textContent  = data.summary.cumulativeCompletedCount + '건 누적';
+
+  // 작업별 목록
+  var listEl = document.getElementById('settlement-list');
+  if (!data.items || data.items.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">검수 완료된 작업 없음</div>';
+    return;
+  }
+
+  var statusMap = {
+    'completed': { label: '✓ 완료',   bg: 'rgba(151,196,89,0.15)',  color: '#97c459' },
+    'ready':     { label: '정산 가능', bg: 'rgba(201,168,76,0.25)',  color: 'var(--gold)' },
+    'pending':   { label: '정산 대기', bg: 'rgba(201,168,76,0.12)',  color: 'var(--gold)' },
+    'review':    { label: '검토 기간', bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }
+  };
+
+  var html = '<div style="display:grid;grid-template-columns:1fr 100px 100px 100px 90px;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;text-transform:uppercase;border-radius:8px 8px 0 0">' +
+    '<div>주문번호</div><div>납품일</div><div>정산예정일</div><div style="text-align:right">검수료</div><div style="text-align:center">상태</div>' +
+    '</div>';
+
+  data.items.forEach(function(item, idx) {
+    var st     = statusMap[item.status] || statusMap['review'];
+    var isLast = (idx === data.items.length - 1);
+    html += '<div style="display:grid;grid-template-columns:1fr 100px 100px 100px 90px;gap:12px;padding:12px 16px;border-bottom:' + (isLast ? 'none' : '1px solid rgba(255,255,255,0.04)') + ';align-items:center;font-size:13px">' +
+      '<div style="color:rgba(255,255,255,0.7)">' + (item.orderNumber || '-') + '</div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:12px">' + (item.deliveredAt || '').slice(0,10) + '</div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:12px">' + (item.settlementDate || '-') + '</div>' +
+      '<div style="color:#fafaf8;text-align:right;font-weight:500">' + fmt(item.fee) + '</div>' +
+      '<div style="text-align:center"><span style="background:' + st.bg + ';color:' + st.color + ';padding:3px 10px;border-radius:4px;font-size:11px;white-space:nowrap">' + st.label + '</span></div>' +
+      '</div>';
+  });
+
+  listEl.innerHTML = html;
 }
 
 // ─── 통계 렌더 ───────────────────────────────────────────────
