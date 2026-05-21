@@ -2378,23 +2378,38 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
       <!-- 소요시간 안내 -->
       <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:16px;margin:16px 0">
         <h4 style="color:var(--gold);font-size:14px;margin:0 0 12px 0;font-weight:600">📋 번역 소요시간 안내</h4>
-        <div style="font-size:13px;line-height:1.7;color:rgba(255,255,255,0.85)">
-          <p style="margin:0 0 8px 0;font-weight:600;color:#e8c94a">[AI 프리미엄] · 5단계 AI 번역 자동 처리</p>
-          <ul style="margin:0 0 12px 0;padding-left:18px">
-            <li>1~5페이지 (1,000~5,000자): 24시간 이내</li>
-            <li>6~10페이지 (5,001~10,000자): 36시간 이내</li>
-            <li>11~15페이지 (10,001~15,000자): 48시간 이내</li>
-            <li>16~20페이지 (15,001~20,000자): 60시간 이내</li>
-          </ul>
-          <p style="margin:0 0 8px 0;font-weight:600;color:#e8c94a">[프리미엄 플러스] · AI + 전문가 검수</p>
-          <ul style="margin:0 0 12px 0;padding-left:18px">
-            <li>1~5페이지: 2일 이내</li>
-            <li>6~10페이지: 3~4일 이내</li>
-            <li>11~15페이지: 4~5일 이내</li>
-            <li>16~20페이지: 5~7일 이내</li>
-          </ul>
-          <p style="margin:8px 0 0 0;font-size:11px;color:rgba(255,255,255,0.5)">※ 20페이지 이상 또는 200만원 초과 시 법인계좌 입금으로 진행</p>
-        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;color:rgba(255,255,255,0.85)">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(201,168,76,0.3)">
+              <th style="padding:8px 6px;text-align:left;font-weight:600;color:#e8c94a;font-size:12px">글자수</th>
+              <th style="padding:8px 6px;text-align:center;font-weight:600;color:#e8c94a;font-size:12px">AI 프리미엄</th>
+              <th style="padding:8px 6px;text-align:center;font-weight:600;color:#e8c94a;font-size:12px">프리미엄 플러스</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+              <td style="padding:8px 6px">1,000~5,000자</td>
+              <td style="padding:8px 6px;text-align:center">24시간 이내</td>
+              <td style="padding:8px 6px;text-align:center">2일 이내</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+              <td style="padding:8px 6px">5,001~10,000자</td>
+              <td style="padding:8px 6px;text-align:center">36시간 이내</td>
+              <td style="padding:8px 6px;text-align:center">3~4일 이내</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+              <td style="padding:8px 6px">10,001~15,000자</td>
+              <td style="padding:8px 6px;text-align:center">48시간 이내</td>
+              <td style="padding:8px 6px;text-align:center">4~5일 이내</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 6px">15,001~20,000자</td>
+              <td style="padding:8px 6px;text-align:center">60시간 이내</td>
+              <td style="padding:8px 6px;text-align:center">5~7일 이내</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin:12px 0 0 0;font-size:11px;color:rgba(255,255,255,0.5)">※ 총 결제금액 200만원 초과 시 법인계좌 입금 방식으로 진행</p>
       </div>
 
       <!-- 원문 파일 첨부 -->
@@ -2706,14 +2721,11 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
           </div>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);padding:14px 16px;margin-bottom:20px">
-        <p style="font-size:11px;color:rgba(255,255,255,0.55);line-height:2">
-          ① 위 계좌로 정확한 금액을 입금해 주세요<br>
-          ② 입금 후 <span style="color:var(--gold)">iumm.master@gmail.com</span>으로<br>
-          　<strong style="color:var(--white)">주문 내용 + 입금 증빙</strong>을 보내주세요<br>
-          ③ 확인 후 1~2시간 내 번역 착수 안내드립니다
-        </p>
-      </div>
+      <p style="color:rgba(255,255,255,0.85);font-size:13px;line-height:1.8;margin:16px 0">
+        ① 위 계좌로 정확한 금액을 입금해 주세요<br>
+        ② 자체 확인 후 <strong style="color:var(--gold)">1~2시간 내</strong>로 번역 착수됩니다.
+      </p>
+      <p style="color:rgba(255,255,255,0.6);font-size:12px;text-align:center;margin:16px 0 0 0">감사합니다.</p>
       <button onclick="confirmBankTransfer()" class="btn-primary" style="width:100%;padding:16px;font-size:15px">입금 완료 · 작업 의뢰하기</button>
       <button onclick="closeBankModal()" style="width:100%;padding:12px;font-size:13px;background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);cursor:pointer;margin-top:10px;font-family:'Noto Sans KR',sans-serif">취소</button>
     </div>
