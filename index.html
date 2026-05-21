@@ -3416,6 +3416,14 @@ function kakaoLogin(){
               kakaoId:kakaoId,name:nickname,email:email,loginTime:Date.now()
             }));
           }catch(e){}
+          // Airtable 회원 테이블 동기화 (fire-and-forget, 실패해도 UX 영향 없음)
+          if(authObj && authObj.access_token){
+            fetch(MEMBER_API_BASE+'/api/member/signup',{
+              method:'POST',
+              headers:{'Authorization':'Bearer '+authObj.access_token,'Content-Type':'application/json'},
+              body:JSON.stringify({})
+            }).catch(function(e){console.warn('member signup sync failed:',e);});
+          }
           // 추가 정보 입력 완료 여부 체크
           var hasUserInfo=false;
           try{
@@ -4268,6 +4276,26 @@ function completeUserInfo(){
   try{
     var key='iumm_userinfo_'+currentUserKakaoId;
     localStorage.setItem(key,JSON.stringify(userInfo));
+    // Airtable 회원 테이블 동기화 (실패해도 alert 없음, localStorage는 이미 저장됨)
+    var kakaoToken=Kakao.Auth.getAccessToken();
+    if(kakaoToken){
+      var mainLang=(fromLang?fromLang.value:'')+(toLang&&toLang.value?'→'+toLang.value:'');
+      fetch(MEMBER_API_BASE+'/api/member/signup',{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+kakaoToken,'Content-Type':'application/json'},
+        body:JSON.stringify({
+          name:nameVal,
+          phone:phoneVal,
+          company:company?company.value.trim():'',
+          mainLanguages:mainLang
+        })
+      }).then(function(r){return r.json();})
+        .then(function(d){
+          if(d.ok)console.log('member synced to Airtable:',d.recordId,'isNew:',d.isNew);
+          else console.warn('member sync failed:',d.error);
+        })
+        .catch(function(e){console.warn('member sync error:',e);});
+    }
     // 사용자 이름도 카카오 닉네임 → 입력한 실명으로 업데이트
     currentUserName=nameVal;
     showPage('main');
