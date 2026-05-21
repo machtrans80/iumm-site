@@ -955,13 +955,22 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
         </div>
         <div class="faq-a">
           <p>일반적으로 다음과 같습니다:</p>
+          <p style="margin-top:12px;font-weight:600;color:#e8c94a">[AI 프리미엄] · 5단계 AI 번역 자동 처리</p>
           <ul>
-            <li>AI 프리미엄: <strong>10-30분</strong> (분량에 따라)</li>
-            <li>프리미엄 플러스: <strong>30분-2시간</strong></li>
-            <li>자격사 검수 추가: <strong>+6시간-24시간</strong></li>
-            <li>대용량(10,000자+): <strong>2-12시간</strong></li>
+            <li>1,000~5,000자: 24시간 이내</li>
+            <li>5,001~10,000자: 36시간 이내</li>
+            <li>10,001~15,000자: 48시간 이내</li>
+            <li>15,001~20,000자: 60시간 이내</li>
           </ul>
-          <p>완료 시 이메일로 알림이 발송됩니다.</p>
+          <p style="margin-top:12px;font-weight:600;color:#e8c94a">[프리미엄 플러스] · AI + 전문가 검수</p>
+          <ul>
+            <li>1,000~5,000자: 2일 이내</li>
+            <li>5,001~10,000자: 3~4일 이내</li>
+            <li>10,001~15,000자: 4~5일 이내</li>
+            <li>15,001~20,000자: 5~7일 이내</li>
+          </ul>
+          <p style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.6)">※ 총 결제금액 200만원 초과 시 법인계좌 입금 방식으로 진행</p>
+          <p style="font-size:12px;color:rgba(255,255,255,0.6)">※ 완료 시 이메일로 알림이 발송됩니다.</p>
         </div>
       </div>
 
@@ -4511,10 +4520,7 @@ async function completePayment(){
     return;
   }
 
-  // preview 모드 확인 (포트원 호출 여부 결정)
-  var isPreview=sessionStorage.getItem('previewMode')==='true';
-
-  // 결제수단 → 포트원 payMethod 매핑 (preview 외에만 필수)
+  // 결제수단 → 포트원 payMethod 매핑
   var selectedPayEl=document.querySelector('input[name="paymethod"]:checked');
   var portonePayMethod='';
   if(selectedPayEl){
@@ -4523,13 +4529,12 @@ async function completePayment(){
     else if(selectedLabel&&selectedLabel.id==='pay-card') portonePayMethod='CARD';
     else if(selectedLabel&&selectedLabel.id==='pay-bank') portonePayMethod='TRANSFER';
   }
-  if(!portonePayMethod&&!isPreview){
+  if(!portonePayMethod){
     alert('결제 수단을 선택해주세요.');
     return;
   }
 
-  if(!isPreview){
-    // ── 포트원 V2 결제 요청 ──────────────────────────────────
+  // ── 포트원 V2 결제 요청 ──────────────────────────────────
     var paymentId='iumm_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
     var totalAmount=amountNum;
     var planName=currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스';
@@ -4592,7 +4597,6 @@ async function completePayment(){
       alert('결제 검증 실패: '+(verifyRes.error||'알 수 없는 오류'));
       return;
     }
-  }
 
   // ── 무료체험 처리 ─────────────────────────────────────────
   if(isFreeTrialOrder&&!freeTrialUsed){
