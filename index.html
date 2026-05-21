@@ -357,6 +357,7 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
 
 </style>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
+<script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 <script>
   if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()){
     Kakao.init('d37fe286e0256c9199a29236ed10c244');
@@ -4501,7 +4502,7 @@ function switchToPremiumPlus(){
   var modal=document.getElementById('modal-order');
   if(modal) modal.scrollTo({top:0,behavior:'smooth'});
 }
-function completePayment(){
+async function completePayment(){
   // 200만원 초과 시 법인계좌 입금 안내
   var amountEl=document.getElementById('payment-amount');
   var amountNum=amountEl?parseInt(amountEl.textContent.replace(/[^0-9]/g,'')):0;
@@ -4509,27 +4510,109 @@ function completePayment(){
     showBankTransferModal();
     return;
   }
+
+  // preview 모드 확인 (포트원 호출 여부 결정)
+  var isPreview=sessionStorage.getItem('previewMode')==='true';
+
+  // 결제수단 → 포트원 payMethod 매핑 (preview 외에만 필수)
+  var selectedPayEl=document.querySelector('input[name="paymethod"]:checked');
+  var portonePayMethod='';
+  if(selectedPayEl){
+    var selectedLabel=selectedPayEl.closest('label');
+    if(selectedLabel&&selectedLabel.id==='pay-kakao') portonePayMethod='EASY_PAY';
+    else if(selectedLabel&&selectedLabel.id==='pay-card') portonePayMethod='CARD';
+    else if(selectedLabel&&selectedLabel.id==='pay-bank') portonePayMethod='TRANSFER';
+  }
+  if(!portonePayMethod&&!isPreview){
+    alert('결제 수단을 선택해주세요.');
+    return;
+  }
+
+  if(!isPreview){
+    // ── 포트원 V2 결제 요청 ──────────────────────────────────
+    var paymentId='iumm_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
+    var totalAmount=amountNum;
+    var planName=currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스';
+    var orderName='IUMM '+planName+' 번역 의뢰';
+    var savedInfoForPortone={};
+    if(currentUserKakaoId){
+      try{
+        var piKey='iumm_userinfo_'+currentUserKakaoId;
+        var piSaved=localStorage.getItem(piKey);
+        if(piSaved) savedInfoForPortone=JSON.parse(piSaved);
+      }catch(e){}
+    }
+    var portoneResponse;
+    try{
+      portoneResponse=await PortOne.requestPayment({
+        storeId:'store-3676558e-d1ec-4955-b5ea-b12e121fc491',
+        channelKey:'channel-key-372bbea6-20dc-43ff-9cde-7c68b518acd8',
+        paymentId:paymentId,
+        orderName:orderName,
+        totalAmount:totalAmount,
+        currency:'CURRENCY_KRW',
+        payMethod:portonePayMethod,
+        customer:{
+          fullName:currentUserName||savedInfoForPortone.name||'미입력',
+          phoneNumber:savedInfoForPortone.phone||'01000000000',
+          email:currentUser||'guest@iumm.kr'
+        }
+      });
+    }catch(err){
+      alert('결제창 호출 실패: '+(err.message||err));
+      console.error('[PortOne error]',err);
+      return;
+    }
+
+    // 사용자 취소 또는 결제 실패
+    if(!portoneResponse||portoneResponse.code){
+      var cancelMsg=(portoneResponse&&portoneResponse.message)||'결제가 취소되었습니다.';
+      alert(cancelMsg);
+      return;
+    }
+
+    // ── 서버 결제 검증 ───────────────────────────────────────
+    var verifyRes;
+    try{
+      var verifyResponse=await fetch(MEMBER_API_BASE+'/api/payment/verify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          paymentId:portoneResponse.paymentId,
+          expectedAmount:totalAmount,
+          orderName:orderName
+        })
+      });
+      verifyRes=await verifyResponse.json();
+    }catch(err){
+      alert('결제 검증 실패: '+err.message+'\n관리자에게 문의 부탁드립니다.');
+      return;
+    }
+    if(!verifyRes.ok){
+      alert('결제 검증 실패: '+(verifyRes.error||'알 수 없는 오류'));
+      return;
+    }
+  }
+
+  // ── 무료체험 처리 ─────────────────────────────────────────
   if(isFreeTrialOrder&&!freeTrialUsed){
     freeTrialUsed=true;
     isFreeTrialOrder=false;
-    // 카카오ID 기반 영구 저장 (회원당 1회 차단)
     if(currentUserKakaoId){
       markFreeTrialUsed(currentUserKakaoId);
     }
-    // 이메일 기반 백업 (호환성)
     if(currentUser){
-      var key='iumm_free_'+currentUser.toLowerCase().trim();
-      try{ localStorage.setItem(key,'used'); }catch(e){}
+      var ftKey='iumm_free_'+currentUser.toLowerCase().trim();
+      try{ localStorage.setItem(ftKey,'used'); }catch(e){}
     }
   }
-  // Make.com Webhook 전송
+
+  // ── Make.com Webhook 전송 ─────────────────────────────────
   var webhookUrl='https://hook.eu2.make.com/mcujf5mztle5zf7qonaepniee5efe1g8';
   var langSelect=document.getElementById('lang-select');
   var langVal=langSelect?langSelect.value:'-';
   var pasteText=document.getElementById('pasteText');
   var originText=pasteText?pasteText.value:'';
-  // 용어집 수집
-  // ID로 용어집 textarea 직접 읽기
   var glossarySourceEl=document.getElementById('glossarySource');
   var glossaryTargetEl=document.getElementById('glossaryTarget');
   var glossarySource=glossarySourceEl?glossarySourceEl.value:'';
@@ -4543,31 +4626,26 @@ function completePayment(){
       if(!glossaryText.trim()) glossaryText='';
     }
   }
-  // 결제방식 수집 (라디오 버튼 옆 텍스트 읽기)
   var payMethodEl=document.querySelector('input[name="paymethod"]:checked');
   var payMethod='신용카드';
   if(payMethodEl){
-    var label=payMethodEl.closest('label')||payMethodEl.parentElement;
-    var labelText=label?label.textContent.trim():'';
-    // 첫 줄만 사용 (너무 긴 텍스트 방지)
+    var labelEl=payMethodEl.closest('label')||payMethodEl.parentElement;
+    var labelText=labelEl?labelEl.textContent.trim():'';
     payMethod=labelText.split('\n')[0].trim()||'신용카드';
   }
-  // 파일첨부 수집
   var fileInput=document.getElementById('file-upload');
   var fileName='첨부파일 없음';
   if(fileInput&&fileInput.files&&fileInput.files.length>0){
     fileName=Array.from(fileInput.files).map(function(f){return f.name;}).join(', ');
   }
-  // 마이페이지 저장 정보 가져오기
   var savedUserInfo={};
   if(currentUserKakaoId){
     try{
-      var key='iumm_userinfo_'+currentUserKakaoId;
-      var saved=localStorage.getItem(key);
-      if(saved) savedUserInfo=JSON.parse(saved);
+      var uiKey='iumm_userinfo_'+currentUserKakaoId;
+      var uiSaved=localStorage.getItem(uiKey);
+      if(uiSaved) savedUserInfo=JSON.parse(uiSaved);
     }catch(e){}
   }
-  // 전문 분야 정보 가져오기
   var fieldSelect=document.getElementById('field-select');
   var fieldValue=fieldSelect?fieldSelect.value:'general';
   var fieldLabel=fieldSelect?fieldSelect.options[fieldSelect.selectedIndex].text:'일반';
