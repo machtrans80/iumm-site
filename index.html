@@ -4537,6 +4537,8 @@ async function completePayment(){
   // ── 포트원 V2 결제 요청 ──────────────────────────────────
     var paymentId='iumm_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
     var totalAmount=amountNum;
+    var charCountEl=document.getElementById('char-count');
+    var charCountValue=charCountEl?parseInt(charCountEl.textContent.replace(/[^0-9]/g,''))||0:0;
     var planName=currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스';
     var orderName='IUMM '+planName+' 번역 의뢰';
     var savedInfoForPortone={};
@@ -4661,8 +4663,8 @@ async function completePayment(){
     번역방향: langVal,
     전문분야: fieldLabel,
     분야영문코드: fieldValue,
-    글자수: document.getElementById('char-count')?document.getElementById('char-count').textContent:'-',
-    결제금액: document.getElementById('payment-amount')?document.getElementById('payment-amount').textContent:'-',
+    글자수: charCountValue,
+    결제금액: totalAmount,
     접수일시: new Date().toLocaleString('ko-KR'),
     회원이메일: currentUser||'비로그인',
     회원이름: currentUserName||savedUserInfo.name||'미입력',
@@ -4735,6 +4737,10 @@ function confirmBankTransfer(){
   var fieldSelect=document.getElementById('field-select');
   var fieldValue=fieldSelect?fieldSelect.value:'general';
   var fieldLabel=fieldSelect?fieldSelect.options[fieldSelect.selectedIndex].text:'일반';
+  var bankCharCountEl=document.getElementById('char-count');
+  var bankCharCount=bankCharCountEl?parseInt(bankCharCountEl.textContent.replace(/[^0-9]/g,''))||0:0;
+  var bankAmountEl=document.getElementById('payment-amount');
+  var bankAmount=bankAmountEl?parseInt(bankAmountEl.textContent.replace(/[^0-9]/g,''))||0:0;
   var data={
     주문번호: 'IUM-'+Date.now(),
     플랜: currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스',
@@ -4742,8 +4748,8 @@ function confirmBankTransfer(){
     번역방향: langVal,
     전문분야: fieldLabel,
     분야영문코드: fieldValue,
-    글자수: document.getElementById('char-count')?document.getElementById('char-count').textContent:'-',
-    결제금액: document.getElementById('payment-amount')?document.getElementById('payment-amount').textContent:'-',
+    글자수: bankCharCount,
+    결제금액: bankAmount,
     접수일시: new Date().toLocaleString('ko-KR'),
     회원이메일: currentUser||'비로그인',
     회원이름: currentUserName||savedUserInfo.name||'미입력',
