@@ -2376,35 +2376,25 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
       </div>
 
       <!-- 소요시간 안내 -->
-      <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:16px;margin:0 0 20px 0">
-        <h4 style="color:var(--gold);font-size:13px;margin:0 0 12px 0;font-weight:600;letter-spacing:0.5px">📋 번역 소요시간 안내</h4>
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead>
-            <tr style="border-bottom:1px solid rgba(201,168,76,0.2)">
-              <th style="text-align:left;padding:6px 8px;color:rgba(201,168,76,0.8);font-weight:600">글자수</th>
-              <th style="text-align:right;padding:6px 8px;color:rgba(201,168,76,0.8);font-weight:600">소요시간 (영업일 기준)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-              <td style="padding:7px 8px;color:rgba(255,255,255,0.65)">~ 1,000자</td>
-              <td style="text-align:right;padding:7px 8px;color:rgba(255,255,255,0.8)">당일 ~ 1일</td>
-            </tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-              <td style="padding:7px 8px;color:rgba(255,255,255,0.65)">1,001 ~ 3,000자</td>
-              <td style="text-align:right;padding:7px 8px;color:rgba(255,255,255,0.8)">1 ~ 2일</td>
-            </tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-              <td style="padding:7px 8px;color:rgba(255,255,255,0.65)">3,001 ~ 5,000자</td>
-              <td style="text-align:right;padding:7px 8px;color:rgba(255,255,255,0.8)">2 ~ 3일</td>
-            </tr>
-            <tr>
-              <td style="padding:7px 8px;color:rgba(255,255,255,0.65)">5,001자 이상</td>
-              <td style="text-align:right;padding:7px 8px;color:rgba(255,255,255,0.8)">3 ~ 5일</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:10px;line-height:1.6">※ 전문 자격사 배정 또는 문서 복잡도에 따라 달라질 수 있습니다. 공휴일 제외 영업일 기준.</p>
+      <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:16px;margin:16px 0">
+        <h4 style="color:var(--gold);font-size:14px;margin:0 0 12px 0;font-weight:600">📋 번역 소요시간 안내</h4>
+        <div style="font-size:13px;line-height:1.7;color:rgba(255,255,255,0.85)">
+          <p style="margin:0 0 8px 0;font-weight:600;color:#e8c94a">[AI 프리미엄] · 5단계 AI 번역 자동 처리</p>
+          <ul style="margin:0 0 12px 0;padding-left:18px">
+            <li>1~5페이지 (1,000~5,000자): 24시간 이내</li>
+            <li>6~10페이지 (5,001~10,000자): 36시간 이내</li>
+            <li>11~15페이지 (10,001~15,000자): 48시간 이내</li>
+            <li>16~20페이지 (15,001~20,000자): 60시간 이내</li>
+          </ul>
+          <p style="margin:0 0 8px 0;font-weight:600;color:#e8c94a">[프리미엄 플러스] · AI + 전문가 검수</p>
+          <ul style="margin:0 0 12px 0;padding-left:18px">
+            <li>1~5페이지: 2일 이내</li>
+            <li>6~10페이지: 3~4일 이내</li>
+            <li>11~15페이지: 4~5일 이내</li>
+            <li>16~20페이지: 5~7일 이내</li>
+          </ul>
+          <p style="margin:8px 0 0 0;font-size:11px;color:rgba(255,255,255,0.5)">※ 20페이지 이상 또는 200만원 초과 시 법인계좌 입금으로 진행</p>
+        </div>
       </div>
 
       <!-- 원문 파일 첨부 -->
@@ -2638,10 +2628,6 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
         <label id="pay-kakao" onclick="selectPayMethod('kakao')" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:border-color 0.2s;border-radius:2px">
           <input type="radio" name="paymethod" style="accent-color:var(--gold)">
           <div><p style="font-size:13px;font-weight:500">카카오페이</p><p style="font-size:10px;color:rgba(255,255,255,0.35)">간편결제</p></div>
-        </label>
-        <label id="pay-toss" onclick="selectPayMethod('toss')" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:border-color 0.2s;border-radius:2px">
-          <input type="radio" name="paymethod" style="accent-color:var(--gold)">
-          <div><p style="font-size:13px;font-weight:500">토스페이</p><p style="font-size:10px;color:rgba(255,255,255,0.35)">간편결제</p></div>
         </label>
         <label id="pay-card" onclick="selectPayMethod('card')" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:border-color 0.2s;border-radius:2px">
           <input type="radio" name="paymethod" style="accent-color:var(--gold)">
@@ -4647,7 +4633,7 @@ function confirmBankTransfer(){
   var data={
     주문번호: 'IUM-'+Date.now(),
     플랜: currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스',
-    결제방식: '법인계좌입금',
+    결제방식: '계좌입금',
     번역방향: langVal,
     전문분야: fieldLabel,
     분야영문코드: fieldValue,
