@@ -365,6 +365,11 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
 </head>
 <body>
 
+<!-- PG 심사용 미리보기 배너 (previewMode 활성 시에만 표시) -->
+<div id="preview-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#fbbf24;color:#000;padding:10px;text-align:center;z-index:9999;font-weight:600;font-family:'Noto Sans KR',sans-serif;font-size:14px">
+  🔍 심사용 미리보기 모드 (로그인 우회 활성화됨)
+</div>
+
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="#top"><span style="color:var(--gold)">IU</span><span style="color:#ffffff">MM</span></a>
@@ -3106,6 +3111,31 @@ var currentUserKakaoId=null;
 var currentUserName='';
 var selectedReviewerName='';
 var selectedReviewerIsExpert=false;
+
+// ─── PG 심사용 미리보기 모드 ─────────────────────────────────
+// URL: https://iumm.kr?preview=IUMM_PREVIEW_2026
+// 심사 완료 후 이 블록 전체 제거
+(function(){
+  var PREVIEW_KEY='IUMM_PREVIEW_2026';
+  var urlKey=new URLSearchParams(location.search).get('preview');
+  if(urlKey===PREVIEW_KEY){
+    sessionStorage.setItem('previewMode','true');
+    history.replaceState({},'',location.pathname);
+    console.log('[PREVIEW MODE] Activated');
+  }
+  if(sessionStorage.getItem('previewMode')==='true'){
+    // 전역 변수를 로그인 상태로 설정 → 모든 로그인 체크 자동 통과
+    isLoggedIn=true;
+    currentUser='preview@iumm.kr';
+    currentUserName='PG심사관';
+    currentUserKakaoId='preview_mode';
+    // 배너 표시 (DOM 로드 후)
+    document.addEventListener('DOMContentLoaded',function(){
+      var banner=document.getElementById('preview-banner');
+      if(banner){banner.style.display='block';document.body.style.paddingTop='42px';}
+    });
+  }
+})();
 
 // ───────────── 카카오ID 기반 무료체험 차단 ─────────────
 function checkFreeTrialUsed(kakaoId){
