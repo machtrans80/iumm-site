@@ -4291,8 +4291,10 @@ function completeUserInfo(){
         })
       }).then(function(r){return r.json();})
         .then(function(d){
-          if(d.ok)console.log('member synced to Airtable:',d.recordId,'isNew:',d.isNew);
-          else console.warn('member sync failed:',d.error);
+          if(d.ok){
+            console.log('member synced to Airtable:',d.recordId,'isNew:',d.isNew,'isRestored:',d.isRestored);
+            if(d.isRestored) showToast('이전에 탈퇴하신 계정이 복구되었습니다. 환영합니다!');
+          } else console.warn('member sync failed:',d.error);
         })
         .catch(function(e){console.warn('member sync error:',e);});
     }
