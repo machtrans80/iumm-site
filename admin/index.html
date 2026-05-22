@@ -165,6 +165,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <button class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
       <button class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
       <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
+      <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
     </div>
     <div id="orders-wrap">
       <table class="orders-table">
@@ -416,6 +417,7 @@ function switchTab(tab) {
   document.getElementById('tab-rv-approved').className = 'tab-btn' + (tab==='reviewers_approved' ? ' active' : '');
   document.getElementById('tab-rv-rejected').className = 'tab-btn' + (tab==='reviewers_rejected' ? ' active' : '');
   document.getElementById('tab-st').className = 'tab-btn' + (tab==='settlement' ? ' active' : '');
+  document.getElementById('tab-bp').className = 'tab-btn' + (tab==='bank_pending' ? ' active' : '');
   document.getElementById('orders-wrap').style.display = tab === 'settlement' ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = tab === 'settlement' ? 'block' : 'none';
   if (tab === 'reviewers') {
@@ -426,6 +428,8 @@ function switchTab(tab) {
     loadRejectedReviewers();
   } else if (tab === 'settlement') {
     loadSettlement();
+  } else if (tab === 'bank_pending') {
+    loadBankPending();
   } else {
     loadOrders();
   }
@@ -456,6 +460,47 @@ async function loadOrders() {
     }).join('');
     window._orders = orders;
   } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>'; }
+}
+
+async function loadBankPending() {
+  var wrap = document.getElementById('orders-wrap');
+  wrap.innerHTML = '<table class="orders-table"><thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>결제방식</th><th>접수일</th><th>금액</th><th>처리</th></tr></thead><tbody id="orders-tbody"><tr class="empty-row"><td colspan="7">로딩 중…</td></tr></tbody></table>';
+  try {
+    var res = await adminFetch('/api/admin/orders?tab=bank_pending');
+    if (!res.success) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
+    var orders = res.orders || [];
+    if (!orders.length) {
+      var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">입금대기 주문이 없습니다</td></tr>';
+      return;
+    }
+    var tb = document.getElementById('orders-tbody');
+    if (tb) tb.innerHTML = orders.map(function(o) {
+      return '<tr>' +
+        '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>' +
+        '<td>' + (o.customerEmail||'—') + '</td>' +
+        '<td>' + (o.charCount||0).toLocaleString() + '자</td>' +
+        '<td><span class="tag tag-ap">계좌입금</span></td>' +
+        '<td>' + ymd(o.receivedAt) + '</td>' +
+        '<td>₩' + (o.paymentAmount||0).toLocaleString() + '</td>' +
+        '<td><button onclick="confirmBankPayment(\'' + o.orderId + '\',\'' + (o.orderNumber||'').replace(/'/g,"\\'") + '\')" style="padding:4px 10px;font-size:12px;background:#22c55e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600">입금확인</button></td>' +
+        '</tr>';
+    }).join('');
+  } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>'; }
+}
+
+async function confirmBankPayment(orderId, orderNumber) {
+  if (!confirm('입금을 확인하고 AI 번역을 시작합니다.\n주문: ' + (orderNumber||orderId))) return;
+  try {
+    var res = await adminFetch('/api/admin/payment/confirm/' + orderId, { method: 'POST' });
+    if (res.ok) {
+      showToast('✅ 입금 확인 + AI 번역 착수: ' + (res.orderNumber||orderNumber), 'success');
+      loadBankPending();
+    } else {
+      showToast('⚠️ ' + (res.error||'처리 실패'), 'error');
+    }
+  } catch(e) {
+    showToast('⚠️ 서버 오류: ' + e.message, 'error');
+  }
 }
 
 function selectOrder(id, row) {
