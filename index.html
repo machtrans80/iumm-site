@@ -366,7 +366,7 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
 </head>
 <body>
 
-<!-- PG 심사용 미리보기 배너 (previewMode 활성 시에만 표시) -->
+<!-- PG 심사용 미리보기 배너 (iumm_preview_mode 활성 시에만 표시) -->
 <div id="preview-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#fbbf24;color:#000;padding:10px;text-align:center;z-index:9999;font-weight:600;font-family:'Noto Sans KR',sans-serif;font-size:14px">
   🔍 심사용 미리보기 모드 (로그인 우회 활성화됨)
 </div>
@@ -3205,24 +3205,53 @@ var currentUserName='';
 var selectedReviewerName='';
 var selectedReviewerIsExpert=false;
 
-// ─── PG 심사용 미리보기 모드 ─────────────────────────────────
+// ─── PG 심사용 미리보기 모드 (localStorage + 30일 만료) ─────
 // URL: https://iumm.kr?preview=IUMM_PREVIEW_2026
+// 한 번 접속하면 30일 유지, 만료 시 URL로 다시 활성화 가능
 // 심사 완료 후 이 블록 전체 제거
 (function(){
   var PREVIEW_KEY='IUMM_PREVIEW_2026';
+  var STORAGE_KEY='iumm_preview_mode';
+  var STORAGE_EXPIRY_KEY='iumm_preview_expiry';
+  var EXPIRY_DAYS=30;
   var urlKey=new URLSearchParams(location.search).get('preview');
+
+  // URL로 활성화 시도
   if(urlKey===PREVIEW_KEY){
-    sessionStorage.setItem('previewMode','true');
+    localStorage.setItem(STORAGE_KEY,'true');
+    var expiryTime=Date.now()+(EXPIRY_DAYS*24*60*60*1000);
+    localStorage.setItem(STORAGE_EXPIRY_KEY,String(expiryTime));
     history.replaceState({},'',location.pathname);
-    console.log('[PREVIEW MODE] Activated');
+    console.log('[PREVIEW MODE] Activated - 30 days expiry: ',new Date(expiryTime).toLocaleString());
   }
-  if(sessionStorage.getItem('previewMode')==='true'){
-    // 전역 변수를 로그인 상태로 설정 → 모든 로그인 체크 자동 통과
+
+  // 비활성화 URL (?preview=disable)
+  if(urlKey==='disable'){
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_EXPIRY_KEY);
+    history.replaceState({},'',location.pathname);
+    console.log('[PREVIEW MODE] Disabled');
+  }
+
+  // 만료 체크
+  var isActive=localStorage.getItem(STORAGE_KEY)==='true';
+  var expiryStr=localStorage.getItem(STORAGE_EXPIRY_KEY);
+  if(isActive&&expiryStr){
+    var expiry=parseInt(expiryStr);
+    if(Date.now()>expiry){
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_EXPIRY_KEY);
+      isActive=false;
+      console.log('[PREVIEW MODE] Expired - 다시 ?preview=KEY로 활성화 필요');
+    }
+  }
+
+  // 활성화된 경우
+  if(isActive){
     isLoggedIn=true;
     currentUser='preview@iumm.kr';
     currentUserName='PG심사관';
     currentUserKakaoId='preview_mode';
-    // 배너 표시 (DOM 로드 후)
     document.addEventListener('DOMContentLoaded',function(){
       var banner=document.getElementById('preview-banner');
       if(banner){banner.style.display='block';document.body.style.paddingTop='42px';}
