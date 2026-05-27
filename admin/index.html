@@ -755,7 +755,19 @@ function selectOrder(id, row) {
 function downloadOriginal() {
   if (!selectedOrder) return;
   var num = selectedOrder.orderNumber || selectedOrder.orderId;
-  downloadWithAuth('/api/admin/download-original/' + selectedOrder.orderId, '원본_' + num);
+  fetch(API_BASE + '/api/admin/download-original/' + selectedOrder.orderId, {
+    headers: { 'Authorization': 'Bearer ' + adminToken() }
+  }).then(function(r) {
+    if (r.status === 404) { showToast('고객이 첨부한 원본이 없습니다.', 'info'); return null; }
+    if (!r.ok) { showToast('⚠️ 다운로드 실패 (' + r.status + ')', 'error'); return null; }
+    return r.blob();
+  }).then(function(blob) {
+    if (!blob) return;
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = '원본_' + num; a.click();
+    URL.revokeObjectURL(url);
+  }).catch(function(e) { showToast('⚠️ ' + e.message, 'error'); });
 }
 
 function downloadTranslationTxt() {
