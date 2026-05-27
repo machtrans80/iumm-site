@@ -134,6 +134,37 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .btn-dl:hover{background:rgba(201,168,76,0.2)}
 .btn-ul{display:inline-block;padding:7px 14px;background:rgba(151,196,89,0.1);color:var(--green);border:1px solid rgba(151,196,89,0.3);border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;white-space:nowrap}
 .btn-ul:hover{background:rgba(151,196,89,0.2)}
+
+/* ── 우회 주문 탭 ── */
+#bypass-wrap{display:none;padding:4px 0 32px}
+.bp-section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;padding:22px 24px;margin-bottom:20px}
+.bp-section-title{font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.bp-label{display:block;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px;letter-spacing:0.3px}
+.bp-inp{width:100%;padding:11px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color 0.2s}
+.bp-inp:focus{border-color:rgba(201,168,76,0.4)}
+.bp-inp option{background:#1a1a1a;color:var(--white)}
+.bp-ta{width:100%;padding:12px 14px;background:#0e0e0e;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s}
+.bp-ta:focus{border-color:rgba(201,168,76,0.4)}
+.bp-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.bp-row.single{grid-template-columns:1fr;margin-bottom:14px}
+.bp-col{display:flex;flex-direction:column}
+.ocr-zone{border:2px dashed rgba(201,168,76,0.25);border-radius:6px;padding:28px 20px;text-align:center;transition:all 0.2s;cursor:pointer;position:relative}
+.ocr-zone:hover,.ocr-zone.over{border-color:rgba(201,168,76,0.55);background:rgba(201,168,76,0.04)}
+.ocr-zone-label{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:8px}
+.ocr-zone-sub{font-size:11px;color:rgba(255,255,255,0.25)}
+.ocr-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.btn-ocr{padding:9px 20px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;margin-top:10px}
+.btn-ocr:hover{background:rgba(201,168,76,0.22)}
+.btn-ocr:disabled{opacity:0.4;cursor:not-allowed}
+.btn-bp-submit{width:100%;padding:15px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;margin-top:4px}
+.btn-bp-submit:hover{background:var(--gold-light)}
+.btn-bp-submit:disabled{opacity:0.4;cursor:not-allowed}
+.bp-result{display:none;margin-top:16px;padding:16px 20px;background:rgba(151,196,89,0.06);border:1px solid rgba(151,196,89,0.2);border-radius:4px}
+.bp-result-order{font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px}
+.bp-result-info{font-size:13px;color:rgba(255,255,255,0.6)}
+.bp-ocr-status{font-size:12px;margin-top:8px;min-height:18px}
+.char-hint{font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;text-align:right}
+@media(max-width:600px){.bp-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -166,6 +197,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <button class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
       <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
       <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
+      <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75">🔐 우회 주문</button>
     </div>
     <div id="orders-wrap">
       <table class="orders-table">
@@ -268,6 +300,119 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
         </div>
       </div>
     </div>
+    <!-- ── 우회 주문 탭 콘텐츠 ── -->
+    <div id="bypass-wrap" style="display:none">
+
+      <!-- OCR 섹션 -->
+      <div class="bp-section">
+        <div class="bp-section-title">📄 OCR — 하드카피 이미지/PDF → 텍스트 추출</div>
+        <div class="ocr-zone" id="ocr-drop-zone" ondragover="bpDragOver(event)" ondragleave="bpDragLeave(event)" ondrop="bpDrop(event)">
+          <input type="file" id="ocr-file-input" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="bpFileSelected(this)">
+          <div class="ocr-zone-label" id="ocr-zone-label">이미지 또는 PDF를 끌어다 놓거나 클릭하여 선택</div>
+          <div class="ocr-zone-sub">지원 형식: JPEG · PNG · WEBP · PDF (최대 50 MB)</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <button class="btn-ocr" id="btn-ocr-run" onclick="runBypassOcr()" disabled>텍스트 추출 (OCR)</button>
+          <span class="bp-ocr-status" id="ocr-status"></span>
+        </div>
+      </div>
+
+      <!-- 주문 폼 -->
+      <div class="bp-section">
+        <div class="bp-section-title">🔐 우회 주문 정보</div>
+
+        <div class="bp-row">
+          <div class="bp-col">
+            <label class="bp-label">번역 방향 *</label>
+            <select id="bp-direction" class="bp-inp">
+              <optgroup label="── 한국어 → 외국어 ──">
+                <option>한국어 → 영어</option>
+                <option>한국어 → 일본어</option>
+                <option>한국어 → 중국어(간체)</option>
+                <option>한국어 → 중국어(번체)</option>
+                <option>한국어 → 스페인어</option>
+                <option>한국어 → 프랑스어</option>
+                <option>한국어 → 독일어</option>
+                <option>한국어 → 이탈리아어</option>
+                <option>한국어 → 포르투갈어</option>
+                <option>한국어 → 러시아어</option>
+                <option>한국어 → 베트남어</option>
+                <option>한국어 → 인도네시아어</option>
+                <option>한국어 → 태국어</option>
+                <option>한국어 → 아랍어</option>
+                <option>한국어 → 터키어</option>
+                <option>한국어 → 폴란드어</option>
+                <option>한국어 → 네덜란드어</option>
+              </optgroup>
+              <optgroup label="── 외국어 → 한국어 ──">
+                <option>영어 → 한국어</option>
+                <option>일본어 → 한국어</option>
+                <option>중국어(간체) → 한국어</option>
+                <option>중국어(번체) → 한국어</option>
+                <option>스페인어 → 한국어</option>
+                <option>프랑스어 → 한국어</option>
+                <option>독일어 → 한국어</option>
+                <option>이탈리아어 → 한국어</option>
+                <option selected>포르투갈어 → 한국어</option>
+                <option>러시아어 → 한국어</option>
+                <option>베트남어 → 한국어</option>
+                <option>인도네시아어 → 한국어</option>
+                <option>태국어 → 한국어</option>
+                <option>아랍어 → 한국어</option>
+                <option>터키어 → 한국어</option>
+                <option>폴란드어 → 한국어</option>
+                <option>네덜란드어 → 한국어</option>
+                <option>우크라이나어 → 한국어</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="bp-col">
+            <label class="bp-label">전문 분야</label>
+            <select id="bp-field" class="bp-inp">
+              <option value="general">일반 (분야 미지정)</option>
+              <option value="business">비즈니스 (이메일, 보고서)</option>
+              <option value="legal">법률·계약 (계약서, 약관)</option>
+              <option value="medical">의료·제약 (논문, 임상)</option>
+              <option value="academic">학술·논문 (학술지, 연구)</option>
+              <option value="tech">기술·IT (매뉴얼, API)</option>
+              <option value="finance">금융·재무 (재무제표, IR)</option>
+              <option value="game">게임·엔터 (게임, 콘텐츠)</option>
+              <option value="patent">특허·지식재산</option>
+              <option value="marketing">마케팅·광고</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bp-row single">
+          <div class="bp-col">
+            <label class="bp-label">원문 텍스트 * <span style="color:rgba(255,255,255,0.3);font-size:11px">(OCR 추출 결과가 자동 입력됩니다)</span></label>
+            <textarea id="bp-text" class="bp-ta" rows="10" placeholder="번역할 원문 텍스트를 입력하거나 OCR로 추출하세요..." oninput="bpUpdateCharCount()"></textarea>
+            <div class="char-hint" id="bp-char-hint">0자</div>
+          </div>
+        </div>
+
+        <div class="bp-row">
+          <div class="bp-col">
+            <label class="bp-label">고객 이메일 <span style="color:rgba(255,255,255,0.3);font-size:11px">(선택)</span></label>
+            <input type="email" id="bp-email" class="bp-inp" placeholder="client@example.com" style="margin:0">
+          </div>
+          <div class="bp-col">
+            <label class="bp-label">메모 <span style="color:rgba(255,255,255,0.3);font-size:11px">(관리자 내부용)</span></label>
+            <input type="text" id="bp-notes" class="bp-inp" placeholder="예: 하드카피 의뢰, OCR 처리" style="margin:0">
+          </div>
+        </div>
+
+        <button class="btn-bp-submit" id="btn-bp-submit" onclick="submitBypassOrder()">🔐 우회 주문 시작 (결제 없이 파이프라인 실행)</button>
+
+        <!-- 결과 -->
+        <div class="bp-result" id="bp-result">
+          <div class="bp-result-order" id="bp-result-order"></div>
+          <div class="bp-result-info" id="bp-result-info"></div>
+        </div>
+      </div>
+
+    </div>
+
     <div id="confirm-panel">
       <div class="panel-header">
         <span class="panel-title" id="panel-ordnum">—</span>
@@ -418,8 +563,12 @@ function switchTab(tab) {
   document.getElementById('tab-rv-rejected').className = 'tab-btn' + (tab==='reviewers_rejected' ? ' active' : '');
   document.getElementById('tab-st').className = 'tab-btn' + (tab==='settlement' ? ' active' : '');
   document.getElementById('tab-bp').className = 'tab-btn' + (tab==='bank_pending' ? ' active' : '');
-  document.getElementById('orders-wrap').style.display = tab === 'settlement' ? 'none' : 'block';
-  document.getElementById('settlement-wrap').style.display = tab === 'settlement' ? 'block' : 'none';
+  document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '') + (tab!=='bypass' ? '' : '');
+  var isBypass = tab === 'bypass';
+  var isSettlement = tab === 'settlement';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass) ? 'none' : 'block';
+  document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
+  document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   if (tab === 'reviewers') {
     loadReviewers();
   } else if (tab === 'reviewers_approved') {
@@ -430,6 +579,8 @@ function switchTab(tab) {
     loadSettlement();
   } else if (tab === 'bank_pending') {
     loadBankPending();
+  } else if (tab === 'bypass') {
+    // 우회 주문 탭: 특별 초기화 없음
   } else {
     loadOrders();
   }
@@ -1133,6 +1284,134 @@ window.addEventListener('DOMContentLoaded', function() {
     loadOrders();
   }
 });
+
+// ════════════════════════════════════════════════════════
+// ── 우회 주문 탭 기능 ──────────────────────────────────
+// ════════════════════════════════════════════════════════
+
+var bpSelectedFile = null;
+
+function bpUpdateCharCount() {
+  var ta = document.getElementById('bp-text');
+  var hint = document.getElementById('bp-char-hint');
+  if (ta && hint) hint.textContent = (ta.value.length).toLocaleString() + '자';
+}
+
+function bpDragOver(e) {
+  e.preventDefault();
+  document.getElementById('ocr-drop-zone').classList.add('over');
+}
+function bpDragLeave(e) {
+  document.getElementById('ocr-drop-zone').classList.remove('over');
+}
+function bpDrop(e) {
+  e.preventDefault();
+  document.getElementById('ocr-drop-zone').classList.remove('over');
+  var file = e.dataTransfer.files[0];
+  if (file) bpSetFile(file);
+}
+function bpFileSelected(input) {
+  if (input.files && input.files[0]) bpSetFile(input.files[0]);
+}
+function bpSetFile(file) {
+  bpSelectedFile = file;
+  var label = document.getElementById('ocr-zone-label');
+  label.textContent = '선택됨: ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+  label.style.color = 'var(--gold)';
+  document.getElementById('btn-ocr-run').disabled = false;
+  document.getElementById('ocr-status').textContent = '';
+}
+
+async function runBypassOcr() {
+  if (!bpSelectedFile) return;
+  var btn = document.getElementById('btn-ocr-run');
+  var status = document.getElementById('ocr-status');
+  btn.disabled = true;
+  status.style.color = 'rgba(255,255,255,0.5)';
+  status.textContent = '⏳ OCR 처리 중…';
+
+  try {
+    var formData = new FormData();
+    formData.append('file', bpSelectedFile);
+    var res = await fetch(API_BASE + '/api/admin/ocr', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + adminToken() },
+      body: formData,
+    });
+    var data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'OCR 실패 (' + res.status + ')');
+
+    document.getElementById('bp-text').value = data.text;
+    bpUpdateCharCount();
+    status.style.color = 'var(--green)';
+    status.textContent = '✅ 추출 완료 — ' + data.charCount.toLocaleString() + '자';
+  } catch(e) {
+    status.style.color = 'var(--red)';
+    status.textContent = '⚠️ ' + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function submitBypassOrder() {
+  var text = (document.getElementById('bp-text').value || '').trim();
+  var direction = document.getElementById('bp-direction').value;
+  var fieldEl = document.getElementById('bp-field');
+  var fieldCode = fieldEl.value;
+  var email = (document.getElementById('bp-email').value || '').trim();
+  var notes = (document.getElementById('bp-notes').value || '').trim();
+
+  if (!text) { showToast('⚠️ 원문 텍스트를 입력하세요', 'error'); return; }
+  if (!direction) { showToast('⚠️ 번역 방향을 선택하세요', 'error'); return; }
+
+  var btn = document.getElementById('btn-bp-submit');
+  btn.disabled = true;
+  btn.textContent = '⏳ 주문 처리 중…';
+
+  var resultDiv = document.getElementById('bp-result');
+  resultDiv.style.display = 'none';
+
+  try {
+    var payload = {
+      text: text,
+      direction: direction,
+      fieldCode: fieldCode,
+      wordCount: Math.round(text.length / 2),
+      paymentAmount: 0,
+      paymentMethod: '관리자처리',
+      notes: notes || '관리자 우회 주문',
+    };
+    if (email) payload.customerEmail = email;
+
+    var res = await fetch(API_BASE + '/api/admin/translate-bypass', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + adminToken(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    var data = await res.json();
+    if (!res.ok || (!data.ok && !data.success)) throw new Error(data.error || '요청 실패 (' + res.status + ')');
+
+    var orderNum = data.orderNumber || data.order_number || '생성됨';
+    document.getElementById('bp-result-order').textContent = '✅ ' + orderNum;
+    document.getElementById('bp-result-info').textContent =
+      '방향: ' + direction + ' · 분야: ' + (fieldEl.options[fieldEl.selectedIndex].text) +
+      ' · ' + text.length.toLocaleString() + '자 · 파이프라인 실행 중 (5~7분)';
+    resultDiv.style.display = 'block';
+    showToast('✅ 우회 주문 생성: ' + orderNum, 'success');
+
+    // 폼 초기화 (텍스트만 유지)
+    document.getElementById('bp-notes').value = '';
+
+  } catch(e) {
+    showToast('⚠️ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔐 우회 주문 시작 (결제 없이 파이프라인 실행)';
+  }
+}
 </script>
 </body>
 </html>
