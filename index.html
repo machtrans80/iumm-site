@@ -3191,6 +3191,13 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
       </div>
 
     </div>
+    <!-- 동적 고객 후기 (관리자 컨펌된 실제 평가) -->
+    <div id="dynamic-reviews-wrap" style="display:none;margin-top:24px">
+      <div style="text-align:center;margin:8px 0 20px">
+        <span style="font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:0.08em">— 실제 고객 평가 후기 —</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" id="dynamic-reviews-grid" class="review-grid"></div>
+    </div>
     <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.2);margin-top:36px;font-weight:300">✦ 실제 고객 후기이며 개인정보 보호를 위해 이름 일부를 표기하였습니다 ✦</p>
   </div>
 </section>
@@ -5014,12 +5021,42 @@ function ocrBlockCopy(e) {
   }
 }
 // 페이지 로드 시 자동 로그인 복구
+function _esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function loadDynamicReviews(){
+  try{
+    var r=await fetch('https://iumm-pipeline-production.up.railway.app/api/reviews');
+    if(!r.ok)return;
+    var d=await r.json();
+    var reviews=(d.reviews||[]).filter(function(rv){return rv.comment&&rv.comment.trim();});
+    if(!reviews.length)return;
+    var wrap=document.getElementById('dynamic-reviews-wrap');
+    var grid=document.getElementById('dynamic-reviews-grid');
+    if(!wrap||!grid)return;
+    grid.innerHTML=reviews.map(function(rv){
+      var stars='';for(var i=1;i<=5;i++)stars+=i<=(rv.rating||0)?'★':'☆';
+      var isPP=(rv.plan||'').includes('플러스');
+      var planStyle=isPP?'background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold)':'background:rgba(99,153,34,0.1);border:1px solid rgba(99,153,34,0.2);color:#97c459';
+      var planLabel=isPP?'프리미엄 플러스':'AI 프리미엄';
+      return '<div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">'+
+        '<div style="display:flex;gap:4px;margin-bottom:20px"><span style="color:var(--gold);font-size:14px">'+stars+'</span></div>'+
+        '<p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"'+_esc(rv.comment)+'"</p>'+
+        '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">'+
+          '<div><p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">'+_esc(rv.reviewer)+' 님</p>'+
+          '<p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">'+_esc(rv.direction||'')+'</p></div>'+
+          '<span style="font-size:10px;padding:4px 10px;letter-spacing:0.5px;'+planStyle+'">'+planLabel+'</span>'+
+        '</div></div>';
+    }).join('');
+    wrap.style.display='block';
+  }catch(e){}
+}
+
 window.addEventListener('DOMContentLoaded', function(){
   if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()){
     try{ Kakao.init('d37fe286e0256c9199a29236ed10c244'); }catch(e){}
   }
   restoreLogin();
   handleInitialHash();
+  loadDynamicReviews();
 });
 // 약관 페이지 내에서 다른 앵커로 이동 시도 시 처리
 window.addEventListener('hashchange', function(){

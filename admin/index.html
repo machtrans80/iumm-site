@@ -480,6 +480,17 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
         <button onclick="document.getElementById('final-files-input').click()" style="padding:8px 16px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.4);border-radius:4px;cursor:pointer;font-size:12px">📎 파일 선택</button>
         <div id="final-files-preview" style="margin-top:10px"></div>
       </div>
+      <!-- 고객 평가 결과 (납품완료 후 평가 시 표시) -->
+      <div id="eval-section" style="display:none;margin:0 16px 16px;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">고객 평가</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span id="eval-stars" style="font-size:15px;letter-spacing:1px"></span>
+          <span id="eval-rating-text" style="font-size:13px;font-weight:700;color:var(--gold)"></span>
+          <span id="eval-confirmed-badge" style="display:none;font-size:11px;padding:2px 8px;background:rgba(151,196,89,0.15);color:var(--green);border:1px solid rgba(151,196,89,0.3);border-radius:10px">메인 노출 중</span>
+          <span id="eval-date" style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto"></span>
+        </div>
+        <div id="eval-comment" style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.5"></div>
+      </div>
       <!-- 검수자 결과: 코멘트 + 21항목 (프미플 탭에서만 표시) -->
       <div id="rv-info-section" style="display:none">
         <div style="flex:0 0 220px">
@@ -510,6 +521,8 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
             <input type="file" id="admin-upload-input" style="display:none" onchange="uploadFinalFile(this)">
           </label>
         </div>
+        <button id="btn-confirm-review" style="display:none;padding:8px 18px;border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="confirmReview()">✅ 메인 노출 컨펌</button>
+        <button id="btn-delete" style="display:none;padding:8px 14px;background:rgba(224,85,85,0.08);color:var(--red);border:1px solid rgba(224,85,85,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="deleteOrder()">🗑 삭제</button>
         <button class="btn-deliver" id="btn-deliver" onclick="confirmFinalDelivery()">✓ 최종 납품</button>
       </div>
     </div>
@@ -641,29 +654,32 @@ function switchTab(tab) {
 
 async function loadOrders() {
   var wrap = document.getElementById('orders-wrap');
-  wrap.innerHTML = '<table class="orders-table"><thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜</th><th>접수일</th><th>금액</th></tr></thead><tbody id="orders-tbody"><tr class="empty-row"><td colspan="6">로딩 중…</td></tr></tbody></table>';
+  wrap.innerHTML = '<table class="orders-table"><thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜/상태</th><th>접수일</th><th>금액</th><th>평가</th></tr></thead><tbody id="orders-tbody"><tr class="empty-row"><td colspan="7">로딩 중…</td></tr></tbody></table>';
   try {
     var res = await adminFetch('/api/admin/orders?tab=' + currentTab);
-    if (!res.success) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
+    if (!res.success) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
     var orders = res.orders || [];
     if (!orders.length) {
-      var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">해당 주문이 없습니다</td></tr>';
+      var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">해당 주문이 없습니다</td></tr>';
       return;
     }
     var tb = document.getElementById('orders-tbody');
     if (tb) tb.innerHTML = orders.map(function(o) {
-      var planTag = o.plan.includes('plus') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
+      var planTag = (o.plan||'').includes('plus') || (o.plan||'').includes('플러스') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
+      var statusTag = o.status === '납품완료' ? ' <span class="tag" style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">납품완료</span>' : '';
+      var ratingCell = o.isEvaluated && o.customerRating != null ? '⭐ ' + o.customerRating + '.0' + (o.isReviewConfirmed ? ' ✅' : '') : '—';
       return '<tr onclick="selectOrder(\'' + o.orderId + '\',this)" data-id="' + o.orderId + '">' +
         '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>' +
         '<td>' + (o.customerEmail||'—') + '</td>' +
         '<td>' + (o.charCount||0).toLocaleString() + '자</td>' +
-        '<td>' + planTag + '</td>' +
+        '<td>' + planTag + statusTag + '</td>' +
         '<td>' + ymd(o.receivedAt) + '</td>' +
         '<td>₩' + (o.paymentAmount||0).toLocaleString() + '</td>' +
+        '<td style="font-size:12px">' + ratingCell + '</td>' +
         '</tr>';
     }).join('');
     window._orders = orders;
-  } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="6">오류: ' + e.message + '</td></tr>'; }
+  } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>'; }
 }
 
 async function loadBankPending() {
@@ -763,6 +779,32 @@ function selectOrder(id, row) {
     renderFinalFilesPreview();
   }
   populateAiScoreSection(order);
+  // 평가 섹션
+  var evalSection = document.getElementById('eval-section');
+  var btnConfirm  = document.getElementById('btn-confirm-review');
+  var btnDel      = document.getElementById('btn-delete');
+  if (evalSection) {
+    if (order.isEvaluated) {
+      evalSection.style.display = 'block';
+      var stars = '';
+      for (var si = 1; si <= 5; si++) stars += si <= (order.customerRating||0) ? '⭐' : '☆';
+      document.getElementById('eval-stars').textContent = stars;
+      document.getElementById('eval-rating-text').textContent = (order.customerRating||0) + ' / 5';
+      document.getElementById('eval-date').textContent = order.evaluatedAt ? ymd(order.evaluatedAt) : '';
+      var cEl = document.getElementById('eval-comment');
+      cEl.textContent = order.customerReview || '(코멘트 없음)';
+      cEl.style.color = order.customerReview ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.3)';
+      var badge = document.getElementById('eval-confirmed-badge');
+      if (badge) badge.style.display = order.isReviewConfirmed ? 'inline' : 'none';
+    } else {
+      evalSection.style.display = 'none';
+    }
+  }
+  if (btnConfirm) {
+    btnConfirm.style.display = order.isEvaluated ? 'inline-block' : 'none';
+    updateConfirmReviewBtn(order.isReviewConfirmed);
+  }
+  if (btnDel) btnDel.style.display = 'inline-block';
   document.getElementById('confirm-panel').style.display = 'block';
 }
 
@@ -957,11 +999,15 @@ async function confirmFinalDelivery() {
     });
     if (res.success) {
       showToast('✅ ' + email + '에게 발송 완료', 'success');
-      btn.textContent = '✅ 납품완료';
-      document.getElementById('confirm-panel').style.display = 'none';
-      selectedOrder = null;
+      btn.disabled = false; btn.textContent = '✓ 최종 납품';
       window._finalUploadedFiles = [];
-      loadOrders();
+      var prevId = selectedOrder.orderId;
+      await loadOrders();
+      var refreshed = (window._orders||[]).find(function(o){ return o.orderId === prevId; });
+      if (refreshed) {
+        var refreshedRow = document.querySelector('#orders-tbody tr[data-id="' + prevId + '"]');
+        if (refreshedRow) selectOrder(prevId, refreshedRow);
+      }
     } else {
       showToast('⚠️ ' + (res.error || '납품 실패'), 'error');
       btn.disabled = false; btn.textContent = '✓ 최종 납품';
@@ -969,6 +1015,62 @@ async function confirmFinalDelivery() {
   } catch(e) {
     showToast('⚠️ 서버 오류: ' + e.message, 'error');
     btn.disabled = false; btn.textContent = '✓ 최종 납품';
+  }
+}
+
+// ─── 메인 노출 컨펌 토글 ───
+async function confirmReview() {
+  if (!selectedOrder) return;
+  var btn = document.getElementById('btn-confirm-review');
+  btn.disabled = true;
+  try {
+    var res = await adminFetch('/api/admin/order/' + selectedOrder.orderId + '/confirm-review', { method: 'POST' });
+    if (res.ok) {
+      selectedOrder.isReviewConfirmed = res.isReviewConfirmed;
+      updateConfirmReviewBtn(res.isReviewConfirmed);
+      var badge = document.getElementById('eval-confirmed-badge');
+      if (badge) badge.style.display = res.isReviewConfirmed ? 'inline' : 'none';
+      showToast(res.isReviewConfirmed ? '✅ 메인 노출 컨펌됨' : '메인 노출 컨펌 취소됨', 'success');
+      loadOrders();
+    } else {
+      showToast('⚠️ ' + (res.error || '처리 실패'), 'error');
+    }
+  } catch(e) {
+    showToast('⚠️ 서버 오류: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function updateConfirmReviewBtn(isConfirmed) {
+  var btn = document.getElementById('btn-confirm-review');
+  if (!btn) return;
+  if (isConfirmed) {
+    btn.textContent = '🚫 컨펌 취소';
+    btn.style.cssText = 'display:inline-block;padding:8px 18px;background:rgba(224,85,85,0.08);color:var(--red);border:1px solid rgba(224,85,85,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Noto Sans KR\',sans-serif';
+  } else {
+    btn.textContent = '✅ 메인 노출 컨펌';
+    btn.style.cssText = 'display:inline-block;padding:8px 18px;background:rgba(151,196,89,0.12);color:var(--green);border:1px solid rgba(151,196,89,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Noto Sans KR\',sans-serif';
+  }
+}
+
+// ─── 주문 삭제 ───
+async function deleteOrder() {
+  if (!selectedOrder) return;
+  var num = selectedOrder.orderNumber || selectedOrder.orderId;
+  if (!confirm('주문 ' + num + '을 Airtable에서 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?')) return;
+  try {
+    var res = await adminFetch('/api/admin/order/' + selectedOrder.orderId, { method: 'DELETE' });
+    if (res.ok) {
+      showToast('🗑 ' + num + ' 삭제됨', 'success');
+      document.getElementById('confirm-panel').style.display = 'none';
+      selectedOrder = null;
+      loadOrders();
+    } else {
+      showToast('⚠️ ' + (res.error || '삭제 실패'), 'error');
+    }
+  } catch(e) {
+    showToast('⚠️ 서버 오류: ' + e.message, 'error');
   }
 }
 

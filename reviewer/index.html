@@ -257,6 +257,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--black);color:var(--w
       </div>
     </div>
 
+    <!-- 최근 받은 평가 -->
+    <div class="section-gap" id="ratings-section" style="display:none">
+      <div class="sec-title">⭐ 최근 받은 평가</div>
+      <div id="ratings-list"></div>
+    </div>
+
     <!-- ─── 정산 내역 섹션 ─── -->
     <section style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.08)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
@@ -441,6 +447,33 @@ function loadDashboard() {
   refreshTimer = setInterval(refreshPending, 30000);
 
   loadMySettlement();
+  loadMyRatings();
+}
+
+// ─── 최근 받은 평가 ──────────────────────────────────────────
+async function loadMyRatings() {
+  try {
+    var data = await authFetch('/api/reviewer/me/ratings');
+    var ratings = data.ratings || [];
+    var section = document.getElementById('ratings-section');
+    var list = document.getElementById('ratings-list');
+    if (!section || !list) return;
+    if (!ratings.length) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    list.innerHTML = ratings.map(function(r) {
+      var stars = '';
+      for (var i = 1; i <= 5; i++) stars += i <= (r.rating||0) ? '⭐' : '☆';
+      var color = r.rating >= 4 ? 'var(--green)' : r.rating >= 3 ? 'var(--gold)' : 'var(--red)';
+      return '<div style="padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:4px;margin-bottom:8px">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
+          '<span style="font-size:14px;letter-spacing:1px;color:' + color + '">' + stars + '</span>' +
+          '<span style="font-size:13px;font-weight:700;color:' + color + '">' + (r.rating||0) + '/5</span>' +
+          '<span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto">' + (r.direction||'') + ' · ' + (r.evaluatedAt ? r.evaluatedAt.slice(0,10) : '') + '</span>' +
+        '</div>' +
+        (r.comment ? '<div style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.5">"' + r.comment.replace(/</g,'&lt;') + '"</div>' : '') +
+      '</div>';
+    }).join('');
+  } catch(e) {}
 }
 
 function refreshPending() {
