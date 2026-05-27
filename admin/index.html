@@ -165,6 +165,30 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .bp-ocr-status{font-size:12px;margin-top:8px;min-height:18px}
 .char-hint{font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;text-align:right}
 @media(max-width:600px){.bp-row{grid-template-columns:1fr}}
+
+/* ── 전체 주문 탭 ── */
+#all-orders-wrap{display:none;padding:4px 0 32px}
+.ao-search-bar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.ao-search-inp{flex:1;min-width:180px;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none}
+.ao-search-inp:focus{border-color:rgba(201,168,76,0.4)}
+.ao-count{font-size:11px;color:rgba(255,255,255,0.3);flex-shrink:0}
+/* ── AI 점수 섹션 ── */
+#ai-score-section{padding:14px 20px;border-top:1px solid rgba(201,168,76,0.12);background:rgba(201,168,76,0.03)}
+.score-grid{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.score-badge{text-align:center;min-width:72px}
+.score-badge-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.score-badge-num{font-size:28px;font-weight:700;color:var(--gold);font-family:'Nanum Myeongjo',serif;line-height:1}
+.score-badge-sub{font-size:10px;color:rgba(255,255,255,0.25)}
+.score-detail-grid{flex:1;min-width:180px}
+.score-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,0.55);padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.score-row:last-child{border-bottom:none}
+.score-val{font-weight:600}
+.corr-section{border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;margin-top:2px}
+.corr-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-bottom:6px}
+.corr-list{max-height:130px;overflow-y:auto}
+.corr-item{font-size:11px;color:rgba(255,255,255,0.6);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.5}
+.corr-item:last-child{border-bottom:none}
+.corr-term{color:var(--gold);font-weight:600}
 </style>
 </head>
 <body>
@@ -198,6 +222,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
       <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
       <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75">🔐 우회 주문</button>
+      <button class="tab-btn" id="tab-all" onclick="switchTab('all_orders')">📋 전체 주문</button>
     </div>
     <div id="orders-wrap">
       <table class="orders-table">
@@ -414,6 +439,19 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 
     </div>
 
+    <!-- ── 전체 주문 탭 콘텐츠 ── -->
+    <div id="all-orders-wrap" style="display:none">
+      <div class="ao-search-bar">
+        <input type="text" class="ao-search-inp" id="ao-search-inp" placeholder="주문번호 / 이메일 / 상태 검색" oninput="aoSearch(this.value)">
+        <button onclick="loadAllOrders()" style="padding:9px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif">🔄 새로고침</button>
+        <span class="ao-count" id="ao-count"></span>
+      </div>
+      <table class="orders-table">
+        <thead><tr><th>주문번호</th><th>고객이메일</th><th>번역방향</th><th>글자수</th><th>주문상태</th><th>AI점수</th><th>역번역</th><th>접수일</th></tr></thead>
+        <tbody id="all-orders-tbody"><tr class="empty-row"><td colspan="8">탭 선택 시 로드됩니다</td></tr></tbody>
+      </table>
+    </div>
+
     <div id="confirm-panel">
       <div class="panel-header">
         <span class="panel-title" id="panel-ordnum">—</span>
@@ -427,6 +465,26 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
         <div class="panel-pane">
           <div class="panel-pane-label">번역본 (수정 가능 후 납품)</div>
           <textarea class="panel-ta editable" id="panel-translation"></textarea>
+        </div>
+      </div>
+      <!-- AI 품질 점수 섹션 -->
+      <div id="ai-score-section" style="display:none">
+        <div class="score-grid">
+          <div class="score-badge">
+            <div class="score-badge-label">AI 종합점수</div>
+            <div id="ai-score-total" class="score-badge-num">—</div>
+            <div class="score-badge-sub">/ 100점</div>
+          </div>
+          <div class="score-badge">
+            <div class="score-badge-label">역번역 일치도</div>
+            <div id="ai-score-reverse" class="score-badge-num">—</div>
+            <div class="score-badge-sub">/ 100점</div>
+          </div>
+          <div class="score-detail-grid" id="ai-score-detail"></div>
+        </div>
+        <div class="corr-section">
+          <div class="corr-label">STEP 0.5 Claude 수정사항 (<span id="ai-corrections-count">0</span>건)</div>
+          <div class="corr-list" id="ai-corrections-list"></div>
         </div>
       </div>
       <!-- 검수자 결과: 코멘트 + 21항목 (프미플 탭에서만 표시) -->
@@ -564,12 +622,15 @@ function switchTab(tab) {
   document.getElementById('tab-rv-rejected').className = 'tab-btn' + (tab==='reviewers_rejected' ? ' active' : '');
   document.getElementById('tab-st').className = 'tab-btn' + (tab==='settlement' ? ' active' : '');
   document.getElementById('tab-bp').className = 'tab-btn' + (tab==='bank_pending' ? ' active' : '');
-  document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '') + (tab!=='bypass' ? '' : '');
+  document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '');
+  document.getElementById('tab-all').className = 'tab-btn' + (tab==='all_orders' ? ' active' : '');
   var isBypass = tab === 'bypass';
   var isSettlement = tab === 'settlement';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass) ? 'none' : 'block';
+  var isAllOrders = tab === 'all_orders';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isAllOrders) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
+  document.getElementById('all-orders-wrap').style.display = isAllOrders ? 'block' : 'none';
   if (tab === 'reviewers') {
     loadReviewers();
   } else if (tab === 'reviewers_approved') {
@@ -582,6 +643,8 @@ function switchTab(tab) {
     loadBankPending();
   } else if (tab === 'bypass') {
     // 우회 주문 탭: 특별 초기화 없음
+  } else if (tab === 'all_orders') {
+    loadAllOrders();
   } else {
     loadOrders();
   }
@@ -701,6 +764,7 @@ function selectOrder(id, row) {
   if (ppActions) ppActions.style.display = currentTab === 'premium_plus' ? 'flex' : 'none';
   var btnOrig = document.getElementById('btn-dl-original');
   if (btnOrig) btnOrig.style.display = 'inline-block';
+  populateAiScoreSection(order);
   document.getElementById('confirm-panel').style.display = 'block';
 }
 
@@ -1363,6 +1427,132 @@ async function runBypassOcr() {
   } finally {
     btn.disabled = false;
   }
+}
+
+// ════════════════════════════════════════════════════════
+// ── AI 점수 섹션 렌더링 ────────────────────────────────
+// ════════════════════════════════════════════════════════
+
+function populateAiScoreSection(order) {
+  var scoreSection = document.getElementById('ai-score-section');
+  if (!scoreSection) return;
+  var hasScore = order.aiScore != null || order.aiReverseScore != null;
+  scoreSection.style.display = hasScore ? 'block' : 'none';
+  if (!hasScore) return;
+
+  var totalEl = document.getElementById('ai-score-total');
+  var revEl   = document.getElementById('ai-score-reverse');
+  totalEl.textContent = order.aiScore != null ? order.aiScore : '—';
+  revEl.textContent   = order.aiReverseScore != null ? order.aiReverseScore : '—';
+  var sc = order.aiScore;
+  totalEl.style.color = sc >= 90 ? 'var(--green)' : sc >= 75 ? 'var(--gold)' : sc != null ? 'var(--red)' : 'var(--gold)';
+
+  var DETAIL_KEYS = [
+    ['의미정확성', 30], ['용어일관성', 25], ['자연스러움', 20], ['문체일관성', 15], ['표준준수', 10]
+  ];
+  var detailEl = document.getElementById('ai-score-detail');
+  var detail = order.aiQualityDetail;
+  if (detail && typeof detail === 'object' && !Array.isArray(detail)) {
+    detailEl.innerHTML = DETAIL_KEYS.map(function(pair) {
+      var key = pair[0], weight = pair[1];
+      var item = detail[key] || {};
+      var score = item['점수'] != null ? item['점수'] : '—';
+      var extra = item['매칭'] ? ' <span style="color:rgba(255,255,255,0.3)">(' + item['매칭'] + ')</span>' : '';
+      return '<div class="score-row"><span>' + key + ' <span style="color:rgba(255,255,255,0.3)">×' + weight/100 + '</span>' + extra + '</span><span class="score-val">' + score + '</span></div>';
+    }).join('');
+  } else {
+    detailEl.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.3)">상세 점수 없음</div>';
+  }
+
+  var corrections = order.aiCorrections;
+  document.getElementById('ai-corrections-count').textContent = Array.isArray(corrections) ? corrections.length : 0;
+  var corrList = document.getElementById('ai-corrections-list');
+  if (Array.isArray(corrections) && corrections.length > 0) {
+    corrList.innerHTML = corrections.map(function(c) {
+      return '<div class="corr-item">' +
+        '<span class="corr-term">[' + (c.term||'') + ']</span> ' +
+        (c.before||'') + ' → <strong style="color:rgba(255,255,255,0.85)">' + (c.after||'') + '</strong>' +
+        (c.reason ? ' <span style="color:rgba(255,255,255,0.3)">(' + c.reason + ')</span>' : '') +
+        '</div>';
+    }).join('');
+  } else {
+    corrList.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.3)">수정사항 없음</div>';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// ── 전체 주문 탭 기능 ──────────────────────────────────
+// ════════════════════════════════════════════════════════
+
+var _aoSearchTimeout = null;
+function aoSearch(val) {
+  clearTimeout(_aoSearchTimeout);
+  _aoSearchTimeout = setTimeout(function(){ loadAllOrders(val); }, 400);
+}
+
+async function loadAllOrders(search) {
+  var tbody  = document.getElementById('all-orders-tbody');
+  var countEl = document.getElementById('ao-count');
+  if (tbody)  tbody.innerHTML = '<tr class="empty-row"><td colspan="8">로딩 중…</td></tr>';
+  if (countEl) countEl.textContent = '';
+  try {
+    var s = search !== undefined ? search : (document.getElementById('ao-search-inp') ? document.getElementById('ao-search-inp').value : '');
+    var url = '/api/admin/orders?tab=all' + (s && s.trim() ? '&search=' + encodeURIComponent(s.trim()) : '');
+    var res = await adminFetch(url);
+    if (!res.success) {
+      if (tbody) tbody.innerHTML = '<tr class="empty-row"><td colspan="8">로드 실패: ' + (res.error||'') + '</td></tr>';
+      return;
+    }
+    var orders = res.orders || [];
+    window._allOrders = orders;
+    if (countEl) countEl.textContent = orders.length + '건';
+    if (!orders.length) {
+      if (tbody) tbody.innerHTML = '<tr class="empty-row"><td colspan="8">주문이 없습니다</td></tr>';
+      return;
+    }
+    if (tbody) tbody.innerHTML = orders.map(function(o) {
+      var sc = o.aiScore;
+      var scoreColor = sc >= 90 ? 'var(--green)' : sc >= 75 ? 'var(--gold)' : sc != null ? 'var(--red)' : '';
+      var scoreStr = sc != null
+        ? '<span style="color:' + scoreColor + ';font-weight:600">' + sc + '</span>'
+        : '<span style="color:var(--gray)">—</span>';
+      var revStr = o.aiReverseScore != null ? o.aiReverseScore : '<span style="color:var(--gray)">—</span>';
+      return '<tr onclick="selectAllOrder(\'' + o.orderId + '\',this)" data-id="' + o.orderId + '">' +
+        '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>' +
+        '<td>' + (o.customerEmail||'—') + '</td>' +
+        '<td style="font-size:11px;color:rgba(255,255,255,0.6)">' + (o.direction||'—') + '</td>' +
+        '<td>' + (o.charCount||0).toLocaleString() + '자</td>' +
+        '<td><span style="font-size:11px;color:rgba(255,255,255,0.5)">' + (o.orderStatus||'—') + '</span></td>' +
+        '<td>' + scoreStr + '</td>' +
+        '<td style="color:rgba(255,255,255,0.55)">' + revStr + '</td>' +
+        '<td>' + ymd(o.receivedAt) + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch(e) {
+    if (tbody) tbody.innerHTML = '<tr class="empty-row"><td colspan="8">오류: ' + e.message + '</td></tr>';
+  }
+}
+
+function selectAllOrder(id, row) {
+  document.querySelectorAll('#all-orders-tbody tr').forEach(function(r){ r.classList.remove('selected'); });
+  row.classList.add('selected');
+  var order = (window._allOrders||[]).find(function(o){ return o.orderId === id; });
+  if (!order) return;
+  selectedOrder = order;
+  document.getElementById('panel-ordnum').textContent = order.orderNumber || order.orderId;
+  document.getElementById('panel-meta').textContent = (order.direction||'—') + ' · ' + (order.charCount||0).toLocaleString() + '자';
+  document.getElementById('panel-email').textContent = order.customerEmail || '—';
+  document.getElementById('panel-amount').textContent = '₩' + (order.paymentAmount||0).toLocaleString();
+  document.getElementById('panel-source').value = order.originalText || '';
+  document.getElementById('panel-translation').value = order.aiTranslation || '';
+  var rvSection = document.getElementById('rv-info-section');
+  if (rvSection) rvSection.style.display = 'none';
+  var ppActions = document.getElementById('pp-file-actions');
+  if (ppActions) ppActions.style.display = 'none';
+  var btnOrig = document.getElementById('btn-dl-original');
+  if (btnOrig) btnOrig.style.display = 'inline-block';
+  populateAiScoreSection(order);
+  document.getElementById('confirm-panel').style.display = 'block';
 }
 
 async function submitBypassOrder() {
