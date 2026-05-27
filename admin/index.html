@@ -473,6 +473,13 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           <div class="corr-list" id="ai-corrections-list"></div>
         </div>
       </div>
+      <!-- 최종본 업로드 섹션 -->
+      <div id="final-upload-section" style="display:none;margin:0 16px 0;padding:14px 16px;background:rgba(255,255,255,0.03);border-radius:6px">
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px;font-weight:600">📎 최종본 업로드 (여러 파일 가능, 파일당 25MB 이하)</div>
+        <input type="file" id="final-files-input" multiple style="display:none" onchange="handleFinalFilesSelected(event)">
+        <button onclick="document.getElementById('final-files-input').click()" style="padding:8px 16px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.4);border-radius:4px;cursor:pointer;font-size:12px">📎 파일 선택</button>
+        <div id="final-files-preview" style="margin-top:10px"></div>
+      </div>
       <!-- 검수자 결과: 코멘트 + 21항목 (프미플 탭에서만 표시) -->
       <div id="rv-info-section" style="display:none">
         <div style="flex:0 0 220px">
@@ -503,7 +510,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
             <input type="file" id="admin-upload-input" style="display:none" onchange="uploadFinalFile(this)">
           </label>
         </div>
-        <button class="btn-deliver" id="btn-deliver" onclick="doDeliver()">최종 납품</button>
+        <button class="btn-deliver" id="btn-deliver" onclick="confirmFinalDelivery()">✓ 최종 납품</button>
       </div>
     </div>
 
@@ -748,6 +755,13 @@ function selectOrder(id, row) {
   if (btnOrig) btnOrig.style.display = 'inline-block';
   var btnTxt = document.getElementById('btn-dl-txt');
   if (btnTxt) btnTxt.style.display = (order.originalText || order.aiTranslation) ? 'inline-block' : 'none';
+  // 최종본 업로드 섹션: 납품 대기 탭에서 항상 표시
+  var uploadSection = document.getElementById('final-upload-section');
+  if (uploadSection) {
+    uploadSection.style.display = 'block';
+    window._finalUploadedFiles = [];
+    renderFinalFilesPreview();
+  }
   populateAiScoreSection(order);
   document.getElementById('confirm-panel').style.display = 'block';
 }
@@ -877,24 +891,85 @@ function toggleChecklist() {
   icon.textContent = show ? '▲ 접기' : '▶ 펼치기';
 }
 
-async function doDeliver() {
-  if (!selectedOrder) return;
-  if (!confirm('주문 ' + (selectedOrder.orderNumber||selectedOrder.orderId) + ' 최종 납품 메일을 발송하시겠습니까?\n고객(' + selectedOrder.customerEmail + ')에게 Make.com을 통해 첨부 파일이 전송됩니다.')) return;
+window._finalUploadedFiles = [];
 
+async function handleFinalFilesSelected(event) {
+  var files = Array.from(event.target.files);
+  if (!files.length) return;
+  if (!selectedOrder) { showToast('주문을 먼저 선택해주세요', 'error'); return; }
+  var tooBig = files.find(function(f) { return f.size > 25 * 1024 * 1024; });
+  if (tooBig) { showToast(tooBig.name + ': 25MB 초과 (Gmail 한도)', 'error'); return; }
+  showToast(files.length + '개 파일 업로드 중...', 'info');
+  var fd = new FormData();
+  files.forEach(function(f) { fd.append('files', f); });
+  try {
+    var r = await fetch(API_BASE + '/api/admin/upload/' + selectedOrder.orderId, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + adminToken() },
+      body: fd,
+    });
+    var data = await r.json();
+    if (!data.ok) { showToast('업로드 실패: ' + (data.error || ''), 'error'); return; }
+    window._finalUploadedFiles = (window._finalUploadedFiles || []).concat(data.files);
+    renderFinalFilesPreview();
+    showToast(files.length + '개 파일 업로드 완료', 'success');
+  } catch(e) { showToast('업로드 오류: ' + e.message, 'error'); }
+  event.target.value = '';
+}
+
+function renderFinalFilesPreview() {
+  var container = document.getElementById('final-files-preview');
+  if (!container) return;
+  var files = window._finalUploadedFiles || [];
+  if (!files.length) { container.innerHTML = ''; return; }
+  container.innerHTML = files.map(function(f, i) {
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,0.04);border-radius:4px;margin-bottom:4px;font-size:12px">' +
+      '<span style="flex:1;color:rgba(255,255,255,0.85)">📄 ' + f.filename + '</span>' +
+      '<span style="color:rgba(255,255,255,0.4)">' + Math.round(f.size/1024) + 'KB</span>' +
+      '<button onclick="removeFinalFile(' + i + ')" style="background:transparent;color:#e05555;border:none;cursor:pointer;font-size:14px;padding:0 4px">✕</button>' +
+      '</div>';
+  }).join('');
+}
+
+function removeFinalFile(index) {
+  (window._finalUploadedFiles || []).splice(index, 1);
+  renderFinalFilesPreview();
+}
+
+async function confirmFinalDelivery() {
+  if (!selectedOrder) { showToast('주문을 먼저 선택해주세요', 'error'); return; }
+  var files = window._finalUploadedFiles || [];
+  if (!files.length) { showToast('최종본 파일을 먼저 업로드해주세요', 'error'); return; }
+  var email = selectedOrder.customerEmail || '';
+  if (!email) { showToast('고객 이메일이 없어 발송 불가', 'error'); return; }
+  var fileList = files.map(function(f) { return '  • ' + f.filename; }).join('\n');
+  var msg = '다음 내용으로 고객에게 메일을 발송합니다.\n\n' +
+    '📧 받는 사람: ' + email + '\n' +
+    '📋 주문번호: ' + (selectedOrder.orderNumber || selectedOrder.orderId) + '\n' +
+    '📎 첨부 파일 (' + files.length + '개):\n' + fileList + '\n\n' +
+    '발송 후 취소할 수 없습니다. 진행하시겠습니까?';
+  if (!confirm(msg)) return;
   var btn = document.getElementById('btn-deliver');
   btn.disabled = true; btn.textContent = '발송 중…';
   try {
     var res = await adminFetch('/api/admin/deliver/' + selectedOrder.orderId, {
-      method: 'POST', body: JSON.stringify({})
+      method: 'POST', body: JSON.stringify({ finalFileIds: files.map(function(f){ return f.id; }) })
     });
     if (res.success) {
-      showToast('✅ 납품 완료! 고객 이메일 발송 중', 'success');
+      showToast('✅ ' + email + '에게 발송 완료', 'success');
+      btn.textContent = '✅ 납품완료';
       document.getElementById('confirm-panel').style.display = 'none';
       selectedOrder = null;
+      window._finalUploadedFiles = [];
       loadOrders();
-    } else showToast('⚠️ ' + (res.error||'납품 실패'), 'error');
-  } catch(e) { showToast('⚠️ 서버 오류: ' + e.message, 'error'); }
-  finally { btn.disabled = false; btn.textContent = '최종 납품'; }
+    } else {
+      showToast('⚠️ ' + (res.error || '납품 실패'), 'error');
+      btn.disabled = false; btn.textContent = '✓ 최종 납품';
+    }
+  } catch(e) {
+    showToast('⚠️ 서버 오류: ' + e.message, 'error');
+    btn.disabled = false; btn.textContent = '✓ 최종 납품';
+  }
 }
 
 // ─── 검수자 승인 탭 ───
