@@ -494,6 +494,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           금액: <span class="amount" id="panel-amount">—</span>
         </div>
         <button class="btn-dl" id="btn-dl-original" style="display:none" onclick="downloadOriginal()">⬇ 고객 원본</button>
+        <button class="btn-dl" id="btn-dl-txt" style="display:none;background:var(--gold);color:#000;font-weight:600" onclick="downloadTranslationTxt()">📄 원문+번역 .txt</button>
         <div id="pp-file-actions" style="display:none;gap:6px;align-items:center">
           <button class="btn-dl" onclick="downloadResult('txt')">⬇ .txt</button>
           <button class="btn-dl" onclick="downloadResult('docx')">⬇ .docx</button>
@@ -745,6 +746,8 @@ function selectOrder(id, row) {
   if (ppActions) ppActions.style.display = currentTab === 'premium_plus' ? 'flex' : 'none';
   var btnOrig = document.getElementById('btn-dl-original');
   if (btnOrig) btnOrig.style.display = 'inline-block';
+  var btnTxt = document.getElementById('btn-dl-txt');
+  if (btnTxt) btnTxt.style.display = (order.originalText || order.aiTranslation) ? 'inline-block' : 'none';
   populateAiScoreSection(order);
   document.getElementById('confirm-panel').style.display = 'block';
 }
@@ -753,6 +756,63 @@ function downloadOriginal() {
   if (!selectedOrder) return;
   var num = selectedOrder.orderNumber || selectedOrder.orderId;
   downloadWithAuth('/api/admin/download-original/' + selectedOrder.orderId, '원본_' + num);
+}
+
+function downloadTranslationTxt() {
+  if (!selectedOrder) { alert('주문을 먼저 선택해주세요'); return; }
+  var order      = selectedOrder;
+  var orderId    = order.orderNumber || order.orderId || 'UNKNOWN';
+  var direction  = order.direction   || ((order.sourceLang || '') + ' → ' + (order.targetLang || ''));
+  var charCount  = order.charCount   || 0;
+  var plan       = order.plan        || '';
+  var original   = order.originalText        || '';
+  var aiTrans    = order.aiTranslation       || '';
+  var reviewerTr = order.reviewerTranslation || '';
+  var isPP       = plan.includes('플러스') && reviewerTr;
+
+  var SEP = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  var lines = [
+    SEP,
+    '  IUMM 번역 결과 — ' + orderId,
+    SEP,
+    '  번역방향: ' + direction,
+    '  글자수:   ' + charCount.toLocaleString() + '자',
+    '  플랜:     ' + plan,
+    SEP,
+    '',
+    '【원문】',
+    '',
+    original,
+    '',
+    SEP,
+    '',
+    '【AI 번역】',
+    '',
+    aiTrans,
+    '',
+  ];
+
+  if (isPP) {
+    lines.push(SEP);
+    lines.push('');
+    lines.push('【검수자 수정본】');
+    lines.push('');
+    lines.push(reviewerTr);
+    lines.push('');
+  }
+
+  lines.push(SEP);
+
+  var BOM  = '﻿';
+  var blob = new Blob([BOM + lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url;
+  a.download = 'IUMM_' + orderId + '_원문번역.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 async function downloadWithAuth(path, filename) {
