@@ -2317,12 +2317,49 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
           <p style="font-size:18px;color:#97c459;font-weight:700">- 7,500원</p>
         </div>
       </div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:24px;font-weight:300">번역할 텍스트를 붙여넣으면 글자수와 견적이 자동 산출됩니다</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;font-weight:300">번역할 텍스트를 붙여넣으면 글자수와 견적이 자동 산출됩니다</p>
 
-      <!-- 텍스트 붙여넣기 -->
-      <div>
+      <!-- 입력 방식 선택 -->
+      <div style="display:flex;gap:0;margin-bottom:18px;border:1px solid rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">
+        <button id="input-tab-text" onclick="switchInputMode('text')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:var(--gold);color:var(--black)">📝 텍스트 붙여넣기</button>
+        <button id="input-tab-ocr" onclick="switchInputMode('ocr')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">📄 하드카피 번역 (OCR)</button>
+      </div>
+
+      <!-- 텍스트 붙여넣기 영역 -->
+      <div id="input-section-text">
         <label class="lbl">번역할 텍스트 붙여넣기</label>
         <textarea id="pasteText" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="calcTextChads(this.value)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
+      </div>
+
+      <!-- 하드카피 OCR 영역 -->
+      <div id="input-section-ocr" style="display:none">
+        <!-- 파일 업로드 드롭존 -->
+        <div id="ocr-customer-dropzone" onclick="document.getElementById('ocr-customer-file').click()" ondragover="ocrCustomerDragOver(event)" ondragleave="ocrCustomerDragLeave(event)" ondrop="ocrCustomerDrop(event)" style="border:2px dashed rgba(201,168,76,0.3);border-radius:4px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px;position:relative">
+          <input type="file" id="ocr-customer-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="ocrCustomerFileSelected(this)">
+          <p style="font-size:24px;margin-bottom:8px">📷</p>
+          <p id="ocr-customer-file-label" style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px">이미지를 끌어다 놓거나 클릭하여 선택</p>
+          <p style="font-size:11px;color:rgba(255,255,255,0.25)">JPEG · PNG · WEBP (최대 10 MB)</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+          <button id="btn-customer-ocr" onclick="runCustomerOcr()" disabled style="padding:10px 22px;background:var(--gold);color:var(--black);border:none;border-radius:2px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;opacity:0.4">OCR 텍스트 추출</button>
+          <span id="ocr-customer-status" style="font-size:12px;color:rgba(255,255,255,0.5)"></span>
+        </div>
+
+        <!-- OCR 결과 (처음엔 숨김) -->
+        <div id="ocr-result-section" style="display:none">
+          <!-- 안내 문구 -->
+          <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-left:3px solid var(--gold);padding:12px 16px;margin-bottom:12px;border-radius:2px">
+            <p style="font-size:12px;color:rgba(201,168,76,0.9);font-weight:600;margin-bottom:4px">💡 OCR 결과 안내</p>
+            <p style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8">수정할 곳이 있다면 아래 텍스트를 직접 수정해주세요. 해당 텍스트로 번역이 진행됩니다.<br>품질이 좋지 않으면 해상도가 높은 이미지를 다시 첨부해주세요.</p>
+          </div>
+          <!-- 보호된 텍스트 영역 -->
+          <label class="lbl" style="display:flex;justify-content:space-between;align-items:center">
+            <span>추출된 텍스트 (수정 가능)</span>
+            <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:400">복사 방지 적용됨</span>
+          </label>
+          <textarea id="ocr-result-text" oninput="ocrTextChanged(this.value)" oncopy="ocrBlockCopy(event)" oncut="ocrBlockCopy(event)" oncontextmenu="return false" style="width:100%;height:180px;padding:14px 16px;background:#0e0e0e;border:1px solid rgba(201,168,76,0.25);border-radius:2px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:vertical;line-height:1.8;margin-bottom:0"></textarea>
+          <p id="ocr-copy-notice" style="display:none;font-size:11px;color:rgba(224,85,85,0.9);margin-top:5px;font-weight:500">🔒 OCR 텍스트는 복사할 수 없습니다.</p>
+        </div>
       </div>
       <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;text-align:right;letter-spacing:0.3px">※ 1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내</p>
 
@@ -3740,6 +3777,27 @@ function clearEstimate(){
   var baseEl=document.getElementById('payment-amount-base');
   if(amountEl) amountEl.textContent='-';
   if(baseEl) baseEl.textContent='-';
+  // OCR 모드 초기화
+  window._inputMode='text';
+  window._ocrCustomerFile=null;
+  var ocrResult=document.getElementById('ocr-result-section');
+  if(ocrResult) ocrResult.style.display='none';
+  var ocrTxt=document.getElementById('ocr-result-text');
+  if(ocrTxt) ocrTxt.value='';
+  var ocrStat=document.getElementById('ocr-customer-status');
+  if(ocrStat) ocrStat.textContent='';
+  var ocrBtn=document.getElementById('btn-customer-ocr');
+  if(ocrBtn){ocrBtn.disabled=true;ocrBtn.style.opacity='0.4';ocrBtn.textContent='OCR 텍스트 추출';}
+  var ocrLabel=document.getElementById('ocr-customer-file-label');
+  if(ocrLabel) ocrLabel.textContent='이미지를 끌어다 놓거나 클릭하여 선택';
+  var secText=document.getElementById('input-section-text');
+  var secOcr=document.getElementById('input-section-ocr');
+  if(secText) secText.style.display='block';
+  if(secOcr) secOcr.style.display='none';
+  var tabT=document.getElementById('input-tab-text');
+  var tabO=document.getElementById('input-tab-ocr');
+  if(tabT){tabT.style.background='var(--gold)';tabT.style.color='var(--black)';}
+  if(tabO){tabO.style.background='rgba(255,255,255,0.04)';tabO.style.color='rgba(255,255,255,0.5)';}
 }
 function updateOrderModal(){
   var reviewerRow=document.getElementById('reviewer-row');
@@ -4650,7 +4708,9 @@ async function completePayment(){
   var langSelect=document.getElementById('lang-select');
   var langVal=langSelect?langSelect.value:'-';
   var pasteText=document.getElementById('pasteText');
-  var originText=pasteText?pasteText.value:'';
+  var ocrText=document.getElementById('ocr-result-text');
+  var isOcrMode=window._inputMode==='ocr';
+  var originText=isOcrMode?(ocrText?ocrText.value:''):(pasteText?pasteText.value:'');
   var glossarySourceEl=document.getElementById('glossarySource');
   var glossaryTargetEl=document.getElementById('glossaryTarget');
   var glossarySource=glossarySourceEl?glossarySourceEl.value:'';
@@ -4743,7 +4803,8 @@ function confirmBankTransfer(){
   var langSelect=document.getElementById('lang-select');
   var langVal=langSelect?langSelect.value:'-';
   var pasteText=document.getElementById('pasteText');
-  var originText=pasteText?pasteText.value:'';
+  var ocrText2=document.getElementById('ocr-result-text');
+  var originText=(window._inputMode==='ocr')?(ocrText2?ocrText2.value:''):(pasteText?pasteText.value:'');
   var glossarySourceEl=document.getElementById('glossarySource');
   var glossaryTargetEl=document.getElementById('glossaryTarget');
   var glossarySource=glossarySourceEl?glossarySourceEl.value:'';
@@ -4830,6 +4891,109 @@ function verifyCode(){
   }
 }
 function resendCode(){showToast('인증코드를 재발송했습니다 ✓');}
+// ─── 입력 모드 전환 (텍스트 / OCR) ─────────────────────────
+window._inputMode = 'text';
+window._ocrCustomerFile = null;
+function switchInputMode(mode) {
+  window._inputMode = mode;
+  var tabText = document.getElementById('input-tab-text');
+  var tabOcr  = document.getElementById('input-tab-ocr');
+  var secText = document.getElementById('input-section-text');
+  var secOcr  = document.getElementById('input-section-ocr');
+  if (mode === 'ocr') {
+    if (tabText) { tabText.style.background = 'rgba(255,255,255,0.04)'; tabText.style.color = 'rgba(255,255,255,0.5)'; }
+    if (tabOcr)  { tabOcr.style.background  = 'var(--gold)'; tabOcr.style.color = 'var(--black)'; }
+    if (secText) secText.style.display = 'none';
+    if (secOcr)  secOcr.style.display  = 'block';
+  } else {
+    if (tabText) { tabText.style.background = 'var(--gold)'; tabText.style.color = 'var(--black)'; }
+    if (tabOcr)  { tabOcr.style.background  = 'rgba(255,255,255,0.04)'; tabOcr.style.color = 'rgba(255,255,255,0.5)'; }
+    if (secText) secText.style.display = 'block';
+    if (secOcr)  secOcr.style.display  = 'none';
+  }
+}
+// ─── OCR 드래그 앤 드롭 ──────────────────────────────────────
+function ocrCustomerDragOver(e) {
+  e.preventDefault();
+  var zone = document.getElementById('ocr-customer-dropzone');
+  if (zone) { zone.style.borderColor = 'var(--gold)'; zone.style.background = 'rgba(201,168,76,0.07)'; }
+}
+function ocrCustomerDragLeave(e) {
+  var zone = document.getElementById('ocr-customer-dropzone');
+  if (zone) { zone.style.borderColor = 'rgba(201,168,76,0.3)'; zone.style.background = ''; }
+}
+function ocrCustomerDrop(e) {
+  e.preventDefault();
+  ocrCustomerDragLeave(e);
+  var files = e.dataTransfer && e.dataTransfer.files;
+  if (!files || files.length === 0) return;
+  var file = files[0];
+  if (!file.type.startsWith('image/')) { showToast('이미지 파일만 가능합니다 (JPEG/PNG/WEBP)'); return; }
+  ocrSetCustomerFile(file);
+}
+function ocrCustomerFileSelected(el) {
+  if (!el.files || el.files.length === 0) return;
+  ocrSetCustomerFile(el.files[0]);
+}
+function ocrSetCustomerFile(file) {
+  window._ocrCustomerFile = file;
+  var label = document.getElementById('ocr-customer-file-label');
+  if (label) label.innerHTML = '<span style="color:var(--gold);font-weight:600">✓ ' + file.name + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.3)">(' + (file.size/1024).toFixed(0) + 'KB)</span>';
+  var btn = document.getElementById('btn-customer-ocr');
+  if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+}
+// ─── OCR 실행 ─────────────────────────────────────────────────
+async function runCustomerOcr() {
+  var file = window._ocrCustomerFile;
+  if (!file) { showToast('이미지 파일을 먼저 선택해주세요'); return; }
+  var btn    = document.getElementById('btn-customer-ocr');
+  var status = document.getElementById('ocr-customer-status');
+  if (btn)    { btn.disabled = true; btn.textContent = 'OCR 처리 중...'; btn.style.opacity = '0.6'; }
+  if (status) { status.textContent = '텍스트를 인식 중입니다... 잠시만 기다려주세요.'; status.style.color = 'rgba(255,255,255,0.5)'; }
+  try {
+    var fd = new FormData();
+    fd.append('file', file);
+    var res  = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', body: fd });
+    var json = await res.json();
+    if (!json.success) {
+      if (status) { status.textContent = '오류: ' + (json.error || 'OCR 실패'); status.style.color = '#e05555'; }
+      if (btn)    { btn.disabled = false; btn.textContent = 'OCR 텍스트 추출'; btn.style.opacity = '1'; }
+      return;
+    }
+    var text      = json.text || '';
+    var charCount = text.replace(/\s/g, '').length;
+    var resultSection = document.getElementById('ocr-result-section');
+    var resultText    = document.getElementById('ocr-result-text');
+    if (resultText)    resultText.value = text;
+    if (resultSection) resultSection.style.display = 'block';
+    if (status) { status.textContent = '인식 완료: ' + charCount.toLocaleString() + '자 (공백 제외)'; status.style.color = '#97c459'; }
+    if (btn)    { btn.disabled = false; btn.textContent = '재추출'; btn.style.opacity = '1'; }
+    showEstimate(charCount);
+  } catch(err) {
+    if (status) { status.textContent = '네트워크 오류. 다시 시도해주세요.'; status.style.color = '#e05555'; }
+    if (btn)    { btn.disabled = false; btn.textContent = 'OCR 텍스트 추출'; btn.style.opacity = '1'; }
+  }
+}
+// ─── OCR 텍스트 수정 시 견적 재계산 ─────────────────────────
+function ocrTextChanged(val) {
+  var w = val.replace(/\s/g, '').length;
+  if (w > 0) showEstimate(w);
+  else {
+    document.getElementById('estimate-result').style.display = 'none';
+    document.getElementById('char-count').textContent = '-';
+    document.getElementById('estimate-amount').textContent = '-';
+  }
+}
+// ─── OCR 복사 차단 ───────────────────────────────────────────
+function ocrBlockCopy(e) {
+  e.preventDefault();
+  var notice = document.getElementById('ocr-copy-notice');
+  if (notice) {
+    notice.style.display = 'block';
+    clearTimeout(window._ocrCopyTimer);
+    window._ocrCopyTimer = setTimeout(function(){ notice.style.display = 'none'; }, 2500);
+  }
+}
 // 페이지 로드 시 자동 로그인 복구
 window.addEventListener('DOMContentLoaded', function(){
   if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()){
