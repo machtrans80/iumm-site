@@ -2333,16 +2333,18 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
 
       <!-- 하드카피 OCR 영역 -->
       <div id="input-section-ocr" style="display:none">
-        <!-- 파일 업로드 드롭존 -->
-        <div id="ocr-customer-dropzone" onclick="document.getElementById('ocr-customer-file').click()" ondragover="ocrCustomerDragOver(event)" ondragleave="ocrCustomerDragLeave(event)" ondrop="ocrCustomerDrop(event)" style="border:2px dashed rgba(201,168,76,0.3);border-radius:4px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px;position:relative">
-          <input type="file" id="ocr-customer-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="ocrCustomerFileSelected(this)">
-          <p style="font-size:24px;margin-bottom:8px">📷</p>
-          <p id="ocr-customer-file-label" style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px">이미지를 끌어다 놓거나 클릭하여 선택</p>
-          <p style="font-size:11px;color:rgba(255,255,255,0.25)">JPEG · PNG · WEBP (최대 10 MB)</p>
+        <!-- 파일 업로드 드롭존 (멀티 + PDF) -->
+        <div id="ocr-customer-dropzone" onclick="document.getElementById('ocr-customer-file').click()" ondragover="ocrCustomerDragOver(event)" ondragleave="ocrCustomerDragLeave(event)" ondrop="ocrCustomerDrop(event)" style="border:2px dashed rgba(201,168,76,0.3);border-radius:4px;padding:24px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:10px;position:relative">
+          <input type="file" id="ocr-customer-file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none" onchange="ocrCustomerFileSelected(this)">
+          <p style="font-size:22px;margin-bottom:6px">📎</p>
+          <p id="ocr-customer-file-label" style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px">이미지 또는 PDF를 끌어다 놓거나 클릭하여 선택</p>
+          <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:8px">JPEG · PNG · WEBP · PDF · 여러 파일 동시 선택 가능 (최대 10장/페이지)</p>
+          <div id="ocr-file-list" style="display:none;text-align:left;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px"></div>
         </div>
+        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px">💡 10페이지 초과 의뢰: <a href="mailto:machtrans80@gmail.com" style="color:rgba(201,168,76,0.7);text-decoration:none">machtrans80@gmail.com</a></p>
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
           <button id="btn-customer-ocr" onclick="runCustomerOcr()" disabled style="padding:10px 22px;background:var(--gold);color:var(--black);border:none;border-radius:2px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;opacity:0.4">OCR 텍스트 추출</button>
-          <span id="ocr-customer-status" style="font-size:12px;color:rgba(255,255,255,0.5)"></span>
+          <span id="ocr-customer-status" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6"></span>
         </div>
 
         <!-- OCR 결과 (처음엔 숨김) -->
@@ -3779,7 +3781,7 @@ function clearEstimate(){
   if(baseEl) baseEl.textContent='-';
   // OCR 모드 초기화
   window._inputMode='text';
-  window._ocrCustomerFile=null;
+  window._ocrCustomerFiles=[];
   var ocrResult=document.getElementById('ocr-result-section');
   if(ocrResult) ocrResult.style.display='none';
   var ocrTxt=document.getElementById('ocr-result-text');
@@ -4893,7 +4895,7 @@ function verifyCode(){
 function resendCode(){showToast('인증코드를 재발송했습니다 ✓');}
 // ─── 입력 모드 전환 (텍스트 / OCR) ─────────────────────────
 window._inputMode = 'text';
-window._ocrCustomerFile = null;
+window._ocrCustomerFiles = [];
 function switchInputMode(mode) {
   window._inputMode = mode;
   var tabText = document.getElementById('input-tab-text');
@@ -4925,39 +4927,51 @@ function ocrCustomerDragLeave(e) {
 function ocrCustomerDrop(e) {
   e.preventDefault();
   ocrCustomerDragLeave(e);
-  var files = e.dataTransfer && e.dataTransfer.files;
-  if (!files || files.length === 0) return;
-  var file = files[0];
-  if (!file.type.startsWith('image/')) { showToast('이미지 파일만 가능합니다 (JPEG/PNG/WEBP)'); return; }
-  ocrSetCustomerFile(file);
+  var rawFiles = e.dataTransfer && e.dataTransfer.files;
+  if (!rawFiles || rawFiles.length === 0) return;
+  var valid = Array.from(rawFiles).filter(function(f){ return f.type.startsWith('image/') || f.type === 'application/pdf'; });
+  if (valid.length === 0) { showToast('이미지 또는 PDF 파일만 가능합니다'); return; }
+  if (valid.length > 10) { showToast('최대 10개까지 가능합니다. 처음 10개만 사용합니다.'); valid = valid.slice(0, 10); }
+  ocrSetCustomerFiles(valid);
 }
 function ocrCustomerFileSelected(el) {
   if (!el.files || el.files.length === 0) return;
-  ocrSetCustomerFile(el.files[0]);
+  var valid = Array.from(el.files).filter(function(f){ return f.type.startsWith('image/') || f.type === 'application/pdf'; });
+  if (valid.length > 10) { showToast('최대 10개까지 가능합니다. 처음 10개만 사용합니다.'); valid = valid.slice(0, 10); }
+  ocrSetCustomerFiles(valid);
 }
-function ocrSetCustomerFile(file) {
-  window._ocrCustomerFile = file;
+function ocrSetCustomerFiles(files) {
+  window._ocrCustomerFiles = files;
   var label = document.getElementById('ocr-customer-file-label');
-  if (label) label.innerHTML = '<span style="color:var(--gold);font-weight:600">✓ ' + file.name + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.3)">(' + (file.size/1024).toFixed(0) + 'KB)</span>';
+  if (label) label.innerHTML = '<span style="color:var(--gold);font-weight:600">✓ ' + files.length + '개 파일 선택됨</span>';
+  var listEl = document.getElementById('ocr-file-list');
+  if (listEl) {
+    listEl.innerHTML = files.map(function(f, i){ return '<div style="font-size:11px;color:rgba(255,255,255,0.55);padding:3px 0">' + (i+1) + '. ' + f.name + ' <span style="color:rgba(255,255,255,0.25)">(' + (f.size/1024).toFixed(0) + 'KB)</span></div>'; }).join('');
+    listEl.style.display = 'block';
+  }
   var btn = document.getElementById('btn-customer-ocr');
   if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
 }
 // ─── OCR 실행 ─────────────────────────────────────────────────
 async function runCustomerOcr() {
-  var file = window._ocrCustomerFile;
-  if (!file) { showToast('이미지 파일을 먼저 선택해주세요'); return; }
+  var files = window._ocrCustomerFiles;
+  if (!files || files.length === 0) { showToast('파일을 먼저 선택해주세요'); return; }
   var btn    = document.getElementById('btn-customer-ocr');
   var status = document.getElementById('ocr-customer-status');
   if (btn)    { btn.disabled = true; btn.textContent = 'OCR 처리 중...'; btn.style.opacity = '0.6'; }
-  if (status) { status.textContent = '텍스트를 인식 중입니다... 잠시만 기다려주세요.'; status.style.color = 'rgba(255,255,255,0.5)'; }
+  if (status) { status.textContent = files.length + '개 파일 처리 중... 페이지가 많으면 1~2분 소요됩니다.'; status.style.color = 'rgba(255,255,255,0.5)'; }
   try {
     var fd = new FormData();
-    fd.append('file', file);
+    files.forEach(function(f){ fd.append('files', f); });
     var res  = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', body: fd });
     var json = await res.json();
     if (!json.success) {
-      if (status) { status.textContent = '오류: ' + (json.error || 'OCR 실패'); status.style.color = '#e05555'; }
-      if (btn)    { btn.disabled = false; btn.textContent = 'OCR 텍스트 추출'; btn.style.opacity = '1'; }
+      if (json.totalPages && json.totalPages > 10) {
+        if (status) { status.innerHTML = '<strong style="color:#e05555">총 ' + json.totalPages + '페이지 — 자동 처리 불가</strong><br>최대 10페이지까지 지원합니다.<br>대용량 의뢰: <a href="mailto:machtrans80@gmail.com" style="color:var(--gold)">machtrans80@gmail.com</a>'; status.style.color = '#e05555'; }
+      } else {
+        if (status) { status.textContent = '오류: ' + (json.error || 'OCR 실패'); status.style.color = '#e05555'; }
+      }
+      if (btn) { btn.disabled = false; btn.textContent = 'OCR 텍스트 추출'; btn.style.opacity = '1'; }
       return;
     }
     var text      = json.text || '';
@@ -4966,7 +4980,7 @@ async function runCustomerOcr() {
     var resultText    = document.getElementById('ocr-result-text');
     if (resultText)    resultText.value = text;
     if (resultSection) resultSection.style.display = 'block';
-    if (status) { status.textContent = '인식 완료: ' + charCount.toLocaleString() + '자 (공백 제외)'; status.style.color = '#97c459'; }
+    if (status) { status.textContent = '인식 완료: ' + json.totalPages + '페이지, ' + charCount.toLocaleString() + '자 (공백 제외)'; status.style.color = '#97c459'; }
     if (btn)    { btn.disabled = false; btn.textContent = '재추출'; btn.style.opacity = '1'; }
     showEstimate(charCount);
   } catch(err) {

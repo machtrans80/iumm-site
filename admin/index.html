@@ -307,9 +307,10 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <div class="bp-section">
         <div class="bp-section-title">📄 OCR — 하드카피 이미지/PDF → 텍스트 추출</div>
         <div class="ocr-zone" id="ocr-drop-zone" ondragover="bpDragOver(event)" ondragleave="bpDragLeave(event)" ondrop="bpDrop(event)">
-          <input type="file" id="ocr-file-input" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="bpFileSelected(this)">
+          <input type="file" id="ocr-file-input" accept="image/jpeg,image/png,image/webp,application/pdf" multiple onchange="bpFileSelected(this)">
           <div class="ocr-zone-label" id="ocr-zone-label">이미지 또는 PDF를 끌어다 놓거나 클릭하여 선택</div>
-          <div class="ocr-zone-sub">지원 형식: JPEG · PNG · WEBP · PDF (최대 50 MB)</div>
+          <div class="ocr-zone-sub">JPEG · PNG · WEBP · PDF · 여러 파일 동시 가능 (최대 10장/페이지)</div>
+          <div id="bp-ocr-file-list" style="display:none;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;text-align:left"></div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <button class="btn-ocr" id="btn-ocr-run" onclick="runBypassOcr()" disabled>텍스트 추출 (OCR)</button>
@@ -1289,7 +1290,7 @@ window.addEventListener('DOMContentLoaded', function() {
 // ── 우회 주문 탭 기능 ──────────────────────────────────
 // ════════════════════════════════════════════════════════
 
-var bpSelectedFile = null;
+var bpSelectedFiles = [];
 
 function bpUpdateCharCount() {
   var ta = document.getElementById('bp-text');
@@ -1307,32 +1308,43 @@ function bpDragLeave(e) {
 function bpDrop(e) {
   e.preventDefault();
   document.getElementById('ocr-drop-zone').classList.remove('over');
-  var file = e.dataTransfer.files[0];
-  if (file) bpSetFile(file);
+  var raw = Array.from(e.dataTransfer.files);
+  var valid = raw.filter(function(f){ return f.type.startsWith('image/') || f.type === 'application/pdf'; });
+  if (valid.length === 0) { showToast('이미지 또는 PDF만 가능합니다', 'error'); return; }
+  if (valid.length > 10) { showToast('최대 10개까지 가능합니다', 'error'); valid = valid.slice(0, 10); }
+  bpSetFiles(valid);
 }
 function bpFileSelected(input) {
-  if (input.files && input.files[0]) bpSetFile(input.files[0]);
+  if (!input.files || input.files.length === 0) return;
+  var valid = Array.from(input.files).filter(function(f){ return f.type.startsWith('image/') || f.type === 'application/pdf'; });
+  if (valid.length > 10) { valid = valid.slice(0, 10); }
+  bpSetFiles(valid);
 }
-function bpSetFile(file) {
-  bpSelectedFile = file;
+function bpSetFiles(files) {
+  bpSelectedFiles = files;
   var label = document.getElementById('ocr-zone-label');
-  label.textContent = '선택됨: ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+  label.textContent = '✓ ' + files.length + '개 파일 선택됨';
   label.style.color = 'var(--gold)';
+  var listEl = document.getElementById('bp-ocr-file-list');
+  if (listEl) {
+    listEl.innerHTML = files.map(function(f, i){ return '<div style="font-size:11px;color:rgba(255,255,255,0.5);padding:2px 0">' + (i+1) + '. ' + f.name + ' (' + (f.size/1024).toFixed(0) + 'KB)</div>'; }).join('');
+    listEl.style.display = 'block';
+  }
   document.getElementById('btn-ocr-run').disabled = false;
   document.getElementById('ocr-status').textContent = '';
 }
 
 async function runBypassOcr() {
-  if (!bpSelectedFile) return;
+  if (!bpSelectedFiles || bpSelectedFiles.length === 0) return;
   var btn = document.getElementById('btn-ocr-run');
   var status = document.getElementById('ocr-status');
   btn.disabled = true;
   status.style.color = 'rgba(255,255,255,0.5)';
-  status.textContent = '⏳ OCR 처리 중…';
+  status.textContent = '⏳ ' + bpSelectedFiles.length + '개 파일 OCR 처리 중…';
 
   try {
     var formData = new FormData();
-    formData.append('file', bpSelectedFile);
+    bpSelectedFiles.forEach(function(f){ formData.append('files', f); });
     var res = await fetch(API_BASE + '/api/admin/ocr', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken() },
@@ -1344,7 +1356,7 @@ async function runBypassOcr() {
     document.getElementById('bp-text').value = data.text;
     bpUpdateCharCount();
     status.style.color = 'var(--green)';
-    status.textContent = '✅ 추출 완료 — ' + data.charCount.toLocaleString() + '자';
+    status.textContent = '✅ 추출 완료 — ' + (data.totalPages || 1) + '페이지, ' + data.charCount.toLocaleString() + '자';
   } catch(e) {
     status.style.color = 'var(--red)';
     status.textContent = '⚠️ ' + e.message;
