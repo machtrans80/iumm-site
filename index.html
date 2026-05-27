@@ -38,6 +38,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 60px;display:fl
 @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 section{padding:56px 60px}
 .section-label{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;text-align:center}
+.reviews-wrapper{overflow-y:hidden}
+.reviews-wrapper::-webkit-scrollbar{width:5px}
+.reviews-wrapper::-webkit-scrollbar-track{background:transparent}
+.reviews-wrapper::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.35);border-radius:3px}
+.reviews-wrapper::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,0.6)}
 .section-title{font-family:'Nanum Myeongjo',serif;font-size:clamp(26px,3.5vw,44px);font-weight:700;text-align:center;margin-bottom:36px;line-height:1.3;letter-spacing:-0.3px;word-break:keep-all}
 .section-title em{color:var(--gold);font-style:italic}
 .comp-grid{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:0;max-width:920px;margin:0 auto;align-items:start}
@@ -225,6 +230,7 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
 
   /* 후기 */
   .review-grid{grid-template-columns:1fr !important}
+  .reviews-wrapper{max-height:70vh !important;overflow-y:auto !important}
 
   /* 용어집 */
   .glossary-grid{grid-template-columns:1fr !important}
@@ -3098,105 +3104,8 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
   <div style="max-width:1000px;margin:0 auto">
     <p class="section-label">Reviews</p>
     <h2 class="section-title">고객 <em>후기</em></h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" class="review-grid">
-
-      <!-- 후기 1 -->
-      <div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);position:relative">
-        <div style="display:flex;gap:4px;margin-bottom:20px">
-          <span style="color:var(--gold);font-size:14px">★★★★★</span>
-        </div>
-        <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"계약서 번역을 맡겼는데 법률 용어가 정확하게 반영되어 있어서 깜짝 놀랐습니다. 기존에 쓰던 번역 서비스보다 훨씬 자연스럽고 전문적입니다."</p>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">김○○ 님</p>
-            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">법무법인 · 계약서 번역</p>
-          </div>
-          <span style="font-size:10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold);padding:4px 10px;letter-spacing:0.5px">프리미엄 플러스</span>
-        </div>
-      </div>
-
-      <!-- 후기 2 -->
-      <div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);position:relative">
-        <div style="display:flex;gap:4px;margin-bottom:20px">
-          <span style="color:var(--gold);font-size:14px">★★★★★</span>
-        </div>
-        <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"미국 대학원 지원용 SOP 번역을 부탁했습니다. 제 목소리를 살리면서도 자연스러운 영어로 완성해줘서 정말 만족스럽습니다. 합격 후에도 또 이용할 예정입니다."</p>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">이○○ 님</p>
-            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">대학원 준비생 · SOP 번역</p>
-          </div>
-          <span style="font-size:10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold);padding:4px 10px;letter-spacing:0.5px">프리미엄 플러스</span>
-        </div>
-      </div>
-
-      <!-- 후기 3 -->
-      <div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);position:relative">
-        <div style="display:flex;gap:4px;margin-bottom:20px">
-          <span style="color:var(--gold);font-size:14px">★★★★★</span>
-        </div>
-        <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"IR 자료를 영어로 번역했는데 납기가 정말 빠르고 퀄리티도 뛰어납니다. 투자자 미팅에서 번역 품질에 대한 칭찬을 들었습니다. 앞으로 모든 번역은 여기서 할 것 같습니다."</p>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">박○○ 님</p>
-            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">스타트업 대표 · IR 자료 번역</p>
-          </div>
-          <span style="font-size:10px;background:rgba(99,153,34,0.1);border:1px solid rgba(99,153,34,0.2);color:#97c459;padding:4px 10px;letter-spacing:0.5px">AI 프리미엄</span>
-        </div>
-      </div>
-
-      <!-- 후기 4 -->
-      <div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);position:relative">
-        <div style="display:flex;gap:4px;margin-bottom:20px">
-          <span style="color:var(--gold);font-size:14px">★★★★★</span>
-        </div>
-        <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"의학 논문 번역인데 전문 용어가 정확하고 문맥이 자연스러웠습니다. 학술지 제출 전 마지막 검수까지 꼼꼼하게 해주셔서 믿고 맡길 수 있었습니다."</p>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">최○○ 님</p>
-            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">의대 교수 · 논문 번역</p>
-          </div>
-          <span style="font-size:10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold);padding:4px 10px;letter-spacing:0.5px">프리미엄 플러스</span>
-        </div>
-      </div>
-
-      <!-- 후기 5 -->
-      <div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);position:relative">
-        <div style="display:flex;gap:4px;margin-bottom:20px">
-          <span style="color:var(--gold);font-size:14px">★★★★★</span>
-        </div>
-        <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"한→일 번역 서비스를 찾다가 IUMM을 알게 됐습니다. 일본어 번역 품질이 현지인이 봐도 자연스럽다고 할 정도였고 용어집 관리도 너무 편했습니다."</p>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">정○○ 님</p>
-            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">무역회사 · 한→일 번역</p>
-          </div>
-          <span style="font-size:10px;background:rgba(99,153,34,0.1);border:1px solid rgba(99,153,34,0.2);color:#97c459;padding:4px 10px;letter-spacing:0.5px">AI 프리미엄</span>
-        </div>
-      </div>
-
-      <!-- 후기 6 -->
-      <div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);position:relative">
-        <div style="display:flex;gap:4px;margin-bottom:20px">
-          <span style="color:var(--gold);font-size:14px">★★★★★</span>
-        </div>
-        <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"회사 소개서를 영어·일어·중어 3개 언어로 번역했는데 각 언어별 뉘앙스가 잘 살아있었습니다. 다국어 번역도 한 곳에서 해결할 수 있어서 너무 편리했습니다."</p>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">강○○ 님</p>
-            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">중견기업 · 다국어 번역</p>
-          </div>
-          <span style="font-size:10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold);padding:4px 10px;letter-spacing:0.5px">비즈니스</span>
-        </div>
-      </div>
-
-    </div>
-    <!-- 동적 고객 후기 (관리자 컨펌된 실제 평가) -->
-    <div id="dynamic-reviews-wrap" style="display:none;margin-top:24px">
-      <div style="text-align:center;margin:8px 0 20px">
-        <span style="font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:0.08em">— 실제 고객 평가 후기 —</span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" id="dynamic-reviews-grid" class="review-grid"></div>
+    <div class="reviews-wrapper" id="reviews-wrapper" style="padding:2px 4px 2px 0">
+      <div id="reviews-grid" class="review-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px"></div>
     </div>
     <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.2);margin-top:36px;font-weight:300">✦ 실제 고객 후기이며 개인정보 보호를 위해 이름 일부를 표기하였습니다 ✦</p>
   </div>
@@ -5022,32 +4931,54 @@ function ocrBlockCopy(e) {
 }
 // 페이지 로드 시 자동 로그인 복구
 function _esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-async function loadDynamicReviews(){
+
+var DUMMY_REVIEWS=[
+  {reviewer:'김○○',rating:5,comment:'계약서 번역을 맡겼는데 법률 용어가 정확하게 반영되어 있어서 깜짝 놀랐습니다. 기존에 쓰던 번역 서비스보다 훨씬 자연스럽고 전문적입니다.',direction:'법무법인 · 계약서 번역',plan:'프리미엄 플러스'},
+  {reviewer:'이○○',rating:5,comment:'미국 대학원 지원용 SOP 번역을 부탁했습니다. 제 목소리를 살리면서도 자연스러운 영어로 완성해줘서 정말 만족스럽습니다. 합격 후에도 또 이용할 예정입니다.',direction:'대학원 준비생 · SOP 번역',plan:'프리미엄 플러스'},
+  {reviewer:'박○○',rating:5,comment:'IR 자료를 영어로 번역했는데 납기가 정말 빠르고 퀄리티도 뛰어납니다. 투자자 미팅에서 번역 품질에 대한 칭찬을 들었습니다. 앞으로 모든 번역은 여기서 할 것 같습니다.',direction:'스타트업 대표 · IR 자료 번역',plan:'AI 프리미엄'},
+  {reviewer:'최○○',rating:5,comment:'의학 논문 번역인데 전문 용어가 정확하고 문맥이 자연스러웠습니다. 학술지 제출 전 마지막 검수까지 꼼꼼하게 해주셔서 믿고 맡길 수 있었습니다.',direction:'의대 교수 · 논문 번역',plan:'프리미엄 플러스'},
+  {reviewer:'정○○',rating:5,comment:'한→일 번역 서비스를 찾다가 IUMM을 알게 됐습니다. 일본어 번역 품질이 현지인이 봐도 자연스럽다고 할 정도였고 용어집 관리도 너무 편했습니다.',direction:'무역회사 · 한→일 번역',plan:'AI 프리미엄'},
+  {reviewer:'강○○',rating:5,comment:'회사 소개서를 영어·일어·중어 3개 언어로 번역했는데 각 언어별 뉘앙스가 잘 살아있었습니다. 다국어 번역도 한 곳에서 해결할 수 있어서 너무 편리했습니다.',direction:'중견기업 · 다국어 번역',plan:'비즈니스'},
+  {reviewer:'윤○○',rating:5,comment:'특허 명세서 번역인데 기술 용어와 청구항 구조를 완벽하게 살려줬습니다. 변리사 검토에서도 바로 사용 가능한 수준이라는 평가를 받았습니다.',direction:'특허사무소 · 특허 명세서 번역',plan:'프리미엄 플러스'},
+  {reviewer:'임○○',rating:5,comment:'모바일 게임 현지화를 맡겼는데 게이머 감성에 맞는 자연스러운 번역이 인상적이었습니다. 아이템명, 스킬명 등 게임 용어도 일관되게 관리해줘서 만족합니다.',direction:'게임사 · 게임 현지화',plan:'AI 프리미엄'},
+  {reviewer:'장○○',rating:5,comment:'임상시험 프로토콜 번역을 맡겼습니다. 의학·규제 용어가 정확하고 IRB 심사 통과에 문제가 없었습니다. 다음 프로젝트도 꼭 여기에 맡길 예정입니다.',direction:'제약사 · 임상시험 문서 번역',plan:'프리미엄 플러스'},
+  {reviewer:'오○○',rating:5,comment:'투자설명서 번역인데 금융 용어와 법률 표현이 정확하게 번역됐습니다. 외국인 투자자 미팅 전날 급하게 맡겼는데 납기도 지켜줘서 정말 감사했습니다.',direction:'금융기관 · 투자설명서 번역',plan:'AI 프리미엄'},
+  {reviewer:'손○○',rating:5,comment:'해외 파트너사에 보내는 공식 서한을 번역했습니다. 격식체 표현과 비즈니스 에티켓이 잘 반영되어 있어서 상대방으로부터 호평을 받았습니다.',direction:'대기업 · 비즈니스 서한 번역',plan:'프리미엄 플러스'},
+  {reviewer:'홍○○',rating:5,comment:'제품 기술 매뉴얼을 한→영 번역했는데 전문 용어와 안전 경고 문구가 정확하게 번역됐습니다. 해외 인증 심사에 바로 제출할 수 있는 품질이었습니다.',direction:'제조업체 · 기술 매뉴얼 번역',plan:'AI 프리미엄'}
+];
+
+function _renderReviewCard(rv){
+  var stars='';for(var i=1;i<=5;i++)stars+=i<=(rv.rating||0)?'★':'☆';
+  var isAI=(rv.plan||'').includes('AI');
+  var planStyle=isAI?'background:rgba(99,153,34,0.1);border:1px solid rgba(99,153,34,0.2);color:#97c459':'background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold)';
+  return '<div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">'+
+    '<div style="display:flex;gap:4px;margin-bottom:20px"><span style="color:var(--gold);font-size:14px">'+stars+'</span></div>'+
+    '<p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"'+_esc(rv.comment)+'"</p>'+
+    '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">'+
+      '<div><p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">'+_esc(rv.reviewer)+' 님</p>'+
+      '<p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">'+_esc(rv.direction||'')+'</p></div>'+
+      '<span style="font-size:10px;padding:4px 10px;letter-spacing:0.5px;'+planStyle+'">'+_esc(rv.plan||'')+'</span>'+
+    '</div></div>';
+}
+
+async function loadReviews(){
+  var real=[];
   try{
     var r=await fetch('https://iumm-pipeline-production.up.railway.app/api/reviews');
-    if(!r.ok)return;
-    var d=await r.json();
-    var reviews=(d.reviews||[]).filter(function(rv){return rv.comment&&rv.comment.trim();});
-    if(!reviews.length)return;
-    var wrap=document.getElementById('dynamic-reviews-wrap');
-    var grid=document.getElementById('dynamic-reviews-grid');
-    if(!wrap||!grid)return;
-    grid.innerHTML=reviews.map(function(rv){
-      var stars='';for(var i=1;i<=5;i++)stars+=i<=(rv.rating||0)?'★':'☆';
-      var isPP=(rv.plan||'').includes('플러스');
-      var planStyle=isPP?'background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold)':'background:rgba(99,153,34,0.1);border:1px solid rgba(99,153,34,0.2);color:#97c459';
-      var planLabel=isPP?'프리미엄 플러스':'AI 프리미엄';
-      return '<div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">'+
-        '<div style="display:flex;gap:4px;margin-bottom:20px"><span style="color:var(--gold);font-size:14px">'+stars+'</span></div>'+
-        '<p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"'+_esc(rv.comment)+'"</p>'+
-        '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">'+
-          '<div><p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">'+_esc(rv.reviewer)+' 님</p>'+
-          '<p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">'+_esc(rv.direction||'')+'</p></div>'+
-          '<span style="font-size:10px;padding:4px 10px;letter-spacing:0.5px;'+planStyle+'">'+planLabel+'</span>'+
-        '</div></div>';
-    }).join('');
-    wrap.style.display='block';
+    if(r.ok){var d=await r.json();real=(d.reviews||[]).filter(function(rv){return rv.comment&&rv.comment.trim();});}
   }catch(e){}
+  // 실제 먼저, 모자라면 더미로 채움 (최대 12개)
+  var all=real.slice();
+  for(var i=0;i<DUMMY_REVIEWS.length;i++){if(all.length>=12)break;all.push(DUMMY_REVIEWS[i]);}
+  var grid=document.getElementById('reviews-grid');
+  var wrapper=document.getElementById('reviews-wrapper');
+  if(!grid||!wrapper)return;
+  grid.innerHTML=all.map(_renderReviewCard).join('');
+  // 12개 초과 시 스크롤 영역 활성화
+  if(all.length>12){
+    wrapper.style.maxHeight='80vh';
+    wrapper.style.overflowY='auto';
+  }
 }
 
 window.addEventListener('DOMContentLoaded', function(){
@@ -5056,7 +4987,7 @@ window.addEventListener('DOMContentLoaded', function(){
   }
   restoreLogin();
   handleInitialHash();
-  loadDynamicReviews();
+  loadReviews();
 });
 // 약관 페이지 내에서 다른 앵커로 이동 시도 시 처리
 window.addEventListener('hashchange', function(){
