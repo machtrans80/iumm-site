@@ -4933,30 +4933,31 @@ function ocrBlockCopy(e) {
 function _esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 var DUMMY_REVIEWS=[
-  {reviewer:'김○○',rating:5,comment:'계약서 번역을 맡겼는데 법률 용어가 정확하게 반영되어 있어서 깜짝 놀랐습니다. 기존에 쓰던 번역 서비스보다 훨씬 자연스럽고 전문적입니다.',direction:'법무법인 · 계약서 번역',plan:'프리미엄 플러스'},
-  {reviewer:'이○○',rating:5,comment:'미국 대학원 지원용 SOP 번역을 부탁했습니다. 제 목소리를 살리면서도 자연스러운 영어로 완성해줘서 정말 만족스럽습니다. 합격 후에도 또 이용할 예정입니다.',direction:'대학원 준비생 · SOP 번역',plan:'프리미엄 플러스'},
-  {reviewer:'박○○',rating:5,comment:'IR 자료를 영어로 번역했는데 납기가 정말 빠르고 퀄리티도 뛰어납니다. 투자자 미팅에서 번역 품질에 대한 칭찬을 들었습니다. 앞으로 모든 번역은 여기서 할 것 같습니다.',direction:'스타트업 대표 · IR 자료 번역',plan:'AI 프리미엄'},
-  {reviewer:'최○○',rating:5,comment:'의학 논문 번역인데 전문 용어가 정확하고 문맥이 자연스러웠습니다. 학술지 제출 전 마지막 검수까지 꼼꼼하게 해주셔서 믿고 맡길 수 있었습니다.',direction:'의대 교수 · 논문 번역',plan:'프리미엄 플러스'},
-  {reviewer:'정○○',rating:5,comment:'한→일 번역 서비스를 찾다가 IUMM을 알게 됐습니다. 일본어 번역 품질이 현지인이 봐도 자연스럽다고 할 정도였고 용어집 관리도 너무 편했습니다.',direction:'무역회사 · 한→일 번역',plan:'AI 프리미엄'},
-  {reviewer:'강○○',rating:5,comment:'회사 소개서를 영어·일어·중어 3개 언어로 번역했는데 각 언어별 뉘앙스가 잘 살아있었습니다. 다국어 번역도 한 곳에서 해결할 수 있어서 너무 편리했습니다.',direction:'중견기업 · 다국어 번역',plan:'비즈니스'},
-  {reviewer:'윤○○',rating:5,comment:'특허 명세서 번역인데 기술 용어와 청구항 구조를 완벽하게 살려줬습니다. 변리사 검토에서도 바로 사용 가능한 수준이라는 평가를 받았습니다.',direction:'특허사무소 · 특허 명세서 번역',plan:'프리미엄 플러스'},
-  {reviewer:'임○○',rating:5,comment:'모바일 게임 현지화를 맡겼는데 게이머 감성에 맞는 자연스러운 번역이 인상적이었습니다. 아이템명, 스킬명 등 게임 용어도 일관되게 관리해줘서 만족합니다.',direction:'게임사 · 게임 현지화',plan:'AI 프리미엄'},
-  {reviewer:'장○○',rating:5,comment:'임상시험 프로토콜 번역을 맡겼습니다. 의학·규제 용어가 정확하고 IRB 심사 통과에 문제가 없었습니다. 다음 프로젝트도 꼭 여기에 맡길 예정입니다.',direction:'제약사 · 임상시험 문서 번역',plan:'프리미엄 플러스'},
-  {reviewer:'오○○',rating:5,comment:'투자설명서 번역인데 금융 용어와 법률 표현이 정확하게 번역됐습니다. 외국인 투자자 미팅 전날 급하게 맡겼는데 납기도 지켜줘서 정말 감사했습니다.',direction:'금융기관 · 투자설명서 번역',plan:'AI 프리미엄'},
-  {reviewer:'손○○',rating:5,comment:'해외 파트너사에 보내는 공식 서한을 번역했습니다. 격식체 표현과 비즈니스 에티켓이 잘 반영되어 있어서 상대방으로부터 호평을 받았습니다.',direction:'대기업 · 비즈니스 서한 번역',plan:'프리미엄 플러스'},
-  {reviewer:'홍○○',rating:5,comment:'제품 기술 매뉴얼을 한→영 번역했는데 전문 용어와 안전 경고 문구가 정확하게 번역됐습니다. 해외 인증 심사에 바로 제출할 수 있는 품질이었습니다.',direction:'제조업체 · 기술 매뉴얼 번역',plan:'AI 프리미엄'}
+  {reviewer:'김○○',rating:5,comment:'계약서 번역을 맡겼는데 법률 용어가 정확하게 반영되어 있어서 깜짝 놀랐습니다. 기존에 쓰던 번역 서비스보다 훨씬 자연스럽고 전문적입니다.',field:'법률·계약',direction:'한국어 → 영어',plan:'프리미엄 플러스'},
+  {reviewer:'이○○',rating:5,comment:'미국 대학원 지원용 SOP 번역을 부탁했습니다. 제 목소리를 살리면서도 자연스러운 영어로 완성해줘서 정말 만족스럽습니다. 합격 후에도 또 이용할 예정입니다.',field:'학술·논문',direction:'한국어 → 영어',plan:'프리미엄 플러스'},
+  {reviewer:'박○○',rating:5,comment:'IR 자료를 영어로 번역했는데 납기가 정말 빠르고 퀄리티도 뛰어납니다. 투자자 미팅에서 번역 품질에 대한 칭찬을 들었습니다. 앞으로 모든 번역은 여기서 할 것 같습니다.',field:'비즈니스',direction:'한국어 → 영어',plan:'AI 프리미엄'},
+  {reviewer:'최○○',rating:5,comment:'의학 논문 번역인데 전문 용어가 정확하고 문맥이 자연스러웠습니다. 학술지 제출 전 마지막 검수까지 꼼꼼하게 해주셔서 믿고 맡길 수 있었습니다.',field:'의료·제약',direction:'한국어 → 영어',plan:'프리미엄 플러스'},
+  {reviewer:'정○○',rating:5,comment:'한→일 번역 서비스를 찾다가 IUMM을 알게 됐습니다. 일본어 번역 품질이 현지인이 봐도 자연스럽다고 할 정도였고 용어집 관리도 너무 편했습니다.',field:'비즈니스',direction:'한국어 → 일본어',plan:'AI 프리미엄'},
+  {reviewer:'강○○',rating:5,comment:'회사 소개서를 영어·일어·중어 3개 언어로 번역했는데 각 언어별 뉘앙스가 잘 살아있었습니다. 다국어 번역도 한 곳에서 해결할 수 있어서 너무 편리했습니다.',field:'비즈니스',direction:'한국어 → 영어·일어·중어',plan:'비즈니스'},
+  {reviewer:'윤○○',rating:5,comment:'특허 명세서 번역인데 기술 용어와 청구항 구조를 완벽하게 살려줬습니다. 변리사 검토에서도 바로 사용 가능한 수준이라는 평가를 받았습니다.',field:'특허·지식재산',direction:'한국어 → 영어',plan:'프리미엄 플러스'},
+  {reviewer:'임○○',rating:5,comment:'모바일 게임 현지화를 맡겼는데 게이머 감성에 맞는 자연스러운 번역이 인상적이었습니다. 아이템명, 스킬명 등 게임 용어도 일관되게 관리해줘서 만족합니다.',field:'게임·엔터테인먼트',direction:'한국어 → 영어',plan:'AI 프리미엄'},
+  {reviewer:'장○○',rating:5,comment:'임상시험 프로토콜 번역을 맡겼습니다. 의학·규제 용어가 정확하고 IRB 심사 통과에 문제가 없었습니다. 다음 프로젝트도 꼭 여기에 맡길 예정입니다.',field:'의료·제약',direction:'한국어 → 영어',plan:'프리미엄 플러스'},
+  {reviewer:'오○○',rating:5,comment:'투자설명서 번역인데 금융 용어와 법률 표현이 정확하게 번역됐습니다. 외국인 투자자 미팅 전날 급하게 맡겼는데 납기도 지켜줘서 정말 감사했습니다.',field:'금융·재무',direction:'한국어 → 영어',plan:'AI 프리미엄'},
+  {reviewer:'손○○',rating:5,comment:'해외 파트너사에 보내는 공식 서한을 번역했습니다. 격식체 표현과 비즈니스 에티켓이 잘 반영되어 있어서 상대방으로부터 호평을 받았습니다.',field:'비즈니스',direction:'한국어 → 영어',plan:'프리미엄 플러스'},
+  {reviewer:'홍○○',rating:5,comment:'제품 기술 매뉴얼을 한→영 번역했는데 전문 용어와 안전 경고 문구가 정확하게 번역됐습니다. 해외 인증 심사에 바로 제출할 수 있는 품질이었습니다.',field:'기술·IT',direction:'한국어 → 영어',plan:'AI 프리미엄'}
 ];
 
 function _renderReviewCard(rv){
   var stars='';for(var i=1;i<=5;i++)stars+=i<=(rv.rating||0)?'★':'☆';
   var isAI=(rv.plan||'').includes('AI');
   var planStyle=isAI?'background:rgba(99,153,34,0.1);border:1px solid rgba(99,153,34,0.2);color:#97c459':'background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--gold)';
+  var subline=rv.field&&rv.direction?_esc(rv.field)+' · '+_esc(rv.direction):_esc(rv.field||rv.direction||'');
   return '<div style="padding:36px 32px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">'+
     '<div style="display:flex;gap:4px;margin-bottom:20px"><span style="color:var(--gold);font-size:14px">'+stars+'</span></div>'+
     '<p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.9;font-weight:300;margin-bottom:24px;word-break:keep-all">"'+_esc(rv.comment)+'"</p>'+
     '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;justify-content:space-between;align-items:center">'+
       '<div><p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8)">'+_esc(rv.reviewer)+' 님</p>'+
-      '<p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">'+_esc(rv.direction||'')+'</p></div>'+
+      '<p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px">'+subline+'</p></div>'+
       '<span style="font-size:10px;padding:4px 10px;letter-spacing:0.5px;'+planStyle+'">'+_esc(rv.plan||'')+'</span>'+
     '</div></div>';
 }
