@@ -458,9 +458,10 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
     <!-- ── 미배정 탭 콘텐츠 ── -->
     <div id="unassigned-wrap" style="display:none;padding:4px 0 32px">
       <div style="margin-bottom:16px;padding:12px 16px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
-        ⚠️ <strong style="color:#ef4444">배정 실패 / 미배정</strong> — 가용 검수자가 없거나 배정이 완료되지 않은 프리미엄 플러스 주문입니다. 검수자를 선택하여 수동 배정하세요.
+        ⚠️ <strong style="color:#ef4444">수동 배정 필요</strong> — 미배정(경로1 실패) / 맡기기(경로2) / 후보선정중 주문입니다.<br>
+        단일 배정: 검수자 1명 선택 → [배정하기] / 동시발송: 복수 체크 → [동시 발송] → 수락한 사람 중 [최종 선택]
       </div>
-      <div id="unassigned-list" style="display:flex;flex-direction:column;gap:12px">
+      <div id="unassigned-list" style="display:flex;flex-direction:column;gap:16px">
         <div style="color:rgba(255,255,255,0.4);text-align:center;padding:32px">로딩 중…</div>
       </div>
     </div>
@@ -1755,6 +1756,8 @@ function populateAiScoreSection(order) {
 // ── 미배정 탭 기능 ─────────────────────────────────────
 // ════════════════════════════════════════════════════════
 
+var _unassignedReviewers = []; // 검수자 목록 캐시
+
 async function loadUnassigned() {
   var listEl = document.getElementById('unassigned-list');
   listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:32px">로딩 중…</div>';
@@ -1765,42 +1768,146 @@ async function loadUnassigned() {
       adminFetch('/api/admin/reviewers/available'),
     ]);
     var orders = ordersRes.orders || [];
-    var reviewers = rvRes.reviewers || [];
+    _unassignedReviewers = rvRes.reviewers || [];
 
     if (!orders.length) {
-      listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:48px;border:1px solid rgba(255,255,255,0.06);border-radius:4px">✅ 미배정 주문 없음</div>';
+      listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:48px;border:1px solid rgba(255,255,255,0.06);border-radius:4px">✅ 수동 배정 필요 주문 없음</div>';
       return;
     }
 
-    var rvOptions = reviewers.length
-      ? reviewers.map(function(r) {
-          return '<option value="' + r.id + '">' + r.name + ' (' + (r.grade || '일반') + ')</option>';
-        }).join('')
-      : '<option value="" disabled>가용 검수자 없음</option>';
-
     listEl.innerHTML = orders.map(function(o) {
-      return '<div style="padding:16px 20px;border:1px solid rgba(239,68,68,0.25);border-radius:6px;background:rgba(239,68,68,0.04)">' +
-        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
-          '<div style="flex:1;min-width:200px">' +
-            '<div style="font-size:13px;font-weight:600;color:var(--white)">' + (o.orderNumber || o.orderId.slice(0,12)) + '</div>' +
-            '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">' +
-              (o.customerEmail || '이메일 없음') + ' · ' + (o.charCount || 0).toLocaleString() + '자' +
-              ' · ' + (o.direction || '') +
-            '</div>' +
-          '</div>' +
-          '<select id="rv-select-' + o.orderId + '" style="padding:8px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:var(--white);font-size:13px;font-family:inherit;min-width:180px">' +
-            '<option value="">검수자 선택…</option>' + rvOptions +
-          '</select>' +
-          '<button onclick="assignReviewerManual(\'' + o.orderId + '\')" ' +
-            'style="padding:8px 18px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">' +
-            '배정하기' +
-          '</button>' +
-        '</div>' +
-      '</div>';
+      return renderUnassignedOrder(o);
     }).join('');
 
   } catch(e) {
     listEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:32px">⚠️ ' + e.message + '</div>';
+  }
+}
+
+function renderUnassignedOrder(o) {
+  var isBroadcast = o.status === '후보선정중';
+  var isManual    = o.status === '미배정' || (o.status === '관리자대기' && o.assignMode === '맡기기');
+  var borderColor = isBroadcast ? 'rgba(201,168,76,0.3)' : 'rgba(239,68,68,0.25)';
+  var bgColor     = isBroadcast ? 'rgba(201,168,76,0.04)' : 'rgba(239,68,68,0.04)';
+  var statusBadge = isBroadcast
+    ? '<span style="font-size:10px;background:rgba(201,168,76,0.15);color:var(--gold);padding:2px 8px;border-radius:3px;margin-left:8px">후보선정중</span>'
+    : o.assignMode === '맡기기'
+      ? '<span style="font-size:10px;background:rgba(100,160,255,0.15);color:#64a0ff;padding:2px 8px;border-radius:3px;margin-left:8px">맡기기</span>'
+      : '<span style="font-size:10px;background:rgba(239,68,68,0.15);color:#ef4444;padding:2px 8px;border-radius:3px;margin-left:8px">미배정</span>';
+
+  var rvCheckboxes = _unassignedReviewers.map(function(r) {
+    var dim = r.available === false ? 'opacity:0.4;' : '';
+    var disabled = r.available === false ? 'disabled' : '';
+    var expTag = r.grade ? ' <span style="font-size:9px;color:var(--gold)">[' + r.grade + ']</span>' : '';
+    return '<label style="display:flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;' + dim + 'font-size:12px">' +
+      '<input type="checkbox" class="rv-chk-' + o.orderId + '" value="' + r.id + '" ' + disabled + ' style="accent-color:var(--gold)">' +
+      r.name + expTag +
+      '</label>';
+  }).join('');
+
+  var rvSingleOptions = '<option value="">검수자 선택…</option>' + _unassignedReviewers.map(function(r) {
+    return '<option value="' + r.id + '">' + r.name + (r.grade ? ' [' + r.grade + ']' : '') + '</option>';
+  }).join('');
+
+  // 후보선정중이면 수락 현황 표시
+  var offerSection = '';
+  if (isBroadcast) {
+    var accepted = o.acceptedIds || [];
+    var candidates = o.candidateIds || [];
+    offerSection =
+      '<div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px">' +
+        '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px">후보 ' + candidates.length + '명 발송 · 수락 ' + accepted.length + '명</div>' +
+        '<div id="offer-status-' + o.orderId + '" style="display:flex;flex-wrap:wrap;gap:6px">' +
+          (candidates.length
+            ? candidates.map(function(cid) {
+                var isAccepted = accepted.includes(cid);
+                return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid ' + (isAccepted ? 'rgba(151,196,89,0.4)' : 'rgba(255,255,255,0.1)') + ';border-radius:3px;font-size:11px">' +
+                  '<span>' + cid.slice(-6) + '</span>' +
+                  (isAccepted ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + o.orderId + '\',\'' + cid + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">최종선택</button>' : '<span style="color:rgba(255,255,255,0.3)">대기중</span>') +
+                  '</div>';
+              }).join('')
+            : '<span style="color:rgba(255,255,255,0.3);font-size:11px">후보 없음</span>') +
+        '</div>' +
+        '<div style="margin-top:8px;display:flex;gap:8px">' +
+          '<button onclick="refreshOffers(\'' + o.orderId + '\')" style="padding:5px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:11px;cursor:pointer">🔄 수락현황 갱신</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  return '<div style="padding:16px 20px;border:1px solid ' + borderColor + ';border-radius:6px;background:' + bgColor + '">' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">' +
+      '<div style="font-size:13px;font-weight:600;color:var(--white)">' + (o.orderNumber || o.orderId.slice(0,12)) + '</div>' +
+      statusBadge +
+      '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-left:auto">' + (o.customerEmail || '') + ' · ' + (o.charCount || 0).toLocaleString() + '자 · ' + (o.direction || '') + '</div>' +
+    '</div>' +
+    // 단일배정 행
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
+      '<select id="rv-select-' + o.orderId + '" style="flex:1;min-width:160px;padding:7px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:var(--white);font-size:12px;font-family:inherit">' +
+        rvSingleOptions +
+      '</select>' +
+      '<button onclick="assignReviewerManual(\'' + o.orderId + '\')" style="padding:7px 14px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">단일 배정</button>' +
+    '</div>' +
+    // 동시발송 체크박스
+    '<details style="margin-bottom:6px">' +
+      '<summary style="font-size:11px;color:rgba(255,255,255,0.5);cursor:pointer;user-select:none;margin-bottom:8px">▸ 동시발송 (복수 선택)</summary>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">' + rvCheckboxes + '</div>' +
+      '<button onclick="broadcastOrder(\'' + o.orderId + '\')" style="padding:6px 16px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);border-radius:4px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer">📢 동시 발송</button>' +
+    '</details>' +
+    offerSection +
+  '</div>';
+}
+
+async function refreshOffers(orderId) {
+  try {
+    var res = await adminFetch('/api/admin/orders/' + orderId + '/offers');
+    if (!res.ok) throw new Error(res.error || '조회 실패');
+    var accepted   = res.candidates.filter(function(c) { return c.accepted; });
+    var statusEl   = document.getElementById('offer-status-' + orderId);
+    if (!statusEl) return;
+    statusEl.innerHTML = res.candidates.map(function(c) {
+      return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid ' + (c.accepted ? 'rgba(151,196,89,0.4)' : 'rgba(255,255,255,0.1)') + ';border-radius:3px;font-size:11px">' +
+        '<span>' + (c.name || c.id.slice(-6)) + '</span>' +
+        (c.accepted
+          ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + orderId + '\',\'' + c.id + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">최종선택</button>'
+          : '<span style="color:rgba(255,255,255,0.3)">대기중</span>') +
+        '</div>';
+    }).join('');
+    showToast('수락현황 갱신: ' + accepted.length + '명 수락', 'success');
+  } catch(e) {
+    showToast('⚠️ ' + e.message, 'error');
+  }
+}
+
+async function broadcastOrder(orderId) {
+  var checkboxes = document.querySelectorAll('.rv-chk-' + orderId + ':checked');
+  var ids = Array.from(checkboxes).map(function(c) { return c.value; });
+  if (!ids.length) { showToast('⚠️ 검수자를 1명 이상 선택하세요', 'error'); return; }
+  if (!confirm('선택한 ' + ids.length + '명에게 후보 요청 카톡을 발송하시겠습니까?')) return;
+  try {
+    var res = await adminFetch('/api/admin/orders/' + orderId + '/broadcast', {
+      method: 'POST',
+      body: JSON.stringify({ reviewerIds: ids }),
+    });
+    if (!res.ok) throw new Error(res.error || '발송 실패');
+    showToast('✅ ' + res.sent + '명 발송 완료 (실패: ' + (res.failed || 0) + ')', 'success');
+    loadUnassigned();
+  } catch(e) {
+    showToast('⚠️ ' + e.message, 'error');
+  }
+}
+
+async function finalizeReviewer(orderId, reviewerId) {
+  if (!confirm('이 검수자를 최종 확정하시겠습니까? 나머지 수락자에게 취소 카톡이 발송됩니다.')) return;
+  try {
+    var res = await adminFetch('/api/admin/orders/' + orderId + '/finalize-reviewer', {
+      method: 'POST',
+      body: JSON.stringify({ reviewerId: reviewerId }),
+    });
+    if (!res.ok) throw new Error(res.error || '확정 실패');
+    showToast('✅ ' + (res.reviewerName || '검수자') + ' 최종 확정 완료 · 탈락 ' + (res.loserCount || 0) + '명 취소 카톡', 'success');
+    loadUnassigned();
+  } catch(e) {
+    showToast('⚠️ ' + e.message, 'error');
   }
 }
 

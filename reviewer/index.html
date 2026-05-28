@@ -630,16 +630,28 @@ function renderPending(jobs) {
 
   el.innerHTML = jobs.map(function(j) {
     var cdId = 'cd-' + j.orderId;
+    var isOffer = j.offerType === true;
+    // 후보 요청(경로2): 관심 수락 버튼만, 거절/카운트다운 없음
+    var actionsHtml = isOffer
+      ? '<button class="btn-detail" onclick="onDetail(\'' + j.orderId + '\')">상세 보기</button>' +
+        '<button class="btn-accept" onclick="onOfferAccept(\'' + j.orderId + '\')" style="background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);color:var(--gold)">관심있어요 ✋</button>'
+      : '<button class="btn-detail" onclick="onDetail(\'' + j.orderId + '\')">상세 보기</button>' +
+        '<button class="btn-accept" onclick="onAccept(\'' + j.orderId + '\')">✅ 수락</button>' +
+        '<button class="btn-reject" onclick="onReject(\'' + j.orderId + '\')">❌ 거절</button>';
+    var offerBadge = isOffer
+      ? '<span style="font-size:9px;background:rgba(201,168,76,0.15);color:var(--gold);padding:1px 6px;border-radius:2px;margin-left:6px">후보 요청</span>'
+      : '';
     return [
       '<div class="pending-card" id="job-' + j.orderId + '">',
       '  <div class="pcard-top">',
       '    <div class="pcard-meta">',
-      '      <span class="pcard-num">' + (j.orderNumber || j.orderId) + '</span>',
+      '      <span class="pcard-num">' + (j.orderNumber || j.orderId) + '</span>' + offerBadge,
       '      <span class="pcard-field">' + (j.fieldName || j.fieldCode || '—') + '</span>',
       '    </div>',
       '    <div>',
-      '      <div class="countdown" id="' + cdId + '">--:--</div>',
-      '      <div class="countdown-label">수락 마감</div>',
+      isOffer
+        ? '      <div class="countdown" style="color:rgba(255,255,255,0.3)">관리자대기</div><div class="countdown-label">최종선택 후 확정</div>'
+        : '      <div class="countdown" id="' + cdId + '">--:--</div><div class="countdown-label">수락 마감</div>',
       '    </div>',
       '  </div>',
       '  <div class="pcard-info">',
@@ -648,18 +660,14 @@ function renderPending(jobs) {
       '    <span>검수료: <strong>' + won(j.reviewFee) + '</strong></span>',
       '    <span>마감: <strong>' + remainHours(j.translationDeadline) + '</strong></span>',
       '  </div>',
-      '  <div class="pcard-actions">',
-      '    <button class="btn-detail" onclick="onDetail(\'' + j.orderId + '\')">상세 보기</button>',
-      '    <button class="btn-accept" onclick="onAccept(\'' + j.orderId + '\')">✅ 수락</button>',
-      '    <button class="btn-reject" onclick="onReject(\'' + j.orderId + '\')">❌ 거절</button>',
-      '  </div>',
+      '  <div class="pcard-actions">' + actionsHtml + '</div>',
       '</div>',
     ].join('');
   }).join('');
 
-  // 카운트다운 시작
+  // 카운트다운 (일반 배정만)
   jobs.forEach(function(j) {
-    if (j.responseDeadline) startCountdown(j.orderId, j.responseDeadline, 'cd-' + j.orderId);
+    if (!j.offerType && j.responseDeadline) startCountdown(j.orderId, j.responseDeadline, 'cd-' + j.orderId);
   });
 }
 
@@ -838,6 +846,19 @@ function onReject(id) {
     '❌ 거절하기', true,
     function() { doReject(id); }
   );
+}
+
+// ─── 후보 요청 수락 (경로2 동시발송) ───────────────────────────
+async function onOfferAccept(id) {
+  try {
+    var res = await authFetch('/api/reviewer/orders/' + id + '/offer-accept', { method: 'POST' });
+    if (res.success) {
+      showToast('관심 등록 완료! 관리자 최종 선택 후 확정됩니다.', 'success');
+      refreshPending();
+    } else {
+      showToast('⚠️ ' + (res.error || '오류'), 'error');
+    }
+  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
 }
 
 function onWork(id) {

@@ -2619,7 +2619,10 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
       <!-- 검수자 선택 (프리미엄 플러스만) -->
       <div style="margin-bottom:18px" id="reviewer-row">
         <label class="lbl">전문 번역 검수자 선택</label>
-        <button onclick="showReviewerPanel()" style="width:100%;padding:11px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.7);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:left" id="reviewer-btn">검수자 선택하기 →</button>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
+          <button onclick="showReviewerPanel()" style="padding:11px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.7);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:left" id="reviewer-btn">검수자 선택하기 →</button>
+          <button onclick="selectOrderMode('맡기기')" id="btn-맡기기" style="padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.5);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap">IUMM에 맡기기</button>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px">
         <div>
@@ -3165,6 +3168,7 @@ var currentUserName='';
 var selectedReviewerName='';
 var selectedReviewerId='';
 var selectedReviewerIsExpert=false;
+var selectedOrderMode=''; // '': 자동/직접선택(경로1), '맡기기': 경로2
 
 // ─── PG 심사용 미리보기 모드 (localStorage + 30일 만료) ─────
 // URL: https://iumm.kr?preview=IUMM_PREVIEW_2026
@@ -3698,6 +3702,9 @@ function clearEstimate(){
   selectedReviewerName='';
   selectedReviewerId='';
   selectedReviewerIsExpert=false;
+  selectedOrderMode='';
+  var btnM=document.getElementById('btn-맡기기');
+  if(btnM){btnM.style.background='rgba(255,255,255,0.04)';btnM.style.borderColor='rgba(255,255,255,0.1)';btnM.style.color='rgba(255,255,255,0.5)';}
   // 모든 할인 행 숨기기
   var discRow=document.getElementById('discount-row');
   if(discRow) discRow.style.display='none';
@@ -4106,7 +4113,24 @@ function handleFileDrop(e){
   }catch(err){}
 }
 function showReviewerPanel(){document.getElementById('reviewer-panel').style.display='block';loadReviewers(function(){filterReviewers(currentExpertFilter||'전체');});}
+function selectOrderMode(mode){
+  selectedOrderMode=mode;
+  selectedReviewerName='';
+  selectedReviewerId='';
+  selectedReviewerIsExpert=false;
+  var btn=document.getElementById('reviewer-btn');
+  var btnM=document.getElementById('btn-맡기기');
+  if(btn) btn.textContent='검수자 선택하기 →';
+  if(btnM){
+    btnM.style.background=mode==='맡기기'?'rgba(201,168,76,0.15)':'rgba(255,255,255,0.04)';
+    btnM.style.borderColor=mode==='맡기기'?'rgba(201,168,76,0.5)':'rgba(255,255,255,0.1)';
+    btnM.style.color=mode==='맡기기'?'var(--gold)':'rgba(255,255,255,0.5)';
+  }
+}
 function selectReviewer(el,name,id){
+  selectedOrderMode='';
+  var btnM=document.getElementById('btn-맡기기');
+  if(btnM){btnM.style.background='rgba(255,255,255,0.04)';btnM.style.borderColor='rgba(255,255,255,0.1)';btnM.style.color='rgba(255,255,255,0.5)';}
   document.getElementById('reviewer-btn').textContent='✓ '+name+' 선택됨';
   document.getElementById('reviewer-panel').style.display='none';
   var isExp=el&&el.getAttribute('data-expert')==='true';
@@ -4707,7 +4731,8 @@ async function completePayment(){
     파일첨부: fileName,
     고객요청용어집: glossaryText||'없음',
     고객선택검수자ID: selectedReviewerId||'',
-    고객선택검수자명: selectedReviewerName||''
+    고객선택검수자명: selectedReviewerName||'',
+    배정방식: selectedOrderMode||''
   };
   fetch(webhookUrl,{
     method:'POST',
@@ -4802,7 +4827,8 @@ function confirmBankTransfer(){
     파일첨부: fileName,
     고객요청용어집: glossaryText||'없음',
     고객선택검수자ID: selectedReviewerId||'',
-    고객선택검수자명: selectedReviewerName||''
+    고객선택검수자명: selectedReviewerName||'',
+    배정방식: selectedOrderMode||''
   };
   fetch(webhookUrl,{
     method:'POST',
