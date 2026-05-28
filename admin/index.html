@@ -427,6 +427,22 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
           </div>
         </div>
 
+        <div class="bp-row">
+          <div class="bp-col" style="max-width:340px">
+            <label class="bp-label">플랜 선택</label>
+            <select id="bp-plan" class="bp-inp" onchange="bpPlanChanged()" style="margin:0">
+              <option value="ai_premium">AI 프리미엄 (기본 — 관리자 검토)</option>
+              <option value="premium_plus">프리미엄 플러스 (전문 검수자 자동 배정)</option>
+            </select>
+          </div>
+          <div class="bp-col" style="align-self:flex-end">
+            <div id="bp-plan-hint" style="display:none;padding:8px 12px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.25);border-radius:6px;font-size:12px;color:var(--gold);line-height:1.5">
+              ⚠️ 프리미엄 플러스: AI 번역 완료 후 승인된 검수자에게 자동 배정됩니다.<br>
+              배정 가능 검수자가 없으면 미배정 처리됩니다.
+            </div>
+          </div>
+        </div>
+
         <button class="btn-bp-submit" id="btn-bp-submit" onclick="submitBypassOrder()">🔐 우회 주문 시작 (결제 없이 파이프라인 실행)</button>
 
         <!-- 결과 -->
@@ -1719,6 +1735,11 @@ function populateAiScoreSection(order) {
   }
 }
 
+function bpPlanChanged() {
+  var plan = document.getElementById('bp-plan').value;
+  document.getElementById('bp-plan-hint').style.display = plan === 'premium_plus' ? 'block' : 'none';
+}
+
 async function submitBypassOrder() {
   var text = (document.getElementById('bp-text').value || '').trim();
   var direction = document.getElementById('bp-direction').value;
@@ -1726,6 +1747,8 @@ async function submitBypassOrder() {
   var fieldCode = fieldEl.value;
   var email = (document.getElementById('bp-email').value || '').trim();
   var notes = (document.getElementById('bp-notes').value || '').trim();
+  var plan = document.getElementById('bp-plan').value || 'ai_premium';
+  var isPP = plan === 'premium_plus';
 
   if (!text) { showToast('⚠️ 원문 텍스트를 입력하세요', 'error'); return; }
   if (!direction) { showToast('⚠️ 번역 방향을 선택하세요', 'error'); return; }
@@ -1746,6 +1769,7 @@ async function submitBypassOrder() {
       paymentAmount: 0,
       paymentMethod: '관리자처리',
       notes: notes || '관리자 우회 주문',
+      plan: plan,
     };
     if (email) payload.customerEmail = email;
 
@@ -1761,12 +1785,15 @@ async function submitBypassOrder() {
     if (!res.ok || (!data.ok && !data.success)) throw new Error(data.error || '요청 실패 (' + res.status + ')');
 
     var orderNum = data.orderNumber || data.order_number || '생성됨';
+    var planLabel = isPP ? '프리미엄 플러스 (검수자 자동 배정)' : 'AI 프리미엄';
     document.getElementById('bp-result-order').textContent = '✅ ' + orderNum;
     document.getElementById('bp-result-info').textContent =
       '방향: ' + direction + ' · 분야: ' + (fieldEl.options[fieldEl.selectedIndex].text) +
-      ' · ' + text.length.toLocaleString() + '자 · 파이프라인 실행 중 (5~7분)';
+      ' · 플랜: ' + planLabel +
+      ' · ' + text.length.toLocaleString() + '자 · 파이프라인 실행 중 (5~7분)' +
+      (isPP ? ' · AI 완료 후 검수자 배정됩니다' : '');
     resultDiv.style.display = 'block';
-    showToast('✅ 우회 주문 생성: ' + orderNum, 'success');
+    showToast('✅ 우회 주문 생성: ' + orderNum + ' (' + planLabel + ')', 'success');
 
     // 폼 초기화 (텍스트만 유지)
     document.getElementById('bp-notes').value = '';
