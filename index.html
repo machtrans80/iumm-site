@@ -3163,6 +3163,7 @@ var currentUser='';
 var currentUserKakaoId=null;
 var currentUserName='';
 var selectedReviewerName='';
+var selectedReviewerId='';
 var selectedReviewerIsExpert=false;
 
 // ─── PG 심사용 미리보기 모드 (localStorage + 30일 만료) ─────
@@ -3239,27 +3240,34 @@ function markFreeTrialUsed(kakaoId){
 }
 
 // 전문가 데이터 (Airtable 연동 후 자동 교체)
-var expertsData=[
-  {name:'김민준',specialty:'법률·계약',langs:['영어'],cert:'법무사',licenseLabel:'국내 법무사',specialty2:'기업법무·계약서',edu:'서울대 법학과',count:'1,240건',career:'12년',msg:'법률 용어의 정확한 뉘앙스를 살리는 번역을 추구합니다',isExpert:true},
-  {name:'이서연',specialty:'의료·제약',langs:['영어','일본어'],cert:'의사',licenseLabel:'내과 전문의',specialty2:'내과·임상의학',edu:'연세대 의학과',count:'876건',career:'9년',msg:'의학 전문 용어와 자연스러운 표현의 조화를 중시합니다',isExpert:true},
-  {name:'박준혁',specialty:'특허·지식재산',langs:['영어'],cert:'변리사',licenseLabel:'국내 변리사',specialty2:'기계·전기·화학 특허',edu:'서울대 공학과',count:'723건',career:'10년',msg:'특허 명세서의 기술적 정확성을 최우선으로 합니다',isExpert:true},
-  {name:'최수정',specialty:'세무·회계',langs:['영어','중국어'],cert:'세무사',licenseLabel:'국내 세무사',specialty2:'국제조세·이전가격',edu:'고려대 경영학과',count:'512건',career:'8년',msg:'세무·회계 용어의 정확한 번역으로 신뢰를 드립니다',isExpert:true},
-  {name:'한지원',specialty:'의료·성형',langs:['영어','일본어','중국어'],cert:'의사',licenseLabel:'성형외과 전문의',specialty2:'성형외과 전문의',edu:'성균관대 의학과',count:'634건',career:'11년',msg:'성형·미용 의학 분야의 전문 번역을 제공합니다',isExpert:true},
-  {name:'오병철',specialty:'노동·인사',langs:['영어'],cert:'노무사',licenseLabel:'국내 공인노무사',specialty2:'노동법·단체협약',edu:'한양대 법학과',count:'398건',career:'7년',msg:'노동 관련 법령과 협약의 정확한 번역을 추구합니다',isExpert:true},
-  {name:'강민아',specialty:'세무·회계',langs:['영어'],cert:'공인회계사',licenseLabel:'국내 공인회계사',specialty2:'감사·재무제표',edu:'서강대 경영학과',count:'445건',career:'9년',msg:'회계·재무 문서의 국제 기준에 맞는 번역을 합니다',isExpert:true},
-  {name:'윤태준',specialty:'관세·무역',langs:['영어','중국어'],cert:'관세사',licenseLabel:'국내 관세사',specialty2:'수출입·통관',edu:'인천대 무역학과',count:'387건',career:'8년',msg:'관세·무역 실무에 기반한 정확한 번역을 제공합니다',isExpert:true},
-  {name:'임수현',specialty:'한의학·의료',langs:['영어','중국어'],cert:'한의사',licenseLabel:'국내 한의사',specialty2:'한의학·동양의학',edu:'경희대 한의학과',count:'298건',career:'7년',msg:'한의학 고유 용어를 정확히 전달하는 번역을 합니다',isExpert:true},
-  {name:'정혜원',specialty:'법률·소송',langs:['영어'],cert:'변호사',licenseLabel:'국내 변호사 (민사)',specialty2:'민사소송·국제계약',edu:'고려대 법학과',count:'891건',career:'13년',msg:'법률 문서의 한 글자도 소홀히 하지 않습니다',isExpert:true},
-  {name:'박지호',specialty:'기술·IT',langs:['영어'],cert:'정보처리기사·번역사 2급',edu:'KAIST 전산학과',count:'654건',career:'8년',msg:'기술 문서의 정확성과 가독성을 동시에 확보합니다'},
-  {name:'최유나',specialty:'비즈니스·마케팅',langs:['영어','중국어'],cert:'번역사 1급',edu:'이화여대 영문학과',count:'543건',career:'7년',msg:'글로벌 마케팅 감각으로 브랜드 메시지를 전달합니다'},
-  {name:'정승호',specialty:'금융·투자',langs:['영어'],cert:'CFA·번역사 1급',edu:'연세대 경제학과',count:'421건',career:'6년',msg:'금융 시장의 전문 용어를 명확하게 번역합니다'},
-  {name:'김하은',specialty:'학술·논문',langs:['영어','독일어'],cert:'번역학 박사',edu:'서울대 독문학과',count:'389건',career:'11년',msg:'학술 논문의 논리적 구조를 살리는 번역을 합니다'},
-  {name:'이준혁',specialty:'기술·제조',langs:['일본어'],cert:'JLPT N1·번역사 1급',edu:'도쿄대 공학부',count:'567건',career:'9년',msg:'일본 기술 문서의 섬세한 표현을 정확히 전달합니다'},
-  {name:'송미래',specialty:'방송·엔터',langs:['영어','일본어'],cert:'JLPT N1·번역사 1급',edu:'한국외대 일본어과',count:'478건',career:'6년',msg:'방송·영상 콘텐츠의 감성을 살리는 번역을 합니다'},
-  {name:'박성민',specialty:'중국어·비즈니스',langs:['중국어'],cert:'HSK 6급·번역사 1급',edu:'북경대 한국학과',count:'612건',career:'10년',msg:'중국 비즈니스 문화에 최적화된 번역을 제공합니다'},
-  {name:'김태양',specialty:'스페인어·중남미',langs:['스페인어'],cert:'DELE C2·번역사',edu:'한국외대 스페인어과',count:'234건',career:'5년',msg:'중남미 시장 진출을 위한 현지화 번역을 합니다'},
-  {name:'오하늘',specialty:'아랍어·중동',langs:['아랍어'],cert:'아랍어 번역사',edu:'한국외대 아랍어과',count:'187건',career:'6년',msg:'중동 문화와 언어의 미묘한 차이를 정확히 전달합니다'},
-];
+var expertsData=[];
+var _reviewersLoaded=false;
+// 검수자 목록 실DB 로드 (패널 오픈 시 1회 실행)
+function loadReviewers(cb){
+  if(_reviewersLoaded){if(cb)cb();return;}
+  fetch('https://iumm-pipeline-production.up.railway.app/api/reviewers/available')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.success||!d.reviewers) return;
+      _reviewersLoaded=true;
+      expertsData=d.reviewers.map(function(r){
+        return {
+          id:         r.id,
+          name:       r.name,
+          specialty:  Array.isArray(r.specialty)?r.specialty.join('·'):'',
+          langs:      r.langs||[],
+          cert:       r.cert||'',
+          msg:        r.msg||'',
+          count:      typeof r.count==='number'?r.count.toLocaleString('ko-KR')+'건':String(r.count||'-')+'건',
+          career:     r.career||'-',
+          isExpert:   r.isExpert||false,
+          available:  r.available!==false,
+        };
+      });
+      if(cb)cb();
+    })
+    .catch(function(e){console.warn('[reviewers] 로드 실패:', e);if(cb)cb();});
+}
 
 var currentExpertFilter='전체';
 var showAllExperts=false;
@@ -3275,7 +3283,11 @@ function renderExpertCard(e,isReviewer){
   if(isReviewer){
     var favIcon=favorites.findIndex(function(f){return f.name===e.name;})>-1?'♥':'♡';
     var favColor=favorites.findIndex(function(f){return f.name===e.name;})>-1?'#e05555':'rgba(255,255,255,0.35)';
-    return '<div onclick="selectReviewer(this,\''+e.name+'\')" data-langs="'+e.langs.join(',')+'" data-expert="'+(e.isExpert?'true':'false')+'" style="padding:16px 20px;border:1px solid '+(e.isExpert?'rgba(201,168,76,0.25)':'rgba(255,255,255,0.07)')+';cursor:pointer;transition:all 0.2s;position:relative;background:'+(e.isExpert?'rgba(201,168,76,0.03)':'transparent')+'" onmouseover="this.style.borderColor=\'rgba(201,168,76,0.5)\'" onmouseout="if(!this.classList.contains(\'selected\'))this.style.borderColor=\''+(e.isExpert?'rgba(201,168,76,0.25)':'rgba(255,255,255,0.07)')+'\'">'+
+    var isUnavailable=e.available===false;
+    var cardClick=isUnavailable?'':'onclick="selectReviewer(this,\''+e.name+'\',\''+(e.id||'')+'\')\"';
+    var cardOpacity=isUnavailable?'opacity:0.4;cursor:not-allowed;':'cursor:pointer;';
+    var unavailableBadge=isUnavailable?'<span style="font-size:9px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:2px 7px;border-radius:2px;margin-left:6px">현재 불가</span>':'';
+    return '<div '+cardClick+' data-langs="'+e.langs.join(',')+'" data-expert="'+(e.isExpert?'true':'false')+'" style="padding:16px 20px;border:1px solid '+(e.isExpert?'rgba(201,168,76,0.25)':'rgba(255,255,255,0.07)')+';'+cardOpacity+'transition:all 0.2s;position:relative;background:'+(e.isExpert?'rgba(201,168,76,0.03)':'transparent')+'" '+(isUnavailable?'':' onmouseover="this.style.borderColor=\'rgba(201,168,76,0.5)\'" onmouseout="if(!this.classList.contains(\'selected\'))this.style.borderColor=\''+(e.isExpert?'rgba(201,168,76,0.25)':'rgba(255,255,255,0.07)')+'\'')+'">'+unavailableBadge+'+
       '<button onclick="event.stopPropagation();toggleFavorite(this,\''+e.name+'\',\''+e.specialty+'\')" id="fav-'+e.name+'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;color:'+favColor+';transition:all 0.2s">'+favIcon+'</button>'+
       '<div style="margin-bottom:8px">'+
       '<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px"><p style="font-size:14px;font-weight:600">'+e.name+'</p>'+expertBadge+'</div>'+
@@ -3343,7 +3355,7 @@ function filterReviewers(lang){
 }
 function showReviewerPanel(){
   document.getElementById('reviewer-panel').style.display='block';
-  filterReviewers('전체');
+  loadReviewers(function(){filterReviewers('전체');});
 }
 function handleFreeTrial(){
   if(!isLoggedIn){showPage('signup');return;}
@@ -3684,6 +3696,7 @@ function clearEstimate(){
   document.getElementById('reviewer-btn').textContent='검수자 선택하기 →';
   // 검수자 선택 정보도 초기화 (플랜 전환 시 필수)
   selectedReviewerName='';
+  selectedReviewerId='';
   selectedReviewerIsExpert=false;
   // 모든 할인 행 숨기기
   var discRow=document.getElementById('discount-row');
@@ -4092,13 +4105,13 @@ function handleFileDrop(e){
     document.getElementById('fileInput').files=dt.files;
   }catch(err){}
 }
-function showReviewerPanel(){document.getElementById('reviewer-panel').style.display='block';}
-function selectReviewer(el,name){
+function showReviewerPanel(){document.getElementById('reviewer-panel').style.display='block';loadReviewers(function(){filterReviewers(currentExpertFilter||'전체');});}
+function selectReviewer(el,name,id){
   document.getElementById('reviewer-btn').textContent='✓ '+name+' 선택됨';
   document.getElementById('reviewer-panel').style.display='none';
   var isExp=el&&el.getAttribute('data-expert')==='true';
-  // 전역 변수에 저장 (글자수 입력 시 다시 계산할 수 있게)
   selectedReviewerName=name;
+  selectedReviewerId=id||'';
   selectedReviewerIsExpert=isExp;
 
   // 페이지 주문인지 글자수 주문인지 확인
@@ -4692,7 +4705,9 @@ async function completePayment(){
     카카오ID: currentUserKakaoId||'비로그인',
     원문텍스트: originText,
     파일첨부: fileName,
-    고객요청용어집: glossaryText||'없음'
+    고객요청용어집: glossaryText||'없음',
+    고객선택검수자ID: selectedReviewerId||'',
+    고객선택검수자명: selectedReviewerName||''
   };
   fetch(webhookUrl,{
     method:'POST',
@@ -4785,7 +4800,9 @@ function confirmBankTransfer(){
     카카오ID: currentUserKakaoId||'비로그인',
     원문텍스트: originText,
     파일첨부: fileName,
-    고객요청용어집: glossaryText||'없음'
+    고객요청용어집: glossaryText||'없음',
+    고객선택검수자ID: selectedReviewerId||'',
+    고객선택검수자명: selectedReviewerName||''
   };
   fetch(webhookUrl,{
     method:'POST',
