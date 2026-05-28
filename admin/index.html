@@ -220,6 +220,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <button class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
       <button class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
       <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
+      <button class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444">⚠️ 미배정</button>
       <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
       <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75">🔐 우회 주문</button>
     </div>
@@ -454,6 +455,16 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 
     </div>
 
+    <!-- ── 미배정 탭 콘텐츠 ── -->
+    <div id="unassigned-wrap" style="display:none;padding:4px 0 32px">
+      <div style="margin-bottom:16px;padding:12px 16px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
+        ⚠️ <strong style="color:#ef4444">배정 실패 / 미배정</strong> — 가용 검수자가 없거나 배정이 완료되지 않은 프리미엄 플러스 주문입니다. 검수자를 선택하여 수동 배정하세요.
+      </div>
+      <div id="unassigned-list" style="display:flex;flex-direction:column;gap:12px">
+        <div style="color:rgba(255,255,255,0.4);text-align:center;padding:32px">로딩 중…</div>
+      </div>
+    </div>
+
     <div id="confirm-panel">
       <div class="panel-header">
         <span class="panel-title" id="panel-ordnum">—</span>
@@ -643,14 +654,17 @@ function switchTab(tab) {
   document.getElementById('tab-rv').className = 'tab-btn' + (tab==='reviewers' ? ' active' : '');
   document.getElementById('tab-rv-approved').className = 'tab-btn' + (tab==='reviewers_approved' ? ' active' : '');
   document.getElementById('tab-rv-rejected').className = 'tab-btn' + (tab==='reviewers_rejected' ? ' active' : '');
+  document.getElementById('tab-ua').className = 'tab-btn' + (tab==='unassigned' ? ' active' : '');
   document.getElementById('tab-st').className = 'tab-btn' + (tab==='settlement' ? ' active' : '');
   document.getElementById('tab-bp').className = 'tab-btn' + (tab==='bank_pending' ? ' active' : '');
   document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '');
   var isBypass = tab === 'bypass';
   var isSettlement = tab === 'settlement';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass) ? 'none' : 'block';
+  var isUnassigned = tab === 'unassigned';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
+  document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
   if (tab === 'reviewers') {
     loadReviewers();
   } else if (tab === 'reviewers_approved') {
@@ -663,6 +677,8 @@ function switchTab(tab) {
     loadBankPending();
   } else if (tab === 'bypass') {
     // 우회 주문 탭: 특별 초기화 없음
+  } else if (tab === 'unassigned') {
+    loadUnassigned();
   } else {
     loadOrders();
   }
@@ -1732,6 +1748,76 @@ function populateAiScoreSection(order) {
     }).join('');
   } else {
     corrList.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.3)">수정사항 없음</div>';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// ── 미배정 탭 기능 ─────────────────────────────────────
+// ════════════════════════════════════════════════════════
+
+async function loadUnassigned() {
+  var listEl = document.getElementById('unassigned-list');
+  listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:32px">로딩 중…</div>';
+
+  try {
+    var [ordersRes, rvRes] = await Promise.all([
+      adminFetch('/api/admin/orders?tab=unassigned'),
+      adminFetch('/api/admin/reviewers/available'),
+    ]);
+    var orders = ordersRes.orders || [];
+    var reviewers = rvRes.reviewers || [];
+
+    if (!orders.length) {
+      listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:48px;border:1px solid rgba(255,255,255,0.06);border-radius:4px">✅ 미배정 주문 없음</div>';
+      return;
+    }
+
+    var rvOptions = reviewers.length
+      ? reviewers.map(function(r) {
+          return '<option value="' + r.id + '">' + r.name + ' (' + (r.grade || '일반') + ')</option>';
+        }).join('')
+      : '<option value="" disabled>가용 검수자 없음</option>';
+
+    listEl.innerHTML = orders.map(function(o) {
+      return '<div style="padding:16px 20px;border:1px solid rgba(239,68,68,0.25);border-radius:6px;background:rgba(239,68,68,0.04)">' +
+        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+          '<div style="flex:1;min-width:200px">' +
+            '<div style="font-size:13px;font-weight:600;color:var(--white)">' + (o.orderNumber || o.orderId.slice(0,12)) + '</div>' +
+            '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">' +
+              (o.customerEmail || '이메일 없음') + ' · ' + (o.charCount || 0).toLocaleString() + '자' +
+              ' · ' + (o.direction || '') +
+            '</div>' +
+          '</div>' +
+          '<select id="rv-select-' + o.orderId + '" style="padding:8px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:var(--white);font-size:13px;font-family:inherit;min-width:180px">' +
+            '<option value="">검수자 선택…</option>' + rvOptions +
+          '</select>' +
+          '<button onclick="assignReviewerManual(\'' + o.orderId + '\')" ' +
+            'style="padding:8px 18px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">' +
+            '배정하기' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+  } catch(e) {
+    listEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:32px">⚠️ ' + e.message + '</div>';
+  }
+}
+
+async function assignReviewerManual(orderId) {
+  var sel = document.getElementById('rv-select-' + orderId);
+  if (!sel || !sel.value) { showToast('⚠️ 검수자를 선택하세요', 'error'); return; }
+  var reviewerId = sel.value;
+  try {
+    var res = await adminFetch('/api/admin/orders/' + orderId + '/assign-reviewer', {
+      method: 'POST',
+      body: JSON.stringify({ reviewerId: reviewerId }),
+    });
+    if (!res.ok && !res.success) throw new Error(res.error || '배정 실패');
+    showToast('✅ ' + (res.reviewerName || '검수자') + '에게 배정 완료 (카톡 발송)', 'success');
+    loadUnassigned();
+  } catch(e) {
+    showToast('⚠️ ' + e.message, 'error');
   }
 }
 
