@@ -43,6 +43,22 @@ body{display:flex;flex-direction:column;min-height:100vh}
 .pane-ta.editable:focus{background:#111}
 .pane-counter{padding:4px 20px;border-top:1px solid var(--card-border);font-size:11px;color:rgba(255,255,255,0.3);text-align:right;flex-shrink:0}
 .pane-counter.ratio-warn{color:#ef4444}
+.pane-progress-bar{height:4px;background:rgba(255,255,255,0.05);flex-shrink:0}
+.pane-progress-fill{height:100%;background:rgba(201,168,76,0.5);width:0%;transition:width 0.15s}
+.rv-search-bar{display:none;padding:6px 16px;border-bottom:1px solid var(--card-border);background:rgba(255,255,255,0.03);gap:8px;align-items:center;flex-shrink:0}
+.rv-search-bar.open{display:flex}
+.rv-search-inp{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:12px;padding:4px 10px;outline:none;font-family:'Noto Sans KR',sans-serif}
+.rv-diff-view{display:none;flex:1;min-height:0;overflow-y:auto;font-size:14px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:20px;background:#0e0e0e;color:rgba(255,255,255,0.85);white-space:pre-wrap;word-break:break-word}
+.pane-ta-wrap-s{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
+.pane-ta-wrap-s .pane-ta{flex:1;min-height:0;height:auto}
+.pane-overlay{position:absolute;inset:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;pointer-events:none;user-select:none;-webkit-user-select:none;font-size:14px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:20px;white-space:pre-wrap;word-break:break-word;background:transparent;color:transparent;box-sizing:border-box;display:none}
+.pane-overlay::-webkit-scrollbar{display:none}
+.pane-overlay.visible{display:block}
+mark.search-hit{background:rgba(255,220,0,0.4);color:transparent;border-radius:2px}
+.search-count{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap}
+.search-count.mismatch{color:#ef4444}
+mark.diff-add{background:rgba(255,220,0,0.3);color:inherit;border-radius:2px;font-style:normal}
+mark.diff-del{background:transparent;color:rgba(255,255,255,0.3);text-decoration:line-through;font-style:normal}
 /* ─ 집중 모드 ─ */
 .rv-focus-btn{padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
 .rv-sync-toggle{font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;user-select:none;padding:4px 8px;border-radius:3px;transition:color 0.2s}
@@ -163,6 +179,8 @@ body.rv-focus .rv-focus-bar{display:flex}
   <div class="nav-actions">
     <span class="rv-sync-toggle active" id="rv-sync-toggle-nav" onclick="toggleRvSync()" title="스크롤 동기화">⇕ 동기화</span>
     <button class="rv-focus-btn" onclick="toggleRvFocus()">⛶ 집중 모드</button>
+    <button id="rv-diff-btn" onclick="toggleRvDiff()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">📋 Diff</button>
+    <button onclick="openRvSearch()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">🔍 검색</button>
     <button class="btn-save" id="btn-save" onclick="saveDraft()">임시저장</button>
     <button class="btn-submit" id="btn-submit" disabled onclick="doSubmit()">검수 완료 제출</button>
   </div>
@@ -184,6 +202,16 @@ body.rv-focus .rv-focus-bar{display:flex}
       <div class="glossary-section-content" id="customer-glossary-content"></div>
     </div>
   </div>
+</div>
+
+<!-- 검색 바 -->
+<div class="rv-search-bar" id="rv-search-bar">
+  <span style="font-size:12px;color:rgba(255,255,255,0.4)">🔍</span>
+  <input class="rv-search-inp" id="rv-search-inp" placeholder="용어 검색... (ESC로 닫기)" oninput="doRvSearch(this.value)">
+  <span class="search-count" id="rv-sc-src">원문 —</span>
+  <span style="color:rgba(255,255,255,0.2);font-size:11px">/</span>
+  <span class="search-count" id="rv-sc-tr">번역 —</span>
+  <button onclick="closeRvSearch()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:14px;padding:0 2px">✕</button>
 </div>
 
 <!-- 작업 영역 -->
@@ -350,6 +378,82 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveDraft(); }
 });
 
+// ── 진행률 막대 (검수자) ─────────────────────────────────────
+function rvInitProgressBars(){
+  function upd(tId,fId){var ta=document.getElementById(tId),f=document.getElementById(fId);if(!ta||!f)return;var p=(ta.scrollHeight<=ta.clientHeight)?100:Math.round(ta.scrollTop/(ta.scrollHeight-ta.clientHeight)*100);f.style.width=p+'%';f.style.background=p>=99?'rgba(201,168,76,0.9)':'rgba(201,168,76,0.5)';}
+  var s=document.getElementById('source-ta'),t=document.getElementById('translation-ta');
+  if(s)s.addEventListener('scroll',function(){upd('source-ta','rv-prog-src');});
+  if(t)t.addEventListener('scroll',function(){upd('translation-ta','rv-prog-tr');});
+  upd('source-ta','rv-prog-src');upd('translation-ta','rv-prog-tr');
+}
+
+// ── Word-level Diff (검수자) ──────────────────────────────────
+function _computeDiff(a,b){
+  var aTok=a.match(/\S+|\n|\s+/g)||[], bTok=b.match(/\S+|\n|\s+/g)||[];
+  if(aTok.length*bTok.length>60000)return null;
+  var n=aTok.length,m=bTok.length;
+  var dp=Array.from({length:n+1},function(){return new Int32Array(m+1);});
+  for(var i=1;i<=n;i++)for(var j=1;j<=m;j++)
+    dp[i][j]=aTok[i-1]===bTok[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  var res=[],i=n,j=m;
+  while(i>0||j>0){
+    if(i>0&&j>0&&aTok[i-1]===bTok[j-1]){res.push({t:'=',s:aTok[i-1]});i--;j--;}
+    else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])){res.push({t:'+',s:bTok[j-1]});j--;}
+    else{res.push({t:'-',s:aTok[i-1]});i--;}
+  }
+  return res.reverse();
+}
+
+// ── Diff (검수자) ─────────────────────────────────────────────
+var _rvDiffOn=false, _rvOrigAi='';
+function _rvEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toggleRvDiff(){
+  _rvDiffOn=!_rvDiffOn;
+  var btn=document.getElementById('rv-diff-btn');
+  var ta=document.getElementById('translation-ta');
+  var dv=document.getElementById('rv-diff-view');
+  if(!btn||!ta||!dv)return;
+  if(_rvDiffOn){
+    var diff=_computeDiff(_rvOrigAi,ta.value);
+    if(diff){dv.innerHTML=diff.map(function(d){var e=_rvEsc(d.s);if(d.t==='=')return e;if(d.t==='+')return '<mark class="diff-add">'+e+'</mark>';return '<mark class="diff-del">'+e+'</mark>';}).join('');}
+    else{dv.innerHTML='<em style="color:rgba(255,255,255,0.4)">문서가 너무 길어 Diff 계산 불가</em>';}
+    ta.style.display='none';dv.style.display='block';
+    btn.textContent='✎ 편집';btn.style.background='rgba(255,220,0,0.12)';
+  } else {
+    ta.style.display='';dv.style.display='none';
+    btn.textContent='📋 Diff';btn.style.background='';
+  }
+}
+
+// ── 검색 (검수자) ─────────────────────────────────────────────
+var _rvSearchOn=false,_rvOvSrcL=null,_rvOvTrL=null;
+function openRvSearch(){var b=document.getElementById('rv-search-bar');if(b){b.classList.add('open');var i=document.getElementById('rv-search-inp');if(i)i.focus();}; _rvSearchOn=true;}
+function closeRvSearch(){var b=document.getElementById('rv-search-bar');if(b)b.classList.remove('open');var i=document.getElementById('rv-search-inp');if(i)i.value='';_rvClearOv();_rvSearchOn=false;}
+function _rvClearOv(){['rv-ov-src','rv-ov-tr'].forEach(function(id){var o=document.getElementById(id);if(o){o.innerHTML='';o.classList.remove('visible');}});var s=document.getElementById('source-ta'),t=document.getElementById('translation-ta');if(s)s.style.color='';if(t)t.style.color='';}
+function _rvHighlight(taId,ovId,q){
+  var ta=document.getElementById(taId),ov=document.getElementById(ovId);if(!ta||!ov||!q)return 0;
+  var count=0;
+  var html=_rvEsc(ta.value).replace(new RegExp(_rvEsc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),function(m){count++;return '<mark class="search-hit">'+m+'</mark>';});
+  ov.innerHTML=html;ov.classList.add('visible');ta.style.color='transparent';
+  var l=function(){ov.scrollTop=ta.scrollTop;};
+  if(ovId==='rv-ov-src'){if(_rvOvSrcL)ta.removeEventListener('scroll',_rvOvSrcL);_rvOvSrcL=l;}
+  else{if(_rvOvTrL)ta.removeEventListener('scroll',_rvOvTrL);_rvOvTrL=l;}
+  ta.addEventListener('scroll',l);ov.scrollTop=ta.scrollTop;return count;
+}
+function doRvSearch(q){
+  if(!q.trim()){_rvClearOv();document.getElementById('rv-sc-src').textContent='원문 —';document.getElementById('rv-sc-tr').textContent='번역 —';return;}
+  var cS=_rvHighlight('source-ta','rv-ov-src',q),cT=_rvHighlight('translation-ta','rv-ov-tr',q);
+  var es=document.getElementById('rv-sc-src'),et=document.getElementById('rv-sc-tr');
+  if(es)es.textContent='원문 '+cS+'건';if(et)et.textContent='번역 '+cT+'건';
+  var mm=cS!==cT;
+  if(es)es.className='search-count'+(mm?' mismatch':'');if(et)et.className='search-count'+(mm?' mismatch':'');
+}
+// 단축키 추가 (Ctrl+Shift+F, ESC)
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='F'){e.preventDefault();openRvSearch();}
+  if(e.key==='Escape'&&_rvSearchOn)closeRvSearch();
+});
+
 // ── 스크롤 동기화 (검수자) ──────────────────────────────────
 var _rvSyncEnabled = true, _rvSyncing = false;
 function toggleRvSync() {
@@ -416,12 +520,21 @@ function renderJob(job) {
   document.getElementById('job-body').innerHTML = [
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">원문</span><span class="pane-badge">' + (job.sourceLang||'—') + ' · ' + (job.charCount||0).toLocaleString() + '자</span></div>',
-    '  <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea>',
+    '  <div class="pane-progress-bar"><div id="rv-prog-src" class="pane-progress-fill"></div></div>',
+    '  <div class="pane-ta-wrap-s">',
+    '    <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea>',
+    '    <div class="pane-overlay" id="rv-ov-src" oncopy="return false;" oncut="return false;" oncontextmenu="return false;"></div>',
+    '  </div>',
     '  <div class="pane-counter" id="rv-counter-src">—</div>',
     '</div>',
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">번역본 수정</span><span class="pane-badge">' + (job.targetLang||'—') + ' · 예상 보수 ₩' + (job.estimatedPay||0).toLocaleString() + '</span></div>',
-    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn();rvUpdateCounters()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '  <div class="pane-progress-bar"><div id="rv-prog-tr" class="pane-progress-fill"></div></div>',
+    '  <div class="pane-ta-wrap-s">',
+    '    <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn();rvUpdateCounters()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '    <div class="pane-overlay" id="rv-ov-tr" oncopy="return false;" oncut="return false;" oncontextmenu="return false;"></div>',
+    '    <div class="rv-diff-view" id="rv-diff-view"></div>',
+    '  </div>',
     '  <div class="pane-counter" id="rv-counter-tr">—</div>',
     '  <div class="char-count" id="char-count"></div>',
     '</div>',
@@ -446,7 +559,8 @@ function renderJob(job) {
 
   updateProgress();
   setInterval(function(){ updateDeadline(job.deadline); }, 60000);
-  setTimeout(function(){ setupRvScrollSync(); rvUpdateCounters(); }, 100);
+  setTimeout(function(){ setupRvScrollSync(); rvUpdateCounters(); rvInitProgressBars(); }, 100);
+  _rvOrigAi = job.aiTranslation || '';
   _rvLastSaved = document.getElementById('translation-ta')?.value || '';
   rvInitAutoSave();
 

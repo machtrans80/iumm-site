@@ -66,6 +66,27 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .panel-counter{padding:5px 16px;border-top:1px solid var(--card-border);font-size:11px;color:rgba(255,255,255,0.3);text-align:right;flex-shrink:0}
 .panel-counter.ratio-warn{color:#ef4444}
 .panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,calc(100vh - 320px))}
+/* ── 진행률 막대 ── */
+.panel-progress-bar{height:4px;background:rgba(255,255,255,0.05);flex-shrink:0}
+.panel-progress-fill{height:100%;background:rgba(22,184,148,0.5);width:0%;transition:width 0.15s}
+/* ── 검색 바 ── */
+.panel-search-bar{display:none;padding:6px 16px;border-bottom:1px solid var(--card-border);background:rgba(255,255,255,0.03);gap:8px;align-items:center;flex-shrink:0}
+.panel-search-bar.open{display:flex}
+.panel-search-inp{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:12px;padding:4px 10px;outline:none;font-family:'Noto Sans KR',sans-serif}
+.panel-search-inp:focus{border-color:rgba(22,184,148,0.5)}
+.search-count{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap}
+.search-count.mismatch{color:#ef4444}
+/* ── Diff 뷰어 ── */
+.panel-diff{display:none;flex:1;min-height:0;overflow-y:auto;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;background:#0e0e0e;color:rgba(255,255,255,0.85);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
+mark.diff-add{background:rgba(255,220,0,0.3);color:inherit;border-radius:2px;font-style:normal}
+mark.diff-del{background:transparent;color:rgba(255,255,255,0.3);text-decoration:line-through;font-style:normal}
+/* ── 검색 하이라이트 오버레이 ── */
+.ta-wrap-s{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
+.ta-wrap-s .panel-ta{flex:1;min-height:0;height:auto}
+.ta-overlay{position:absolute;inset:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;pointer-events:none;user-select:none;-webkit-user-select:none;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;white-space:pre-wrap;word-break:break-word;background:transparent;color:transparent;box-sizing:border-box;display:none}
+.ta-overlay::-webkit-scrollbar{display:none}
+.ta-overlay.visible{display:block}
+mark.search-hit{background:rgba(255,220,0,0.4);color:transparent;border-radius:2px}
 .panel-ta.editable{color:var(--white)}
 .panel-ta.editable:focus{background:#111}
 /* ─ 집중 모드 ─ */
@@ -509,16 +530,30 @@ body.admin-focus .focus-exit-hint{display:inline}
         <span class="panel-meta" id="panel-meta"></span>
         <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
           <span class="sync-toggle active" id="scroll-sync-toggle" onclick="toggleScrollSync()" title="스크롤 동기화">⇕ 동기화</span>
+          <button id="diff-btn" onclick="toggleAdminDiff()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">📋 Diff</button>
+          <button onclick="openAdminSearch()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">🔍 검색</button>
           <!-- 집중모드에서만 보이는 버튼 -->
           <button id="focus-save-btn" style="display:none;padding:6px 14px;background:rgba(22,184,148,0.15);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="saveTranslationDraft()">💾 임시저장</button>
           <button class="focus-mode-btn" onclick="toggleFocusMode()" id="focus-btn">⛶ 집중 모드</button>
           <span class="focus-exit-hint">ESC로 해제</span>
         </div>
       </div>
+      <div class="panel-search-bar" id="panel-search-bar">
+        <span style="font-size:12px;color:rgba(255,255,255,0.4)">🔍</span>
+        <input class="panel-search-inp" id="panel-search-inp" placeholder="용어 검색... (ESC로 닫기)" oninput="doAdminSearch(this.value)">
+        <span class="search-count" id="sc-src">원문 —</span>
+        <span style="color:rgba(255,255,255,0.2);font-size:11px">/</span>
+        <span class="search-count" id="sc-tr">번역 —</span>
+        <button onclick="closeAdminSearch()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">✕</button>
+      </div>
       <div class="panel-body">
         <div class="panel-pane">
           <div class="panel-pane-label">원문 (읽기 전용)</div>
-          <textarea class="panel-ta" id="panel-source" readonly></textarea>
+          <div class="panel-progress-bar"><div id="prog-src" class="panel-progress-fill"></div></div>
+          <div class="ta-wrap-s">
+            <textarea class="panel-ta" id="panel-source" readonly></textarea>
+            <div class="ta-overlay" id="ov-src"></div>
+          </div>
           <div class="panel-counter" id="counter-source">—</div>
         </div>
         <div class="panel-pane">
@@ -526,7 +561,12 @@ body.admin-focus .focus-exit-hint{display:inline}
             <span>번역본 (수정 가능 후 납품)</span>
             <span id="save-status" style="font-size:11px;color:rgba(255,255,255,0.35)"></span>
           </div>
-          <textarea class="panel-ta editable" id="panel-translation" oninput="onTranslationEdit()"></textarea>
+          <div class="panel-progress-bar"><div id="prog-tr" class="panel-progress-fill"></div></div>
+          <div class="ta-wrap-s">
+            <textarea class="panel-ta editable" id="panel-translation" oninput="onTranslationEdit()"></textarea>
+            <div class="ta-overlay" id="ov-tr"></div>
+            <div class="panel-diff" id="diff-panel"></div>
+          </div>
           <div class="panel-counter" id="counter-translation">—</div>
         </div>
       </div>
@@ -931,7 +971,7 @@ function selectOrder(id, row) {
   if (saveStatus) saveStatus.textContent = '';
   document.getElementById('confirm-panel').style.display = 'block';
   // 줄번호 + 스크롤 동기화 초기화
-  setTimeout(function() { setupPanelScrollSync(); updateCounters(); }, 50);
+  setTimeout(function() { setupPanelScrollSync(); updateCounters(); initProgressBars(); }, 50);
   _lastSavedText = document.getElementById('panel-translation')?.value || '';
   initAutoSave();
 }
@@ -998,7 +1038,129 @@ document.addEventListener('keydown', function(e) {
     e.preventDefault();
     saveTranslationDraft();
   }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+    e.preventDefault(); openAdminSearch();
+  }
+  if (e.key === 'Escape' && _adminSearchActive) { closeAdminSearch(); }
 });
+
+// ── 유틸 ─────────────────────────────────────────────────────
+function _esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── 진행률 막대 ──────────────────────────────────────────────
+function _updateProg(taId, fillId) {
+  var ta=document.getElementById(taId), f=document.getElementById(fillId);
+  if(!ta||!f)return;
+  var pct=(ta.scrollHeight<=ta.clientHeight)?100:Math.round(ta.scrollTop/(ta.scrollHeight-ta.clientHeight)*100);
+  f.style.width=pct+'%';
+  f.style.background=pct>=99?'rgba(22,184,148,0.9)':'rgba(22,184,148,0.5)';
+}
+function initProgressBars(){
+  var s=document.getElementById('panel-source'),t=document.getElementById('panel-translation');
+  if(s)s.addEventListener('scroll',function(){_updateProg('panel-source','prog-src');});
+  if(t)t.addEventListener('scroll',function(){_updateProg('panel-translation','prog-tr');});
+  _updateProg('panel-source','prog-src');_updateProg('panel-translation','prog-tr');
+}
+
+// ── Word-level Diff ──────────────────────────────────────────
+function _computeDiff(a,b){
+  var aTok=a.match(/\S+|\n|\s+/g)||[], bTok=b.match(/\S+|\n|\s+/g)||[];
+  if(aTok.length*bTok.length>60000)return null;
+  var n=aTok.length,m=bTok.length;
+  var dp=Array.from({length:n+1},function(){return new Int32Array(m+1);});
+  for(var i=1;i<=n;i++)for(var j=1;j<=m;j++)
+    dp[i][j]=aTok[i-1]===bTok[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  var res=[],i=n,j=m;
+  while(i>0||j>0){
+    if(i>0&&j>0&&aTok[i-1]===bTok[j-1]){res.push({t:'=',s:aTok[i-1]});i--;j--;}
+    else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])){res.push({t:'+',s:bTok[j-1]});j--;}
+    else{res.push({t:'-',s:aTok[i-1]});i--;}
+  }
+  return res.reverse();
+}
+
+var _adminDiffOn=false;
+function toggleAdminDiff(){
+  _adminDiffOn=!_adminDiffOn;
+  var btn=document.getElementById('diff-btn');
+  var ta=document.getElementById('panel-translation');
+  var dv=document.getElementById('diff-panel');
+  if(!btn||!ta||!dv)return;
+  if(_adminDiffOn){
+    var orig=(selectedOrder&&selectedOrder.aiTranslation)||'';
+    var curr=ta.value;
+    var diff=_computeDiff(orig,curr);
+    if(diff){
+      dv.innerHTML=diff.map(function(d){
+        var e=_esc(d.s);
+        if(d.t==='=')return e;
+        if(d.t==='+')return '<mark class="diff-add">'+e+'</mark>';
+        return '<mark class="diff-del">'+e+'</mark>';
+      }).join('');
+    } else {
+      dv.innerHTML='<em style="color:rgba(255,255,255,0.4)">문서가 너무 길어 Diff 계산 불가 (60,000 토큰 초과)</em>';
+    }
+    ta.style.display='none'; dv.style.display='block';
+    btn.textContent='✎ 편집 모드'; btn.style.background='rgba(255,220,0,0.12)';
+  } else {
+    ta.style.display=''; dv.style.display='none';
+    btn.textContent='📋 Diff'; btn.style.background='';
+  }
+}
+
+// ── 검색 하이라이트 ──────────────────────────────────────────
+var _adminSearchActive=false;
+var _ovSrcListener=null,_ovTrListener=null;
+
+function openAdminSearch(){
+  var bar=document.getElementById('panel-search-bar');
+  if(bar){bar.classList.add('open');var inp=document.getElementById('panel-search-inp');if(inp)inp.focus();}
+  _adminSearchActive=true;
+}
+function closeAdminSearch(){
+  var bar=document.getElementById('panel-search-bar');
+  if(bar)bar.classList.remove('open');
+  var inp=document.getElementById('panel-search-inp');
+  if(inp)inp.value='';
+  _clearAdminOverlays();
+  _adminSearchActive=false;
+}
+function _clearAdminOverlays(){
+  ['ov-src','ov-tr'].forEach(function(id){
+    var o=document.getElementById(id);
+    if(o){o.innerHTML='';o.classList.remove('visible');}
+  });
+  var s=document.getElementById('panel-source'),t=document.getElementById('panel-translation');
+  if(s)s.style.color=''; if(t)t.style.color='';
+}
+function _highlightOverlay(taId,ovId,query){
+  var ta=document.getElementById(taId),ov=document.getElementById(ovId);
+  if(!ta||!ov||!query)return 0;
+  var count=0;
+  var html=_esc(ta.value).replace(new RegExp(_esc(query).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),function(m){count++;return '<mark class="search-hit">'+m+'</mark>';});
+  ov.innerHTML=html;
+  ov.classList.add('visible');
+  ta.style.color='transparent';
+  // sync scroll
+  if(ovId==='ov-src'&&_ovSrcListener){ta.removeEventListener('scroll',_ovSrcListener);}
+  if(ovId==='ov-tr'&&_ovTrListener){ta.removeEventListener('scroll',_ovTrListener);}
+  var listener=function(){ov.scrollTop=ta.scrollTop;};
+  if(ovId==='ov-src'){_ovSrcListener=listener;} else {_ovTrListener=listener;}
+  ta.addEventListener('scroll',listener);
+  ov.scrollTop=ta.scrollTop;
+  return count;
+}
+function doAdminSearch(q){
+  if(!q.trim()){_clearAdminOverlays();document.getElementById('sc-src').textContent='원문 —';document.getElementById('sc-tr').textContent='번역 —';return;}
+  var cSrc=_highlightOverlay('panel-source','ov-src',q);
+  var cTr =_highlightOverlay('panel-translation','ov-tr',q);
+  var scSrc=document.getElementById('sc-src'),scTr=document.getElementById('sc-tr');
+  if(scSrc)scSrc.textContent='원문 '+cSrc+'건';
+  if(scTr)scTr.textContent='번역 '+cTr+'건';
+  var mm=cSrc!==cTr;
+  if(scSrc)scSrc.className='search-count'+(mm?' mismatch':'');
+  if(scTr)scTr.className='search-count'+(mm?' mismatch':'');
+}
 
 // ── 스크롤 동기화 ─────────────────────────────────────────────
 var _scrollSyncEnabled = true;
