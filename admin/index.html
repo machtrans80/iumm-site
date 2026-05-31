@@ -63,7 +63,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .panel-pane{display:flex;flex-direction:column;min-height:0}
 .panel-pane + .panel-pane{border-left:1px solid var(--card-border)}
 .panel-pane-label{padding:10px 16px;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray);letter-spacing:0.5px}
-.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,48vh)}
+.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,calc(100vh - 320px))}
 .panel-ta.editable{color:var(--white)}
 .panel-ta.editable:focus{background:#111}
 /* ─ 집중 모드 ─ */
@@ -72,12 +72,17 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 body.admin-focus #admin-view > .admin-nav{display:none}
 body.admin-focus .tabs{display:none}
 body.admin-focus #orders-wrap,body.admin-focus #settlement-wrap,body.admin-focus #bypass-wrap,body.admin-focus #unassigned-wrap,body.admin-focus #failed-wrap{display:none !important}
-body.admin-focus #confirm-panel{position:fixed;inset:0;z-index:500;margin:0;border-radius:0;border:none;background:#0a0a0a;display:flex !important;flex-direction:column;overflow:hidden}
+/* 집중모드: confirm-panel 내부의 좌우창 외 모든 요소 숨김 */
+body.admin-focus #ai-score-section,
+body.admin-focus #final-upload-section,
+body.admin-focus #eval-section,
+body.admin-focus #rv-info-section,
+body.admin-focus .panel-footer{display:none !important}
+body.admin-focus #confirm-panel{position:fixed;inset:0;z-index:9999;margin:0;border-radius:0;border:none;background:#0a0a0a;display:flex !important;flex-direction:column;overflow:hidden}
 body.admin-focus #confirm-panel .panel-header{flex-shrink:0}
 body.admin-focus #confirm-panel .panel-body{flex:1;min-height:0;overflow:hidden}
 body.admin-focus #confirm-panel .panel-pane{min-height:0;overflow:hidden}
 body.admin-focus #confirm-panel .panel-ta{flex:1;min-height:0;height:100%;overflow-y:auto}
-body.admin-focus .panel-footer{flex-shrink:0}
 .focus-exit-hint{display:none;font-size:11px;color:rgba(255,255,255,0.3);margin-left:10px}
 body.admin-focus .focus-exit-hint{display:inline}
 /* ─ 스크롤 동기화 토글 ─ */
@@ -502,6 +507,9 @@ body.admin-focus .focus-exit-hint{display:inline}
         <span class="panel-meta" id="panel-meta"></span>
         <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
           <span class="sync-toggle active" id="scroll-sync-toggle" onclick="toggleScrollSync()" title="스크롤 동기화">⇕ 동기화</span>
+          <!-- 집중모드에서만 보이는 버튼 -->
+          <button id="focus-save-btn" style="display:none;padding:6px 14px;background:rgba(22,184,148,0.15);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="saveTranslationDraft()">💾 임시저장</button>
+          <button id="focus-deliver-btn" style="display:none;padding:6px 14px;background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="confirmFinalDelivery()">✓ 최종 납품</button>
           <button class="focus-mode-btn" onclick="toggleFocusMode()" id="focus-btn">⛶ 집중 모드</button>
           <span class="focus-exit-hint">ESC로 해제</span>
         </div>
@@ -949,9 +957,14 @@ function setupPanelScrollSync() {
 // ── 집중 모드 ────────────────────────────────────────────────
 function toggleFocusMode() {
   document.body.classList.toggle('admin-focus');
-  var btn = document.getElementById('focus-btn');
   var isOn = document.body.classList.contains('admin-focus');
+  var btn = document.getElementById('focus-btn');
   if (btn) btn.textContent = isOn ? '✕ 집중 해제' : '⛶ 집중 모드';
+  // 집중모드 전용 버튼 표시/숨김
+  var saveBtn = document.getElementById('focus-save-btn');
+  var deliverBtn = document.getElementById('focus-deliver-btn');
+  if (saveBtn) saveBtn.style.display = isOn ? 'inline-block' : 'none';
+  if (deliverBtn) deliverBtn.style.display = isOn ? 'inline-block' : 'none';
 }
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('admin-focus')) toggleFocusMode(); });
 
