@@ -112,11 +112,11 @@ body.admin-focus .focus-exit-hint{display:inline}
 .sync-toggle{font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer;user-select:none;padding:4px 8px;border-radius:3px;transition:color 0.2s}
 .sync-toggle.active{color:rgba(22,184,148,0.8)}
 .sync-toggle:hover{color:rgba(255,255,255,0.6)}
-.panel-footer{padding:16px 20px;border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center}
+.panel-footer{padding:10px 16px;border-top:1px solid var(--card-border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
 .panel-info{font-size:13px;color:rgba(255,255,255,0.5)}
 .panel-info strong{color:var(--white)}
 .panel-info .amount{color:var(--gold);font-weight:700}
-.btn-deliver{padding:12px 32px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.btn-deliver{height:38px;padding:0 20px;background:var(--gold);color:var(--black);border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
 .btn-deliver:hover{background:var(--gold-light)}
 .btn-deliver:disabled{opacity:0.4;cursor:not-allowed}
 
@@ -176,10 +176,22 @@ body.admin-focus .focus-exit-hint{display:inline}
 .btn-reject { padding:10px 24px; background:var(--red); color:var(--white); border:none; border-radius:6px; font-weight:500; cursor:pointer; font-size:14px }
 .btn-reject:hover { opacity:0.85 }
 .btn-reject:disabled { opacity:0.4; cursor:not-allowed }
-.btn-dl{padding:7px 14px;background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;white-space:nowrap}
-.btn-dl:hover{background:rgba(201,168,76,0.2)}
-.btn-ul{display:inline-block;padding:7px 14px;background:rgba(151,196,89,0.1);color:var(--green);border:1px solid rgba(151,196,89,0.3);border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;white-space:nowrap}
-.btn-ul:hover{background:rgba(151,196,89,0.2)}
+/* ── 공통 버튼 베이스 ── */
+.btn{height:38px;padding:0 14px;font-size:13px;font-weight:500;white-space:nowrap;border-radius:6px;border:1px solid;display:inline-flex;align-items:center;gap:5px;cursor:pointer;transition:all 0.15s;font-family:'Noto Sans KR',sans-serif}
+.btn:disabled{opacity:0.35;cursor:not-allowed}
+.btn-secondary{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.75)}
+.btn-secondary:hover{background:rgba(255,255,255,0.1);color:var(--white)}
+.btn-info{background:rgba(151,196,89,0.1);border-color:rgba(151,196,89,0.3);color:rgba(151,196,89,0.9)}
+.btn-info:hover{background:rgba(151,196,89,0.18)}
+.btn-danger{background:rgba(224,85,85,0.08);border-color:rgba(224,85,85,0.3);color:var(--red)}
+.btn-danger:hover{background:rgba(224,85,85,0.15)}
+.btn-mint{background:rgba(22,184,148,0.1);border-color:rgba(22,184,148,0.3);color:rgba(22,184,148,0.9)}
+.btn-mint:hover{background:rgba(22,184,148,0.18)}
+.btn-dl{padding:0 12px;height:38px;background:rgba(201,168,76,0.08);color:var(--gold);border:1px solid rgba(201,168,76,0.25);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.btn-dl:hover{background:rgba(201,168,76,0.16)}
+.btn-ul{display:inline-flex;align-items:center;height:38px;padding:0 12px;background:rgba(151,196,89,0.08);color:var(--green);border:1px solid rgba(151,196,89,0.25);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;white-space:nowrap;gap:4px}
+.btn-ul:hover{background:rgba(151,196,89,0.16)}
+.btn-group-sep{width:1px;height:24px;background:rgba(255,255,255,0.1);flex-shrink:0;margin:0 4px}
 
 /* ── 우회 주문 탭 ── */
 #bypass-wrap{display:none;padding:4px 0 32px}
@@ -624,12 +636,14 @@ body.admin-focus .focus-exit-hint{display:inline}
         </div>
       </div>
       <div class="panel-footer">
-        <div class="panel-info">
+        <!-- 고객 정보 -->
+        <div class="panel-info" style="flex-shrink:0">
           고객: <strong id="panel-email">—</strong> &nbsp;·&nbsp;
           금액: <span class="amount" id="panel-amount">—</span>
         </div>
+        <!-- 다운로드 그룹 -->
         <button class="btn-dl" id="btn-dl-original" style="display:none" onclick="downloadOriginal()">⬇ 고객 원본</button>
-        <button class="btn-dl" id="btn-dl-txt" style="display:none;background:var(--gold);color:#000;font-weight:600" onclick="downloadTranslationTxt()">📄 원문+번역 .txt</button>
+        <button class="btn-dl" id="btn-dl-txt" style="display:none" onclick="downloadTranslationTxt()">📄 원문+번역 .txt</button>
         <button class="btn-dl" id="btn-dl-interleaved" style="display:none" onclick="downloadResult('interleaved')" title="원문/번역 단락 번갈아 표시">⬇ 단락교차 .docx</button>
         <div id="pp-file-actions" style="display:none;gap:6px;align-items:center">
           <button class="btn-dl" onclick="downloadResult('txt')">⬇ .txt</button>
@@ -639,9 +653,12 @@ body.admin-focus .focus-exit-hint{display:inline}
             <input type="file" id="admin-upload-input" style="display:none" onchange="uploadFinalFile(this)">
           </label>
         </div>
-        <button id="btn-confirm-review" style="display:none;padding:8px 18px;border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="confirmReview()">✅ 메인 노출 컨펌</button>
-        <button id="btn-delete" style="display:none;padding:8px 14px;background:rgba(224,85,85,0.08);color:var(--red);border:1px solid rgba(224,85,85,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="deleteOrder()">🗑 삭제</button>
-        <button id="btn-save-draft" style="display:none;padding:8px 18px;background:rgba(22,184,148,0.12);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.35);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="saveTranslationDraft()">💾 임시저장</button>
+        <!-- 구분선 -->
+        <div class="btn-group-sep" id="btn-sep" style="display:none"></div>
+        <!-- 액션 그룹 -->
+        <button id="btn-confirm-review" class="btn btn-info" style="display:none" onclick="confirmReview()">✅ 메인 노출 컨펌</button>
+        <button id="btn-delete" class="btn btn-danger" style="display:none" onclick="deleteOrder()">🗑 삭제</button>
+        <button id="btn-save-draft" class="btn btn-mint" style="display:none" onclick="saveTranslationDraft()">💾 임시저장</button>
         <button class="btn-deliver" id="btn-deliver" onclick="confirmFinalDelivery()">✓ 최종 납품</button>
       </div>
     </div>
@@ -969,7 +986,9 @@ function selectOrder(id, row) {
   if (btnDel) btnDel.style.display = 'inline-block';
   // 임시저장 버튼 표시 + 저장상태 초기화
   var btnSave = document.getElementById('btn-save-draft');
-  if (btnSave) btnSave.style.display = 'inline-block';
+  if (btnSave) btnSave.style.display = 'inline-flex';
+  var sep = document.getElementById('btn-sep');
+  if (sep) sep.style.display = 'block';
   var saveStatus = document.getElementById('save-status');
   if (saveStatus) saveStatus.textContent = '';
   document.getElementById('confirm-panel').style.display = 'block';
