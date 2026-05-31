@@ -41,6 +41,8 @@ body{display:flex;flex-direction:column;min-height:100vh}
 .pane-ta{flex:1;width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:14px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:20px;resize:none;outline:none}
 .pane-ta.editable{background:#0e0e0e;color:var(--white)}
 .pane-ta.editable:focus{background:#111}
+.pane-counter{padding:4px 20px;border-top:1px solid var(--card-border);font-size:11px;color:rgba(255,255,255,0.3);text-align:right;flex-shrink:0}
+.pane-counter.ratio-warn{color:#ef4444}
 /* ─ 집중 모드 ─ */
 .rv-focus-btn{padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
 .rv-sync-toggle{font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;user-select:none;padding:4px 8px;border-radius:3px;transition:color 0.2s}
@@ -299,6 +301,55 @@ function getChecklist() {
   return CHECKLIST.map(function(_, i) { return document.getElementById('cl-' + i)?.checked || false; });
 }
 
+// ── 글자수/단어수 카운터 (검수자) ───────────────────────────
+function rvCountText(text) {
+  var chars = text.replace(/\s/g, '').length;
+  var isKorean = /[가-힯]/.test(text);
+  var words = isKorean ? null : text.trim().split(/\s+/).filter(Boolean).length;
+  return { chars: chars, words: words };
+}
+function rvUpdateCounters() {
+  var srcEl = document.getElementById('source-ta');
+  var trEl  = document.getElementById('translation-ta');
+  var cSrc  = document.getElementById('rv-counter-src');
+  var cTr   = document.getElementById('rv-counter-tr');
+  if (!srcEl || !trEl || !cSrc || !cTr) return;
+  var src = rvCountText(srcEl.value);
+  var tr  = rvCountText(trEl.value);
+  cSrc.textContent = src.chars.toLocaleString() + '자' + (src.words != null ? ' · ' + src.words.toLocaleString() + '단어' : '');
+  var ratio = src.chars > 0 ? (tr.chars / src.chars) : 0;
+  var ratioStr = src.chars > 0 ? ' · 비율 ' + ratio.toFixed(2) + 'x' : '';
+  var warn = src.chars > 0 && (ratio < 0.7 || ratio > 1.8);
+  cTr.textContent = tr.chars.toLocaleString() + '자' + (tr.words != null ? ' · ' + tr.words.toLocaleString() + '단어' : '') + ratioStr;
+  cTr.className = 'pane-counter' + (warn ? ' ratio-warn' : '');
+}
+
+// ── 자동 저장 (검수자, 3분 + 30초 debounce) ──────────────────
+var _rvLastSaved = '';
+var _rvDebounce = null;
+function rvScheduleAutoSave() {
+  clearTimeout(_rvDebounce);
+  _rvDebounce = setTimeout(function() {
+    var ta = document.getElementById('translation-ta');
+    if (!ta || ta.value === _rvLastSaved) return;
+    saveDraft(true);
+  }, 30000);
+}
+function rvInitAutoSave() {
+  setInterval(function() {
+    var ta = document.getElementById('translation-ta');
+    if (!ta || ta.value === _rvLastSaved || _rvDebounce) return;
+    saveDraft(true);
+  }, 180000);
+}
+window.addEventListener('beforeunload', function(e) {
+  var ta = document.getElementById('translation-ta');
+  if (ta && ta.value !== _rvLastSaved) { e.preventDefault(); e.returnValue = '수정 내용이 저장되지 않을 수 있습니다.'; }
+});
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveDraft(); }
+});
+
 // ── 스크롤 동기화 (검수자) ──────────────────────────────────
 var _rvSyncEnabled = true, _rvSyncing = false;
 function toggleRvSync() {
@@ -366,10 +417,12 @@ function renderJob(job) {
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">원문</span><span class="pane-badge">' + (job.sourceLang||'—') + ' · ' + (job.charCount||0).toLocaleString() + '자</span></div>',
     '  <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea>',
+    '  <div class="pane-counter" id="rv-counter-src">—</div>',
     '</div>',
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">번역본 수정</span><span class="pane-badge">' + (job.targetLang||'—') + ' · 예상 보수 ₩' + (job.estimatedPay||0).toLocaleString() + '</span></div>',
-    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn();rvUpdateCounters()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '  <div class="pane-counter" id="rv-counter-tr">—</div>',
     '  <div class="char-count" id="char-count"></div>',
     '</div>',
     '<div class="checklist-section">',
@@ -393,7 +446,9 @@ function renderJob(job) {
 
   updateProgress();
   setInterval(function(){ updateDeadline(job.deadline); }, 60000);
-  setTimeout(setupRvScrollSync, 100); // 줄번호 + 스크롤 동기화 초기화
+  setTimeout(function(){ setupRvScrollSync(); rvUpdateCounters(); }, 100);
+  _rvLastSaved = document.getElementById('translation-ta')?.value || '';
+  rvInitAutoSave();
 
   // 복사 차단 — Ctrl+C / Cmd+C 키 이벤트
   var _srcTa = document.getElementById('source-ta');
@@ -426,18 +481,21 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-async function saveDraft() {
+async function saveDraft(silent) {
   var btn = document.getElementById('btn-save');
-  btn.textContent = '저장 중…'; btn.classList.add('saving');
+  var text = document.getElementById('translation-ta')?.value || '';
+  if (!silent && btn) { btn.textContent = '저장 중…'; btn.classList.add('saving'); }
   try {
     var res = await authFetch('/api/reviewer/job/' + orderId + '/draft', {
       method: 'POST',
-      body: JSON.stringify({ translation: document.getElementById('translation-ta')?.value || '', checklist: getChecklist(), comment: document.getElementById('comment-ta')?.value || '' })
+      body: JSON.stringify({ translation: text, checklist: getChecklist(), comment: document.getElementById('comment-ta')?.value || '' })
     });
-    if (res.ok) showToast('임시저장되었습니다', 'success');
-    else showToast('⚠️ ' + (res.error || '저장 실패'), 'error');
-  } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
-  finally { btn.textContent = '임시저장'; btn.classList.remove('saving'); }
+    if (res.ok) {
+      _rvLastSaved = text;
+      if (!silent) showToast('임시저장되었습니다', 'success');
+    } else if (!silent) showToast('⚠️ ' + (res.error || '저장 실패'), 'error');
+  } catch(e) { if (!silent) showToast('⚠️ 서버 오류', 'error'); }
+  finally { if (!silent && btn) { btn.textContent = '임시저장'; btn.classList.remove('saving'); } }
 }
 
 function doSubmit() {

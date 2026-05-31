@@ -63,6 +63,8 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .panel-pane{display:flex;flex-direction:column;min-height:0}
 .panel-pane + .panel-pane{border-left:1px solid var(--card-border)}
 .panel-pane-label{padding:10px 16px;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray);letter-spacing:0.5px}
+.panel-counter{padding:5px 16px;border-top:1px solid var(--card-border);font-size:11px;color:rgba(255,255,255,0.3);text-align:right;flex-shrink:0}
+.panel-counter.ratio-warn{color:#ef4444}
 .panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,calc(100vh - 320px))}
 .panel-ta.editable{color:var(--white)}
 .panel-ta.editable:focus{background:#111}
@@ -509,7 +511,6 @@ body.admin-focus .focus-exit-hint{display:inline}
           <span class="sync-toggle active" id="scroll-sync-toggle" onclick="toggleScrollSync()" title="스크롤 동기화">⇕ 동기화</span>
           <!-- 집중모드에서만 보이는 버튼 -->
           <button id="focus-save-btn" style="display:none;padding:6px 14px;background:rgba(22,184,148,0.15);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="saveTranslationDraft()">💾 임시저장</button>
-          <button id="focus-deliver-btn" style="display:none;padding:6px 14px;background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="confirmFinalDelivery()">✓ 최종 납품</button>
           <button class="focus-mode-btn" onclick="toggleFocusMode()" id="focus-btn">⛶ 집중 모드</button>
           <span class="focus-exit-hint">ESC로 해제</span>
         </div>
@@ -518,6 +519,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <div class="panel-pane">
           <div class="panel-pane-label">원문 (읽기 전용)</div>
           <textarea class="panel-ta" id="panel-source" readonly></textarea>
+          <div class="panel-counter" id="counter-source">—</div>
         </div>
         <div class="panel-pane">
           <div class="panel-pane-label" style="display:flex;align-items:center;justify-content:space-between">
@@ -525,6 +527,7 @@ body.admin-focus .focus-exit-hint{display:inline}
             <span id="save-status" style="font-size:11px;color:rgba(255,255,255,0.35)"></span>
           </div>
           <textarea class="panel-ta editable" id="panel-translation" oninput="onTranslationEdit()"></textarea>
+          <div class="panel-counter" id="counter-translation">—</div>
         </div>
       </div>
       <!-- AI 품질 점수 섹션 -->
@@ -928,10 +931,76 @@ function selectOrder(id, row) {
   if (saveStatus) saveStatus.textContent = '';
   document.getElementById('confirm-panel').style.display = 'block';
   // 줄번호 + 스크롤 동기화 초기화
-  setTimeout(setupPanelScrollSync, 50);
+  setTimeout(function() { setupPanelScrollSync(); updateCounters(); }, 50);
+  _lastSavedText = document.getElementById('panel-translation')?.value || '';
+  initAutoSave();
 }
 
-// ── 스크롤 동기화 ────────────────────────────────────────────
+// ── 글자수/단어수 카운터 ─────────────────────────────────────
+function countText(text) {
+  var chars = text.replace(/\s/g, '').length;
+  var isKorean = /[가-힯]/.test(text);
+  var words = isKorean ? null : text.trim().split(/\s+/).filter(Boolean).length;
+  return { chars: chars, words: words };
+}
+function updateCounters() {
+  var srcEl = document.getElementById('panel-source');
+  var trEl  = document.getElementById('panel-translation');
+  var cSrc  = document.getElementById('counter-source');
+  var cTr   = document.getElementById('counter-translation');
+  if (!srcEl || !trEl || !cSrc || !cTr) return;
+
+  var src = countText(srcEl.value);
+  var tr  = countText(trEl.value);
+
+  cSrc.textContent = src.chars.toLocaleString() + '자' + (src.words != null ? ' · ' + src.words.toLocaleString() + '단어' : '');
+
+  var ratio = src.chars > 0 ? (tr.chars / src.chars) : 0;
+  var ratioStr = src.chars > 0 ? ' · 비율 ' + ratio.toFixed(2) + 'x' : '';
+  var warn = src.chars > 0 && (ratio < 0.7 || ratio > 1.8);
+  cTr.textContent = tr.chars.toLocaleString() + '자' + (tr.words != null ? ' · ' + tr.words.toLocaleString() + '단어' : '') + ratioStr;
+  cTr.className = 'panel-counter' + (warn ? ' ratio-warn' : '');
+}
+
+// ── 자동 저장 (3분, 마지막 입력 후 30초 debounce) ──────────────
+var _lastSavedText = '';
+var _autoSaveTimer = null;
+var _debounceTimer = null;
+function scheduleAutoSave() {
+  clearTimeout(_debounceTimer);
+  _debounceTimer = setTimeout(function() {
+    var ta = document.getElementById('panel-translation');
+    if (!ta || !selectedOrder) return;
+    if (ta.value === _lastSavedText) return; // 변경 없으면 스킵
+    saveTranslationDraft(true); // silent=true
+  }, 30000); // 마지막 입력 후 30초
+}
+function initAutoSave() {
+  if (_autoSaveTimer) clearInterval(_autoSaveTimer);
+  _autoSaveTimer = setInterval(function() {
+    var ta = document.getElementById('panel-translation');
+    if (!ta || !selectedOrder) return;
+    if (ta.value === _lastSavedText) return;
+    if (_debounceTimer) return; // 타이핑 중이면 스킵
+    saveTranslationDraft(true);
+  }, 180000); // 3분
+}
+window.addEventListener('beforeunload', function(e) {
+  var ta = document.getElementById('panel-translation');
+  if (ta && ta.value !== _lastSavedText) {
+    e.preventDefault(); e.returnValue = '수정 내용이 저장되지 않을 수 있습니다.';
+  }
+});
+
+// ── 단축키 ──────────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveTranslationDraft();
+  }
+});
+
+// ── 스크롤 동기화 ─────────────────────────────────────────────
 var _scrollSyncEnabled = true;
 var _scrollSyncing = false;
 function toggleScrollSync() {
@@ -962,38 +1031,39 @@ function toggleFocusMode() {
   if (btn) btn.textContent = isOn ? '✕ 집중 해제' : '⛶ 집중 모드';
   // 집중모드 전용 버튼 표시/숨김
   var saveBtn = document.getElementById('focus-save-btn');
-  var deliverBtn = document.getElementById('focus-deliver-btn');
   if (saveBtn) saveBtn.style.display = isOn ? 'inline-block' : 'none';
-  if (deliverBtn) deliverBtn.style.display = isOn ? 'inline-block' : 'none';
 }
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('admin-focus')) toggleFocusMode(); });
 
 function onTranslationEdit() {
   var el = document.getElementById('save-status');
   if (el) el.textContent = '● 미저장';
+  updateCounters();
+  scheduleAutoSave();
 }
 
-// 임시저장
-async function saveTranslationDraft() {
-  if (!selectedOrder) { showToast('주문을 먼저 선택해주세요', 'error'); return; }
+// 임시저장 (silent=true이면 자동저장 — 토스트 없이 조용히)
+async function saveTranslationDraft(silent) {
+  if (!selectedOrder) { if (!silent) showToast('주문을 먼저 선택해주세요', 'error'); return; }
   var text = document.getElementById('panel-translation').value;
   var btn = document.getElementById('btn-save-draft');
   var statusEl = document.getElementById('save-status');
-  btn.disabled = true; btn.textContent = '저장 중…';
+  if (!silent && btn) { btn.disabled = true; btn.textContent = '저장 중…'; }
   try {
     var res = await adminFetch('/api/admin/orders/' + selectedOrder.orderId + '/save-translation', {
       method: 'POST',
       body: JSON.stringify({ translation: text, isFinal: false }),
     });
     if (res.ok) {
-      showToast('✅ 임시저장 완료', 'success');
-      // 메모리 업데이트 → 다운로드 버튼도 즉시 최신 반영
+      _lastSavedText = text; // 자동저장 변경감지 기준점 업데이트
       selectedOrder.aiTranslation = text;
       selectedOrder.reviewerTranslation = text;
-      if (statusEl) statusEl.textContent = '저장됨 ' + new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+      var timeStr = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+      if (statusEl) statusEl.textContent = (silent ? '자동 저장됨 ' : '저장됨 ') + timeStr;
+      if (!silent) showToast('✅ 임시저장 완료', 'success');
     } else {
-      showToast('⚠️ 저장 실패: ' + (res.error || ''), 'error');
-      if (statusEl) statusEl.textContent = '저장 실패';
+      if (!silent) showToast('⚠️ 저장 실패: ' + (res.error || ''), 'error');
+      else if (statusEl) statusEl.textContent = '자동 저장 실패 — 수동 저장 권장';
     }
   } catch(e) {
     showToast('⚠️ 서버 오류: ' + e.message, 'error');
