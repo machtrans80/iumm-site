@@ -41,6 +41,21 @@ body{display:flex;flex-direction:column;min-height:100vh}
 .pane-ta{flex:1;width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:14px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:20px;resize:none;outline:none}
 .pane-ta.editable{background:#0e0e0e;color:var(--white)}
 .pane-ta.editable:focus{background:#111}
+/* ─ 줄번호 ─ */
+.pane-ta-wrap{display:flex;flex:1;overflow:hidden;min-height:0}
+.pane-line-nums{width:42px;background:#080808;border-right:1px solid rgba(255,255,255,0.05);padding:20px 6px 20px 4px;font-size:14px;line-height:1.8;text-align:right;color:rgba(255,255,255,0.18);font-family:monospace;overflow:hidden;flex-shrink:0;user-select:none;-webkit-user-select:none;pointer-events:none;white-space:pre}
+/* ─ 집중 모드 ─ */
+.rv-focus-btn{padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.rv-sync-toggle{font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;user-select:none;padding:4px 8px;border-radius:3px;transition:color 0.2s}
+.rv-sync-toggle.active{color:rgba(201,168,76,0.75)}
+body.rv-focus .job-nav{display:none}
+body.rv-focus .glossary-panel{display:none !important}
+body.rv-focus .checklist-section{display:none}
+body.rv-focus .comment-section{display:none}
+body.rv-focus .job-body{grid-template-rows:1fr;height:100vh}
+body.rv-focus .btn-save,body.rv-focus .btn-submit{display:inline-block !important}
+.rv-focus-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border);padding:8px 20px;align-items:center;gap:12px}
+body.rv-focus .rv-focus-bar{display:flex}
 .char-count{padding:6px 20px;font-size:11px;color:var(--gray);text-align:right;border-top:1px solid var(--card-border);flex-shrink:0}
 
 /* ─ 체크리스트 ─ */
@@ -126,6 +141,16 @@ body{display:flex;flex-direction:column;min-height:100vh}
 </style>
 </head>
 <body>
+<!-- 집중 모드 상단 바 -->
+<div class="rv-focus-bar" id="rv-focus-bar">
+  <span style="font-size:12px;color:rgba(255,255,255,0.5)">집중 모드</span>
+  <span class="rv-sync-toggle active" id="rv-sync-toggle" onclick="toggleRvSync()">⇕ 동기화</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn-save" id="btn-save-focus" onclick="saveDraft()">임시저장</button>
+    <button class="btn-submit" id="btn-submit-focus" disabled onclick="doSubmit()" style="opacity:0.3;cursor:not-allowed">검수 완료</button>
+    <button class="rv-focus-btn" onclick="toggleRvFocus()">✕ 집중 해제 (ESC)</button>
+  </div>
+</div>
 
 <!-- 헤더 -->
 <nav class="job-nav">
@@ -135,6 +160,8 @@ body{display:flex;flex-direction:column;min-height:100vh}
     <span class="nav-deadline" id="nav-deadline"></span>
   </div>
   <div class="nav-actions">
+    <span class="rv-sync-toggle active" id="rv-sync-toggle-nav" onclick="toggleRvSync()" title="스크롤 동기화">⇕ 동기화</span>
+    <button class="rv-focus-btn" onclick="toggleRvFocus()">⛶ 집중 모드</button>
     <button class="btn-save" id="btn-save" onclick="saveDraft()">임시저장</button>
     <button class="btn-submit" id="btn-submit" disabled onclick="doSubmit()">검수 완료 제출</button>
   </div>
@@ -273,6 +300,53 @@ function getChecklist() {
   return CHECKLIST.map(function(_, i) { return document.getElementById('cl-' + i)?.checked || false; });
 }
 
+// ── 줄번호 업데이트 (검수자) ────────────────────────────────
+function rvUpdateLineNums() {
+  var src = document.getElementById('source-ta');
+  var tr  = document.getElementById('translation-ta');
+  var lnSrc = document.getElementById('ln-src');
+  var lnTr  = document.getElementById('ln-tr');
+  if (src && lnSrc) { lnSrc.textContent = Array.from({length: src.value.split('\n').length}, function(_, i){ return i + 1; }).join('\n'); lnSrc.scrollTop = src.scrollTop; }
+  if (tr  && lnTr)  { lnTr.textContent  = Array.from({length: tr.value.split('\n').length},  function(_, i){ return i + 1; }).join('\n'); lnTr.scrollTop  = tr.scrollTop; }
+}
+
+// ── 스크롤 동기화 (검수자) ──────────────────────────────────
+var _rvSyncEnabled = true, _rvSyncing = false;
+function toggleRvSync() {
+  _rvSyncEnabled = !_rvSyncEnabled;
+  ['rv-sync-toggle','rv-sync-toggle-nav'].forEach(function(id){ var el = document.getElementById(id); if (el) { el.className = 'rv-sync-toggle' + (_rvSyncEnabled ? ' active' : ''); el.textContent = '⇕ ' + (_rvSyncEnabled ? '동기화' : 'OFF'); } });
+}
+function setupRvScrollSync() {
+  var src = document.getElementById('source-ta');
+  var tr  = document.getElementById('translation-ta');
+  if (!src || !tr) return;
+  rvUpdateLineNums();
+  function sync(a, b, lnA, lnB) {
+    if (!_rvSyncEnabled || _rvSyncing) return;
+    _rvSyncing = true;
+    var ratio = a.scrollTop / Math.max(a.scrollHeight - a.clientHeight, 1);
+    b.scrollTop = ratio * (b.scrollHeight - b.clientHeight);
+    var la = document.getElementById(lnA); var lb = document.getElementById(lnB);
+    if (la) la.scrollTop = a.scrollTop; if (lb) lb.scrollTop = b.scrollTop;
+    requestAnimationFrame(function(){ _rvSyncing = false; });
+  }
+  src.addEventListener('scroll', function(){ sync(src, tr, 'ln-src', 'ln-tr'); });
+  tr.addEventListener('scroll',  function(){ sync(tr, src, 'ln-tr', 'ln-src'); });
+  src.addEventListener('input', function(){ var l=document.getElementById('ln-src'); if(l){l.textContent=Array.from({length:src.value.split('\n').length},function(_,i){return i+1;}).join('\n');l.scrollTop=src.scrollTop;} });
+}
+
+// ── 집중 모드 (검수자) ──────────────────────────────────────
+function toggleRvFocus() {
+  document.body.classList.toggle('rv-focus');
+  var isOn = document.body.classList.contains('rv-focus');
+  var fb = document.getElementById('rv-focus-bar');
+  // 집중모드에서 submit 버튼 상태 동기화
+  var sub = document.getElementById('btn-submit');
+  var subF = document.getElementById('btn-submit-focus');
+  if (subF && sub) { subF.disabled = sub.disabled; subF.style.opacity = sub.disabled ? '0.3' : '1'; subF.style.cursor = sub.disabled ? 'not-allowed' : 'pointer'; }
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('rv-focus')) toggleRvFocus(); });
+
 function updateSubmitBtn() {
   var all = CHECKLIST.every(function(_, i) { return document.getElementById('cl-' + i)?.checked; });
   var txt = (document.getElementById('translation-ta')?.value || '').trim();
@@ -306,11 +380,13 @@ function renderJob(job) {
   document.getElementById('job-body').innerHTML = [
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">원문</span><span class="pane-badge">' + (job.sourceLang||'—') + ' · ' + (job.charCount||0).toLocaleString() + '자</span></div>',
-    '  <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea>',
+    '  <div class="pane-ta-wrap"><div class="pane-line-nums" id="ln-src">1</div>',
+    '  <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea></div>',
     '</div>',
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">번역본 수정</span><span class="pane-badge">' + (job.targetLang||'—') + ' · 예상 보수 ₩' + (job.estimatedPay||0).toLocaleString() + '</span></div>',
-    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '  <div class="pane-ta-wrap"><div class="pane-line-nums" id="ln-tr">1</div>',
+    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn();rvUpdateLineNums()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea></div>',
     '  <div class="char-count" id="char-count"></div>',
     '</div>',
     '<div class="checklist-section">',
@@ -334,6 +410,7 @@ function renderJob(job) {
 
   updateProgress();
   setInterval(function(){ updateDeadline(job.deadline); }, 60000);
+  setTimeout(setupRvScrollSync, 100); // 줄번호 + 스크롤 동기화 초기화
 
   // 복사 차단 — Ctrl+C / Cmd+C 키 이벤트
   var _srcTa = document.getElementById('source-ta');

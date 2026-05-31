@@ -63,9 +63,27 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .panel-pane{display:flex;flex-direction:column}
 .panel-pane + .panel-pane{border-left:1px solid var(--card-border)}
 .panel-pane-label{padding:10px 16px;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray);letter-spacing:0.5px}
-.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:280px}
+.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:calc(65vh - 160px);flex:1}
 .panel-ta.editable{color:var(--white)}
 .panel-ta.editable:focus{background:#111}
+/* ─ 줄번호 래퍼 ─ */
+.ta-wrap{display:flex;flex:1;overflow:hidden;min-height:0}
+.line-nums{width:44px;background:#080808;border-right:1px solid rgba(255,255,255,0.06);padding:16px 6px 16px 4px;font-size:13px;line-height:1.8;text-align:right;color:rgba(255,255,255,0.2);font-family:monospace;overflow:hidden;flex-shrink:0;user-select:none;-webkit-user-select:none;pointer-events:none;white-space:pre}
+/* ─ 집중 모드 ─ */
+.focus-mode-btn{padding:5px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
+.focus-mode-btn:hover{background:rgba(255,255,255,0.1);color:var(--white)}
+body.admin-focus #admin-view > .admin-nav{display:none}
+body.admin-focus .tabs{display:none}
+body.admin-focus #orders-wrap,body.admin-focus #settlement-wrap,body.admin-focus #bypass-wrap,body.admin-focus #unassigned-wrap,body.admin-focus #failed-wrap{display:none !important}
+body.admin-focus #confirm-panel{position:fixed;inset:0;z-index:500;margin:0;border-radius:0;border:none;background:#0a0a0a;display:flex !important;flex-direction:column}
+body.admin-focus #confirm-panel .panel-ta{min-height:0;height:auto}
+body.admin-focus .panel-footer{flex-shrink:0}
+.focus-exit-hint{display:none;font-size:11px;color:rgba(255,255,255,0.3);margin-left:10px}
+body.admin-focus .focus-exit-hint{display:inline}
+/* ─ 스크롤 동기화 토글 ─ */
+.sync-toggle{font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer;user-select:none;padding:4px 8px;border-radius:3px;transition:color 0.2s}
+.sync-toggle.active{color:rgba(22,184,148,0.8)}
+.sync-toggle:hover{color:rgba(255,255,255,0.6)}
 .panel-footer{padding:16px 20px;border-top:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center}
 .panel-info{font-size:13px;color:rgba(255,255,255,0.5)}
 .panel-info strong{color:var(--white)}
@@ -482,18 +500,29 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
       <div class="panel-header">
         <span class="panel-title" id="panel-ordnum">—</span>
         <span class="panel-meta" id="panel-meta"></span>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+          <span class="sync-toggle active" id="scroll-sync-toggle" onclick="toggleScrollSync()" title="스크롤 동기화">⇕ 동기화</span>
+          <button class="focus-mode-btn" onclick="toggleFocusMode()" id="focus-btn">⛶ 집중 모드</button>
+          <span class="focus-exit-hint">ESC로 해제</span>
+        </div>
       </div>
       <div class="panel-body">
         <div class="panel-pane">
           <div class="panel-pane-label">원문 (읽기 전용)</div>
-          <textarea class="panel-ta" id="panel-source" readonly></textarea>
+          <div class="ta-wrap">
+            <div class="line-nums" id="ln-source">1</div>
+            <textarea class="panel-ta" id="panel-source" readonly></textarea>
+          </div>
         </div>
         <div class="panel-pane">
           <div class="panel-pane-label" style="display:flex;align-items:center;justify-content:space-between">
             <span>번역본 (수정 가능 후 납품)</span>
             <span id="save-status" style="font-size:11px;color:rgba(255,255,255,0.35)"></span>
           </div>
-          <textarea class="panel-ta editable" id="panel-translation" oninput="onTranslationEdit()"></textarea>
+          <div class="ta-wrap">
+            <div class="line-nums" id="ln-translation">1</div>
+            <textarea class="panel-ta editable" id="panel-translation" oninput="onTranslationEdit()"></textarea>
+          </div>
         </div>
       </div>
       <!-- AI 품질 점수 섹션 -->
@@ -896,12 +925,65 @@ function selectOrder(id, row) {
   var saveStatus = document.getElementById('save-status');
   if (saveStatus) saveStatus.textContent = '';
   document.getElementById('confirm-panel').style.display = 'block';
+  // 줄번호 + 스크롤 동기화 초기화
+  setTimeout(function(){ initPanelLineNums(); setupPanelScrollSync(); }, 50);
 }
 
 // 번역본 편집 감지 → 미저장 상태 표시
+// ── 줄번호 업데이트 ─────────────────────────────────────────
+function updateLineNums(taId, numsId) {
+  var ta = document.getElementById(taId);
+  var nums = document.getElementById(numsId);
+  if (!ta || !nums) return;
+  var count = ta.value.split('\n').length;
+  nums.textContent = Array.from({length: count}, function(_, i){ return i + 1; }).join('\n');
+  nums.scrollTop = ta.scrollTop;
+}
+function initPanelLineNums() {
+  updateLineNums('panel-source', 'ln-source');
+  updateLineNums('panel-translation', 'ln-translation');
+}
+
+// ── 스크롤 동기화 ────────────────────────────────────────────
+var _scrollSyncEnabled = true;
+var _scrollSyncing = false;
+function toggleScrollSync() {
+  _scrollSyncEnabled = !_scrollSyncEnabled;
+  var el = document.getElementById('scroll-sync-toggle');
+  if (el) { el.className = 'sync-toggle' + (_scrollSyncEnabled ? ' active' : ''); el.textContent = '⇕ ' + (_scrollSyncEnabled ? '동기화' : '동기화 OFF'); }
+}
+function setupPanelScrollSync() {
+  var src = document.getElementById('panel-source');
+  var tr  = document.getElementById('panel-translation');
+  if (!src || !tr) return;
+  function syncFrom(a, b, lnA, lnB) {
+    if (!_scrollSyncEnabled || _scrollSyncing) return;
+    _scrollSyncing = true;
+    var ratio = a.scrollTop / Math.max(a.scrollHeight - a.clientHeight, 1);
+    b.scrollTop = ratio * (b.scrollHeight - b.clientHeight);
+    document.getElementById(lnA).scrollTop = a.scrollTop;
+    document.getElementById(lnB).scrollTop = b.scrollTop;
+    requestAnimationFrame(function(){ _scrollSyncing = false; });
+  }
+  src.addEventListener('scroll', function(){ syncFrom(src, tr, 'ln-source', 'ln-translation'); document.getElementById('ln-source').scrollTop = src.scrollTop; });
+  tr.addEventListener('scroll',  function(){ syncFrom(tr, src, 'ln-translation', 'ln-source'); document.getElementById('ln-translation').scrollTop = tr.scrollTop; });
+  src.addEventListener('input', function(){ updateLineNums('panel-source', 'ln-source'); });
+  tr.addEventListener('input',  function(){ updateLineNums('panel-translation', 'ln-translation'); });
+}
+
+// ── 집중 모드 ────────────────────────────────────────────────
+function toggleFocusMode() {
+  document.body.classList.toggle('admin-focus');
+  var btn = document.getElementById('focus-btn');
+  var isOn = document.body.classList.contains('admin-focus');
+  if (btn) btn.textContent = isOn ? '✕ 집중 해제' : '⛶ 집중 모드';
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('admin-focus')) toggleFocusMode(); });
+
 function onTranslationEdit() {
   var el = document.getElementById('save-status');
   if (el) el.textContent = '● 미저장';
+  updateLineNums('panel-translation', 'ln-translation');
 }
 
 // 임시저장
