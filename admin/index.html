@@ -60,7 +60,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .panel-title{font-size:14px;font-weight:500;color:var(--white)}
 .panel-meta{font-size:12px;color:var(--gray)}
 .panel-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.panel-pane{display:flex;flex-direction:column;min-height:0}
+.panel-pane{display:flex;flex-direction:column;min-height:0;height:max(420px,calc(100vh - 380px));overflow:hidden}
 .panel-pane + .panel-pane{border-left:1px solid var(--card-border)}
 .panel-pane-label{padding:10px 16px;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray);letter-spacing:0.5px}
 .panel-counter{padding:5px 16px;border-top:1px solid var(--card-border);font-size:11px;color:rgba(255,255,255,0.3);text-align:right;flex-shrink:0}
@@ -77,12 +77,12 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .search-count{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap}
 .search-count.mismatch{color:#ef4444}
 /* ── Diff 뷰어 ── */
-.panel-diff{display:none;flex:1;min-height:0;overflow-y:auto;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;background:#0e0e0e;color:rgba(255,255,255,0.85);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
+.panel-diff{display:none;min-height:0;height:100%;overflow-y:auto;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;background:#0e0e0e;color:rgba(255,255,255,0.85);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
 mark.diff-add{background:rgba(255,220,0,0.3);color:inherit;border-radius:2px;font-style:normal}
 mark.diff-del{background:transparent;color:rgba(255,255,255,0.3);text-decoration:line-through;font-style:normal}
 /* ── 검색 하이라이트 오버레이 ── */
-.ta-wrap-s{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
-.ta-wrap-s .panel-ta{flex:1;min-height:0;height:auto}
+.ta-wrap-s{position:relative;flex:1;display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden}
+.ta-wrap-s .panel-ta{flex:1;min-height:0;height:100%;overflow-y:auto;box-sizing:border-box}
 .ta-overlay{position:absolute;inset:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;pointer-events:none;user-select:none;-webkit-user-select:none;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;white-space:pre-wrap;word-break:break-word;background:transparent;color:rgba(0,0,0,0);box-sizing:border-box;display:none}
 .ta-overlay::-webkit-scrollbar{display:none}
 .ta-overlay.visible{display:block}
