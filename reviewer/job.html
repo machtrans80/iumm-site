@@ -41,9 +41,6 @@ body{display:flex;flex-direction:column;min-height:100vh}
 .pane-ta{flex:1;width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:14px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:20px;resize:none;outline:none}
 .pane-ta.editable{background:#0e0e0e;color:var(--white)}
 .pane-ta.editable:focus{background:#111}
-/* ─ 줄번호 ─ */
-.pane-ta-wrap{display:flex;flex:1;overflow:hidden;min-height:0}
-.pane-line-nums{width:42px;background:#080808;border-right:1px solid rgba(255,255,255,0.05);padding:20px 6px 20px 4px;font-size:14px;line-height:1.8;text-align:right;color:rgba(255,255,255,0.18);font-family:monospace;overflow:hidden;flex-shrink:0;user-select:none;-webkit-user-select:none;pointer-events:none;white-space:pre}
 /* ─ 집중 모드 ─ */
 .rv-focus-btn{padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
 .rv-sync-toggle{font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;user-select:none;padding:4px 8px;border-radius:3px;transition:color 0.2s}
@@ -52,7 +49,9 @@ body.rv-focus .job-nav{display:none}
 body.rv-focus .glossary-panel{display:none !important}
 body.rv-focus .checklist-section{display:none}
 body.rv-focus .comment-section{display:none}
-body.rv-focus .job-body{grid-template-rows:1fr;height:100vh}
+body.rv-focus .job-body{grid-template-rows:1fr;height:calc(100vh - 48px);margin-top:48px;overflow:hidden}
+body.rv-focus .pane{min-height:0;overflow:hidden}
+body.rv-focus .pane-ta{flex:1;min-height:0;height:100%;overflow-y:auto}
 body.rv-focus .btn-save,body.rv-focus .btn-submit{display:inline-block !important}
 .rv-focus-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border);padding:8px 20px;align-items:center;gap:12px}
 body.rv-focus .rv-focus-bar{display:flex}
@@ -300,16 +299,6 @@ function getChecklist() {
   return CHECKLIST.map(function(_, i) { return document.getElementById('cl-' + i)?.checked || false; });
 }
 
-// ── 줄번호 업데이트 (검수자) ────────────────────────────────
-function rvUpdateLineNums() {
-  var src = document.getElementById('source-ta');
-  var tr  = document.getElementById('translation-ta');
-  var lnSrc = document.getElementById('ln-src');
-  var lnTr  = document.getElementById('ln-tr');
-  if (src && lnSrc) { lnSrc.textContent = Array.from({length: src.value.split('\n').length}, function(_, i){ return i + 1; }).join('\n'); lnSrc.scrollTop = src.scrollTop; }
-  if (tr  && lnTr)  { lnTr.textContent  = Array.from({length: tr.value.split('\n').length},  function(_, i){ return i + 1; }).join('\n'); lnTr.scrollTop  = tr.scrollTop; }
-}
-
 // ── 스크롤 동기화 (검수자) ──────────────────────────────────
 var _rvSyncEnabled = true, _rvSyncing = false;
 function toggleRvSync() {
@@ -320,19 +309,15 @@ function setupRvScrollSync() {
   var src = document.getElementById('source-ta');
   var tr  = document.getElementById('translation-ta');
   if (!src || !tr) return;
-  rvUpdateLineNums();
-  function sync(a, b, lnA, lnB) {
+  function sync(a, b) {
     if (!_rvSyncEnabled || _rvSyncing) return;
     _rvSyncing = true;
     var ratio = a.scrollTop / Math.max(a.scrollHeight - a.clientHeight, 1);
     b.scrollTop = ratio * (b.scrollHeight - b.clientHeight);
-    var la = document.getElementById(lnA); var lb = document.getElementById(lnB);
-    if (la) la.scrollTop = a.scrollTop; if (lb) lb.scrollTop = b.scrollTop;
     requestAnimationFrame(function(){ _rvSyncing = false; });
   }
-  src.addEventListener('scroll', function(){ sync(src, tr, 'ln-src', 'ln-tr'); });
-  tr.addEventListener('scroll',  function(){ sync(tr, src, 'ln-tr', 'ln-src'); });
-  src.addEventListener('input', function(){ var l=document.getElementById('ln-src'); if(l){l.textContent=Array.from({length:src.value.split('\n').length},function(_,i){return i+1;}).join('\n');l.scrollTop=src.scrollTop;} });
+  src.addEventListener('scroll', function(){ sync(src, tr); });
+  tr.addEventListener('scroll',  function(){ sync(tr, src); });
 }
 
 // ── 집중 모드 (검수자) ──────────────────────────────────────
@@ -380,13 +365,11 @@ function renderJob(job) {
   document.getElementById('job-body').innerHTML = [
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">원문</span><span class="pane-badge">' + (job.sourceLang||'—') + ' · ' + (job.charCount||0).toLocaleString() + '자</span></div>',
-    '  <div class="pane-ta-wrap"><div class="pane-line-nums" id="ln-src">1</div>',
-    '  <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea></div>',
+    '  <textarea class="pane-ta no-copy" readonly id="source-ta" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;">' + escHtml(job.originalText) + '</textarea>',
     '</div>',
     '<div class="pane">',
     '  <div class="pane-header"><span class="pane-title">번역본 수정</span><span class="pane-badge">' + (job.targetLang||'—') + ' · 예상 보수 ₩' + (job.estimatedPay||0).toLocaleString() + '</span></div>',
-    '  <div class="pane-ta-wrap"><div class="pane-line-nums" id="ln-tr">1</div>',
-    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn();rvUpdateLineNums()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea></div>',
+    '  <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
     '  <div class="char-count" id="char-count"></div>',
     '</div>',
     '<div class="checklist-section">',
