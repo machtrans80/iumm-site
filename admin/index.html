@@ -65,7 +65,7 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'No
 .panel-pane-label{padding:10px 16px;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray);letter-spacing:0.5px}
 .panel-counter{padding:5px 16px;border-top:1px solid var(--card-border);font-size:11px;color:rgba(255,255,255,0.3);text-align:right;flex-shrink:0}
 .panel-counter.ratio-warn{color:#ef4444}
-.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,calc(100vh - 320px))}
+.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,calc(100vh - 380px))}
 /* ── 진행률 막대 ── */
 .panel-progress-bar{height:4px;background:rgba(255,255,255,0.05);flex-shrink:0}
 .panel-progress-fill{height:100%;background:rgba(22,184,148,0.5);width:0%;transition:width 0.15s}
@@ -83,10 +83,10 @@ mark.diff-del{background:transparent;color:rgba(255,255,255,0.3);text-decoration
 /* ── 검색 하이라이트 오버레이 ── */
 .ta-wrap-s{position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
 .ta-wrap-s .panel-ta{flex:1;min-height:0;height:auto}
-.ta-overlay{position:absolute;inset:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;pointer-events:none;user-select:none;-webkit-user-select:none;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;white-space:pre-wrap;word-break:break-word;background:transparent;color:transparent;box-sizing:border-box;display:none}
+.ta-overlay{position:absolute;inset:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;pointer-events:none;user-select:none;-webkit-user-select:none;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;white-space:pre-wrap;word-break:break-word;background:transparent;color:rgba(0,0,0,0);box-sizing:border-box;display:none}
 .ta-overlay::-webkit-scrollbar{display:none}
 .ta-overlay.visible{display:block}
-mark.search-hit{background:rgba(255,220,0,0.4);color:transparent;border-radius:2px}
+mark.search-hit{background:rgba(255,220,0,0.35);color:rgba(0,0,0,0);border-radius:2px}
 .panel-ta.editable{color:var(--white)}
 .panel-ta.editable:focus{background:#111}
 /* ─ 집중 모드 ─ */
@@ -1063,18 +1063,24 @@ function initProgressBars(){
 }
 
 // ── Word-level Diff ──────────────────────────────────────────
+// 줄 단위 LCS Diff (word-level 대비 훨씬 빠름, 1000줄×1000줄 = 100만 비교)
 function _computeDiff(a,b){
-  var aTok=a.match(/\S+|\n|\s+/g)||[], bTok=b.match(/\S+|\n|\s+/g)||[];
-  if(aTok.length*bTok.length>60000)return null;
-  var n=aTok.length,m=bTok.length;
+  var aLines=a.split('\n'), bLines=b.split('\n');
+  var n=aLines.length, m=bLines.length;
+  // 1000줄 초과 시 단락(\n\n) 단위로 fallback
+  if(n>1000||m>1000){
+    aLines=a.split(/\n\n+/).map(function(s){return s.trim();}).filter(Boolean);
+    bLines=b.split(/\n\n+/).map(function(s){return s.trim();}).filter(Boolean);
+    n=aLines.length; m=bLines.length;
+  }
   var dp=Array.from({length:n+1},function(){return new Int32Array(m+1);});
   for(var i=1;i<=n;i++)for(var j=1;j<=m;j++)
-    dp[i][j]=aTok[i-1]===bTok[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+    dp[i][j]=aLines[i-1]===bLines[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
   var res=[],i=n,j=m;
   while(i>0||j>0){
-    if(i>0&&j>0&&aTok[i-1]===bTok[j-1]){res.push({t:'=',s:aTok[i-1]});i--;j--;}
-    else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])){res.push({t:'+',s:bTok[j-1]});j--;}
-    else{res.push({t:'-',s:aTok[i-1]});i--;}
+    if(i>0&&j>0&&aLines[i-1]===bLines[j-1]){res.push({t:'=',s:aLines[i-1]});i--;j--;}
+    else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])){res.push({t:'+',s:bLines[j-1]});j--;}
+    else{res.push({t:'-',s:aLines[i-1]});i--;}
   }
   return res.reverse();
 }
@@ -1090,16 +1096,12 @@ function toggleAdminDiff(){
     var orig=(selectedOrder&&selectedOrder.aiTranslation)||'';
     var curr=ta.value;
     var diff=_computeDiff(orig,curr);
-    if(diff){
-      dv.innerHTML=diff.map(function(d){
-        var e=_esc(d.s);
-        if(d.t==='=')return e;
-        if(d.t==='+')return '<mark class="diff-add">'+e+'</mark>';
-        return '<mark class="diff-del">'+e+'</mark>';
-      }).join('');
-    } else {
-      dv.innerHTML='<em style="color:rgba(255,255,255,0.4)">문서가 너무 길어 Diff 계산 불가 (60,000 토큰 초과)</em>';
-    }
+    dv.innerHTML=diff.map(function(d){
+      var e=_esc(d.s);
+      if(d.t==='=')return e;
+      if(d.t==='+')return '<mark class="diff-add">'+e+'</mark>';
+      return '<mark class="diff-del">'+e+'</mark>';
+    }).join('\n');
     ta.style.display='none'; dv.style.display='block';
     btn.textContent='✎ 편집 모드'; btn.style.background='rgba(255,220,0,0.12)';
   } else {
@@ -1130,8 +1132,6 @@ function _clearAdminOverlays(){
     var o=document.getElementById(id);
     if(o){o.innerHTML='';o.classList.remove('visible');}
   });
-  var s=document.getElementById('panel-source'),t=document.getElementById('panel-translation');
-  if(s)s.style.color=''; if(t)t.style.color='';
 }
 function _highlightOverlay(taId,ovId,query){
   var ta=document.getElementById(taId),ov=document.getElementById(ovId);
@@ -1140,7 +1140,7 @@ function _highlightOverlay(taId,ovId,query){
   var html=_esc(ta.value).replace(new RegExp(_esc(query).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),function(m){count++;return '<mark class="search-hit">'+m+'</mark>';});
   ov.innerHTML=html;
   ov.classList.add('visible');
-  ta.style.color='transparent';
+  // overlay가 on top이므로 textarea 색 변경 불필요 (overlay pointer-events:none으로 편집 통과)
   // sync scroll
   if(ovId==='ov-src'&&_ovSrcListener){ta.removeEventListener('scroll',_ovSrcListener);}
   if(ovId==='ov-tr'&&_ovTrListener){ta.removeEventListener('scroll',_ovTrListener);}
