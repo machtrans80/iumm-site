@@ -4959,27 +4959,9 @@ async function completePayment(){
     return;
   }
 
-  // [J-7] 0원 무료 트라이얼 — PortOne 스킵, 직접 주문 생성
-  if(amountNum<=0){
-    var ftId='iumm_free_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
-    var ftChars=document.getElementById('char-count')?parseInt((document.getElementById('char-count').textContent||'').replace(/[^0-9]/g,''))||0:0;
-    var ftPages=document.getElementById('page-count-input')?parseInt(document.getElementById('page-count-input').value)||0:0;
-    var ftLang=document.getElementById('lang-select')?document.getElementById('lang-select').value:'-';
-    var ftFs=document.getElementById('field-select');
-    var ftField=ftFs?ftFs.options[ftFs.selectedIndex].text:'일반';var ftFc=ftFs?ftFs.value:'general';
-    var ftPt=document.getElementById('pasteText');var ftOt=document.getElementById('ocr-result-text');
-    var ftText=window._inputMode==='ocr'?(ftOt?ftOt.value:''):(ftPt?ftPt.value:'');
-    var ftSui={};if(currentUserKakaoId){try{var ftPis=localStorage.getItem('iumm_userinfo_'+currentUserKakaoId);if(ftPis)ftSui=JSON.parse(ftPis);}catch(e){}}
-    if(isFreeTrialOrder&&!freeTrialUsed){freeTrialUsed=true;isFreeTrialOrder=false;if(currentUserKakaoId)markFreeTrialUsed(currentUserKakaoId);}
-    fetch('https://hook.eu2.make.com/mcujf5mztle5zf7qonaepniee5efe1g8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      주문번호:'IUM-'+Date.now(),플랜:currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스',결제방식:'무료체험',번역방향:ftLang,전문분야:ftField,분야영문코드:ftFc,
-      글자수:ftChars,페이지수:ftPages,결제금액:0,결제ID:ftId,자격사프리미엄:(typeof selectedReviewerIsExpert!=='undefined'&&selectedReviewerIsExpert===true),결제상태:'무료체험완료',
-      접수일시:new Date().toLocaleString('ko-KR'),회원이메일:currentUser||'비로그인',회원이름:currentUserName||ftSui.name||'미입력',
-      회원전화번호:ftSui.phone||'미입력',회원회사명:ftSui.company||'미입력',카카오ID:currentUserKakaoId||'비로그인',
-      원문텍스트:ftText,파일첨부:'첨부파일 없음',고객요청용어집:'없음',고객선택검수자ID:selectedReviewerId||'',고객선택검수자명:selectedReviewerName||'',배정방식:selectedOrderMode||''
-    })}).catch(function(e){console.log('[무료체험 webhook 오류]',e);});
-    document.getElementById('payment-form').style.display='none';
-    document.getElementById('payment-complete').style.display='block';
+  // 최소 결제 금액 검증 (PortOne 정책: 1,000원 이상)
+  if(amountNum<1000){
+    alert('결제 금액이 1,000원 미만입니다.\n\n300자 무료체험 할인(7,500원)은 최소 결제 금액 이상 주문 시 자동 적용됩니다.\n최소 340자 이상 입력해 주세요.\n(340자 × 25원 - 7,500원 할인 = 1,000원)');
     return;
   }
 
