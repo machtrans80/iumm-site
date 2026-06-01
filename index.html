@@ -377,8 +377,8 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 }
 
 /* ── 브랜드 시그니처 ── */
-.brand-signature-block{text-align:center;margin:32px auto 16px;padding:0 16px;width:100%}
-.brand-signature-line{display:inline-block;font-size:13px;color:rgba(201,168,76,0.85);font-weight:400;letter-spacing:0.12em;line-height:1.6;white-space:nowrap}
+.brand-signature-block{text-align:center;margin:12px auto 8px;padding:4px 16px;width:100%}
+.brand-signature-line{display:inline-block;font-size:13px;color:rgba(217,119,6,0.9);font-weight:500;letter-spacing:0.12em;line-height:1.6;white-space:nowrap}
 
 /* ── 모바일 추가 최적화 C-2.7 ── */
 @media(max-width:768px){
@@ -399,6 +399,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   /* CTA 버튼 터치 영역 확보 */
   .btn-primary,.btn-secondary{min-height:48px !important}
   /* 브랜드 시그니처 모바일 */
+  .brand-signature-block{margin:8px auto 6px !important;padding:2px 12px !important}
   .brand-signature-line{font-size:11px !important;letter-spacing:0.08em !important;white-space:normal !important}
   /* 9.5단계 grid 접힘 기본 + 토글 */
   .ai-steps-grid{display:none !important}
@@ -465,9 +466,12 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 .stat-card .detail{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.35s ease,opacity 0.3s ease,margin-top 0.3s ease,padding-top 0.3s ease,border-width 0.3s ease;color:#F2D479;font-size:12px;line-height:1.6;word-break:keep-all;margin-top:0;padding-top:0;border-top:0 solid rgba(255,255,255,0.1)}
 .stat-card:hover .detail,.stat-card.is-open .detail{max-height:140px;opacity:1;margin-top:12px;padding-top:10px;border-top-width:0.5px}
 @media(max-width:768px){
-  .stat-card{padding:22px 14px !important}
-  .stat-card .stat-num{font-size:40px !important}
-  .stat-card .stat-label{font-size:13px !important;margin-top:10px !important}
+  .stat-card{padding:20px 12px !important;min-height:110px !important;display:flex !important;flex-direction:column !important;justify-content:center !important;align-items:center !important;box-sizing:border-box !important}
+  .stat-card .stat-num{font-size:36px !important;line-height:1 !important;letter-spacing:-0.5px !important}
+  .stat-card .stat-label{font-size:12px !important;margin-top:8px !important;line-height:1.3 !important}
+  /* 인라인 font-size override (9.5카드 clamp 무력화) */
+  .stat-card [style*="font-size:clamp"]{font-size:36px !important}
+  .stat-card [style*="font-size:28px"]{font-size:22px !important}
   .stat-card:hover{background:rgba(255,255,255,0.04) !important;border-color:rgba(255,255,255,0.08) !important}
   .stat-card:hover .stat-label{color:#A8B6C6}
   .stat-card:hover .detail{max-height:0;opacity:0;margin-top:0;padding-top:0;border-top:none}
@@ -2069,7 +2073,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   </p>
   
   <!-- 모바일 전용: 분야 <select> 드롭다운 -->
-  <select class="mob-field-select" onchange="if(isLoggedIn){currentPlan='ai';showModal('order');updateOrderModal();}else{showPage('login');}this.value=''" style="display:none">
+  <select class="mob-field-select" id="mob-field-select" onchange="selectFieldOnly(this.value)" style="display:none">
     <option value="">── 17개 전문 분야 보기 / 선택 ──</option>
     <option value="legal">⚖️ 법률·계약</option>
     <option value="medical">🏥 의료·제약</option>
@@ -3688,6 +3692,22 @@ function filterReviewers(lang){
 function showReviewerPanel(){
   document.getElementById('reviewer-panel').style.display='block';
   loadReviewers(function(){filterReviewers('전체');});
+}
+function selectFieldOnly(fieldValue) {
+  if (!fieldValue) return;
+  // 분야 정보 저장 (모달 오픈 X — 사용자가 직접 주문 버튼 누를 때 적용)
+  var sel = document.getElementById('mob-field-select');
+  // 기존 표시 제거 후 새 표시 추가
+  var prev = sel && sel.parentElement.querySelector('.mob-field-note');
+  if (prev) prev.remove();
+  var note = document.createElement('div');
+  note.className = 'mob-field-note';
+  note.style.cssText = 'color:rgba(22,184,148,0.9);font-size:13px;margin-top:6px;padding:8px 12px;background:rgba(22,184,148,0.07);border-radius:6px;border:1px solid rgba(22,184,148,0.2)';
+  note.textContent = '✓ ' + sel.options[sel.selectedIndex].text + ' 선택됨 — 주문 시 자동 적용';
+  if (sel) sel.parentElement.appendChild(note);
+  // 요금제 섹션으로 부드러운 스크롤
+  var pricingSection = document.getElementById('pricing');
+  if (pricingSection) setTimeout(function(){ pricingSection.scrollIntoView({behavior:'smooth',block:'start'}); }, 300);
 }
 function handleFreeTrial(){
   if(!isLoggedIn){showPage('signup');return;}
