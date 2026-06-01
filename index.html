@@ -376,6 +376,26 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   #page-login [style*="margin-top:20px"]{padding:14px 16px !important}
 }
 
+/* ── 모바일 추가 최적화 C-2.7 ── */
+@media(max-width:768px){
+  html,body{overflow-x:hidden !important;max-width:100vw !important}
+  /* 비교 카드: 비-IUMM 카드 모바일 접힘 */
+  .comp-card:not(.featured){display:none !important}
+  .comp-card:not(.featured).mob-expanded{display:block !important}
+  .mob-compare-toggle{display:flex !important}
+  /* 비교/플랜 카드 scale 리셋 (scale(1.02/1.05) 모바일 불필요) */
+  .comp-card.featured{transform:none !important;margin:0 auto !important;max-width:380px}
+  .premium-compare > div{transform:none !important;box-shadow:none !important}
+  /* 플랜 카드 4번째 이후 리스트 접힘 */
+  .premium-compare ul li:nth-child(n+4){display:none}
+  .premium-compare ul li.mob-show{display:list-item !important}
+  .mob-plan-toggle{display:block !important}
+  /* WHY 3박스 → 1열 */
+  #section-20year [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr !important;gap:10px !important}
+  /* CTA 버튼 터치 영역 확보 */
+  .btn-primary,.btn-secondary{min-height:48px !important}
+}
+
 /* ── 호버/탭 펼침 — 비교카드·9.5단계카드 공통 ── */
 .expandable-card{cursor:pointer;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease}
 .expandable-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
@@ -1796,6 +1816,10 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </ul>
     </div>
   </div>
+  <!-- 모바일 전용: 다른 서비스 비교 토글 -->
+  <div class="mob-compare-toggle" style="display:none;justify-content:center;margin-top:18px">
+    <button style="padding:10px 22px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.6);font-size:12px;cursor:pointer;font-family:inherit" onclick="document.querySelectorAll('.comp-card:not(.featured)').forEach(function(c){c.classList.toggle('mob-expanded')});this.textContent=this.textContent.includes('비교')? '접기 ▲' : '다른 서비스와 비교 ▼'">다른 서비스와 비교 ▼</button>
+  </div>
 </section>
 
 <!-- 20년 노하우 섹션 -->
@@ -1960,6 +1984,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         <li style="padding:10px 0;font-size:15px;color:rgba(255,255,255,0.85);font-weight:400;border-bottom:1px solid rgba(201,168,76,0.12)">✓ <strong style="color:#c9a84c">평균 10분</strong> 내 납품 (업계 최고)</li>
         <li style="padding:10px 0;font-size:15px;color:rgba(255,255,255,0.85);font-weight:400">✓ 17개 분야 글로벌 표준 + 30개 언어</li>
       </ul>
+      <button class="mob-plan-toggle" style="display:none;margin-top:10px;width:100%;padding:10px;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);border-radius:4px;color:rgba(201,168,76,0.8);font-size:12px;cursor:pointer;font-family:inherit" onclick="(function(btn){btn.closest('div').querySelectorAll('li').forEach(function(li,i){if(i>=3)li.classList.toggle('mob-show')});btn.textContent=btn.textContent.includes('보기')? '접기 ▲' : '더 보기 ▼'})(this)">더 보기 ▼</button>
       <p style="margin-top:20px;font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7;font-weight:300"><strong style="color:#c9a84c">대부분의 비즈니스·학술 용도에 충분</strong>한 고품질 번역. 일반 AI 번역과 차원이 다른 정밀도를 빠르게 받아보세요.</p>
     </div>
     
@@ -1977,6 +2002,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         <li style="padding:10px 0;font-size:15px;color:rgba(255,255,255,0.85);font-weight:400;border-bottom:1px solid rgba(232,128,74,0.12)">+ 자격사(변호사·의사·변리사) 매칭 옵션</li>
         <li style="padding:10px 0;font-size:15px;color:rgba(255,255,255,0.85);font-weight:400">+ 법률·의료·특허 정밀 분야 전문가 풀</li>
       </ul>
+      <button class="mob-plan-toggle" style="display:none;margin-top:10px;width:100%;padding:10px;background:rgba(232,128,74,0.07);border:1px solid rgba(232,128,74,0.2);border-radius:4px;color:rgba(232,128,74,0.8);font-size:12px;cursor:pointer;font-family:inherit" onclick="(function(btn){btn.closest('div').querySelectorAll('li').forEach(function(li,i){if(i>=3)li.classList.toggle('mob-show')});btn.textContent=btn.textContent.includes('보기')? '접기 ▲' : '더 보기 ▼'})(this)">더 보기 ▼</button>
       <p style="margin-top:20px;font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7;font-weight:300"><strong style="color:#e8804a">완벽을 추구하는 분</strong>께 추천. AI 검수에 사람의 전문 판단이 더해져 최상의 결과물을 제공합니다.</p>
     </div>
   </div>
