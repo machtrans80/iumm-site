@@ -406,7 +406,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .btn-primary,.btn-secondary{min-height:48px !important}
   /* 브랜드 시그니처 모바일 강제 */
   .brand-signature-block{margin:4px auto 4px !important;padding:0 12px !important}
-  .brand-signature-line{font-size:10.5px !important;letter-spacing:0.06em !important;white-space:normal !important;line-height:1.4 !important}
+  .brand-signature-line{color:rgba(201,168,76,0.9) !important;font-size:10.5px !important;letter-spacing:0.06em !important;white-space:normal !important;line-height:1.4 !important}
   /* 시그니처 부모 섹션(설마 경고박스 섹션) 상단 padding 축소 */
   .brand-signature-block + section{padding-top:12px !important}
   /* 경고박스 위 섹션 padding 줄임 */
@@ -416,11 +416,14 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .ai-steps-grid.mob-open{display:grid !important}
   .mob-steps-trigger{display:flex !important}
   /* 분야 그리드: 모바일 9번째 이후 숨김 */
-  .field-card.mob-hidden{display:none !important}
-  .field-bento.expanded .field-card.mob-hidden{display:flex !important}
+  .field-card.mob-hidden{display:none !important;visibility:hidden !important}
+  /* 펼침 후 9개 카드 = 8개와 동일 스타일 */
+  .field-bento.expanded .field-card.mob-hidden{display:flex !important;visibility:visible !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;padding:20px 16px !important;min-height:100px !important;box-sizing:border-box !important;writing-mode:horizontal-tb !important;word-break:keep-all !important}
   .field-bento.expanded .mob-more-fields{display:none !important}
   /* 더보기 버튼 모바일 전용 */
-  .mob-more-fields{display:block !important;width:100%;padding:12px;margin-top:8px;background:rgba(201,168,76,0.08);border:1px dashed rgba(201,168,76,0.4);border-radius:6px;color:rgba(201,168,76,0.9);cursor:pointer;font-size:13px;font-family:inherit;text-align:center}
+  .mob-more-fields{display:block !important;grid-column:1/-1 !important;width:100% !important;padding:12px !important;margin-top:8px !important;background:rgba(201,168,76,0.08) !important;border:1px dashed rgba(201,168,76,0.4) !important;border-radius:6px !important;color:rgba(201,168,76,0.9) !important;cursor:pointer !important;font-size:13px !important;font-family:inherit !important;text-align:center !important;box-sizing:border-box !important}
+  /* field-bento 그리드 강제 (펼침 후 재계산) */
+  .field-bento{display:grid !important;grid-template-columns:repeat(2,1fr) !important;gap:10px !important}
   /* <select> 모바일 숨김 */
   .mob-field-select,.mob-field-trigger{display:none !important}
   /* WHY 박스 설명 텍스트 숨김 → 제목만 */
