@@ -199,6 +199,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 /* [J-1] 정보입력 페이지 섹션 헤더 */
 #page-userinfo h2,#page-login h2{font-family:'Nanum Myeongjo',serif}
 #page-userinfo .lbl:has(+ .inp:focus),#page-mypage .lbl:has(+ .inp:focus){color:rgba(201,168,76,0.8)}
+/* [J-2] SPA 페이지 폼 섹션 카드 통일 (메인 카드 스타일 차용) */
+#page-userinfo > div > div:nth-child(2){background:rgba(22,184,148,0.025);border:1px solid rgba(22,184,148,0.12);border-radius:12px;padding:28px}
+#page-login > div > div:nth-child(2){background:rgba(22,184,148,0.025);border:1px solid rgba(22,184,148,0.12);border-radius:12px;padding:24px}
+#page-mypage [style*="padding:28px 28px"]{border-radius:10px !important;border-color:rgba(22,184,148,0.1) !important}
+#page-mypage [style*="border-bottom:1px solid rgba"]{border-bottom-color:rgba(22,184,148,0.15) !important}
 @media(max-width:768px){
   /* === 모바일 가독성 글로벌 향상 === */
   body{line-height:1.85}
@@ -3288,7 +3293,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
       <!-- ─── 계정 관리 (회원 탈퇴) ─── -->
       <section style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.08)">
-        <h3 style="font-size:16px;font-weight:500;color:rgba(255,255,255,0.7);margin:0 0 16px 0">⚙️ 계정 관리</h3>
+        <h3 style="font-size:16px;font-weight:500;color:rgba(255,255,255,0.7);margin:0 0 16px 0"><i class="ti ti-settings" style="color:#16B894;vertical-align:-2px;margin-right:6px"></i>계정 관리</h3>
         <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:20px">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <div>
