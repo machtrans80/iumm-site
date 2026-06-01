@@ -112,6 +112,24 @@ section{padding:64px 44px}
 .pricing-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:920px;margin:0 auto;align-items:stretch}
 .price-card{padding:36px 32px;border-radius:14px;border:1px solid rgba(255,255,255,0.10);position:relative;display:flex;flex-direction:column}
 .price-card.featured{border-color:rgba(22,184,148,0.4);background:rgba(22,184,148,0.06)}
+/* === [C-2.17] CTA 버튼 강조 + 카드 hover + 스크롤 fade-in === */
+.price-card{transition:transform 0.4s cubic-bezier(0.4,0,0.2,1),box-shadow 0.4s cubic-bezier(0.4,0,0.2,1)}
+.price-card:hover{transform:translateY(-8px);box-shadow:0 16px 40px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.08)}
+.price-card.featured:hover{box-shadow:0 16px 40px rgba(0,0,0,0.3),0 0 0 1px rgba(22,184,148,0.35)}
+.price-card.featured button{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s cubic-bezier(0.4,0,0.2,1)}
+.price-card.featured button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(201,168,76,0.4)}
+#btn-ai,#btn-standard,#btn-biz{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s,background 0.3s,color 0.3s}
+#btn-ai:hover{opacity:1 !important;background:rgba(120,160,255,0.28) !important;color:rgba(180,200,255,0.9) !important;transform:translateY(-2px) !important;box-shadow:0 4px 16px rgba(120,160,255,0.25) !important}
+#btn-standard:hover{opacity:1 !important;background:rgba(99,153,34,0.32) !important;color:rgba(170,210,110,0.9) !important;transform:translateY(-2px) !important;box-shadow:0 4px 16px rgba(99,153,34,0.25) !important}
+#btn-biz:hover{opacity:1 !important;background:rgba(55,138,221,0.25) !important;color:rgba(160,200,240,0.9) !important;transform:translateY(-2px) !important;box-shadow:0 4px 16px rgba(55,138,221,0.25) !important}
+.btn-primary:focus-visible,#btn-ai:focus-visible,#btn-standard:focus-visible,#btn-biz:focus-visible,.price-card.featured button:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.fade-in-target{opacity:0;transform:translateY(24px);transition:opacity 0.7s cubic-bezier(0.4,0,0.2,1),transform 0.7s cubic-bezier(0.4,0,0.2,1)}
+.fade-in-target.in-view{opacity:1;transform:translateY(0)}
+.pricing-cards .price-card.fade-in-target.in-view:nth-child(1){transition-delay:0ms}
+.pricing-cards .price-card.fade-in-target.in-view:nth-child(2){transition-delay:80ms}
+.pricing-cards .price-card.fade-in-target.in-view:nth-child(3){transition-delay:160ms}
+.pricing-cards .price-card.fade-in-target.in-view:nth-child(4){transition-delay:240ms}
+@media(max-width:768px){.price-card:hover{transform:none !important;box-shadow:none !important}}
 .price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#16B894;color:#fff;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap}
 .price-type{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:14px}
 .price-name{font-size:20px;font-weight:600;margin-bottom:8px;color:#ffffff}
@@ -5408,6 +5426,20 @@ window.addEventListener('DOMContentLoaded', function(){
 // 약관 페이지 내에서 다른 앵커로 이동 시도 시 처리
 window.addEventListener('hashchange', function(){
   handleInitialHash();
+});
+</script>
+<script>
+/* [C-2.17] 스크롤 fade-in — IntersectionObserver */
+document.addEventListener('DOMContentLoaded',function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in-view');io.unobserve(e.target);}
+    });
+  },{threshold:0.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.price-card').forEach(function(el){
+    el.classList.add('fade-in-target');
+    io.observe(el);
+  });
 });
 </script>
 </body>
