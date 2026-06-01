@@ -204,6 +204,18 @@ body.rv-focus .rv-focus-bar{display:flex}
   </div>
 </div>
 
+<!-- AI 품질 점수 배너 (gptFinalScore 또는 aiScore 있을 때) -->
+<div id="rv-score-panel" style="display:none;padding:10px 20px;border-bottom:1px solid var(--card-border);background:rgba(255,255,255,0.02)">
+  <div id="rv-gpt-banner" style="display:none;padding:8px 12px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.2);border-radius:4px;margin-bottom:8px">
+    <span style="font-size:13px;font-weight:600;color:rgba(22,184,148,0.9)">✨ 최종 검수 점수: <span id="rv-gpt-score">—</span> / 100 <span id="rv-gpt-delta" style="font-size:11px;color:rgba(22,184,148,0.65)"></span></span>
+    <div id="rv-gpt-detail" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px"></div>
+  </div>
+  <div style="display:flex;gap:16px;font-size:12px;color:rgba(255,255,255,0.5)">
+    <span>🔢 <span id="rv-ai-score-lbl">AI 자동 검수</span>: <strong id="rv-ai-score" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
+    <span>🔍 역번역 일치도: <strong id="rv-ai-reverse" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
+  </div>
+</div>
+
 <!-- 검색 바 -->
 <div class="rv-search-bar" id="rv-search-bar">
   <span style="font-size:12px;color:rgba(255,255,255,0.4)">🔍</span>
@@ -566,6 +578,24 @@ function renderJob(job) {
   _rvOrigAi = job.draftTranslation || job.aiTranslation || '';
   _rvLastSaved = document.getElementById('translation-ta')?.value || '';
   rvInitAutoSave();
+
+  // AI/GPT 점수 패널
+  (function() {
+    var sp = document.getElementById('rv-score-panel');
+    var hasScore = job.aiScore != null || job.gptFinalScore != null;
+    if (!sp || !hasScore) return;
+    sp.style.display = 'block';
+    if (job.aiScore != null) document.getElementById('rv-ai-score').textContent = job.aiScore;
+    if (job.gptFinalScore != null) {
+      var gS = job.gptFinalScore, aS = job.aiScore;
+      document.getElementById('rv-gpt-score').textContent = gS;
+      var delta = (aS != null) ? gS - aS : null;
+      document.getElementById('rv-gpt-delta').textContent = delta != null && delta > 0 ? '(▲ ' + delta + '점)' : delta === 0 ? '(동급 유지)' : '';
+      document.getElementById('rv-gpt-detail').textContent = aS != null ? ('AI 자동 검수 ' + aS + '점 → GPT 최종 검수 ' + gS + '점') : 'GPT-5.5 thinking 검수 완료';
+      document.getElementById('rv-ai-score-lbl').textContent = 'AI 자동 검수';
+      document.getElementById('rv-gpt-banner').style.display = 'block';
+    }
+  })();
 
   // 복사 차단 — Ctrl+C / Cmd+C 키 이벤트
   var _srcTa = document.getElementById('source-ta');

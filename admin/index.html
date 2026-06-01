@@ -672,9 +672,17 @@ body.admin-focus .focus-exit-hint{display:inline}
       </div>
       <!-- AI 품질 점수 섹션 -->
       <div id="ai-score-section" style="display:none">
+        <!-- GPT 최종 검수 점수 배너 (gptFinalScore 있을 때만 표시) -->
+        <div id="gpt-score-banner" style="display:none;margin:0 0 10px;padding:10px 14px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.22);border-radius:5px">
+          <div style="font-size:13px;font-weight:600;color:rgba(22,184,148,0.9)">
+            ✨ 최종 검수 점수: <span id="gpt-score-num" style="font-size:20px">—</span> / 100
+            <span id="gpt-score-delta" style="font-size:12px;color:rgba(22,184,148,0.65);margin-left:6px"></span>
+          </div>
+          <div id="gpt-score-detail-txt" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px"></div>
+        </div>
         <div class="score-grid">
           <div class="score-badge">
-            <div class="score-badge-label">AI 종합점수</div>
+            <div class="score-badge-label" id="ai-score-total-label">AI 종합점수</div>
             <div id="ai-score-total" class="score-badge-num">—</div>
             <div class="score-badge-sub">/ 100점</div>
           </div>
@@ -2258,6 +2266,31 @@ function populateAiScoreSection(order) {
     }).join('');
   } else {
     corrList.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.3)">수정사항 없음</div>';
+  }
+
+  // GPT 최종 검수 점수 배너
+  var gptBanner = document.getElementById('gpt-score-banner');
+  var gptNumEl  = document.getElementById('gpt-score-num');
+  var gptDelta  = document.getElementById('gpt-score-delta');
+  var gptDetailTxt = document.getElementById('gpt-score-detail-txt');
+  var labelEl   = document.getElementById('ai-score-total-label');
+  if (order.gptFinalScore != null) {
+    var gS = order.gptFinalScore;
+    var aS = order.aiScore;
+    gptNumEl.textContent = gS;
+    if (aS != null) {
+      var delta = gS - aS;
+      gptDelta.textContent = delta > 0 ? '(▲ ' + delta + '점)' : delta === 0 ? '(동급 유지)' : '';
+      gptDetailTxt.textContent = 'AI 자동 검수 ' + aS + '점 → GPT 최종 검수 ' + gS + '점';
+    } else {
+      gptDelta.textContent = '';
+      gptDetailTxt.textContent = 'GPT-5.5 thinking 검수 완료';
+    }
+    if (labelEl) labelEl.textContent = 'AI 자동 검수';
+    gptBanner.style.display = 'block';
+  } else {
+    gptBanner.style.display = 'none';
+    if (labelEl) labelEl.textContent = 'AI 종합점수';
   }
 }
 
