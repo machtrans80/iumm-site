@@ -912,7 +912,7 @@ function selectOrder(id, row) {
   document.getElementById('panel-amount').textContent = '₩' + (order.paymentAmount||0).toLocaleString();
   document.getElementById('panel-source').value = order.originalText || '';
   // AI프리미엄: AI번역 prefill / 프리미엄플러스: 검수자 제출본 prefill
-  document.getElementById('panel-translation').value = (currentTab==='premium_plus' && order.reviewerTranslation) ? order.reviewerTranslation : order.aiTranslation;
+  document.getElementById('panel-translation').value = order.reviewerTranslation || order.gptFinalReview || order.aiTranslation || '';
   // 프미플: 검수자 코멘트 + 21항목 표시
   var rvSection = document.getElementById('rv-info-section');
   if (currentTab === 'premium_plus' && rvSection) {
@@ -947,9 +947,9 @@ function selectOrder(id, row) {
   var btnOrig = document.getElementById('btn-dl-original');
   if (btnOrig) btnOrig.style.display = 'inline-block';
   var btnTxt = document.getElementById('btn-dl-txt');
-  if (btnTxt) btnTxt.style.display = (order.originalText || order.aiTranslation) ? 'inline-block' : 'none';
+  if (btnTxt) btnTxt.style.display = (order.originalText || order.gptFinalReview || order.aiTranslation) ? 'inline-block' : 'none';
   var btnInterleaved = document.getElementById('btn-dl-interleaved');
-  if (btnInterleaved) btnInterleaved.style.display = (order.originalText && (order.reviewerTranslation || order.aiTranslation)) ? 'inline-block' : 'none';
+  if (btnInterleaved) btnInterleaved.style.display = (order.originalText && (order.reviewerTranslation || order.gptFinalReview || order.aiTranslation)) ? 'inline-block' : 'none';
   // 최종본 업로드 섹션: 납품 대기 탭에서 항상 표시
   var uploadSection = document.getElementById('final-upload-section');
   if (uploadSection) {
@@ -1115,7 +1115,7 @@ function toggleAdminDiff(){
   var dv=document.getElementById('diff-panel');
   if(!btn||!ta||!dv)return;
   if(_adminDiffOn){
-    var orig=(selectedOrder&&selectedOrder.aiTranslation)||'';
+    var orig=(selectedOrder&&(selectedOrder.gptFinalReview||selectedOrder.aiTranslation))||'';
     var curr=ta.value;
     var diff=_computeDiff(orig,curr);
     dv.innerHTML=diff.map(function(d){
@@ -1283,7 +1283,7 @@ function downloadTranslationTxt() {
   var original   = order.originalText || '';
   // 현재 textarea 값(임시저장 포함 최신본) 우선 사용
   var panelVal   = (document.getElementById('panel-translation') || {}).value || '';
-  var aiTrans    = panelVal || order.reviewerTranslation || order.aiTranslation || '';
+  var aiTrans    = panelVal || order.reviewerTranslation || order.gptFinalReview || order.aiTranslation || '';
   var reviewerTr = panelVal || order.reviewerTranslation || '';
   var isPP       = plan.includes('플러스') && reviewerTr;
 

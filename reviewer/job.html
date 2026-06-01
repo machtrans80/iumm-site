@@ -563,7 +563,7 @@ function renderJob(job) {
   updateProgress();
   setInterval(function(){ updateDeadline(job.deadline); }, 60000);
   setTimeout(function(){ setupRvScrollSync(); rvUpdateCounters(); rvInitProgressBars(); }, 100);
-  _rvOrigAi = job.aiTranslation || '';
+  _rvOrigAi = job.draftTranslation || job.aiTranslation || '';
   _rvLastSaved = document.getElementById('translation-ta')?.value || '';
   rvInitAutoSave();
 
