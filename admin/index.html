@@ -103,8 +103,8 @@ body.admin-focus #rv-info-section,
 body.admin-focus .panel-footer{display:none !important}
 body.admin-focus #confirm-panel{position:fixed;inset:0;z-index:9999;margin:0;border-radius:0;border:none;background:#0a0a0a;display:flex !important;flex-direction:column;overflow:hidden}
 body.admin-focus #confirm-panel .panel-header{flex-shrink:0}
-body.admin-focus #confirm-panel .panel-body{flex:1;min-height:0;overflow:hidden}
-body.admin-focus #confirm-panel .panel-pane{min-height:0;overflow:hidden}
+body.admin-focus #confirm-panel .panel-body{flex:1;min-height:0;overflow:hidden;height:100%}
+body.admin-focus #confirm-panel .panel-pane{min-height:0;overflow:hidden;height:100%}
 body.admin-focus #confirm-panel .panel-ta{flex:1;min-height:0;height:100%;overflow-y:auto}
 .focus-exit-hint{display:none;font-size:11px;color:rgba(255,255,255,0.3);margin-left:10px}
 body.admin-focus .focus-exit-hint{display:inline}
@@ -1082,6 +1082,8 @@ function selectOrder(id, row) {
   if (sep) sep.style.display = 'block';
   var saveStatus = document.getElementById('save-status');
   if (saveStatus) saveStatus.textContent = '';
+  // Diff가 켜진 채로 주문 변경 시 강제 OFF (textarea 빈칸 방지)
+  if (_adminDiffOn) toggleAdminDiff();
   document.getElementById('confirm-panel').style.display = 'block';
   // 줄번호 + 스크롤 동기화 초기화
   setTimeout(function() { setupPanelScrollSync(); updateCounters(); initProgressBars(); }, 50);
