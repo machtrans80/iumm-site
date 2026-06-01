@@ -2814,32 +2814,45 @@ select.inp option,select option{background:#1a1a1a;color:var(--white)}
       <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;font-weight:300">연간 · 월간 계약 단위로 제공됩니다. 담당자가 빠르게 연락드립니다.</p>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <div><label class="lbl">회사명</label><input type="text" class="inp" placeholder="회사명"></div>
-          <div><label class="lbl">직책</label><input type="text" class="inp" placeholder="직책"></div>
+          <div><label class="lbl">회사명 <span style="color:#e05555">*</span></label><input type="text" id="biz-company" class="inp" placeholder="회사명"></div>
+          <div><label class="lbl">담당자명 <span style="color:#e05555">*</span></label><input type="text" id="biz-name" class="inp" placeholder="홍길동"></div>
         </div>
-        <div><label class="lbl">번역 언어</label><input type="text" class="inp" placeholder="예) 한국어 ↔ 영어, 한국어 ↔ 일본어"></div>
-        <div><label class="lbl">주요 용어 / 분야</label><input type="text" class="inp" placeholder="예) 법률, 의료, 기술문서, 마케팅"></div>
-        <div><label class="lbl">파일 첨부 (선택)</label><input type="file" class="inp" style="padding:10px 16px;color:rgba(255,255,255,0.5)"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><label class="lbl">이메일 <span style="color:#e05555">*</span></label><input type="email" id="biz-email" class="inp" placeholder="company@example.com"></div>
+          <div><label class="lbl">직책</label><input type="text" id="biz-title" class="inp" placeholder="직책"></div>
+        </div>
+        <div><label class="lbl">전화번호</label><input type="tel" id="biz-phone" class="inp" placeholder="010-0000-0000"></div>
+        <div><label class="lbl">번역 언어</label><input type="text" id="biz-lang" class="inp" placeholder="예) 한국어 ↔ 영어, 한국어 ↔ 일본어"></div>
+        <div><label class="lbl">주요 용어 / 분야</label><input type="text" id="biz-field" class="inp" placeholder="예) 법률, 의료, 기술문서, 마케팅"></div>
         <div>
           <label class="lbl" style="margin-bottom:10px">계약 형태</label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <label style="display:flex;align-items:center;gap:8px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;font-size:13px;font-weight:300"><input type="radio" name="contract" style="accent-color:#85b7eb"> 연간 계약</label>
-            <label style="display:flex;align-items:center;gap:8px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;font-size:13px;font-weight:300"><input type="radio" name="contract" style="accent-color:#85b7eb"> 월간 계약</label>
+            <label style="display:flex;align-items:center;gap:8px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;font-size:13px;font-weight:300"><input type="radio" name="biz-contract" value="연간 계약" style="accent-color:#85b7eb"> 연간 계약</label>
+            <label style="display:flex;align-items:center;gap:8px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;font-size:13px;font-weight:300"><input type="radio" name="biz-contract" value="월간 계약" style="accent-color:#85b7eb"> 월간 계약</label>
           </div>
         </div>
         <div>
           <label class="lbl">매월 예상 분량</label>
-          <select class="inp" style="padding:11px 16px">
-            <option style="background:#1a1a1a;color:#fafaf8">5,000단어 미만</option>
-            <option style="background:#1a1a1a;color:#fafaf8">5,000~10,000단어</option>
-            <option style="background:#1a1a1a;color:#fafaf8">1~3만 단어</option>
-            <option style="background:#1a1a1a;color:#fafaf8">3~5만 단어</option>
-            <option style="background:#1a1a1a;color:#fafaf8">5~10만 단어</option>
-            <option style="background:#1a1a1a;color:#fafaf8">10~20만 단어</option>
-            <option style="background:#1a1a1a;color:#fafaf8">20만 단어 이상</option>
+          <select id="biz-volume" class="inp" style="padding:11px 16px">
+            <option value="5,000단어 미만" style="background:#1a1a1a;color:#fafaf8">5,000단어 미만</option>
+            <option value="5,000~10,000단어" style="background:#1a1a1a;color:#fafaf8">5,000~10,000단어</option>
+            <option value="1~3만 단어" style="background:#1a1a1a;color:#fafaf8">1~3만 단어</option>
+            <option value="3~5만 단어" style="background:#1a1a1a;color:#fafaf8">3~5만 단어</option>
+            <option value="5~10만 단어" style="background:#1a1a1a;color:#fafaf8">5~10만 단어</option>
+            <option value="10~20만 단어" style="background:#1a1a1a;color:#fafaf8">10~20만 단어</option>
+            <option value="20만 단어 이상" style="background:#1a1a1a;color:#fafaf8">20만 단어 이상</option>
           </select>
         </div>
-        <button onclick="submitBizInquiry()" style="background:rgba(55,138,221,0.2);color:#85b7eb;border:1px solid rgba(55,138,221,0.4);width:100%;padding:15px;border-radius:2px;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:8px">문의하기</button>
+        <div><label class="lbl">추가 요청사항</label><textarea id="biz-extra" class="inp" rows="2" style="resize:vertical;padding:11px 14px;font-family:'Noto Sans KR',sans-serif" placeholder="NDA 필요, 특수 파일 형식 등"></textarea></div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:rgba(55,138,221,0.05);border:1px solid rgba(55,138,221,0.15);border-radius:4px">
+          <input type="checkbox" id="biz-consent" style="margin-top:3px;accent-color:#85b7eb;flex-shrink:0">
+          <label for="biz-consent" style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;cursor:pointer">
+            <span style="color:#e05555">*</span> <strong style="color:rgba(255,255,255,0.8)">[필수]</strong> 개인정보 수집·이용에 동의합니다.<br>
+            <span style="font-size:11px;color:rgba(255,255,255,0.4)">문의 내용은 영업 목적으로만 사용되며, 21일 후 자동 삭제됩니다. (<a href="#" onclick="showPage('privacy');return false" style="color:rgba(85,172,221,0.8);text-decoration:underline">개인정보처리방침</a>)</span>
+          </label>
+        </div>
+        <button id="biz-submit-btn" onclick="submitBizInquiry()" style="background:rgba(55,138,221,0.2);color:#85b7eb;border:1px solid rgba(55,138,221,0.4);width:100%;padding:15px;border-radius:2px;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:4px">문의하기</button>
+        <div id="biz-error-msg" style="display:none;color:#e05555;font-size:13px;text-align:center;padding:4px 0"></div>
       </div>
     </div>
     <div id="biz-complete" style="display:none;text-align:center;padding:48px 0">
@@ -4846,7 +4859,43 @@ function closeAllAndResetBank(){
   document.getElementById('payment-form').style.display='block';
   document.getElementById('payment-complete').style.display='none';
 }
-function submitBizInquiry(){document.getElementById('biz-form').style.display='none';document.getElementById('biz-complete').style.display='block';}
+async function submitBizInquiry(){
+  var company = (document.getElementById('biz-company')?.value||'').trim();
+  var name    = (document.getElementById('biz-name')?.value||'').trim();
+  var email   = (document.getElementById('biz-email')?.value||'').trim();
+  var title   = (document.getElementById('biz-title')?.value||'').trim();
+  var phone   = (document.getElementById('biz-phone')?.value||'').trim();
+  var lang    = (document.getElementById('biz-lang')?.value||'').trim();
+  var field   = (document.getElementById('biz-field')?.value||'').trim();
+  var volume  = document.getElementById('biz-volume')?.value||'';
+  var extra   = (document.getElementById('biz-extra')?.value||'').trim();
+  var consent = document.getElementById('biz-consent')?.checked;
+  var contract = '';
+  document.querySelectorAll('input[name="biz-contract"]').forEach(function(r){if(r.checked)contract=r.value;});
+  var errEl = document.getElementById('biz-error-msg');
+  function showErr(msg){errEl.textContent=msg;errEl.style.display='block';}
+  errEl.style.display='none';
+  if(!company){showErr('회사명을 입력해주세요.');return;}
+  if(!name){showErr('담당자명을 입력해주세요.');return;}
+  if(!email||!email.includes('@')){showErr('올바른 이메일을 입력해주세요.');return;}
+  if(!consent){showErr('개인정보 수집·이용에 동의해주세요.');return;}
+  var btn=document.getElementById('biz-submit-btn');
+  if(btn){btn.disabled=true;btn.textContent='제출 중...';}
+  try{
+    var res=await fetch(MEMBER_API_BASE+'/api/biz-inquiry',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({회사명:company,담당자명:name,직책:title,이메일:email,전화번호:phone,번역언어:lang,전문분야:field,계약형태:contract,예상분량:volume,추가요청사항:extra,약관동의:true})
+    });
+    var data=await res.json();
+    if(!data.ok)throw new Error(data.error||'제출 실패');
+    document.getElementById('biz-form').style.display='none';
+    document.getElementById('biz-complete').style.display='block';
+  }catch(e){
+    showErr('제출에 실패했습니다. iumm.master@gmail.com으로 직접 연락 부탁드립니다.');
+    if(btn){btn.disabled=false;btn.textContent='문의하기';}
+  }
+}
 function verifyCode(){
   var code=document.getElementById('verify-input').value;
   if(code.length===6){
