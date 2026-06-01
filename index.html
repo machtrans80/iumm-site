@@ -219,6 +219,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 #modal-order input:focus,#modal-order textarea:focus,#modal-order select:focus,
 #modal-payment input:focus,#modal-payment textarea:focus,
 #modal-bizinquiry input:focus,#modal-bizinquiry textarea:focus{border-color:rgba(22,184,148,0.7) !important;box-shadow:0 0 0 3px rgba(22,184,148,0.1) !important;outline:none !important}
+/* [J-11] 검수자 선택 패널 톤앤매너 통일 (J-8 패턴 적용) */
+#reviewer-panel>div{background:var(--black) !important}
+#reviewer-panel h3{color:rgba(255,255,255,0.95)}
+#reviewer-panel>div>p{color:rgba(255,255,255,0.75)}
+#reviewer-list-panel>div{border-radius:6px !important}
 @media(max-width:768px){
   /* === 모바일 가독성 글로벌 향상 === */
   body{line-height:1.85}
