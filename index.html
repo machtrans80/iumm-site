@@ -113,12 +113,12 @@ section{padding:64px 44px}
 .price-card{padding:36px 32px;border-radius:14px;border:1px solid rgba(255,255,255,0.10);position:relative;display:flex;flex-direction:column}
 .price-card.featured{border-color:rgba(22,184,148,0.4);background:rgba(22,184,148,0.06)}
 /* === [C-2.17] CTA 버튼 강조 + 카드 hover + 스크롤 fade-in === */
-.price-card{transition:transform 0.4s cubic-bezier(0.4,0,0.2,1),box-shadow 0.4s cubic-bezier(0.4,0,0.2,1)}
+.price-card{transition:transform 0.4s cubic-bezier(0.4,0,0.2,1),box-shadow 0.4s cubic-bezier(0.4,0,0.2,1),background 0.4s cubic-bezier(0.4,0,0.2,1),border-color 0.4s cubic-bezier(0.4,0,0.2,1)}
 .price-card:hover{transform:translateY(-8px);box-shadow:0 16px 40px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.08)}
 .price-card.featured:hover{box-shadow:0 16px 40px rgba(0,0,0,0.3),0 0 0 1px rgba(22,184,148,0.35)}
 .price-card.featured button{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s cubic-bezier(0.4,0,0.2,1)}
 .price-card.featured button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(201,168,76,0.4)}
-#btn-ai,#btn-standard,#btn-biz{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s,background 0.3s,color 0.3s}
+#btn-ai,#btn-standard,#btn-biz{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s,background 0.3s,color 0.3s,filter 0.3s}
 #btn-ai:hover{opacity:1 !important;background:rgba(120,160,255,0.28) !important;color:rgba(180,200,255,0.9) !important;transform:translateY(-2px) !important;box-shadow:0 4px 16px rgba(120,160,255,0.25) !important}
 #btn-standard:hover{opacity:1 !important;background:rgba(99,153,34,0.32) !important;color:rgba(170,210,110,0.9) !important;transform:translateY(-2px) !important;box-shadow:0 4px 16px rgba(99,153,34,0.25) !important}
 #btn-biz:hover{opacity:1 !important;background:rgba(55,138,221,0.25) !important;color:rgba(160,200,240,0.9) !important;transform:translateY(-2px) !important;box-shadow:0 4px 16px rgba(55,138,221,0.25) !important}
@@ -129,7 +129,26 @@ section{padding:64px 44px}
 .pricing-cards .price-card.fade-in-target.in-view:nth-child(2){transition-delay:80ms}
 .pricing-cards .price-card.fade-in-target.in-view:nth-child(3){transition-delay:160ms}
 .pricing-cards .price-card.fade-in-target.in-view:nth-child(4){transition-delay:240ms}
-@media(max-width:768px){.price-card:hover{transform:none !important;box-shadow:none !important}}
+/* [C-2.18] 4장 카드 색상별 hover — 마우스 디바이스만 */
+@media(hover:hover) and (pointer:fine){
+  .pricing-cards .price-card:nth-child(1):hover{background:linear-gradient(135deg,rgba(22,184,148,0.14) 0%,rgba(22,184,148,0.05) 100%) !important;border-color:rgba(22,184,148,0.6) !important;box-shadow:0 16px 40px rgba(22,184,148,0.2),0 0 0 1px rgba(22,184,148,0.4) !important}
+  .pricing-cards .price-card:nth-child(2):hover{background:linear-gradient(135deg,rgba(120,160,255,0.14) 0%,rgba(120,160,255,0.05) 100%) !important;border-color:rgba(120,160,255,0.65) !important;box-shadow:0 16px 40px rgba(120,160,255,0.22),0 0 0 1px rgba(120,160,255,0.4) !important}
+  .pricing-cards .price-card:nth-child(3):hover{background:linear-gradient(135deg,rgba(99,153,34,0.14) 0%,rgba(99,153,34,0.05) 100%) !important;border-color:rgba(99,153,34,0.65) !important;box-shadow:0 16px 40px rgba(99,153,34,0.22),0 0 0 1px rgba(99,153,34,0.4) !important}
+  .pricing-cards .price-card:nth-child(4):hover{background:linear-gradient(135deg,rgba(55,138,221,0.14) 0%,rgba(55,138,221,0.05) 100%) !important;border-color:rgba(55,138,221,0.65) !important;box-shadow:0 16px 40px rgba(55,138,221,0.22),0 0 0 1px rgba(55,138,221,0.4) !important}
+  /* 카드 hover → 내부 버튼 연동 */
+  .pricing-cards .price-card:nth-child(1):hover button{transform:translateY(-2px) !important;box-shadow:0 6px 16px rgba(201,168,76,0.4) !important}
+  .pricing-cards .price-card:nth-child(2):hover #btn-ai{filter:brightness(1.35) !important;transform:translateY(-2px) !important;box-shadow:0 6px 16px rgba(120,160,255,0.35) !important}
+  .pricing-cards .price-card:nth-child(3):hover #btn-standard{filter:brightness(1.35) !important;transform:translateY(-2px) !important;box-shadow:0 6px 16px rgba(99,153,34,0.35) !important}
+  .pricing-cards .price-card:nth-child(4):hover #btn-biz{filter:brightness(1.35) !important;transform:translateY(-2px) !important;box-shadow:0 6px 16px rgba(55,138,221,0.35) !important}
+}
+/* 모바일: hover 차단 + :active 탭 효과 */
+@media(max-width:768px){
+  .price-card:hover{transform:none !important;box-shadow:none !important}
+  .pricing-cards .price-card:nth-child(1):active{transform:translateY(-4px) scale(0.98) !important;background:rgba(22,184,148,0.1) !important;border-color:rgba(22,184,148,0.5) !important;transition:all 0.15s ease-out !important}
+  .pricing-cards .price-card:nth-child(2):active{transform:translateY(-4px) scale(0.98) !important;background:rgba(120,160,255,0.1) !important;border-color:rgba(120,160,255,0.5) !important;transition:all 0.15s ease-out !important}
+  .pricing-cards .price-card:nth-child(3):active{transform:translateY(-4px) scale(0.98) !important;background:rgba(99,153,34,0.1) !important;border-color:rgba(99,153,34,0.5) !important;transition:all 0.15s ease-out !important}
+  .pricing-cards .price-card:nth-child(4):active{transform:translateY(-4px) scale(0.98) !important;background:rgba(55,138,221,0.1) !important;border-color:rgba(55,138,221,0.5) !important;transition:all 0.15s ease-out !important}
+}
 .price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#16B894;color:#fff;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap}
 .price-type{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:14px}
 .price-name{font-size:20px;font-weight:600;margin-bottom:8px;color:#ffffff}
