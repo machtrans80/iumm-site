@@ -94,7 +94,7 @@ mark.search-hit{background:rgba(255,220,0,0.35);color:rgba(0,0,0,0);border-radiu
 .focus-mode-btn:hover{background:rgba(255,255,255,0.1);color:var(--white)}
 body.admin-focus #admin-view > .admin-nav{display:none}
 body.admin-focus .tabs{display:none}
-body.admin-focus #orders-wrap,body.admin-focus #settlement-wrap,body.admin-focus #bypass-wrap,body.admin-focus #unassigned-wrap,body.admin-focus #failed-wrap{display:none !important}
+body.admin-focus #orders-wrap,body.admin-focus #settlement-wrap,body.admin-focus #bypass-wrap,body.admin-focus #unassigned-wrap,body.admin-focus #failed-wrap,body.admin-focus #gpt-review-wrap{display:none !important}
 /* 집중모드: confirm-panel 내부의 좌우창 외 모든 요소 숨김 */
 body.admin-focus #ai-score-section,
 body.admin-focus #final-upload-section,
@@ -193,6 +193,32 @@ body.admin-focus .focus-exit-hint{display:inline}
 .btn-ul:hover{background:rgba(151,196,89,0.16)}
 .btn-group-sep{width:1px;height:24px;background:rgba(255,255,255,0.1);flex-shrink:0;margin:0 4px}
 
+/* ── GPT 검수 탭 ── */
+#gpt-review-wrap{display:none;padding:4px 0 32px;max-width:900px}
+.gr-section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;padding:22px 24px;margin-bottom:16px}
+.gr-section-title{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;margin-bottom:12px}
+.gr-label{display:block;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px}
+.gr-ta{width:100%;padding:12px 14px;background:#0e0e0e;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s}
+.gr-ta:focus{border-color:rgba(201,168,76,0.4)}
+.gr-ta[readonly]{background:#0a0a0a;color:rgba(255,255,255,0.45);cursor:default}
+.gr-score{font-size:48px;font-weight:300;color:var(--gold);text-align:center;padding:8px 0}
+.gr-score-label{font-size:11px;color:rgba(255,255,255,0.4);text-align:center;margin-top:-8px;margin-bottom:8px}
+.gr-summary{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:4px;margin-bottom:16px}
+.gr-change-item{padding:10px 14px;border-left:2px solid rgba(201,168,76,0.4);margin-bottom:10px;background:rgba(255,255,255,0.02);border-radius:0 4px 4px 0}
+.gr-change-para{font-size:11px;color:var(--gold);margin-bottom:4px;font-weight:500}
+.gr-change-before{font-size:12px;color:#f87171;margin-bottom:2px;text-decoration:line-through;opacity:0.8}
+.gr-change-after{font-size:12px;color:#86efac;margin-bottom:4px}
+.gr-change-reason{font-size:11px;color:rgba(255,255,255,0.45);font-style:italic}
+.gr-btn{display:inline-flex;align-items:center;gap:6px;padding:0 18px;height:40px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:500;font-family:'Noto Sans KR',sans-serif;border:none;transition:all 0.15s}
+.gr-btn-primary{background:rgba(22,184,148,0.15);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.35)}
+.gr-btn-primary:hover:not(:disabled){background:rgba(22,184,148,0.25)}
+.gr-btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.gr-btn-sm{display:inline-flex;align-items:center;gap:4px;padding:0 12px;height:32px;border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
+.gr-btn-copy{background:rgba(201,168,76,0.08);color:var(--gold);border:1px solid rgba(201,168,76,0.25)}
+.gr-btn-copy:hover{background:rgba(201,168,76,0.16)}
+.gr-btn-dl{background:rgba(151,196,89,0.08);color:var(--green);border:1px solid rgba(151,196,89,0.25)}
+.gr-btn-dl:hover{background:rgba(151,196,89,0.16)}
+
 /* ── 우회 주문 탭 ── */
 #bypass-wrap{display:none;padding:4px 0 32px}
 .bp-section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;padding:22px 24px;margin-bottom:20px}
@@ -282,6 +308,7 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#f87171">⛔ 번역실패</button>
       <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
       <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75">🔐 우회 주문</button>
+      <button class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
     </div>
     <div id="orders-wrap">
       <table class="orders-table">
@@ -536,6 +563,67 @@ body.admin-focus .focus-exit-hint{display:inline}
       </div>
     </div>
 
+    <div id="gpt-review-wrap">
+      <!-- 고정 프롬프트 표시 -->
+      <div class="gr-section">
+        <div class="gr-section-title">고정 검수 지시</div>
+        <textarea class="gr-ta" readonly rows="6" style="font-size:12px;line-height:1.7;color:rgba(255,255,255,0.45)">정부 조달 제출용 최종 검수자.
+1. 문체 통일 (격식체 일관)
+2. 혼재 표현 정리 (동일 의미 다른 표현 통일)
+3. 어색한 영문 자연스럽게 수정
+4. 누락/오역 검출
+5. 95% 이상 원본 유지, 대대적 재번역 X</textarea>
+      </div>
+
+      <!-- 추가 요청사항 -->
+      <div class="gr-section">
+        <label class="gr-label" for="gpt-extra-instruction">추가 요청사항 <span style="color:rgba(255,255,255,0.3)">(선택)</span></label>
+        <textarea class="gr-ta" id="gpt-extra-instruction" rows="2" placeholder="예: 법률 용어 더 엄격하게 / 수치 검증 우선"></textarea>
+      </div>
+
+      <!-- 검수 대상 텍스트 -->
+      <div class="gr-section">
+        <label class="gr-label" for="gpt-raw-text">
+          검수 대상 텍스트 <span style="color:rgba(255,255,255,0.3)">(필수)</span>
+          <span id="gpt-raw-count" style="margin-left:10px;color:rgba(255,255,255,0.3)">0자</span>
+        </label>
+        <textarea class="gr-ta" id="gpt-raw-text" rows="14"
+          placeholder="[원문] 본 문서는 시범사용 계획서입니다.&#10;[번역] This document is a pilot use plan.&#10;&#10;[원문] 무인항공체계를 시연합니다.&#10;[번역] We will demonstrate UAS.&#10;&#10;— 단락 병기 또는 쌩 텍스트 모두 가능"
+          oninput="var c=this.value.length;document.getElementById('gpt-raw-count').textContent=c.toLocaleString()+'자'"></textarea>
+      </div>
+
+      <!-- 실행 버튼 -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+        <button class="gr-btn gr-btn-primary" id="gpt-submit-btn" onclick="submitGptReview()">⚙ GPT 검수 시작</button>
+        <span id="gpt-status-msg" style="font-size:13px;color:rgba(255,255,255,0.45)"></span>
+      </div>
+
+      <!-- 결과 영역 (초기 숨김) -->
+      <div id="gpt-result-wrap" style="display:none">
+        <div class="gr-section" style="text-align:center">
+          <div class="gr-score" id="gpt-result-score">—</div>
+          <div class="gr-score-label">검수 점수 / 100</div>
+          <div class="gr-summary" id="gpt-result-summary"></div>
+        </div>
+
+        <div class="gr-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="gr-section-title" style="margin:0">수정된 번역본</div>
+            <div style="display:flex;gap:8px">
+              <button class="gr-btn-sm gr-btn-copy" onclick="gptCopyResult()">📋 복사</button>
+              <button class="gr-btn-sm gr-btn-dl" onclick="gptDownloadResult()">⬇ .txt 다운로드</button>
+            </div>
+          </div>
+          <textarea class="gr-ta" id="gpt-result-text" rows="14" readonly style="font-size:13px"></textarea>
+        </div>
+
+        <div class="gr-section">
+          <div class="gr-section-title">변경 이력 <span id="gpt-change-count" style="color:rgba(255,255,255,0.4);font-size:11px"></span></div>
+          <div id="gpt-change-list" style="max-height:320px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
     <div id="confirm-panel">
       <div class="panel-header">
         <span class="panel-title" id="panel-ordnum">—</span>
@@ -768,14 +856,17 @@ function switchTab(tab) {
   document.getElementById('tab-st').className = 'tab-btn' + (tab==='settlement' ? ' active' : '');
   document.getElementById('tab-bp').className = 'tab-btn' + (tab==='bank_pending' ? ' active' : '');
   document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '');
+  document.getElementById('tab-gpt').className = 'tab-btn' + (tab==='gpt_review' ? ' active' : '');
   var isBypass = tab === 'bypass';
   var isSettlement = tab === 'settlement';
   var isUnassigned = tab === 'unassigned';
   var isFailed = tab === 'failed';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed) ? 'none' : 'block';
+  var isGptReview = tab === 'gpt_review';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
+  document.getElementById('gpt-review-wrap').style.display = isGptReview ? 'block' : 'none';
   var failedWrap = document.getElementById('failed-wrap');
   if (failedWrap) failedWrap.style.display = isFailed ? 'block' : 'none';
   if (tab === 'reviewers') {
@@ -2413,6 +2504,86 @@ async function submitBypassOrder() {
     btn.disabled = false;
     btn.textContent = '🔐 우회 주문 시작 (결제 없이 파이프라인 실행)';
   }
+}
+
+// ── GPT 검수 탭 ──────────────────────────────────────────
+async function submitGptReview() {
+  var rawText = (document.getElementById('gpt-raw-text')?.value || '').trim();
+  if (!rawText) { showToast('검수 대상 텍스트를 입력하세요', 'error'); return; }
+  var extraInstruction = (document.getElementById('gpt-extra-instruction')?.value || '').trim();
+  var btn = document.getElementById('gpt-submit-btn');
+  var msg = document.getElementById('gpt-status-msg');
+  var resultWrap = document.getElementById('gpt-result-wrap');
+  btn.disabled = true;
+  btn.textContent = '⏳ 검수 중…';
+  msg.textContent = '검수 중… 30~120초 예상';
+  resultWrap.style.display = 'none';
+  try {
+    var data = await adminFetch('/api/admin/gpt-review-manual', {
+      method: 'POST',
+      body: JSON.stringify({ rawText, extraInstruction }),
+    });
+    if (!data.ok) throw new Error(data.error || '검수 실패');
+    gptShowResult(data);
+    var secs = Math.round((data.processingTimeMs || 0) / 1000);
+    msg.textContent = `완료 — ${secs}초 소요`;
+  } catch(e) {
+    msg.textContent = '';
+    showToast('⚠️ GPT 검수 실패: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚙ GPT 검수 시작';
+  }
+}
+
+function gptShowResult(data) {
+  document.getElementById('gpt-result-score').textContent = (data.score != null ? data.score : '—') + ' / 100';
+  document.getElementById('gpt-result-summary').textContent = data.summary || '';
+  document.getElementById('gpt-result-text').value = data.revisedTranslation || '';
+  var changes = data.changes || [];
+  var countEl = document.getElementById('gpt-change-count');
+  countEl.textContent = changes.length ? `(${changes.length}건)` : '(없음)';
+  var listEl = document.getElementById('gpt-change-list');
+  if (!changes.length) {
+    listEl.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0">변경 사항 없음</div>';
+  } else {
+    listEl.innerHTML = changes.map(function(c) {
+      var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+      return '<div class="gr-change-item">' +
+        '<div class="gr-change-para">단락 ' + (c.paragraph||'?') + '</div>' +
+        (c.before ? '<div class="gr-change-before">' + esc(c.before) + '</div>' : '') +
+        (c.after  ? '<div class="gr-change-after">'  + esc(c.after)  + '</div>' : '') +
+        (c.reason ? '<div class="gr-change-reason">' + esc(c.reason) + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }
+  document.getElementById('gpt-result-wrap').style.display = 'block';
+}
+
+async function gptCopyResult() {
+  var text = document.getElementById('gpt-result-text')?.value || '';
+  if (!text) { showToast('복사할 내용이 없습니다', 'error'); return; }
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('클립보드에 복사됐습니다', 'ok');
+  } catch(e) {
+    showToast('복사 실패: ' + e.message, 'error');
+  }
+}
+
+function gptDownloadResult() {
+  var text = document.getElementById('gpt-result-text')?.value || '';
+  if (!text) { showToast('다운로드할 내용이 없습니다', 'error'); return; }
+  var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'gpt_review_' + Date.now() + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('다운로드 시작', 'ok');
 }
 </script>
 </body>
