@@ -376,9 +376,15 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   #page-login [style*="margin-top:20px"]{padding:14px 16px !important}
 }
 
+/* ── 데스크탑: 더보기 숨김 + mob-hidden 카드 표시 ── */
+@media(min-width:769px){
+  .mob-more-fields{display:none !important}
+  .field-card.mob-hidden{display:block !important}
+}
+
 /* ── 브랜드 시그니처 ── */
 .brand-signature-block{text-align:center;margin:12px auto 8px;padding:4px 16px;width:100%}
-.brand-signature-line{display:inline-block;font-size:13px;color:rgba(217,119,6,0.9);font-weight:500;letter-spacing:0.12em;line-height:1.6;white-space:nowrap}
+.brand-signature-line{display:inline-block;font-size:13px;color:rgba(201,168,76,0.9);font-weight:500;letter-spacing:0.12em;line-height:1.6;white-space:nowrap}
 
 /* ── 모바일 추가 최적화 C-2.7 ── */
 @media(max-width:768px){
@@ -409,16 +415,14 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .ai-steps-grid{display:none !important}
   .ai-steps-grid.mob-open{display:grid !important}
   .mob-steps-trigger{display:flex !important}
-  /* 분야: 벤토 + 트리거 완전 숨김 (선택자 다중) */
-  #fields .field-bento,
-  .field-bento,
-  #fields > div > .field-bento{display:none !important;visibility:hidden !important}
-  #fields .mob-field-trigger,.mob-field-trigger{display:none !important}
-  /* <select> 강제 표시 (인라인 style="display:none" 덮어쓰기) */
-  select.mob-field-select,
-  #mob-field-select,
-  .mob-field-select{display:block !important;width:100% !important;padding:14px 16px !important;background:rgba(22,184,148,0.07) !important;border:1px solid rgba(22,184,148,0.3) !important;border-radius:8px !important;color:#D5DDE5 !important;font-size:15px !important;font-family:inherit !important;margin-bottom:16px !important;cursor:pointer !important;-webkit-appearance:none !important;appearance:none !important}
-  .mob-field-select option{background:#0F2540 !important;color:#D5DDE5 !important}
+  /* 분야 그리드: 모바일 9번째 이후 숨김 */
+  .field-card.mob-hidden{display:none !important}
+  .field-bento.expanded .field-card.mob-hidden{display:flex !important}
+  .field-bento.expanded .mob-more-fields{display:none !important}
+  /* 더보기 버튼 모바일 전용 */
+  .mob-more-fields{display:block !important;width:100%;padding:12px;margin-top:8px;background:rgba(201,168,76,0.08);border:1px dashed rgba(201,168,76,0.4);border-radius:6px;color:rgba(201,168,76,0.9);cursor:pointer;font-size:13px;font-family:inherit;text-align:center}
+  /* <select> 모바일 숨김 */
+  .mob-field-select,.mob-field-trigger{display:none !important}
   /* WHY 박스 설명 텍스트 숨김 → 제목만 */
   .why-box-desc{display:none !important}
   .why-box.open .why-box-desc{display:block !important}
@@ -2085,27 +2089,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     <span style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:8px;display:inline-block">▼ 카드 클릭 시 글로벌 표준 정보가 표시됩니다</span>
   </p>
   
-  <!-- 모바일 전용: 분야 <select> 드롭다운 -->
-  <select class="mob-field-select" id="mob-field-select" onchange="selectFieldOnly(this.value)" style="display:none">
-    <option value="">── 17개 전문 분야 보기 / 선택 ──</option>
-    <option value="legal">⚖️ 법률·계약</option>
-    <option value="medical">🏥 의료·제약</option>
-    <option value="patent">📋 특허·지식재산</option>
-    <option value="criminal">🔍 범죄·수사·공문</option>
-    <option value="immigration">✈️ 이민·비자·증명서</option>
-    <option value="business">💼 비즈니스</option>
-    <option value="finance">💰 금융·재무</option>
-    <option value="accounting">📊 회계·세무</option>
-    <option value="marketing">📢 마케팅·광고</option>
-    <option value="academic">📚 학술·논문</option>
-    <option value="tech">💻 IT·테크</option>
-    <option value="engineering">🔧 기계·엔지니어링</option>
-    <option value="defense">🛡️ 방산·조달·군사</option>
-    <option value="esg">🌱 ESG·환경</option>
-    <option value="construction">🏗️ 건설·부동산</option>
-    <option value="culture">🎭 영상·문화·예술</option>
-    <option value="general">📝 일반·기타</option>
-  </select>
+
 
   <div class="field-bento" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1180px;margin:0 auto">
     
@@ -2206,7 +2190,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 마케팅 -->
-    <div class="field-card" data-field="marketing" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="marketing" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-speakerphone" style="font-size:26px;color:#5DE0BC"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">마케팅·광고</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">브로셔 · SNS<br>광고 · 보도자료</div>
@@ -2218,7 +2202,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 학술 -->
-    <div class="field-card" data-field="academic" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="academic" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-school" style="font-size:26px;color:#7FB7EB"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">학술·논문</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">학술지 · 학위논문<br>연구보고서</div>
@@ -2230,7 +2214,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 문학 -->
-    <div class="field-card" data-field="literary" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="literary" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-books" style="font-size:26px;color:#5DE0BC"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">문학·출판</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">소설 · 에세이<br>웹소설 · 콘텐츠</div>
@@ -2242,7 +2226,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 예술 -->
-    <div class="field-card" data-field="arts" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="arts" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-palette" style="font-size:26px;color:#7FB7EB"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">예술·문화</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">자막 · 음악<br>미술 · 공연</div>
@@ -2254,7 +2238,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 비즈니스 -->
-    <div class="field-card" data-field="business" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="business" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-briefcase" style="font-size:26px;color:#5DE0BC"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">비즈니스</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">이메일 · 회의록<br>보고서 · 제안서</div>
@@ -2266,7 +2250,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 게임·엔터 -->
-    <div class="field-card" data-field="gaming" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="gaming" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-device-gamepad" style="font-size:26px;color:#7FB7EB"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">게임·엔터테인먼트</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">시나리오 · UI<br>자막 · 컨텐츠</div>
@@ -2278,7 +2262,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 건설·엔지니어링 -->
-    <div class="field-card" data-field="construction" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="construction" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-building" style="font-size:26px;color:#5DE0BC"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">건설·엔지니어링</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">도면 주석<br>시방서 · 기술서</div>
@@ -2290,7 +2274,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
     
     <!-- 환경·ESG -->
-    <div class="field-card" data-field="esg" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
+    <div class="field-card mob-hidden" data-field="esg" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
       <div style="margin-bottom:14px"><i class="ti ti-leaf" style="font-size:26px;color:#7FB7EB"></i></div>
       <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">환경·ESG</div>
       <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">ESG 보고서<br>지속가능성</div>
@@ -2301,11 +2285,8 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </div>
     </div>
     
-  </div>
-  
-  <!-- 모바일 전용: 분야 더 보기 토글 -->
-  <div class="mob-field-trigger" style="display:none;justify-content:center;margin-top:16px;margin-bottom:8px">
-    <button style="padding:10px 24px;background:rgba(22,184,148,0.08);border:1px solid rgba(22,184,148,0.25);border-radius:4px;color:#5DE0BC;font-size:12px;cursor:pointer;font-family:inherit" onclick="(function(btn){document.querySelectorAll('#fields .field-bento > div').forEach(function(d,i){if(i>=8){d.classList.toggle('mob-shown');}});btn.textContent=btn.textContent.includes('더')? '분야 접기 ▲' : '17개 분야 모두 보기 ▼'})(this)">17개 분야 모두 보기 ▼</button>
+    <!-- 더보기 버튼 (모바일 전용, 그리드 안에 full-width) -->
+    <button class="mob-more-fields" style="grid-column:1/-1;display:none" onclick="document.querySelector('.field-bento').classList.add('expanded')">+ 더보기 (8개 분야)</button>
   </div>
   <div style="text-align:center;margin-top:32px">
     <button class="btn-primary" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false" style="padding:16px 44px;font-size:14px">분야 선택하고 시작하기 →</button>
@@ -3705,22 +3686,6 @@ function filterReviewers(lang){
 function showReviewerPanel(){
   document.getElementById('reviewer-panel').style.display='block';
   loadReviewers(function(){filterReviewers('전체');});
-}
-function selectFieldOnly(fieldValue) {
-  if (!fieldValue) return;
-  // 분야 정보 저장 (모달 오픈 X — 사용자가 직접 주문 버튼 누를 때 적용)
-  var sel = document.getElementById('mob-field-select');
-  // 기존 표시 제거 후 새 표시 추가
-  var prev = sel && sel.parentElement.querySelector('.mob-field-note');
-  if (prev) prev.remove();
-  var note = document.createElement('div');
-  note.className = 'mob-field-note';
-  note.style.cssText = 'color:rgba(22,184,148,0.9);font-size:13px;margin-top:6px;padding:8px 12px;background:rgba(22,184,148,0.07);border-radius:6px;border:1px solid rgba(22,184,148,0.2)';
-  note.textContent = '✓ ' + sel.options[sel.selectedIndex].text + ' 선택됨 — 주문 시 자동 적용';
-  if (sel) sel.parentElement.appendChild(note);
-  // 요금제 섹션으로 부드러운 스크롤
-  var pricingSection = document.getElementById('pricing');
-  if (pricingSection) setTimeout(function(){ pricingSection.scrollIntoView({behavior:'smooth',block:'start'}); }, 300);
 }
 function handleFreeTrial(){
   if(!isLoggedIn){showPage('signup');return;}
