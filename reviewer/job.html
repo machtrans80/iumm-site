@@ -6,6 +6,7 @@
 <title>IUMM 검수 작업</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -156,6 +157,8 @@ body.rv-focus .rv-focus-bar{display:flex}
 .btn-modal-cancel:hover{border-color:rgba(255,255,255,0.4);color:var(--white)}
 .btn-modal-submit{padding:10px 24px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
 .btn-modal-submit:hover{background:var(--gold-light)}
+/* [J-15] 폰트 강제 */
+button,input,textarea,select,.pane-ta,.btn-save,.btn-submit,.btn-modal-submit,.btn-modal-cancel{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 </style>
 </head>
 <body>
@@ -208,18 +211,18 @@ body.rv-focus .rv-focus-bar{display:flex}
 <!-- AI 품질 점수 배너 (gptFinalScore 또는 aiScore 있을 때) -->
 <div id="rv-score-panel" style="display:none;padding:10px 20px;border-bottom:1px solid var(--card-border);background:rgba(255,255,255,0.02)">
   <div id="rv-gpt-banner" style="display:none;padding:8px 12px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.2);border-radius:4px;margin-bottom:8px">
-    <span style="font-size:13px;font-weight:600;color:rgba(22,184,148,0.9)">✨ 최종 검수 점수: <span id="rv-gpt-score">—</span> / 100 <span id="rv-gpt-delta" style="font-size:11px;color:rgba(22,184,148,0.65)"></span></span>
+    <span style="font-size:13px;font-weight:600;color:rgba(22,184,148,0.9)"><i class="ti ti-sparkles" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>최종 검수 점수: <span id="rv-gpt-score">—</span> / 100 <span id="rv-gpt-delta" style="font-size:11px;color:rgba(22,184,148,0.65)"></span></span>
     <div id="rv-gpt-detail" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px"></div>
   </div>
   <div style="display:flex;gap:16px;font-size:12px;color:rgba(255,255,255,0.5)">
     <span>🔢 <span id="rv-ai-score-lbl">AI 자동 검수</span>: <strong id="rv-ai-score" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
-    <span>🔍 역번역 일치도: <strong id="rv-ai-reverse" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
+    <span><i class="ti ti-search" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>역번역 일치도: <strong id="rv-ai-reverse" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
   </div>
 </div>
 
 <!-- 검색 바 -->
 <div class="rv-search-bar" id="rv-search-bar">
-  <span style="font-size:12px;color:rgba(255,255,255,0.4)">🔍</span>
+  <i class="ti ti-search" style="font-size:13px;color:rgba(255,255,255,0.4)"></i>
   <input class="rv-search-inp" id="rv-search-inp" placeholder="용어 검색... (ESC로 닫기)" oninput="doRvSearch(this.value)">
   <span class="search-count" id="rv-sc-src">원문 —</span>
   <span style="color:rgba(255,255,255,0.2);font-size:11px">/</span>

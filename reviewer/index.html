@@ -6,6 +6,7 @@
 <title>IUMM 검수자 포털</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -174,6 +175,8 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
 .toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
+/* [J-15] 폰트 강제 */
+button,input,textarea,select,.inp,.btn-gold,.btn-logout,.btn-detail,.btn-accept,.btn-reject{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 </style>
 </head>
 <body>
@@ -201,28 +204,28 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
       <div class="stats-row">
         <div class="stat-card">
           <div class="val" id="stat-pending">—</div>
-          <div class="lbl">🔔 신규 요청</div>
+          <div class="lbl"><i class="ti ti-bell" style="font-size:13px;vertical-align:-1px;margin-right:3px"></i>신규 요청</div>
         </div>
         <div class="stat-card">
           <div class="val" id="stat-active">—</div>
-          <div class="lbl">🔄 진행 중</div>
+          <div class="lbl"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:3px"></i>진행 중</div>
         </div>
         <div class="stat-card">
           <div class="val" id="stat-monthly">—</div>
-          <div class="lbl">✅ 이번 달 완료</div>
+          <div class="lbl"><i class="ti ti-check" style="font-size:13px;vertical-align:-1px;margin-right:3px;color:var(--green)"></i>이번 달 완료</div>
         </div>
       </div>
       <div class="income-row">
         <div class="income-item">
-          <span class="il">💰 이번 달 수입</span>
+          <span class="il"><i class="ti ti-coin" style="font-size:12px;vertical-align:-1px;margin-right:2px"></i>이번 달 수입</span>
           <span class="iv" id="stat-earnings">—</span>
         </div>
         <div class="income-item">
-          <span class="il">📊 누적 처리</span>
+          <span class="il"><i class="ti ti-chart-bar" style="font-size:12px;vertical-align:-1px;margin-right:2px"></i>누적 처리</span>
           <span class="iv white" id="stat-total">—</span>
         </div>
         <div class="income-item">
-          <span class="il">⭐ 평점</span>
+          <span class="il"><i class="ti ti-star-filled" style="font-size:12px;vertical-align:-1px;margin-right:2px;color:var(--gold)"></i>평점</span>
           <span class="iv white" id="stat-rating">—</span>
         </div>
       </div>
@@ -231,7 +234,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
     <!-- 신규 요청 -->
     <div class="section-gap">
       <div class="sec-title">
-        🔔 신규 검수 요청
+        <i class="ti ti-bell" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>신규 검수 요청
         <span class="sec-count" id="pending-count-badge">0</span>
         <span style="margin-left:auto;font-size:11px;color:var(--gray);font-weight:300">30초마다 자동 갱신</span>
       </div>
@@ -242,7 +245,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 
     <!-- 진행 중 -->
     <div class="section-gap">
-      <div class="sec-title">🔄 진행 중 <span class="sec-count" id="active-count-badge">0</span></div>
+      <div class="sec-title"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>진행 중 <span class="sec-count" id="active-count-badge">0</span></div>
       <div id="active-list">
         <div class="empty-state"><div class="ei">📂</div><p>진행 중인 작업이 없습니다</p></div>
       </div>
@@ -250,7 +253,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 
     <!-- 완료 이력 -->
     <div class="section-gap">
-      <div class="sec-title">✅ 최근 완료 <span class="sec-count" id="completed-count-badge">0</span></div>
+      <div class="sec-title"><i class="ti ti-check" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--green)"></i>최근 완료 <span class="sec-count" id="completed-count-badge">0</span></div>
       <div id="completed-list">
         <div class="completed-list">
           <div class="comp-item" style="justify-content:center;color:var(--gray);font-size:13px">완료된 작업이 없습니다</div>
@@ -260,32 +263,32 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 
     <!-- 최근 받은 평가 -->
     <div class="section-gap" id="ratings-section" style="display:none">
-      <div class="sec-title">⭐ 최근 받은 평가</div>
+      <div class="sec-title"><i class="ti ti-star-filled" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>최근 받은 평가</div>
       <div id="ratings-list"></div>
     </div>
 
     <!-- ─── 정산 내역 섹션 ─── -->
     <section style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.08)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
-        <h2 style="font-size:20px;font-weight:500;color:var(--gold);margin:0">💸 정산 내역</h2>
+        <h2 style="font-size:20px;font-weight:500;color:var(--gold);margin:0"><i class="ti ti-coin" style="font-size:17px;vertical-align:-2px;margin-right:6px"></i>정산 내역</h2>
         <input type="month" id="settlement-month" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:8px 12px;border-radius:6px;font-size:13px;font-family:inherit">
       </div>
       <!-- 요약 카드 2개 -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:24px">
         <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:20px">
-          <div style="font-size:11px;color:var(--gold);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">💰 이번 달 정산 예정</div>
+          <div style="font-size:11px;color:var(--gold);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase"><i class="ti ti-coin" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>이번 달 정산 예정</div>
           <div id="settle-monthly-amount" style="font-size:22px;font-weight:500;color:var(--gold);margin-bottom:4px">₩0</div>
           <div id="settle-monthly-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건</div>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
-          <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">📊 누적 입금 완료</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase"><i class="ti ti-chart-bar" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>누적 입금 완료</div>
           <div id="settle-cumulative-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
           <div id="settle-cumulative-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건 누적</div>
         </div>
       </div>
       <!-- 안내 -->
       <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6">
-        💡 정산 기준: 최종 납품일 + 21일 검토 기간 후, 그 다음 달 말일에 입금 (주말/공휴일은 다음 평일)
+        <i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>정산 기준: 최종 납품일 + 21일 검토 기간 후, 그 다음 달 말일에 입금 (주말/공휴일은 다음 평일)
       </div>
       <!-- 작업별 목록 -->
       <div id="settlement-list" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;min-height:80px">
@@ -295,7 +298,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 
     <!-- ─── 계정 관리 섹션 ─── -->
     <section style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.08)">
-      <h2 style="font-size:18px;font-weight:500;color:rgba(255,255,255,0.7);margin:0 0 16px 0">⚙️ 계정 관리</h2>
+      <h2 style="font-size:18px;font-weight:500;color:rgba(255,255,255,0.7);margin:0 0 16px 0"><i class="ti ti-settings" style="font-size:16px;vertical-align:-2px;margin-right:6px;color:#16B894"></i>계정 관리</h2>
       <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
           <div>
@@ -311,7 +314,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
     <div id="withdraw-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
       <div style="background:#0a0a0a;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:32px;width:520px;max-width:90%;max-height:90vh;overflow:auto">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-          <h3 style="margin:0;color:#e05555;font-size:18px;font-weight:500">⚠️ 회원 탈퇴</h3>
+          <h3 style="margin:0;color:#e05555;font-size:18px;font-weight:500"><i class="ti ti-alert-triangle" style="font-size:16px;vertical-align:-2px;margin-right:6px;color:var(--gold)"></i>회원 탈퇴</h3>
           <button onclick="closeWithdrawModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:16px;margin-bottom:20px">
@@ -364,7 +367,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
     <div class="modal-body" id="detail-body"></div>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeDetailModal()">닫기</button>
-      <button class="modal-confirm" id="detail-accept-btn">✅ 수락하기</button>
+      <button class="modal-confirm" id="detail-accept-btn"><i class="ti ti-check" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>수락하기</button>
     </div>
   </div>
 </div>

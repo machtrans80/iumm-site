@@ -6,6 +6,7 @@
 <title>IUMM 관리자</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -274,6 +275,8 @@ body.admin-focus .focus-exit-hint{display:inline}
 .corr-item{font-size:11px;color:rgba(255,255,255,0.6);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.5}
 .corr-item:last-child{border-bottom:none}
 .corr-term{color:var(--gold);font-weight:600}
+/* [J-15] 폰트 강제 */
+button,input,textarea,select,.inp,.btn-login,.btn-logout,.tab-btn{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 </style>
 </head>
 <body>
@@ -432,7 +435,7 @@ body.admin-focus .focus-exit-hint{display:inline}
 
       <!-- 주문 폼 -->
       <div class="bp-section">
-        <div class="bp-section-title">🔐 우회 주문 정보</div>
+        <div class="bp-section-title"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>우회 주문 정보</div>
 
         <div class="bp-row">
           <div class="bp-col">
@@ -525,13 +528,13 @@ body.admin-focus .focus-exit-hint{display:inline}
           </div>
           <div class="bp-col" style="align-self:flex-end">
             <div id="bp-plan-hint" style="display:none;padding:8px 12px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.25);border-radius:6px;font-size:12px;color:var(--gold);line-height:1.5">
-              ⚠️ 프리미엄 플러스: AI 번역 완료 후 승인된 검수자에게 자동 배정됩니다.<br>
+              <i class="ti ti-alert-triangle" style="font-size:12px;vertical-align:-1px;margin-right:3px;color:var(--gold)"></i>프리미엄 플러스: AI 번역 완료 후 승인된 검수자에게 자동 배정됩니다.<br>
               배정 가능 검수자가 없으면 미배정 처리됩니다.
             </div>
           </div>
         </div>
 
-        <button class="btn-bp-submit" id="btn-bp-submit" onclick="submitBypassOrder()">🔐 우회 주문 시작 (결제 없이 파이프라인 실행)</button>
+        <button class="btn-bp-submit" id="btn-bp-submit" onclick="submitBypassOrder()"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>우회 주문 시작 (결제 없이 파이프라인 실행)</button>
 
         <!-- 결과 -->
         <div class="bp-result" id="bp-result">
@@ -546,7 +549,7 @@ body.admin-focus .focus-exit-hint{display:inline}
     <!-- ── 번역실패 탭 콘텐츠 ── -->
     <div id="failed-wrap" style="display:none;padding:4px 0 32px">
       <div style="margin-bottom:16px;padding:12px 16px;background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.3);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
-        ⛔ <strong style="color:#f87171">번역 실패</strong> — 길이 초과(max_tokens) 또는 잘림 감지로 납품이 차단된 주문입니다.<br>
+        <i class="ti ti-ban" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:#f87171"></i><strong style="color:#f87171">번역 실패</strong> — 길이 초과(max_tokens) 또는 잘림 감지로 납품이 차단된 주문입니다.<br>
         원문 축약 후 우회 주문으로 재처리하거나, 고객에게 분할 의뢰를 안내하세요.
       </div>
       <div id="failed-list" style="display:flex;flex-direction:column;gap:12px">
@@ -556,7 +559,7 @@ body.admin-focus .focus-exit-hint{display:inline}
 
     <div id="unassigned-wrap" style="display:none;padding:4px 0 32px">
       <div style="margin-bottom:16px;padding:12px 16px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
-        ⚠️ <strong style="color:#ef4444">수동 배정 필요</strong> — 미배정(경로1 실패) / 맡기기(경로2) / 후보선정중 주문입니다.<br>
+        <i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i><strong style="color:#ef4444">수동 배정 필요</strong> — 미배정(경로1 실패) / 맡기기(경로2) / 후보선정중 주문입니다.<br>
         단일 배정: 검수자 1명 선택 → [배정하기] / 동시발송: 복수 체크 → [동시 발송] → 수락한 사람 중 [최종 선택]
       </div>
       <div id="unassigned-list" style="display:flex;flex-direction:column;gap:16px">
@@ -595,7 +598,7 @@ body.admin-focus .focus-exit-hint{display:inline}
 
       <!-- 실행 버튼 -->
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
-        <button class="gr-btn gr-btn-primary" id="gpt-submit-btn" onclick="submitGptReview()">⚙ GPT 검수 시작</button>
+        <button class="gr-btn gr-btn-primary" id="gpt-submit-btn" onclick="submitGptReview()"><i class="ti ti-settings" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>GPT 검수 시작</button>
         <span id="gpt-status-msg" style="font-size:13px;color:rgba(255,255,255,0.45)"></span>
       </div>
 
@@ -611,7 +614,7 @@ body.admin-focus .focus-exit-hint{display:inline}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
             <div class="gr-section-title" style="margin:0">수정된 번역본</div>
             <div style="display:flex;gap:8px">
-              <button class="gr-btn-sm gr-btn-copy" onclick="gptCopyResult()">📋 복사</button>
+              <button class="gr-btn-sm gr-btn-copy" onclick="gptCopyResult()"><i class="ti ti-clipboard-list" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>복사</button>
               <button class="gr-btn-sm gr-btn-dl" onclick="gptDownloadResult()">⬇ .txt 다운로드</button>
             </div>
           </div>
@@ -631,8 +634,8 @@ body.admin-focus .focus-exit-hint{display:inline}
         <span class="panel-meta" id="panel-meta"></span>
         <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
           <span class="sync-toggle active" id="scroll-sync-toggle" onclick="toggleScrollSync()" title="스크롤 동기화">⇕ 동기화</span>
-          <button id="diff-btn" onclick="toggleAdminDiff()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">📋 Diff</button>
-          <button onclick="openAdminSearch()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">🔍 검색</button>
+          <button id="diff-btn" onclick="toggleAdminDiff()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif"><i class="ti ti-files" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>Diff</button>
+          <button onclick="openAdminSearch()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif"><i class="ti ti-search" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>검색</button>
           <!-- 집중모드에서만 보이는 버튼 -->
           <button id="focus-save-btn" style="display:none;padding:6px 14px;background:rgba(22,184,148,0.15);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="saveTranslationDraft()">💾 임시저장</button>
           <button class="focus-mode-btn" onclick="toggleFocusMode()" id="focus-btn">⛶ 집중 모드</button>
@@ -640,7 +643,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         </div>
       </div>
       <div class="panel-search-bar" id="panel-search-bar">
-        <span style="font-size:12px;color:rgba(255,255,255,0.4)">🔍</span>
+        <i class="ti ti-search" style="font-size:13px;color:rgba(255,255,255,0.4)"></i>
         <input class="panel-search-inp" id="panel-search-inp" placeholder="용어 검색... (ESC로 닫기)" oninput="doAdminSearch(this.value)">
         <span class="search-count" id="sc-src">원문 —</span>
         <span style="color:rgba(255,255,255,0.2);font-size:11px">/</span>
@@ -676,7 +679,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <!-- GPT 최종 검수 점수 배너 (gptFinalScore 있을 때만 표시) -->
         <div id="gpt-score-banner" style="display:none;margin:0 0 10px;padding:10px 14px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.22);border-radius:5px">
           <div style="font-size:13px;font-weight:600;color:rgba(22,184,148,0.9)">
-            ✨ 최종 검수 점수: <span id="gpt-score-num" style="font-size:20px">—</span> / 100
+            <i class="ti ti-sparkles" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>최종 검수 점수: <span id="gpt-score-num" style="font-size:20px">—</span> / 100
             <span id="gpt-score-delta" style="font-size:12px;color:rgba(22,184,148,0.65);margin-left:6px"></span>
           </div>
           <div id="gpt-score-detail-txt" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px"></div>
