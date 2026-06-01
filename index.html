@@ -404,10 +404,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .ai-steps-grid{display:none !important}
   .ai-steps-grid.mob-open{display:grid !important}
   .mob-steps-trigger{display:flex !important}
-  /* 분야 카드 9번째 이후 숨김 */
-  #fields .field-bento > div:nth-child(n+9){display:none !important}
-  #fields .field-bento > div:nth-child(n+9).mob-shown{display:block !important}
-  .mob-field-trigger{display:flex !important}
+  /* 분야: 벤토 숨기고 <select> 표시 */
+  #fields .field-bento{display:none !important}
+  #fields .mob-field-trigger{display:none !important}
+  .mob-field-select{display:block !important;width:100%;padding:14px 16px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.3);border-radius:8px;color:#D5DDE5;font-size:15px;font-family:inherit;margin-bottom:16px;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2316B894' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+  .mob-field-select option{background:#0F2540;color:#D5DDE5}
   /* WHY 박스 설명 텍스트 숨김 → 제목만 */
   .why-box-desc{display:none !important}
   .why-box.open .why-box-desc{display:block !important}
@@ -418,6 +419,19 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   #fields > div > p[style*="text-align:center"]{display:none !important}
   /* 9.5단계 섹션 긴 부제 숨김 */
   .mob-hide{display:none !important}
+  /* 터치 영역 & 클릭 UX */
+  summary,button,.faq-q,.why-box,.mob-compare-toggle button,.mob-plan-toggle,.mob-steps-trigger button,.mob-field-trigger button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  /* details/summary 글로벌 모바일 스타일 */
+  details{width:100%;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0}
+  details summary{list-style:none;cursor:pointer;padding:14px 8px;font-size:15px;font-weight:500;color:rgba(255,255,255,0.85);display:flex;justify-content:space-between;align-items:center}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"+";font-size:20px;color:var(--gold);flex-shrink:0}
+  details[open] summary::after{content:"−"}
+  details[open]{background:rgba(255,255,255,0.02)}
+  /* 푸터 링크 큰 터치 영역 */
+  .footer-links a{padding:8px 0;min-height:40px;display:inline-flex;align-items:center}
+  /* 섹션 간격 축소 */
+  section{padding-top:36px !important;padding-bottom:36px !important}
 }
 
 /* ── 호버/탭 펼침 — 비교카드·9.5단계카드 공통 ── */
@@ -2054,6 +2068,28 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     <span style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:8px;display:inline-block">▼ 카드 클릭 시 글로벌 표준 정보가 표시됩니다</span>
   </p>
   
+  <!-- 모바일 전용: 분야 <select> 드롭다운 -->
+  <select class="mob-field-select" onchange="if(isLoggedIn){currentPlan='ai';showModal('order');updateOrderModal();}else{showPage('login');}this.value=''" style="display:none">
+    <option value="">── 17개 전문 분야 보기 / 선택 ──</option>
+    <option value="legal">⚖️ 법률·계약</option>
+    <option value="medical">🏥 의료·제약</option>
+    <option value="patent">📋 특허·지식재산</option>
+    <option value="criminal">🔍 범죄·수사·공문</option>
+    <option value="immigration">✈️ 이민·비자·증명서</option>
+    <option value="business">💼 비즈니스</option>
+    <option value="finance">💰 금융·재무</option>
+    <option value="accounting">📊 회계·세무</option>
+    <option value="marketing">📢 마케팅·광고</option>
+    <option value="academic">📚 학술·논문</option>
+    <option value="tech">💻 IT·테크</option>
+    <option value="engineering">🔧 기계·엔지니어링</option>
+    <option value="defense">🛡️ 방산·조달·군사</option>
+    <option value="esg">🌱 ESG·환경</option>
+    <option value="construction">🏗️ 건설·부동산</option>
+    <option value="culture">🎭 영상·문화·예술</option>
+    <option value="general">📝 일반·기타</option>
+  </select>
+
   <div class="field-bento" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1180px;margin:0 auto">
     
     <!-- 법률 -->
