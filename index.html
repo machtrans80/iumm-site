@@ -402,6 +402,24 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   /* 브랜드 시그니처 모바일 */
   .brand-signature{font-size:12px !important}
   .brand-message{font-size:11px !important;line-height:1.7 !important}
+  /* 9.5단계 grid 접힘 기본 + 토글 */
+  .ai-steps-grid{display:none !important}
+  .ai-steps-grid.mob-open{display:grid !important}
+  .mob-steps-trigger{display:flex !important}
+  /* 분야 카드 9번째 이후 숨김 */
+  #fields .field-bento > div:nth-child(n+9){display:none !important}
+  #fields .field-bento > div:nth-child(n+9).mob-shown{display:block !important}
+  .mob-field-trigger{display:flex !important}
+  /* WHY 박스 설명 텍스트 숨김 → 제목만 */
+  .why-box-desc{display:none !important}
+  .why-box.open .why-box-desc{display:block !important}
+  .why-box{cursor:pointer;user-select:none}
+  .why-box::after{content:" ▼";font-size:10px;color:rgba(255,255,255,0.35)}
+  .why-box.open::after{content:" ▲";color:rgba(22,184,148,0.7)}
+  /* 분야 섹션 설명 p 숨김 */
+  #fields > div > p[style*="text-align:center"]{display:none !important}
+  /* 9.5단계 섹션 긴 부제 숨김 */
+  .mob-hide{display:none !important}
 }
 
 /* ── 호버/탭 펼침 — 비교카드·9.5단계카드 공통 ── */
@@ -1852,20 +1870,20 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </p>
     <!-- WHY 3박스 -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:820px;margin:0 auto 28px">
-      <div style="padding:20px 22px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:8px;text-align:center">
+      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:20px 22px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:8px;text-align:center">
         <div style="font-size:24px;margin-bottom:8px">⚡</div>
         <div style="font-size:15px;font-weight:600;color:#ffffff;margin-bottom:6px">빠른 처리</div>
-        <div style="font-size:12px;color:#8A98A8;line-height:1.6">빠른 당일 납품<br>업계 최고 수준 (A4 5페이지 이하 기준)</div>
+        <div class="why-box-desc" style="font-size:12px;color:#8A98A8;line-height:1.6">빠른 당일 납품<br>업계 최고 수준 (A4 5페이지 이하 기준)</div>
       </div>
-      <div style="padding:20px 22px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;text-align:center">
+      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:20px 22px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;text-align:center">
         <div style="font-size:24px;margin-bottom:8px">🎯</div>
         <div style="font-size:15px;font-weight:600;color:#ffffff;margin-bottom:6px">9.5단계 정밀 검수</div>
-        <div style="font-size:12px;color:#8A98A8;line-height:1.6">독자 알고리즘 + 최종 검토<br>어디에도 없는 기술</div>
+        <div class="why-box-desc" style="font-size:12px;color:#8A98A8;line-height:1.6">독자 알고리즘 + 최종 검토<br>어디에도 없는 기술</div>
       </div>
-      <div style="padding:20px 22px;background:rgba(93,224,188,0.05);border:1px solid rgba(93,224,188,0.15);border-radius:8px;text-align:center">
+      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:20px 22px;background:rgba(93,224,188,0.05);border:1px solid rgba(93,224,188,0.15);border-radius:8px;text-align:center">
         <div style="font-size:24px;margin-bottom:8px">👨‍⚖️</div>
         <div style="font-size:15px;font-weight:600;color:#ffffff;margin-bottom:6px">전문가 검수 옵션</div>
-        <div style="font-size:12px;color:#8A98A8;line-height:1.6">자격사 직접 1:1 대조<br>프리미엄 플러스 선택 시</div>
+        <div class="why-box-desc" style="font-size:12px;color:#8A98A8;line-height:1.6">자격사 직접 1:1 대조<br>프리미엄 플러스 선택 시</div>
       </div>
     </div>
     <div style="display:flex;justify-content:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:22px">
@@ -2236,6 +2254,10 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     
   </div>
   
+  <!-- 모바일 전용: 분야 더 보기 토글 -->
+  <div class="mob-field-trigger" style="display:none;justify-content:center;margin-top:16px;margin-bottom:8px">
+    <button style="padding:10px 24px;background:rgba(22,184,148,0.08);border:1px solid rgba(22,184,148,0.25);border-radius:4px;color:#5DE0BC;font-size:12px;cursor:pointer;font-family:inherit" onclick="(function(btn){document.querySelectorAll('#fields .field-bento > div').forEach(function(d,i){if(i>=8){d.classList.toggle('mob-shown');}});btn.textContent=btn.textContent.includes('더')? '분야 접기 ▲' : '17개 분야 모두 보기 ▼'})(this)">17개 분야 모두 보기 ▼</button>
+  </div>
   <div style="text-align:center;margin-top:32px">
     <button class="btn-primary" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false" style="padding:16px 44px;font-size:14px">분야 선택하고 시작하기 →</button>
     <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:16px;letter-spacing:1px">300글자 무료 체험 · 신용카드 불필요</p>
@@ -2404,7 +2426,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   <div style="max-width:1000px;margin:0 auto;text-align:center">
     <p class="section-label">AI-Powered Quality</p>
     <h2 class="section-title">독자적인 <span class="mint">AI 9.5단계</span> 교차검증 시스템</h2>
-    <p style="font-size:17px;color:rgba(255,255,255,0.55);font-weight:300;line-height:1.9;margin-bottom:64px;max-width:620px;margin-left:auto;margin-right:auto">단순한 AI 번역이 아닙니다.<br>IUMM만의 독자적인 9.5단계 프로세스로<br>어떤 번역 서비스보다 높은 품질을 보장합니다.</p>
+    <p class="mob-hide" style="font-size:17px;color:rgba(255,255,255,0.55);font-weight:300;line-height:1.9;margin-bottom:64px;max-width:620px;margin-left:auto;margin-right:auto">단순한 AI 번역이 아닙니다.<br>IUMM만의 독자적인 9.5단계 프로세스로<br>어떤 번역 서비스보다 높은 품질을 보장합니다.</p>
+    <!-- 모바일 전용 토글 -->
+    <div class="mob-steps-trigger" style="display:none;justify-content:center;margin-bottom:20px">
+      <button style="padding:10px 24px;background:rgba(22,184,148,0.1);border:1px solid rgba(22,184,148,0.3);border-radius:4px;color:#5DE0BC;font-size:13px;cursor:pointer;font-family:inherit" onclick="var g=document.querySelector('.ai-steps-grid');g.classList.toggle('mob-open');this.textContent=g.classList.contains('mob-open')? '9.5단계 시스템 접기 ▲' : '9.5단계 시스템 자세히 보기 ▼'">9.5단계 시스템 자세히 보기 ▼</button>
+    </div>
     <div class="ai-steps-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:rgba(22,184,148,0.08);border:1px solid rgba(22,184,148,0.12);border-radius:14px">
       <div class="expandable-card" style="background:#0F2540;padding:32px 18px;text-align:center;border-radius:12px 0 0 12px">
         <p style="font-size:11px;font-weight:600;color:rgba(22,184,148,0.55);letter-spacing:2px;margin-bottom:10px">STEP 1-2</p>
