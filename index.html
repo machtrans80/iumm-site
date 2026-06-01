@@ -22,6 +22,8 @@
   --mint-light:#5DE0BC;
 }
 html{scroll-behavior:smooth}
+/* 배너 활성 시 nav 28px 아래 (배너 높이 = 4+4+20 = 28px) */
+#preview-banner[style*="display:block"]~nav{top:28px !important}
 body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;background:#0F2540;color:#C9D2DC;overflow-x:hidden;line-height:1.7}
 /* ── 폰트 전체 통일 (Pretendard) ── */
 *{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
@@ -600,7 +602,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 <body>
 
 <!-- PG 심사용 미리보기 배너 (iumm_preview_mode 활성 시에만 표시) -->
-<div id="preview-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#fbbf24;color:#000;padding:10px;text-align:center;z-index:9999;font-weight:600;font-family:'Noto Sans KR',sans-serif;font-size:14px">
+<div id="preview-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#fbbf24;color:#000;padding:4px 12px;text-align:center;z-index:9999;font-weight:600;font-family:'Noto Sans KR',sans-serif;font-size:11px;line-height:20px">
   🔍 심사용 미리보기 모드 (로그인 우회 활성화됨)
 </div>
 
@@ -3607,7 +3609,7 @@ var selectedOrderMode=''; // '': 자동/직접선택(경로1), '맡기기': 경�
     currentUserKakaoId='preview_mode';
     document.addEventListener('DOMContentLoaded',function(){
       var banner=document.getElementById('preview-banner');
-      if(banner){banner.style.display='block';document.body.style.paddingTop='42px';}
+      if(banner){banner.style.display='block';document.body.style.paddingTop='28px';}
     });
   }
 })();
