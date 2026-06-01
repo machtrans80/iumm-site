@@ -149,6 +149,9 @@ section{padding:64px 44px}
   .pricing-cards .price-card:nth-child(3):active{transform:translateY(-4px) scale(0.98) !important;background:rgba(99,153,34,0.1) !important;border-color:rgba(99,153,34,0.5) !important;transition:all 0.15s ease-out !important}
   .pricing-cards .price-card:nth-child(4):active{transform:translateY(-4px) scale(0.98) !important;background:rgba(55,138,221,0.1) !important;border-color:rgba(55,138,221,0.5) !important;transition:all 0.15s ease-out !important}
 }
+/* [C-2.19] 플랜 안내 박스 */
+.plan-guide:hover{transform:translateY(-3px);box-shadow:0 0 44px rgba(201,168,76,0.22),0 14px 32px rgba(0,0,0,0.28) !important}
+@media(max-width:768px){.plan-guide{padding:22px 18px !important;border-radius:8px !important}.plan-guide p{font-size:14px !important;text-align:left !important;line-height:1.75 !important}}
 .price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#16B894;color:#fff;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap}
 .price-type{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:14px}
 .price-name{font-size:20px;font-weight:600;margin-bottom:8px;color:#ffffff}
@@ -2111,11 +2114,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     </div>
   </div>
   
-  <div style="text-align:center;margin-top:32px;padding:20px 28px;background:rgba(22,184,148,0.04);border:1px solid rgba(22,184,148,0.15);max-width:880px;margin-left:auto;margin-right:auto">
-    <p style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.85;font-weight:300;margin:0;word-break:keep-all">
-      <strong style="color:var(--gold);font-weight:600"><i class="ti ti-bulb" style="font-size:14px;vertical-align:-2px"></i> 어떤 걸 선택해야 할까요?</strong><br>
-      <strong style="color:var(--white)">일반적인 업무·콘텐츠</strong>는 <strong style="color:var(--gold)">AI 프리미엄</strong>으로 충분합니다.
-      <strong style="color:var(--white)">계약서·논문·특허 등 완벽함이 필요한 문서</strong>는 <strong style="color:var(--gold)">프리미엄 플러스</strong>를 추천드립니다.
+  <div class="plan-guide" style="text-align:center;margin-top:40px;margin-left:auto;margin-right:auto;padding:30px 32px;background:linear-gradient(135deg,rgba(201,168,76,0.07) 0%,rgba(201,168,76,0.02) 100%);border:2px solid rgba(201,168,76,0.45);border-radius:12px;max-width:880px;box-shadow:0 0 30px rgba(201,168,76,0.12),0 8px 20px rgba(0,0,0,0.2);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s cubic-bezier(0.4,0,0.2,1)">
+    <strong style="color:var(--gold);font-weight:700;font-size:19px;display:block;margin-bottom:14px;letter-spacing:-0.01em"><i class="ti ti-bulb" style="font-size:17px;vertical-align:-2px;margin-right:6px"></i>어떤 플랜을 선택해야 할까요?</strong>
+    <p style="font-size:15px;color:rgba(255,255,255,0.82);line-height:1.85;font-weight:300;margin:0;word-break:keep-all">
+      일반적인 업무·콘텐츠는 <strong style="color:var(--gold);font-weight:600">AI 프리미엄 번역</strong>으로 충분합니다.<br>
+      계약서·논문·특허 등 완벽함이 필요한 문서도 AI 프리미엄 번역으로 커버가 가능하나,<br>전문가의 터치가 한번 더 필요하시다면 <strong style="color:var(--gold);font-weight:600">프리미엄 플러스</strong>를 추천드립니다.
     </p>
   </div>
 </section>
