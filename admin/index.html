@@ -258,6 +258,10 @@ body.admin-focus .focus-exit-hint{display:inline}
 .ao-search-inp{flex:1;min-width:180px;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none}
 .ao-search-inp:focus{border-color:rgba(201,168,76,0.4)}
 .ao-count{font-size:11px;color:rgba(255,255,255,0.3);flex-shrink:0}
+/* ── 참고자료 뱃지 ── */
+.ref-badge{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;margin-left:6px;cursor:help;vertical-align:middle}
+.ref-badge.ref-success{background:rgba(22,184,148,0.15);color:#16B894;border:1px solid rgba(22,184,148,0.4)}
+.ref-badge.ref-fail{background:rgba(220,38,38,0.15);color:#dc2626;border:1px solid rgba(220,38,38,0.4)}
 /* ── AI 점수 섹션 ── */
 #ai-score-section{padding:14px 20px;border-top:1px solid rgba(201,168,76,0.12);background:rgba(201,168,76,0.03)}
 .score-grid{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
@@ -686,6 +690,7 @@ body.admin-focus .focus-exit-hint{display:inline}
           </div>
           <div id="gpt-score-detail-txt" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px"></div>
         </div>
+        <div id="ref-status-badge-row" style="margin-bottom:8px"></div>
         <div class="score-grid">
           <div class="score-badge">
             <div class="score-badge-label" id="ai-score-total-label">AI 종합점수</div>
@@ -2228,12 +2233,23 @@ async function runBypassOcr() {
 // ── AI 점수 섹션 렌더링 ────────────────────────────────
 // ════════════════════════════════════════════════════════
 
+function renderReferenceStatus(order) {
+  var status = order.referenceStatus || '없음';
+  if (status === '성공') return '<span class="ref-badge ref-success" title="고객이 참고자료를 첨부했습니다. GPT 검수 시 참고 가능"><i class="ti ti-paperclip" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>참고자료 있음</span>';
+  if (status === '실패') return '<span class="ref-badge ref-fail" title="참고자료 업로드 실패 — Airtable에서 직접 확인 필요"><i class="ti ti-alert-triangle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>참고자료 실패</span>';
+  return '';
+}
+
 function populateAiScoreSection(order) {
   var scoreSection = document.getElementById('ai-score-section');
   if (!scoreSection) return;
   var hasScore = order.aiScore != null || order.aiReverseScore != null;
   scoreSection.style.display = hasScore ? 'block' : 'none';
   if (!hasScore) return;
+
+  // 참고자료 뱃지
+  var refBadgeRow = document.getElementById('ref-status-badge-row');
+  if (refBadgeRow) refBadgeRow.innerHTML = renderReferenceStatus(order);
 
   var totalEl = document.getElementById('ai-score-total');
   var revEl   = document.getElementById('ai-score-reverse');
