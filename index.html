@@ -199,6 +199,9 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 .lbl{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;display:block;margin-bottom:7px;text-transform:uppercase;transition:color 0.2s}
 /* [C-2.24] 골드 아이콘 유틸리티 */
 .icon-g{color:#c9a84c !important;vertical-align:-2px}
+/* [J-18] 자동 추출/OCR 복붙 방지 */
+textarea[data-source="extracted"]{user-select:none;-webkit-user-select:none;-moz-user-select:none;cursor:default;background:#0e0e0e !important;border-color:rgba(201,168,76,0.3) !important;color:rgba(255,255,255,0.7) !important}
+#ocr-result-text{user-select:none;-webkit-user-select:none;-moz-user-select:none}
 /* [J-1] 정보입력 페이지 섹션 헤더 */
 #page-userinfo h2,#page-login h2{font-family:'Nanum Myeongjo',serif}
 #page-userinfo .lbl:has(+ .inp:focus),#page-mypage .lbl:has(+ .inp:focus){color:rgba(201,168,76,0.8)}
@@ -2749,7 +2752,13 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       <!-- 텍스트 붙여넣기 영역 -->
       <div id="input-section-text">
         <label class="lbl">번역할 텍스트 붙여넣기</label>
-        <textarea id="pasteText" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="calcTextChads(this.value)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
+        <div style="position:relative">
+          <textarea id="pasteText" data-source="manual" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="onPasteTextInput(this)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
+          <div id="extracted-notice" style="display:none;position:absolute;top:6px;right:8px;display:none;align-items:center;gap:8px">
+            <span style="font-size:10px;color:rgba(201,168,76,0.7)"><i class="ti ti-lock" style="vertical-align:-1px;margin-right:2px"></i>자동 추출됨</span>
+            <button onclick="unlockExtracted()" style="font-size:10px;color:rgba(255,255,255,0.4);background:none;border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:2px 7px;cursor:pointer">수정하기</button>
+          </div>
+        </div>
       </div>
 
       <!-- 하드카피 OCR 영역 -->
@@ -2785,7 +2794,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
             <span>추출된 텍스트 (수정 가능)</span>
             <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:400">복사 방지 적용됨</span>
           </label>
-          <textarea id="ocr-result-text" oninput="ocrTextChanged(this.value)" oncopy="ocrBlockCopy(event)" oncut="ocrBlockCopy(event)" oncontextmenu="return false" style="width:100%;height:180px;padding:14px 16px;background:#0e0e0e;border:1px solid rgba(22,184,148,0.25);border-radius:2px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:vertical;line-height:1.8;margin-bottom:0"></textarea>
+          <textarea id="ocr-result-text" data-source="extracted" oninput="ocrTextChanged(this.value)" oncopy="ocrBlockCopy(event)" oncut="ocrBlockCopy(event)" oncontextmenu="return false" style="width:100%;height:180px;padding:14px 16px;background:#0e0e0e;border:1px solid rgba(22,184,148,0.25);border-radius:2px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:vertical;line-height:1.8;margin-bottom:0"></textarea>
           <p id="ocr-copy-notice" style="display:none;font-size:11px;color:rgba(224,85,85,0.9);margin-top:5px;font-weight:500"><i class="ti ti-lock icon-g" style="margin-right:3px"></i>OCR 텍스트는 복사할 수 없습니다.</p>
         </div>
       </div>
@@ -5503,6 +5512,40 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script>
+/* [J-18] 자동 추출 복붙 방지 */
+function onPasteTextInput(el){
+  // 직접 입력 시 추출 잠금 해제
+  if(el.dataset.source==='extracted'){el.dataset.source='manual';el.readOnly=false;var n=document.getElementById('extracted-notice');if(n)n.style.display='none';}
+  calcTextChads(el.value);
+}
+function unlockExtracted(){
+  var pt=document.getElementById('pasteText');
+  if(!pt)return;
+  if(!confirm('자동 추출 텍스트를 수정하면 보호가 해제됩니다. 계속하시겠습니까?'))return;
+  pt.dataset.source='manual';
+  pt.readOnly=false;
+  pt.focus();
+  var n=document.getElementById('extracted-notice');
+  if(n)n.style.display='none';
+}
+// 전역 복붙 차단 (data-source="extracted" 요소만)
+document.addEventListener('copy',function(e){
+  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted'){
+    e.preventDefault();
+    alert('자동 추출 텍스트는 복사할 수 없습니다.\n결제 후 번역 결과를 이메일로 받으실 수 있습니다.');
+  }
+});
+document.addEventListener('cut',function(e){
+  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted')e.preventDefault();
+});
+document.addEventListener('contextmenu',function(e){
+  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted')e.preventDefault();
+},true);
+document.addEventListener('keydown',function(e){
+  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted'){
+    if((e.ctrlKey||e.metaKey)&&['c','x','a'].includes(e.key.toLowerCase()))e.preventDefault();
+  }
+});
 /* [D-1c] 원문 파일 자동 추출 */
 var EXTRACT_API='https://iumm-pipeline-production.up.railway.app/api/extract-source';
 function handleSrcFileExtract(input){
@@ -5520,9 +5563,13 @@ function handleSrcFileExtract(input){
         var pt=document.getElementById('pasteText');
         if(pt){
           pt.value=data.text;
+          pt.dataset.source='extracted';
+          pt.readOnly=true;
+          var notice=document.getElementById('extracted-notice');
+          if(notice)notice.style.display='flex';
           calcTextChads(data.text);
         }
-        status.textContent='✓ 자동 추출 완료 (공백제외 '+data.charCount.toLocaleString()+'자) — 필요 시 아래 텍스트를 직접 수정하세요';
+        status.textContent='✓ 자동 추출 완료 (공백제외 '+data.charCount.toLocaleString()+'자) — 아래 텍스트를 확인하세요';
         status.style.color='rgba(151,196,89,0.9)';
         // 텍스트 입력 탭으로 전환
         if(typeof switchInputMode==='function') switchInputMode('text');
