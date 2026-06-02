@@ -4566,7 +4566,20 @@ function selectReviewer(el,name,id){
   if(isExp) showToast('✦ 전문 자격사 선택 완료 - '+(isPageOrder?'페이지당 +10,000원':'글자당 +20원')+' 적용');
   else if(name) showToast(name+' 선택 완료');
 }
+function getSourceText(){
+  switch(window._sourceInputMode){
+    case 'auto': {var pt=document.getElementById('pasteText');return pt?pt.value:'';}
+    case 'ocr':  {var ot=document.getElementById('ocr-result-text');return ot?ot.value:'';}
+    case 'manual':{var pt2=document.getElementById('pasteText');return pt2?pt2.value:'';}
+    default: return '';
+  }
+}
 function goToPayment(){
+  // [J-19c] 원문 입력 검증
+  if(!window._sourceInputMode||!getSourceText().trim()){
+    alert('번역할 원문을 입력해주세요.\n(파일 자동 추출, OCR, 직접 입력 중 하나)');
+    return;
+  }
   // estimate-amount에 이미 최종 금액이 계산되어 있음
   // (showEstimate, updatePagePrice, selectReviewer 에서 모두 업데이트)
   var amtText=document.getElementById('estimate-amount').textContent.replace(/[^0-9]/g,'');
