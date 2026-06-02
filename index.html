@@ -224,6 +224,22 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 #reviewer-panel h3{color:rgba(255,255,255,0.95)}
 #reviewer-panel>div>p{color:rgba(255,255,255,0.75)}
 #reviewer-list-panel>div{border-radius:6px !important}
+/* [C-3] 참고자료 첨부 폼 */
+.ref-section{margin:20px 0;padding:18px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px}
+.ref-title{font-size:14px;font-weight:600;color:#16B894;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ref-subtitle{font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;margin-left:22px;display:block;margin-bottom:10px}
+.ref-file-btn{display:inline-block;padding:10px 18px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.6);border-radius:6px;cursor:pointer;font-size:13px;color:#16B894;transition:all 0.2s}
+.ref-file-btn:hover{background:rgba(22,184,148,0.18);border-style:solid}
+.ref-file-item{padding:7px 12px;background:rgba(255,255,255,0.05);border-radius:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,0.8)}
+.ref-file-remove{cursor:pointer;color:rgba(255,255,255,0.4);font-size:16px;padding:0 3px}
+.ref-file-remove:hover{color:#ef4444}
+.ref-notice{margin-top:14px;padding:12px 14px;background:rgba(22,184,148,0.07);border-left:3px solid rgba(22,184,148,0.5);border-radius:4px}
+.ref-notice-title{font-size:12px;font-weight:600;color:#16B894;margin-bottom:6px}
+.ref-notice ul{margin:0;padding-left:16px;font-size:11px;color:rgba(255,255,255,0.65);line-height:1.8}
+.ref-consent{margin-top:12px;display:none}
+.ref-consent label{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);line-height:1.5}
+.ref-consent input[type=checkbox]{margin-top:2px;accent-color:#16B894;flex-shrink:0}
+@media(max-width:768px){.ref-section{padding:14px}.ref-file-btn{font-size:12px;padding:9px 14px}.ref-notice ul{font-size:10px}}
 @media(max-width:768px){
   /* === 모바일 가독성 글로벌 향상 === */
   body{line-height:1.85}
@@ -3024,6 +3040,28 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <textarea id="glossaryTarget" placeholder="번역 용어&#10;한 줄에 하나씩" style="width:100%;height:96px;padding:12px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7"></textarea>
         </div>
       </div>
+      <!-- 참고자료 첨부 [C-3] -->
+      <div class="ref-section">
+        <div class="ref-title"><i class="ti ti-paperclip" style="font-size:15px"></i>참고 자료 첨부 <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,0.4)">(선택)</span></div>
+        <span class="ref-subtitle">회사 자료를 첨부하면 AI가 표현·용어를 학습해 번역 품질이 향상됩니다</span>
+        <input type="file" id="referenceFile" accept=".pdf,.docx,.doc,.xlsx,.xls,.txt" multiple style="display:none" onchange="handleRefFileSelect(this)">
+        <label for="referenceFile" class="ref-file-btn"><i class="ti ti-upload" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>파일 선택 (PDF · Word · Excel · TXT, 최대 10MB)</label>
+        <div id="refFileList" style="margin-top:10px"></div>
+        <div class="ref-notice">
+          <div class="ref-notice-title"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>참고자료 안내</div>
+          <ul>
+            <li>AI가 회사별 표현·용어 학습에 활용됩니다</li>
+            <li>정확한 자료일수록 번역 품질이 향상됩니다</li>
+            <li>지원 파일: PDF · Word · Excel · TXT (이미지 제외)</li>
+            <li>번역 완료 후 21일 자동 삭제 (개인정보처리방침 적용)</li>
+            <li>기업별 특화 서비스는 iumm.master@gmail.com 문의</li>
+          </ul>
+        </div>
+        <div class="ref-consent" id="refConsentBox">
+          <label><input type="checkbox" id="refConsent"><span>[필수] 참고자료 활용 및 21일 후 자동 삭제에 동의합니다.</span></label>
+        </div>
+      </div>
+
       <button onclick="goToPayment()" class="btn-primary" style="width:100%;padding:16px;font-size:15px">선택 완료 → 최종 결제하기</button>
       <p style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;margin-top:14px;font-weight:300">결제 후 번역 작업 프로세스가 바로 시작되므로 취소 및 환불이 불가합니다.</p>
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);font-size:12px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.6">
@@ -4970,6 +5008,11 @@ async function completePayment(){
     return;
   }
 
+  // [C-3] 참고자료 약관 체크
+  var _refData=collectRefMaterial();
+  if(_refData===null)return;
+  if(_refData.hasReference){console.log('[참고자료]',_refData.referenceFiles.map(function(f){return f.name;}));}
+
   // 결제수단 → 포트원 payMethod 매핑
   var selectedPayEl=document.querySelector('input[name="paymethod"]:checked');
   var portonePayMethod='';
@@ -5508,6 +5551,49 @@ document.addEventListener('DOMContentLoaded',function(){
     io.observe(el);
   });
 });
+</script>
+<script>
+/* [C-3] 참고자료 파일 처리 */
+window._referenceFiles=[];
+function handleRefFileSelect(input){
+  var files=Array.from(input.files);
+  var list=document.getElementById('refFileList');
+  var consentBox=document.getElementById('refConsentBox');
+  var validExts=['.pdf','.docx','.doc','.xlsx','.xls','.txt'];
+  var maxSize=10*1024*1024;
+  var valid=[];
+  list.innerHTML='';
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    var ext='.'+f.name.split('.').pop().toLowerCase();
+    if(validExts.indexOf(ext)<0){alert('"'+f.name+'" 지원하지 않는 형식입니다.\n(PDF/Word/Excel/TXT만 가능)');continue;}
+    if(f.size>maxSize){alert('"'+f.name+'" 파일이 10MB를 초과합니다.');continue;}
+    valid.push(f);
+    var item=document.createElement('div');
+    item.className='ref-file-item';
+    (function(idx){
+      item.innerHTML='<span>✓ '+f.name+' ('+(f.size/1024).toFixed(0)+'KB)</span><span class="ref-file-remove" onclick="removeRefFile('+idx+')">×</span>';
+    })(valid.length-1);
+    list.appendChild(item);
+  }
+  window._referenceFiles=valid;
+  consentBox.style.display=valid.length>0?'block':'none';
+  input.value='';
+}
+function removeRefFile(idx){
+  window._referenceFiles.splice(idx,1);
+  var list=document.getElementById('refFileList');
+  var items=list.querySelectorAll('.ref-file-item');
+  if(items[idx])items[idx].remove();
+  if(window._referenceFiles.length===0)document.getElementById('refConsentBox').style.display='none';
+}
+function collectRefMaterial(){
+  var files=window._referenceFiles||[];
+  if(files.length===0)return{hasReference:false};
+  var consent=document.getElementById('refConsent');
+  if(!consent||!consent.checked){alert('참고자료를 첨부하셨습니다.\n[필수] 약관에 동의해주세요.');return null;}
+  return{hasReference:true,referenceFiles:files};
+}
 </script>
 </body>
 </html>
