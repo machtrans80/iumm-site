@@ -157,10 +157,11 @@ body.rv-focus .rv-focus-bar{display:flex}
 .btn-modal-cancel:hover{border-color:rgba(255,255,255,0.4);color:var(--white)}
 .btn-modal-submit{padding:10px 24px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
 .btn-modal-submit:hover{background:var(--gold-light)}
-/* [J-16] 명조체 전수 → Pretendard + 로고 민트 */
+/* [J-16/17] 명조체 전수 → Pretendard + brand-header 로고 */
 *,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
-.nav-logo{color:#16B894 !important}
-.nav-logo span{color:#ffffff !important}
+.brand-header{display:inline-flex;align-items:baseline;gap:8px;text-decoration:none;cursor:pointer}
+.brand-name{font-size:22px;font-weight:800;color:#16B894;letter-spacing:-0.02em}
+.brand-suffix{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.12em;text-transform:uppercase;align-self:center}
 </style>
 </head>
 <body>
@@ -177,7 +178,7 @@ body.rv-focus .rv-focus-bar{display:flex}
 
 <!-- 헤더 -->
 <nav class="job-nav">
-  <div class="nav-logo">IU<span>MM</span></div>
+  <a href="/reviewer" class="brand-header"><span class="brand-name">IUMM</span><span class="brand-suffix">REVIEWER</span></a>
   <div class="nav-meta">
     <span class="nav-ordnum" id="nav-ordnum">로딩 중...</span>
     <span class="nav-deadline" id="nav-deadline"></span>

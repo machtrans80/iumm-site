@@ -275,10 +275,11 @@ body.admin-focus .focus-exit-hint{display:inline}
 .corr-item{font-size:11px;color:rgba(255,255,255,0.6);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.5}
 .corr-item:last-child{border-bottom:none}
 .corr-term{color:var(--gold);font-weight:600}
-/* [J-16] 명조체 전수 → Pretendard + 로고 민트 */
+/* [J-16/17] 명조체 전수 → Pretendard + brand-header 로고 */
 *,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
-.login-logo,.admin-logo{color:#16B894 !important}
-.login-logo span,.admin-logo span{color:#ffffff !important}
+.brand-header{display:inline-flex;align-items:baseline;gap:8px;text-decoration:none;cursor:pointer}
+.brand-name{font-size:22px;font-weight:800;color:#16B894;letter-spacing:-0.02em}
+.brand-suffix{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.12em;text-transform:uppercase;align-self:center}
 </style>
 </head>
 <body>
@@ -286,8 +287,7 @@ body.admin-focus .focus-exit-hint{display:inline}
 <!-- 로그인 -->
 <div id="login-view">
   <div class="login-box">
-    <a class="login-logo" href="/" style="text-decoration:none;cursor:pointer;display:block">IU<span>MM</span></a>
-    <div class="login-sub">ADMIN PANEL</div>
+    <a href="/" class="brand-header" style="margin-bottom:8px"><span class="brand-name">IUMM</span><span class="brand-suffix">ADMIN</span></a>
     <div class="login-form">
       <input type="password" class="inp" id="admin-pw" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')doAdminLogin()">
       <button class="btn-login" onclick="doAdminLogin()">로그인</button>
@@ -299,7 +299,7 @@ body.admin-focus .focus-exit-hint{display:inline}
 <!-- 관리자 대시보드 -->
 <div id="admin-view">
   <nav class="admin-nav">
-    <a class="admin-logo" href="/" style="text-decoration:none;cursor:pointer">IU<span>MM</span> <span style="font-size:13px;color:rgba(255,255,255,0.3);font-weight:300;letter-spacing:1px">ADMIN</span></a>
+    <a href="/" class="brand-header"><span class="brand-name">IUMM</span><span class="brand-suffix">ADMIN</span></a>
     <button class="btn-logout" onclick="doAdminLogout()">로그아웃</button>
   </nav>
   <div class="admin-body">

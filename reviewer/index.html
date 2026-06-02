@@ -175,10 +175,11 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
 .toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
-/* [J-16] 명조체 전수 → Pretendard + 로고 민트 */
+/* [J-16/17] 명조체 전수 → Pretendard + brand-header 로고 */
 *,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
-.logo-text,.dash-nav-logo{color:#16B894 !important}
-.logo-text .mm,.logo-text span,.dash-nav-logo span{color:#ffffff !important}
+.brand-header{display:inline-flex;align-items:baseline;gap:8px;text-decoration:none;cursor:pointer}
+.brand-name{font-size:22px;font-weight:800;color:#16B894;letter-spacing:-0.02em}
+.brand-suffix{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.12em;text-transform:uppercase;align-self:center}
 </style>
 </head>
 <body>
@@ -192,7 +193,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 <div id="page-dashboard" class="page">
   <!-- 네비 -->
   <nav class="dash-nav">
-    <a class="dash-nav-logo" href="/" style="text-decoration:none;cursor:pointer">IU<span>MM</span></a>
+    <a href="/reviewer" class="brand-header"><span class="brand-name">IUMM</span><span class="brand-suffix">REVIEWER</span></a>
     <div class="nav-right">
       <span class="nav-name">검수자: <strong id="nav-name">—</strong></span>
       <button class="btn-logout" onclick="doLogout()">로그아웃</button>
