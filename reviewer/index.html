@@ -175,8 +175,10 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
 .toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
-/* [J-15] 폰트 강제 */
-button,input,textarea,select,.inp,.btn-gold,.btn-logout,.btn-detail,.btn-accept,.btn-reject{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
+/* [J-16] 명조체 전수 → Pretendard + 로고 민트 */
+*,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
+.logo-text,.dash-nav-logo{color:#16B894 !important}
+.logo-text .mm,.logo-text span,.dash-nav-logo span{color:#ffffff !important}
 </style>
 </head>
 <body>
@@ -247,7 +249,7 @@ button,input,textarea,select,.inp,.btn-gold,.btn-logout,.btn-detail,.btn-accept,
     <div class="section-gap">
       <div class="sec-title"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>진행 중 <span class="sec-count" id="active-count-badge">0</span></div>
       <div id="active-list">
-        <div class="empty-state"><div class="ei">📂</div><p>진행 중인 작업이 없습니다</p></div>
+        <div class="empty-state"><div class="ei"><i class="ti ti-folder-open" style="font-size:32px;color:rgba(255,255,255,0.2)"></i></div><p>진행 중인 작업이 없습니다</p></div>
       </div>
     </div>
 
@@ -920,7 +922,7 @@ function doLogout() {
 
     <!-- 책임 사항 -->
     <div style="padding:18px 20px;background:rgba(224,85,85,0.06);border:1px solid rgba(224,85,85,0.25);border-radius:4px;margin-bottom:24px">
-      <p style="font-weight:700;color:#e05555;margin-bottom:12px;font-size:13px;letter-spacing:0.5px">⚠️ 검수자 책임 사항 확인</p>
+      <p style="font-weight:700;color:#e05555;margin-bottom:12px;font-size:13px;letter-spacing:0.5px"><i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>검수자 책임 사항 확인</p>
       <ul style="padding-left:18px;margin:0;font-size:12px;line-height:1.9;color:rgba(255,255,255,0.75)">
         <li>마감 시간 내 검수 완료 의무</li>
         <li><strong style="color:#e05555">사전 통보 없이 마감 초과 시</strong> 검수료의 2~5배 손해배상 (단계별)</li>

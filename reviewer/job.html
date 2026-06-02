@@ -157,8 +157,10 @@ body.rv-focus .rv-focus-bar{display:flex}
 .btn-modal-cancel:hover{border-color:rgba(255,255,255,0.4);color:var(--white)}
 .btn-modal-submit{padding:10px 24px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
 .btn-modal-submit:hover{background:var(--gold-light)}
-/* [J-15] 폰트 강제 */
-button,input,textarea,select,.pane-ta,.btn-save,.btn-submit,.btn-modal-submit,.btn-modal-cancel{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
+/* [J-16] 명조체 전수 → Pretendard + 로고 민트 */
+*,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
+.nav-logo{color:#16B894 !important}
+.nav-logo span{color:#ffffff !important}
 </style>
 </head>
 <body>
@@ -183,8 +185,8 @@ button,input,textarea,select,.pane-ta,.btn-save,.btn-submit,.btn-modal-submit,.b
   <div class="nav-actions">
     <span class="rv-sync-toggle active" id="rv-sync-toggle-nav" onclick="toggleRvSync()" title="스크롤 동기화">⇕ 동기화</span>
     <button class="rv-focus-btn" onclick="toggleRvFocus()">⛶ 집중 모드</button>
-    <button id="rv-diff-btn" onclick="toggleRvDiff()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">📋 Diff</button>
-    <button onclick="openRvSearch()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif">🔍 검색</button>
+    <button id="rv-diff-btn" onclick="toggleRvDiff()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px"><i class="ti ti-files" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>Diff</button>
+    <button onclick="openRvSearch()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px"><i class="ti ti-search" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>검색</button>
     <button class="btn-save" id="btn-save" onclick="saveDraft()">임시저장</button>
     <button class="btn-submit" id="btn-submit" disabled onclick="doSubmit()">검수 완료 제출</button>
   </div>
@@ -215,7 +217,7 @@ button,input,textarea,select,.pane-ta,.btn-save,.btn-submit,.btn-modal-submit,.b
     <div id="rv-gpt-detail" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px"></div>
   </div>
   <div style="display:flex;gap:16px;font-size:12px;color:rgba(255,255,255,0.5)">
-    <span>🔢 <span id="rv-ai-score-lbl">AI 자동 검수</span>: <strong id="rv-ai-score" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
+    <span><i class="ti ti-cpu" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i><span id="rv-ai-score-lbl">AI 자동 검수</span>: <strong id="rv-ai-score" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
     <span><i class="ti ti-search" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>역번역 일치도: <strong id="rv-ai-reverse" style="color:rgba(255,255,255,0.75)">—</strong> / 100</span>
   </div>
 </div>

@@ -275,8 +275,10 @@ body.admin-focus .focus-exit-hint{display:inline}
 .corr-item{font-size:11px;color:rgba(255,255,255,0.6);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.5}
 .corr-item:last-child{border-bottom:none}
 .corr-term{color:var(--gold);font-weight:600}
-/* [J-15] 폰트 강제 */
-button,input,textarea,select,.inp,.btn-login,.btn-logout,.tab-btn{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
+/* [J-16] 명조체 전수 → Pretendard + 로고 민트 */
+*,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
+.login-logo,.admin-logo{color:#16B894 !important}
+.login-logo span,.admin-logo span{color:#ffffff !important}
 </style>
 </head>
 <body>
@@ -308,10 +310,10 @@ button,input,textarea,select,.inp,.btn-login,.btn-logout,.tab-btn{font-family:'P
       <button class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
       <button class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
       <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
-      <button class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444">⚠️ 미배정</button>
-      <button class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#f87171">⛔ 번역실패</button>
+      <button class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>미배정</button>
+      <button class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#f87171"><i class="ti ti-ban" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>번역실패</button>
       <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
-      <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75">🔐 우회 주문</button>
+      <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
       <button class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
     </div>
     <div id="orders-wrap">
@@ -704,9 +706,9 @@ button,input,textarea,select,.inp,.btn-login,.btn-logout,.tab-btn{font-family:'P
       </div>
       <!-- 최종본 업로드 섹션 -->
       <div id="final-upload-section" style="display:none;margin:0 16px 0;padding:14px 16px;background:rgba(255,255,255,0.03);border-radius:6px">
-        <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px;font-weight:600">📎 최종본 업로드 (여러 파일 가능, 파일당 25MB 이하)</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px;font-weight:600"><i class="ti ti-paperclip" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>최종본 업로드 (여러 파일 가능, 파일당 25MB 이하)</div>
         <input type="file" id="final-files-input" multiple style="display:none" onchange="handleFinalFilesSelected(event)">
-        <button onclick="document.getElementById('final-files-input').click()" style="padding:8px 16px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.4);border-radius:4px;cursor:pointer;font-size:12px">📎 파일 선택</button>
+        <button onclick="document.getElementById('final-files-input').click()" style="padding:8px 16px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.4);border-radius:4px;cursor:pointer;font-size:12px"><i class="ti ti-paperclip" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>파일 선택</button>
         <div id="final-files-preview" style="margin-top:10px"></div>
       </div>
       <!-- 고객 평가 결과 (납품완료 후 평가 시 표시) -->
@@ -742,14 +744,14 @@ button,input,textarea,select,.inp,.btn-login,.btn-logout,.tab-btn{font-family:'P
           금액: <span class="amount" id="panel-amount">—</span>
         </div>
         <!-- 다운로드 그룹 -->
-        <button class="btn-dl" id="btn-dl-original" style="display:none" onclick="downloadOriginal()">⬇ 고객 원본</button>
-        <button class="btn-dl" id="btn-dl-txt" style="display:none" onclick="downloadTranslationTxt()">📄 원문+번역 .txt</button>
-        <button class="btn-dl" id="btn-dl-interleaved" style="display:none" onclick="downloadResult('interleaved')" title="원문/번역 단락 번갈아 표시">⬇ 단락교차 .docx</button>
+        <button class="btn-dl" id="btn-dl-original" style="display:none" onclick="downloadOriginal()"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>고객 원본</button>
+        <button class="btn-dl" id="btn-dl-txt" style="display:none" onclick="downloadTranslationTxt()"><i class="ti ti-file-text" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>원문+번역 .txt</button>
+        <button class="btn-dl" id="btn-dl-interleaved" style="display:none" onclick="downloadResult('interleaved')" title="원문/번역 단락 번갈아 표시"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>단락교차 .docx</button>
         <div id="pp-file-actions" style="display:none;gap:6px;align-items:center">
-          <button class="btn-dl" onclick="downloadResult('txt')">⬇ .txt</button>
-          <button class="btn-dl" onclick="downloadResult('docx')">⬇ .docx</button>
+          <button class="btn-dl" onclick="downloadResult('txt')"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>.txt</button>
+          <button class="btn-dl" onclick="downloadResult('docx')"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>.docx</button>
           <label class="btn-ul">
-            <span id="upload-label-text">⬆ 파일 업로드</span>
+            <span id="upload-label-text"><i class="ti ti-upload" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>파일 업로드</span>
             <input type="file" id="admin-upload-input" style="display:none" onchange="uploadFinalFile(this)">
           </label>
         </div>

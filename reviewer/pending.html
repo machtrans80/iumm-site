@@ -56,7 +56,10 @@ main{max-width:560px;margin:60px auto;padding:0 24px}
 footer{margin-top:40px;text-align:center;font-size:11px;color:var(--gray);padding:24px}
 footer a{color:var(--gray);text-decoration:none}
 footer a:hover{color:var(--gold-light)}
+/* [J-16] 폰트 강제 */
+*,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 <body>
 
@@ -98,7 +101,7 @@ footer a:hover{color:var(--gold-light)}
     </div>
 
     <div class="notice">
-      <strong>💡 안내사항</strong>
+      <strong><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>안내사항</strong>
       <ul>
         <li>카카오톡 알림을 허용해 주세요 (결과 알림 발송)</li>
         <li>승인 완료 후 다시 로그인하시면 검수 작업을 시작하실 수 있습니다</li>

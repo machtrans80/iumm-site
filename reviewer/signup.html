@@ -207,7 +207,10 @@ select.inp{cursor:pointer}
 footer{margin-top:40px;text-align:center;font-size:11px;color:var(--gray);padding:24px;border-top:1px solid var(--border)}
 footer a{color:var(--gray);text-decoration:none;margin:0 8px}
 footer a:hover{color:var(--gold-light)}
+/* [J-16] 폰트 강제 */
+*,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 <body>
 
@@ -226,7 +229,7 @@ footer a:hover{color:var(--gold-light)}
 <p class="page-desc">전문 검수자로서 활동하기 위한 정보를 입력해 주세요.<br>모든 정보는 안전하게 암호화 저장됩니다.</p>
 
 <div class="info-box security">
-  🔒 <strong>개인정보 안전 보장</strong> · 자격증 사진과 계좌 정보는 외부 공개되지 않으며, 회사 내부 검증·정산 목적으로만 사용됩니다.
+  <i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i><strong>개인정보 안전 보장</strong> · 자격증 사진과 계좌 정보는 외부 공개되지 않으며, 회사 내부 검증·정산 목적으로만 사용됩니다.
 </div>
 
 <div id="form-err" class="form-err"></div>
@@ -269,7 +272,7 @@ footer a:hover{color:var(--gold-light)}
   </section>
 
   <div class="info-box fee">
-    💰 <strong>검수료 안내</strong> · 전문 자격사 프리미엄: 20원/글자 부터 / 전문 검수자: 10원/글자 부터 (자격 검증 후 등급별 책정)
+    <i class="ti ti-coin" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i><strong>검수료 안내</strong> · 전문 자격사 프리미엄: 20원/글자 부터 / 전문 검수자: 10원/글자 부터 (자격 검증 후 등급별 책정)
   </div>
 
   <section>
@@ -299,7 +302,7 @@ footer a:hover{color:var(--gold-light)}
   </section>
 
   <div class="info-box settlement">
-    💸 <strong>정산 안내</strong> · 납품 21일 경과 후 정산 대상, 월별 일괄 정산하며 익월 말일에 입금됩니다. (예: 4월 검수완료 → 5월 31일 입금)
+    <i class="ti ti-coin" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i><strong>정산 안내</strong> · 납품 21일 경과 후 정산 대상, 월별 일괄 정산하며 익월 말일에 입금됩니다. (예: 4월 검수완료 → 5월 31일 입금)
   </div>
 
   <section>
