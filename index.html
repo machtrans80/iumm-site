@@ -5817,6 +5817,7 @@ document.addEventListener('keydown',function(e){
 function uploadReference(orderNumber, files){
   var fd=new FormData();
   fd.append('orderNumber', orderNumber);
+  if(currentUser) fd.append('customerEmail', currentUser);
   for(var i=0;i<files.length;i++) fd.append('files', files[i]);
   return fetch('https://iumm-pipeline-production.up.railway.app/api/upload-reference',{
     method:'POST',
