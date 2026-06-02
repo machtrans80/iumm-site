@@ -656,7 +656,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       <a href="#" id="nav-expert-link" onclick="handleExpertNav();return false">전문가 소개 ✦</a>
       <a href="#" id="nav-login-link" onclick="showPage('login');return false">로그인 / 가입</a>
     </div>
-    <button class="nav-cta" id="nav-order-btn" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}">이용하기</button>
+    <button class="nav-cta" id="nav-order-btn" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=false;showModal('order');updateOrderModal();switchOrderPlan('ai');}else{showPage('login');}">이용하기</button>
     <button class="nav-hamburger" id="nav-hamburger-btn" onclick="document.getElementById('nav-mobile-menu').classList.toggle('open')">☰</button>
   </div>
 </nav>
@@ -666,7 +666,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   <a href="#pricing" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">요금제</a>
   <a href="#" onclick="handleExpertNav();document.getElementById('nav-mobile-menu').classList.remove('open');return false">전문가 소개 ✦</a>
   <a href="#" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
-  <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}document.getElementById('nav-mobile-menu').classList.remove('open')">이용하기</button>
+  <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=false;showModal('order');updateOrderModal();switchOrderPlan('ai');}else{showPage('login');}document.getElementById('nav-mobile-menu').classList.remove('open')">이용하기</button>
 </div>
 
 <!-- 전문가 소개 페이지 -->
