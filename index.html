@@ -2731,10 +2731,19 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </div>
       <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;font-weight:300">번역할 텍스트를 붙여넣으면 글자수와 견적이 자동 산출됩니다</p>
 
+      <!-- 원문 파일 자동 추출 (텍스트 추출 가능 파일: PDF/Word/Excel/TXT) -->
+      <div style="margin-bottom:14px;padding:14px 16px;background:rgba(22,184,148,0.04);border:1px solid rgba(22,184,148,0.18);border-radius:6px">
+        <label class="lbl" style="margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-file-text" style="color:#16B894;font-size:13px"></i>원문 파일 첨부 — 텍스트 자동 추출 <span style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:400">(PDF · Word · Excel · TXT)</span></label>
+        <input type="file" id="srcFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" style="display:none" onchange="handleSrcFileExtract(this)">
+        <label for="srcFileInput" style="display:inline-block;padding:9px 16px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.5);border-radius:4px;cursor:pointer;font-size:12px;color:#16B894;transition:all 0.2s"><i class="ti ti-upload" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>파일 선택</label>
+        <span id="srcFileStatus" style="font-size:11px;color:rgba(255,255,255,0.5);margin-left:10px"></span>
+        <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:6px">스캔본·이미지는 아래 OCR 사용 · 자동 추출 후 아래 텍스트 창에서 확인·수정 가능</p>
+      </div>
+
       <!-- 입력 방식 선택 -->
       <div style="display:flex;gap:0;margin-bottom:18px;border:1px solid rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">
-        <button id="input-tab-text" onclick="switchInputMode('text')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:var(--gold);color:var(--black)">📝 텍스트 붙여넣기</button>
-        <button id="input-tab-ocr" onclick="switchInputMode('ocr')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">📄 하드카피 번역 (OCR)</button>
+        <button id="input-tab-text" onclick="switchInputMode('text')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:var(--gold);color:var(--black)">✏️ 텍스트 직접 입력</button>
+        <button id="input-tab-ocr" onclick="switchInputMode('ocr')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">📷 OCR (스캔본/이미지)</button>
       </div>
 
       <!-- 텍스트 붙여넣기 영역 -->
@@ -2782,19 +2791,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </div>
       <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;text-align:right;letter-spacing:0.3px">※ 1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내</p>
 
-      <!-- 글자수 직접 입력 -->
-      <div style="display:flex;align-items:center;gap:12px;margin-top:10px;margin-bottom:6px">
-        <div style="flex:1;height:1px;background:rgba(255,255,255,0.06)"></div>
-        <span style="font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:1px">또는 글자수 직접 입력</span>
-        <div style="flex:1;height:1px;background:rgba(255,255,255,0.06)"></div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
-        <input type="number" id="manual-chars" placeholder="글자수 직접 입력 (공백 제외)" min="1" oninput="calcManualChars(this.value)" style="flex:1;padding:11px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none">
-        <span id="price-label" style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;white-space:nowrap">글자 × 40원</span>
-      </div>
-      <!-- 글자수 확인 방법 안내 -->
+      <!-- 글자수 확인 방법 안내 (manual-chars 입력 삭제, 자동 계산만) -->
       <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-left:2px solid rgba(22,184,148,0.4);padding:14px 16px;margin-bottom:16px">
         <p style="font-size:11px;color:rgba(22,184,148,0.8);font-weight:700;margin-bottom:10px;letter-spacing:0.5px"><i class="ti ti-info-circle icon-g" style="margin-right:3px"></i>파일별 글자수 확인 방법</p>
+        <!-- [hidden] 기존 manual-chars 유지 (JS 참조용, display:none) -->
+        <input type="number" id="manual-chars" style="display:none">
         <p style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:300;line-height:2">
           <strong style="color:rgba(255,255,255,0.8)">Word(.doc .docx)</strong><br>
           　검토 탭 → 단어 개수 → <span style="color:var(--gold)">문자 수(공백 제외)</span> 확인<br>
@@ -2887,10 +2888,9 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <p style="color:var(--gold);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-paperclip icon-g" style="margin-right:3px"></i>지원 파일 형식</p>
           <p style="margin-bottom:10px">Word(.doc .docx) · Excel(.xls .xlsx) · PPT(.ppt .pptx) · HWP(.hwp .hwpx) · PDF · 이미지(.jpg .png .jpeg .gif 등)</p>
 
-          <p style="color:var(--gold);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-coin icon-g" style="margin-right:3px"></i>파일별 요금</p>
-          <p style="margin-bottom:4px">텍스트 직접 입력 · Word · PPT · HWP · Excel → 글자당 <strong style="color:var(--gold)" id="file-word-price">25원</strong></p>
-          <p style="margin-bottom:10px">PDF · 이미지 → 페이지(장)당 <strong style="color:var(--gold)" id="file-page-price">30,000원</strong></p>
-          <p style="color:rgba(255,200,100,0.8);font-size:11px;line-height:1.8;margin-bottom:6px">※ 텍스트 복사 가능한 PDF는 Word로 변환 후 첨부해 주세요.<br>※ 파일이 많거나 대량일 경우 <span style="color:var(--gold)">iumm.master@gmail.com</span>으로 문의해 주세요. 담당자 안내 후 결제가 진행됩니다.</p>
+          <p style="color:var(--gold);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-coin icon-g" style="margin-right:3px"></i>요금 안내</p>
+          <p style="margin-bottom:6px">모든 파일 → <strong style="color:var(--gold)">공백 제외 글자수 × 25원</strong> (위 파일 자동 추출 후 자동 계산)</p>
+          <p style="color:rgba(255,200,100,0.8);font-size:11px;line-height:1.8;margin-bottom:6px">※ PPT·HWP 등 자동 추출 안 되는 형식은 텍스트 직접 붙여넣기 후 납품 형식으로 이 파일을 첨부해 주세요.<br>※ 파일이 많거나 대량일 경우 <span style="color:var(--gold)">iumm.master@gmail.com</span>으로 문의해 주세요.</p>
 
           <p style="color:rgba(255,100,100,0.8);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-ban icon-g" style="margin-right:3px"></i>업로드 불가</p>
           <p>포토샵(.psd) · 일러스트(.ai) · InDesign(.indd) · Figma 등 디자인 전문 툴<br>→ PDF로 변환 후 업로드 또는 <span style="color:var(--gold)">iumm.master@gmail.com</span> 문의</p>
@@ -2906,14 +2906,10 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <input type="file" id="fileInput" style="display:none" accept=".doc,.docx,.pdf,.xls,.xlsx,.xlsm,.ppt,.pptx,.pps,.ppsx,.jpg,.jpeg,.png,.gif,.tiff,.bmp,.webp,.hwp,.hwpx" multiple onchange="handleFileAttach(this)">
         </div>
         <p id="file-attached-name" style="display:none;font-size:12px;color:#97c459;margin-top:8px;font-weight:300">✓ <span id="attached-filename"></span></p>
-        <div id="page-count-div" style="display:none;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:3px;padding:14px 16px;margin-top:10px">
-          <p style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:10px"><i class="ti ti-clipboard-list icon-g" style="margin-right:4px"></i>페이지(장)수를 정확히 입력해주세요</p>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-            <input id="page-count-input" type="number" min="1" value="1" oninput="updatePagePrice()" style="width:70px;background:#1a1a1a;border:1px solid rgba(22,184,148,0.3);border-radius:2px;padding:8px 10px;color:white;font-size:16px;text-align:center">
-            <span style="font-size:13px;color:rgba(255,255,255,0.6)">페이지 (장)</span>
-            <span id="page-price-display" style="font-size:14px;color:var(--gold);font-weight:700;margin-left:auto"></span>
-          </div>
-          <p style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.8">• 페이지가 꽉 차지 않아도 전체 페이지수 기준으로 요금이 산정됩니다.<br>• 페이지수를 정확히 입력해주세요. 잘못 기입 시 불이익이 발생할 수 있습니다.<br>• 보내주신 이미지와 최대한 비슷하게 작성해드립니다.<br>• 파일이 많거나 대량일 경우 <span style="color:var(--gold)">iumm.master@gmail.com</span>으로 문의해 주세요. 담당자 안내 후 결제가 진행됩니다.</p>
+        <!-- [page-count-div 폐기] 페이지 단가 흐름 폐기 — 숨김 유지 (JS 참조용) -->
+        <div id="page-count-div" style="display:none">
+          <input id="page-count-input" type="hidden" value="0">
+          <span id="page-price-display"></span>
         </div>
       </div>
       <!-- 번역 방향 (항상 표시) -->
@@ -4270,19 +4266,10 @@ function calcTextChads(t){
       return ['pdf','jpg','jpeg','png','gif','tiff','bmp','webp'].indexOf(ext)>=0;
     });
     if(hasPdfImg){
-      if(confirm('⚠️ 텍스트를 입력하면 PDF/이미지 첨부파일이 초기화됩니다. 계속하시겠습니까?')){
-        window._attachedFiles=[];
-        renderFileList();
-        var pageDiv=document.getElementById('page-count-div');
-        if(pageDiv) pageDiv.style.display='none';
-      } else {
-        // 취소 시 텍스트 지우기
-        document.getElementById('pasteText').value='';
-        return;
-      }
+      window._attachedFiles=[];
+      renderFileList();
     }
     showEstimate(w);
-    document.getElementById('manual-chars').value='';
   }
   else document.getElementById('estimate-result').style.display='none';
 }
@@ -4343,39 +4330,7 @@ function renderFileList(){
     return;
   }
   zone.style.borderColor='rgba(99,153,34,0.4)';
-  // PDF/이미지 여부 체크
-  var hasPdfOrImg=files.some(function(f){
-    var ext=f.name.split('.').pop().toLowerCase();
-    return ['pdf','jpg','jpeg','png','gif','tiff','bmp','webp'].indexOf(ext)>=0;
-  });
-  var pageDiv=document.getElementById('page-count-div');
-  if(pageDiv){
-    pageDiv.style.display=hasPdfOrImg?'block':'none';
-    if(hasPdfOrImg){
-      // PDF/이미지 첨부 시 텍스트 & 글자수 자동 초기화
-      var pasteText=document.getElementById('pasteText');
-      var manualChars=document.getElementById('manual-chars');
-      var hasText=pasteText&&pasteText.value.trim().length>0;
-      var hasManual=manualChars&&manualChars.value.trim().length>0;
-      if(hasText||hasManual){
-        if(confirm('⚠️ PDF/이미지 파일은 페이지당 요금이 적용됩니다.\n입력된 텍스트와 글자수가 초기화됩니다. 계속하시겠습니까?')){
-          if(pasteText) pasteText.value='';
-          if(manualChars) manualChars.value='';
-          clearEstimate();
-          updatePagePrice();
-        } else {
-          // 취소 시 파일 첨부 취소
-          window._attachedFiles=[];
-          renderFileList();
-          return;
-        }
-      } else {
-        // 텍스트 없어도 기존 견적 초기화 후 페이지 요금 적용
-        clearEstimate();
-        updatePagePrice();
-      }
-    }
-  }
+  // 페이지 단가 흐름 폐기 — 파일 첨부는 납품 포맷 용도만
 
   // 카운트
   var countP=document.createElement('p');
@@ -4573,14 +4528,9 @@ function selectReviewer(el,name,id){
   selectedReviewerId=id||'';
   selectedReviewerIsExpert=isExp;
 
-  // 페이지 주문인지 글자수 주문인지 확인
-  var pageDiv=document.getElementById('page-count-div');
-  var isPageOrder=pageDiv&&pageDiv.style.display!=='none';
-
-  if(isPageOrder){
-    // 페이지 주문: updatePagePrice가 selectedReviewerIsExpert를 참조하므로 호출만 하면 됨
-    updatePagePrice();
-  } else {
+  // 페이지 단가 흐름 폐기 — 항상 글자수 기반
+  var isPageOrder=false;
+  if(isPageOrder){updatePagePrice();} else {
     // 글자수 주문: showEstimate가 selectedReviewerIsExpert를 참조하므로 호출만 하면 됨
     var charText=(document.getElementById('char-count')||{}).textContent||'0';
     var chars=parseInt(charText.replace(/[^0-9]/g,''))||0;
@@ -5553,6 +5503,40 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script>
+/* [D-1c] 원문 파일 자동 추출 */
+var EXTRACT_API='https://iumm-pipeline-production.up.railway.app/api/extract-source';
+function handleSrcFileExtract(input){
+  var f=input.files&&input.files[0];
+  if(!f) return;
+  var status=document.getElementById('srcFileStatus');
+  status.textContent='추출 중...';
+  status.style.color='rgba(22,184,148,0.8)';
+  var fd=new FormData();
+  fd.append('file',f);
+  fetch(EXTRACT_API,{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.success&&data.text){
+        var pt=document.getElementById('pasteText');
+        if(pt){
+          pt.value=data.text;
+          calcTextChads(data.text);
+        }
+        status.textContent='✓ 자동 추출 완료 (공백제외 '+data.charCount.toLocaleString()+'자) — 필요 시 아래 텍스트를 직접 수정하세요';
+        status.style.color='rgba(151,196,89,0.9)';
+        // 텍스트 입력 탭으로 전환
+        if(typeof switchInputMode==='function') switchInputMode('text');
+      } else {
+        status.textContent='추출 실패: '+(data.error||'알 수 없는 오류') + ' — 스캔본이면 아래 OCR 사용';
+        status.style.color='rgba(224,85,85,0.9)';
+      }
+    })
+    .catch(function(e){
+      status.textContent='네트워크 오류. 스캔본·이미지는 아래 OCR 사용';
+      status.style.color='rgba(224,85,85,0.9)';
+    })
+    .finally(function(){ input.value=''; });
+}
 /* [C-3] 참고자료 파일 처리 */
 window._referenceFiles=[];
 function handleRefFileSelect(input){
@@ -5571,20 +5555,19 @@ function handleRefFileSelect(input){
     valid.push(f);
     var item=document.createElement('div');
     item.className='ref-file-item';
-    (function(idx){
-      item.innerHTML='<span>✓ '+f.name+' ('+(f.size/1024).toFixed(0)+'KB)</span><span class="ref-file-remove" onclick="removeRefFile('+idx+')">×</span>';
-    })(valid.length-1);
+    item.setAttribute('data-fname', f.name);
+    item.innerHTML='<span>✓ '+f.name+' ('+(f.size/1024).toFixed(0)+'KB)</span><span class="ref-file-remove" onclick="removeRefFile(this)">×</span>';
     list.appendChild(item);
   }
   window._referenceFiles=valid;
   consentBox.style.display=valid.length>0?'block':'none';
   input.value='';
 }
-function removeRefFile(idx){
-  window._referenceFiles.splice(idx,1);
-  var list=document.getElementById('refFileList');
-  var items=list.querySelectorAll('.ref-file-item');
-  if(items[idx])items[idx].remove();
+function removeRefFile(btn){
+  var item=btn.closest('.ref-file-item');
+  var fname=item?item.getAttribute('data-fname'):'';
+  window._referenceFiles=(window._referenceFiles||[]).filter(function(f){return f.name!==fname;});
+  if(item)item.remove();
   if(window._referenceFiles.length===0)document.getElementById('refConsentBox').style.display='none';
 }
 function collectRefMaterial(){
