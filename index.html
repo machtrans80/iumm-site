@@ -199,9 +199,8 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 .lbl{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;display:block;margin-bottom:7px;text-transform:uppercase;transition:color 0.2s}
 /* [C-2.24] 골드 아이콘 유틸리티 */
 .icon-g{color:#c9a84c !important;vertical-align:-2px}
-/* [J-18] 자동 추출/OCR 복붙 방지 */
-textarea[data-source="extracted"]{user-select:none;-webkit-user-select:none;-moz-user-select:none;cursor:default;background:#0e0e0e !important;border-color:rgba(201,168,76,0.3) !important;color:rgba(255,255,255,0.7) !important}
-#ocr-result-text{user-select:none;-webkit-user-select:none;-moz-user-select:none}
+/* [J-18] OCR만 복붙 방지 (자동추출은 자유 편집) */
+#ocr-result-text{user-select:none;-webkit-user-select:none;-moz-user-select:none;cursor:default}
 /* [J-1] 정보입력 페이지 섹션 헤더 */
 #page-userinfo h2,#page-login h2{font-family:'Nanum Myeongjo',serif}
 #page-userinfo .lbl:has(+ .inp:focus),#page-mypage .lbl:has(+ .inp:focus){color:rgba(201,168,76,0.8)}
@@ -5514,35 +5513,36 @@ document.addEventListener('DOMContentLoaded',function(){
 <script>
 /* [J-18] 자동 추출 복붙 방지 */
 function onPasteTextInput(el){
-  // 직접 입력 시 추출 잠금 해제
-  if(el.dataset.source==='extracted'){el.dataset.source='manual';el.readOnly=false;var n=document.getElementById('extracted-notice');if(n)n.style.display='none';}
+  // 직접 입력 시 data-source 업데이트
+  if(el.dataset.source!=='manual'){el.dataset.source='manual';var n=document.getElementById('extracted-notice');if(n)n.style.display='none';}
+  window._sourceInputMode='manual';
   calcTextChads(el.value);
 }
 function unlockExtracted(){
   var pt=document.getElementById('pasteText');
   if(!pt)return;
-  if(!confirm('자동 추출 텍스트를 수정하면 보호가 해제됩니다. 계속하시겠습니까?'))return;
   pt.dataset.source='manual';
   pt.readOnly=false;
   pt.focus();
   var n=document.getElementById('extracted-notice');
   if(n)n.style.display='none';
+  window._sourceInputMode='auto'; // 자동추출 텍스트 직접 수정 중
 }
-// 전역 복붙 차단 (data-source="extracted" 요소만)
+// OCR 텍스트 복붙 차단 (ocr-result-text 전용)
 document.addEventListener('copy',function(e){
-  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted'){
+  if(e.target&&e.target.id==='ocr-result-text'){
     e.preventDefault();
-    alert('자동 추출 텍스트는 복사할 수 없습니다.\n결제 후 번역 결과를 이메일로 받으실 수 있습니다.');
+    alert('OCR 텍스트는 복사할 수 없습니다.\n결제 후 번역 결과를 이메일로 받으실 수 있습니다.');
   }
 });
 document.addEventListener('cut',function(e){
-  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted')e.preventDefault();
+  if(e.target&&e.target.id==='ocr-result-text')e.preventDefault();
 });
 document.addEventListener('contextmenu',function(e){
-  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted')e.preventDefault();
+  if(e.target&&e.target.id==='ocr-result-text')e.preventDefault();
 },true);
 document.addEventListener('keydown',function(e){
-  if(e.target&&e.target.dataset&&e.target.dataset.source==='extracted'){
+  if(e.target&&e.target.id==='ocr-result-text'){
     if((e.ctrlKey||e.metaKey)&&['c','x','a'].includes(e.key.toLowerCase()))e.preventDefault();
   }
 });
@@ -5563,13 +5563,13 @@ function handleSrcFileExtract(input){
         var pt=document.getElementById('pasteText');
         if(pt){
           pt.value=data.text;
-          pt.dataset.source='extracted';
-          pt.readOnly=true;
+          pt.dataset.source='auto';
+          pt.readOnly=false;
           var notice=document.getElementById('extracted-notice');
           if(notice)notice.style.display='flex';
           calcTextChads(data.text);
         }
-        status.textContent='✓ 자동 추출 완료 (공백제외 '+data.charCount.toLocaleString()+'자) — 아래 텍스트를 확인하세요';
+        status.textContent='✓ 자동 추출 완료 (공백제외 '+data.charCount.toLocaleString()+'자) — 필요 시 아래에서 직접 수정 가능';
         status.style.color='rgba(151,196,89,0.9)';
         // 텍스트 입력 탭으로 전환
         if(typeof switchInputMode==='function') switchInputMode('text');
