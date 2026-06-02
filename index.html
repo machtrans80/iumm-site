@@ -211,6 +211,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 #page-userinfo > div > div:nth-child(2){background:rgba(22,184,148,0.025);border:1px solid rgba(22,184,148,0.12);border-radius:12px;padding:28px}
 #page-login > div > div:nth-child(2){background:rgba(22,184,148,0.025);border:1px solid rgba(22,184,148,0.12);border-radius:12px;padding:24px}
 #page-mypage [style*="padding:28px 28px"]{border-radius:10px !important;border-color:rgba(22,184,148,0.1) !important}
+/* [E-3] 기업회원 뱃지 */
+.biz-badge{display:inline-block;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;margin-left:8px;border:1px solid;vertical-align:middle}
+.biz-badge.biz-표준{background:rgba(22,184,148,0.12);color:#16B894;border-color:rgba(22,184,148,0.4)}
+.biz-badge.biz-프리미엄{background:rgba(201,168,76,0.15);color:#c9a84c;border-color:rgba(201,168,76,0.5)}
+.biz-badge.biz-엔터프라이즈{background:rgba(139,92,246,0.15);color:#8b5cf6;border-color:rgba(139,92,246,0.5)}
 #page-mypage [style*="border-bottom:1px solid rgba"]{border-bottom-color:rgba(22,184,148,0.15) !important}
 /* [J-8] 주문/결제/비즈니스 모달 톤앤매너 통일 (메인 네이비 동기화) */
 #modal-order>div,#modal-payment>div,#modal-bizinquiry>div{background:var(--black) !important}
@@ -3307,7 +3312,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:44px">
       <div>
         <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:900;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:6px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
-        <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700">마이페이지</h2>
+        <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700">마이페이지<span id="biz-member-badge"></span></h2>
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="kakaoLogout()" style="background:none;border:1px solid rgba(224,85,85,0.25);color:rgba(224,85,85,0.7);padding:8px 16px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">로그아웃</button>
@@ -4901,9 +4906,24 @@ function loadMyInfo(){
     var name=document.getElementById('my-name');
     if(phone && info.phone) phone.value=info.phone;
     if(company && info.company) company.value=info.company;
-    // 이름은 카카오에서 받은 게 우선이므로, 저장된 게 있으면 그것 사용
     if(name && info.name) name.value=info.name;
   }catch(e){console.error('마이페이지 정보 로드 실패:',e);}
+  // [E-3] 기업회원 뱃지 fetch (사업자번호는 노출 X)
+  var memberToken=localStorage.getItem('iumm_member_token');
+  if(memberToken){
+    fetch(MEMBER_API_BASE+'/api/member/me',{headers:{'Authorization':'Bearer '+memberToken}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var badge=document.getElementById('biz-member-badge');
+        if(!badge) return;
+        if(d.member&&d.member.isBusiness){
+          var grade=d.member.bizGrade||'표준';
+          badge.innerHTML='<span class="biz-badge biz-'+grade+'"><i class="ti ti-building" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>기업회원 · '+grade+'</span>';
+        } else {
+          badge.innerHTML='';
+        }
+      }).catch(function(){});
+  }
 }
 function selectPayMethod(method){
   if(method==='other'){
