@@ -5340,6 +5340,7 @@ function ocrCustomerDrop(e) {
 }
 function ocrCustomerFileSelected(el) {
   if (!el.files || el.files.length === 0) return;
+  if(!trySetMode('ocr')){el.value='';return;}
   var valid = Array.from(el.files).filter(function(f){ return f.type.startsWith('image/') || f.type === 'application/pdf'; });
   if (valid.length > 10) { showToast('최대 10개까지 가능합니다. 처음 10개만 사용합니다.'); valid = valid.slice(0, 10); }
   ocrSetCustomerFiles(valid);
@@ -5511,11 +5512,47 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script>
+/* [J-19a] 원문 3경로 상태머신 */
+window._sourceInputMode=null;
+var _modeNames={auto:'파일 자동 추출 원문',ocr:'OCR 추출 원문',manual:'직접 입력 내용'};
+function trySetMode(newMode){
+  var cur=window._sourceInputMode;
+  if(cur&&cur!==newMode){
+    if(!confirm('기존 '+(_modeNames[cur]||cur)+'을(를) 비우고 '+(_modeNames[newMode]||newMode)+'로 진행하시겠습니까?'))return false;
+    clearSourceMode(cur);
+  }
+  window._sourceInputMode=newMode;
+  return true;
+}
+function clearSourceMode(mode){
+  if(mode==='auto'||!mode){
+    var fi=document.getElementById('srcFileInput');if(fi)fi.value='';
+    var pt=document.getElementById('pasteText');if(pt&&pt.dataset.source==='auto'){pt.value='';pt.dataset.source='manual';}
+    var notice=document.getElementById('extracted-notice');if(notice)notice.style.display='none';
+    var st=document.getElementById('srcFileStatus');if(st)st.textContent='';
+  }
+  if(mode==='ocr'||!mode){
+    var oi=document.getElementById('ocr-customer-file');if(oi)oi.value='';
+    window._ocrCustomerFiles=[];
+    var ol=document.getElementById('ocr-customer-file-label');if(ol)ol.textContent='이미지 또는 PDF를 끌어다 놓거나 클릭하여 선택';
+    var ors=document.getElementById('ocr-result-section');if(ors)ors.style.display='none';
+    var ort=document.getElementById('ocr-result-text');if(ort)ort.value='';
+  }
+  if(mode==='manual'||!mode){
+    var pt2=document.getElementById('pasteText');if(pt2&&pt2.dataset.source==='manual')pt2.value='';
+  }
+  var er=document.getElementById('estimate-result');if(er)er.style.display='none';
+  if(!mode)window._sourceInputMode=null;
+}
 /* [J-18] 자동 추출 복붙 방지 */
 function onPasteTextInput(el){
-  // 직접 입력 시 data-source 업데이트
+  // 직접 입력 시 — 첫 글자에서 mode 전환 시도
+  if(window._sourceInputMode&&window._sourceInputMode!=='manual'){
+    var prev=el.value;
+    if(!trySetMode('manual')){el.value=prev;return;}
+  }
   if(el.dataset.source!=='manual'){el.dataset.source='manual';var n=document.getElementById('extracted-notice');if(n)n.style.display='none';}
-  window._sourceInputMode='manual';
+  window._sourceInputMode=el.value.trim()?'manual':null;
   calcTextChads(el.value);
 }
 function unlockExtracted(){
@@ -5551,6 +5588,7 @@ var EXTRACT_API='https://iumm-pipeline-production.up.railway.app/api/extract-sou
 function handleSrcFileExtract(input){
   var f=input.files&&input.files[0];
   if(!f) return;
+  if(!trySetMode('auto')){input.value='';return;}
   var status=document.getElementById('srcFileStatus');
   status.textContent='추출 중...';
   status.style.color='rgba(22,184,148,0.8)';
