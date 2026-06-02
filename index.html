@@ -2811,28 +2811,17 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </div>
       <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;text-align:right;letter-spacing:0.3px">※ 1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내</p>
 
-      <!-- 글자수 확인 방법 안내 (manual-chars 입력 삭제, 자동 계산만) -->
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-left:2px solid rgba(22,184,148,0.4);padding:14px 16px;margin-bottom:16px">
-        <p style="font-size:11px;color:rgba(22,184,148,0.8);font-weight:700;margin-bottom:10px;letter-spacing:0.5px"><i class="ti ti-info-circle icon-g" style="margin-right:3px"></i>파일별 글자수 확인 방법</p>
-        <!-- [hidden] 기존 manual-chars 유지 (JS 참조용, display:none) -->
-        <input type="number" id="manual-chars" style="display:none">
-        <p style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:300;line-height:2">
-          <strong style="color:rgba(255,255,255,0.8)">Word(.doc .docx)</strong><br>
-          　검토 탭 → 단어 개수 → <span style="color:var(--gold)">문자 수(공백 제외)</span> 확인<br>
-          　※ 단어 수·낱말 수가 아닌 <span style="color:rgba(255,180,80,0.9)">문자 수(공백 제외)</span>를 입력하세요<br>
-          <strong style="color:rgba(255,255,255,0.8)">HWP(.hwp .hwpx)</strong><br>
-          　파일 탭 → 문서 정보 → 문서 통계 → <span style="color:var(--gold)">글자 수(공백 제외)</span> 확인<br>
-          　※ 낱말 수(단어 수)가 아닌 <span style="color:rgba(255,180,80,0.9)">글자 수</span>를 입력하세요<br>
-          <strong style="color:rgba(255,255,255,0.8)">PPT(.ppt .pptx)</strong><br>
-          　텍스트 복사 후 위 입력란에 붙여넣기 → 자동 계산<br>
-          <strong style="color:rgba(255,255,255,0.8)">Excel(.xls .xlsx)</strong><br>
-          　번역 셀 선택 후 복사 → 위 입력란에 붙여넣기 → 자동 계산
-        </p>
-        <div style="background:rgba(22,184,148,0.06);border-radius:2px;padding:10px 12px;margin-top:10px">
-          <p style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:4px"><i class="ti ti-bulb icon-g" style="margin-right:3px"></i>가장 정확한 방법</p>
-          <p style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.8">번역이 필요한 텍스트를 복사하여 위 입력란에 붙여넣기 해주세요.<br>글자수가 자동으로 계산됩니다. 파일도 함께 첨부해 주시면 납품 시 원본 파일 형식으로 전달해 드립니다.<br><span style="color:rgba(255,180,100,0.8)">⚠ 파일을 첨부하지 않으실 경우 메일 본문 또는 메모장(.txt) 형식으로 납품됩니다.</span></p>
+      <!-- [hidden] manual-chars JS 참조용 -->
+      <input type="number" id="manual-chars" style="display:none">
+
+      <!-- 원문 정확 입력 경고 -->
+      <div style="background:rgba(217,119,6,0.08);border-left:3px solid #d97706;padding:14px 18px;border-radius:8px;margin:16px 0;color:rgba(255,255,255,0.92)">
+        <div style="font-weight:700;color:#d97706;margin-bottom:8px;font-size:14px"><i class="ti ti-alert-triangle" style="font-size:14px;vertical-align:-2px;margin-right:6px"></i>정확하게 입력해주세요</div>
+        <div style="font-size:13px;line-height:1.7">
+          수정이 필요한 곳은 직접 수정해주셔야 합니다.<br>
+          원문이 잘못 기입될 경우, 수정이 불가하며<br>
+          주문이 착수되면 불이익이 발생할 수 있습니다.
         </div>
-        <p style="font-size:11px;color:rgba(224,100,100,0.7);margin-top:8px;font-weight:500">※ <strong>단어수·낱말수가 아닌 글자수(공백 제외)</strong>를 입력해 주세요. 잘못 기입 시 불이익이 발생할 수 있습니다.</p>
       </div>
 
       <!-- 자동 견적 -->
