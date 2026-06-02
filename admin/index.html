@@ -258,6 +258,15 @@ body.admin-focus .focus-exit-hint{display:inline}
 .ao-search-inp{flex:1;min-width:180px;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none}
 .ao-search-inp:focus{border-color:rgba(201,168,76,0.4)}
 .ao-count{font-size:11px;color:rgba(255,255,255,0.3);flex-shrink:0}
+/* ── [E-2] 기업회원 뱃지 + 회원 목록 ── */
+.biz-badge-admin{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid;margin-left:6px}
+.biz-badge-admin.표준{background:rgba(22,184,148,0.12);color:#16B894;border-color:rgba(22,184,148,0.4)}
+.biz-badge-admin.프리미엄{background:rgba(201,168,76,0.15);color:#c9a84c;border-color:rgba(201,168,76,0.4)}
+.biz-badge-admin.엔터프라이즈{background:rgba(139,92,246,0.15);color:#8b5cf6;border-color:rgba(139,92,246,0.4)}
+.member-list-table{width:100%;border-collapse:collapse;font-size:13px}
+.member-list-table th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--card-border);color:var(--gray);font-size:11px;font-weight:400}
+.member-list-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);cursor:pointer}
+.member-list-table tr:hover td{background:rgba(255,255,255,0.03)}
 /* ── 참고자료 뱃지 ── */
 .ref-badge{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;margin-left:6px;cursor:help;vertical-align:middle}
 .ref-badge.ref-success{background:rgba(22,184,148,0.15);color:#16B894;border:1px solid rgba(22,184,148,0.4)}
@@ -319,7 +328,53 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
       <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
       <button class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
+      <button class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
     </div>
+    <!-- [E-2] 회원 관리 탭 -->
+    <div id="members-wrap" style="display:none;padding:4px 0 32px">
+      <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
+        <input id="member-search-inp" type="text" placeholder="이메일/이름/회사명 검색" style="flex:1;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:13px;outline:none" oninput="debounceMemberSearch(this.value)">
+        <span id="member-count" style="font-size:12px;color:rgba(255,255,255,0.35);white-space:nowrap"></span>
+      </div>
+      <table class="member-list-table">
+        <thead><tr><th>이메일</th><th>이름</th><th>회사명</th><th>가입일</th><th>기업회원</th></tr></thead>
+        <tbody id="member-tbody"><tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.3);padding:32px">탭 클릭 시 로드됩니다</td></tr></tbody>
+      </table>
+      <!-- 회원 상세 + 기업회원 토글 -->
+      <div id="member-detail" style="display:none;margin-top:20px;padding:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <div id="md-name" style="font-size:16px;font-weight:600"></div>
+            <div id="md-email" style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px"></div>
+          </div>
+          <button onclick="document.getElementById('member-detail').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px">✕</button>
+        </div>
+        <div style="background:rgba(59,130,246,0.08);border-left:3px solid #3b82f6;padding:14px 18px;border-radius:8px">
+          <div style="font-weight:700;color:#3b82f6;margin-bottom:12px;font-size:14px"><i class="ti ti-building" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>기업회원 관리</div>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer">
+            <input type="checkbox" id="biz-toggle" onchange="document.getElementById('biz-details').style.display=this.checked?'block':'none'" style="accent-color:#3b82f6;width:16px;height:16px">
+            <span style="font-size:14px">기업회원 부여</span>
+          </label>
+          <div id="biz-details" style="display:none">
+            <div style="margin-bottom:10px">
+              <label style="font-size:12px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">등급</label>
+              <select id="biz-grade" style="padding:8px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px">
+                <option value="표준">표준</option>
+                <option value="프리미엄">프리미엄</option>
+                <option value="엔터프라이즈">엔터프라이즈</option>
+              </select>
+            </div>
+            <div style="margin-bottom:10px">
+              <label style="font-size:12px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">사업자등록번호</label>
+              <input id="biz-regnum" type="text" placeholder="123-45-67890" style="width:100%;padding:8px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
+            </div>
+            <div id="biz-granted-at" style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:10px"></div>
+          </div>
+          <button onclick="saveBizMember()" style="background:#3b82f6;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">저장</button>
+        </div>
+      </div>
+    </div>
+
     <div id="orders-wrap">
       <table class="orders-table">
         <thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜</th><th>접수일</th><th>금액</th></tr></thead>
@@ -876,12 +931,15 @@ function switchTab(tab) {
   document.getElementById('tab-bp').className = 'tab-btn' + (tab==='bank_pending' ? ' active' : '');
   document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '');
   document.getElementById('tab-gpt').className = 'tab-btn' + (tab==='gpt_review' ? ' active' : '');
+  document.getElementById('tab-members').className = 'tab-btn' + (tab==='members' ? ' active' : '');
   var isBypass = tab === 'bypass';
   var isSettlement = tab === 'settlement';
   var isUnassigned = tab === 'unassigned';
   var isFailed = tab === 'failed';
   var isGptReview = tab === 'gpt_review';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview) ? 'none' : 'block';
+  var isMembers = tab === 'members';
+  document.getElementById('members-wrap').style.display = isMembers ? 'block' : 'none';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
@@ -904,6 +962,8 @@ function switchTab(tab) {
     loadUnassigned();
   } else if (tab === 'failed') {
     loadFailedOrders();
+  } else if (tab === 'members') {
+    loadMembers('');
   } else {
     loadOrders();
   }
@@ -2641,6 +2701,76 @@ function gptDownloadResult() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('다운로드 시작', 'ok');
+}
+
+// ── [E-2] 회원 관리 ─────────────────────────────────────
+var _memberDebounce = null;
+var _selectedMember = null;
+var ADMIN_API = 'https://iumm-pipeline-production.up.railway.app';
+
+function debounceMemberSearch(v) {
+  clearTimeout(_memberDebounce);
+  _memberDebounce = setTimeout(function(){ loadMembers(v); }, 400);
+}
+
+async function loadMembers(search) {
+  var tbody = document.getElementById('member-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.3);padding:24px">로딩 중…</td></tr>';
+  try {
+    var res = await adminFetch('/api/admin/members?search=' + encodeURIComponent(search || ''));
+    var members = res.members || [];
+    document.getElementById('member-count').textContent = members.length + '명';
+    if (!members.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.3);padding:32px">회원 없음</td></tr>';
+      return;
+    }
+    tbody.innerHTML = members.map(function(m) {
+      var bizBadge = m.isBusiness ? '<span class="biz-badge-admin ' + (m.bizGrade||'표준') + '">' + (m.bizGrade||'표준') + '</span>' : '';
+      return '<tr onclick="openMemberDetail(\'' + m.id + '\')">' +
+        '<td>' + (m.email||'—') + '</td>' +
+        '<td>' + (m.name||'—') + bizBadge + '</td>' +
+        '<td>' + (m.company||'—') + '</td>' +
+        '<td style="font-size:11px">' + (m.joinedAt ? m.joinedAt.slice(0,10) : '—') + '</td>' +
+        '<td>' + (m.isBusiness ? '✓' : '') + '</td>' +
+        '</tr>';
+    }).join('');
+    window._membersData = members;
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:#f87171;text-align:center;padding:24px">오류: ' + e.message + '</td></tr>';
+  }
+}
+
+function openMemberDetail(id) {
+  var m = (window._membersData||[]).find(function(x){ return x.id === id; });
+  if (!m) return;
+  _selectedMember = m;
+  document.getElementById('md-name').textContent = m.name || '이름 없음';
+  document.getElementById('md-email').textContent = m.email;
+  var toggle = document.getElementById('biz-toggle');
+  toggle.checked = !!m.isBusiness;
+  document.getElementById('biz-details').style.display = m.isBusiness ? 'block' : 'none';
+  document.getElementById('biz-grade').value = m.bizGrade || '표준';
+  document.getElementById('biz-regnum').value = m.bizRegNum || '';
+  document.getElementById('biz-granted-at').textContent = m.bizGrantedAt ? '부여일: ' + new Date(m.bizGrantedAt).toLocaleString('ko-KR') : '';
+  document.getElementById('member-detail').style.display = 'block';
+}
+
+async function saveBizMember() {
+  if (!_selectedMember) return;
+  var isBusiness = document.getElementById('biz-toggle').checked;
+  var grade = document.getElementById('biz-grade').value;
+  var regNum = document.getElementById('biz-regnum').value.trim();
+  try {
+    var res = await adminFetch('/api/admin/member/' + _selectedMember.id + '/biz', {
+      method: 'PATCH', body: JSON.stringify({ isBusiness, grade, regNum })
+    });
+    if (!res.success) throw new Error(res.error || '저장 실패');
+    showToast('기업회원 정보 저장 완료', 'ok');
+    document.getElementById('member-detail').style.display = 'none';
+    loadMembers(document.getElementById('member-search-inp').value);
+  } catch(e) {
+    showToast('저장 실패: ' + e.message, 'error');
+  }
 }
 </script>
 </body>
