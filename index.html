@@ -199,6 +199,9 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 .lbl{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;display:block;margin-bottom:7px;text-transform:uppercase;transition:color 0.2s}
 /* [C-2.24] 골드 아이콘 유틸리티 */
 .icon-g{color:#c9a84c !important;vertical-align:-2px}
+/* [J-19b] 원문 삭제 버튼 */
+.btn-clear-source{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all 0.2s;font-family:inherit}
+.btn-clear-source:hover{border-color:#16B894;color:#16B894}
 /* [J-18] OCR만 복붙 방지 (자동추출은 자유 편집) */
 #ocr-result-text{user-select:none;-webkit-user-select:none;-moz-user-select:none;cursor:default}
 /* [J-1] 정보입력 페이지 섹션 헤더 */
@@ -2737,8 +2740,11 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       <div style="margin-bottom:14px;padding:14px 16px;background:rgba(22,184,148,0.04);border:1px solid rgba(22,184,148,0.18);border-radius:6px">
         <label class="lbl" style="margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-file-text" style="color:#16B894;font-size:13px"></i>원문 파일 첨부 — 텍스트 자동 추출 <span style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:400">(PDF · Word · Excel · TXT)</span></label>
         <input type="file" id="srcFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" style="display:none" onchange="handleSrcFileExtract(this)">
-        <label for="srcFileInput" style="display:inline-block;padding:9px 16px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.5);border-radius:4px;cursor:pointer;font-size:12px;color:#16B894;transition:all 0.2s"><i class="ti ti-upload" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>파일 선택</label>
-        <span id="srcFileStatus" style="font-size:11px;color:rgba(255,255,255,0.5);margin-left:10px"></span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label for="srcFileInput" style="display:inline-block;padding:9px 16px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.5);border-radius:4px;cursor:pointer;font-size:12px;color:#16B894;transition:all 0.2s"><i class="ti ti-upload" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>파일 선택</label>
+          <button type="button" class="btn-clear-source" onclick="clearSourceMode('auto');window._sourceInputMode=null;calcTextChads('')">✕ 원문 삭제</button>
+          <span id="srcFileStatus" style="font-size:11px;color:rgba(255,255,255,0.5)"></span>
+        </div>
         <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:6px">스캔본·이미지는 아래 OCR 사용 · 자동 추출 후 아래 텍스트 창에서 확인·수정 가능</p>
       </div>
 
@@ -2750,7 +2756,10 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
       <!-- 텍스트 붙여넣기 영역 -->
       <div id="input-section-text">
-        <label class="lbl">번역할 텍스트 붙여넣기</label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label class="lbl" style="margin:0">번역할 텍스트 붙여넣기</label>
+          <button type="button" class="btn-clear-source" onclick="if(document.getElementById('pasteText').value&&confirm('입력한 내용을 모두 지우시겠습니까?')){clearSourceMode('manual');window._sourceInputMode=null;calcTextChads('');}">✕ 내용 지우기</button>
+        </div>
         <div style="position:relative">
           <textarea id="pasteText" data-source="manual" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="onPasteTextInput(this)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
           <div id="extracted-notice" style="display:none;position:absolute;top:6px;right:8px;display:none;align-items:center;gap:8px">
@@ -2762,6 +2771,9 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
       <!-- 하드카피 OCR 영역 -->
       <div id="input-section-ocr" style="display:none">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+          <button type="button" class="btn-clear-source" onclick="clearSourceMode('ocr');window._sourceInputMode=null;calcTextChads('')">✕ OCR 삭제</button>
+        </div>
         <!-- 파일 업로드 드롭존 (멀티 + PDF) -->
         <div id="ocr-customer-dropzone" onclick="document.getElementById('ocr-customer-file').click()" ondragover="ocrCustomerDragOver(event)" ondragleave="ocrCustomerDragLeave(event)" ondrop="ocrCustomerDrop(event)" style="border:2px dashed rgba(22,184,148,0.3);border-radius:4px;padding:24px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:10px;position:relative">
           <input type="file" id="ocr-customer-file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none" onchange="ocrCustomerFileSelected(this)">
