@@ -3490,6 +3490,12 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       <div>
         <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:900;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:6px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
         <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700">마이페이지<span id="biz-member-badge"></span></h2>
+        <!-- [E-7] 자격 갱신 안내 -->
+        <div id="renewal-section" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:6px;max-width:360px">
+          <div style="color:#ffc107;font-size:13px;font-weight:700;margin-bottom:5px"><i class="ti ti-clock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>자격 갱신 안내</div>
+          <div id="renewal-info" style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:8px"></div>
+          <button onclick="requestRenewal()" style="padding:7px 16px;background:#16B894;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600"><i class="ti ti-refresh" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>무료 연장 신청</button>
+        </div>
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="kakaoLogout()" style="background:none;border:1px solid rgba(224,85,85,0.25);color:rgba(224,85,85,0.7);padding:8px 16px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">로그아웃</button>
@@ -5135,8 +5141,38 @@ function loadMyInfo(){
           window._memberRateAi = null;
           window._memberRatePp = null;
         }
+        // [E-7] 자격 갱신 섹션 표시
+        var renewSec=document.getElementById('renewal-section');
+        var renewInfo=document.getElementById('renewal-info');
+        if(renewSec&&renewInfo){
+          if(d.member.canRenew){
+            renewSec.style.display='block';
+            var days=d.member.daysUntilExpire;
+            renewInfo.innerHTML=days>0
+              ? days+'일 후 자격이 만료됩니다.<br>지금 무료 연장하면 2년 자동 연장됩니다.'
+              : '자격이 만료되었습니다. 무료 연장을 신청해주세요.';
+          } else {
+            renewSec.style.display='none';
+          }
+        }
       }).catch(function(){});
   }
+}
+async function requestRenewal(){
+  if(!confirm('무료로 2년 연장하시겠습니까?'))return;
+  var token=localStorage.getItem('iumm_member_token');
+  if(!token){showToast('로그인이 필요합니다','error');return;}
+  try{
+    var r=await fetch(MEMBER_API_BASE+'/api/member/renew-activity',{method:'POST',headers:{'Authorization':'Bearer '+token}});
+    var d=await r.json();
+    if(d.ok){
+      showToast('무료 연장 완료! 앞으로 2년간 자격이 유지됩니다.','success');
+      var renewSec=document.getElementById('renewal-section');
+      if(renewSec)renewSec.style.display='none';
+    } else {
+      showToast('연장 실패: '+(d.error||'오류'),'error');
+    }
+  }catch(e){showToast('연장 요청 실패: '+e.message,'error');}
 }
 function selectPayMethod(method){
   if(method==='other'){
