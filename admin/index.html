@@ -369,8 +369,27 @@ body.admin-focus .focus-exit-hint{display:inline}
               <input id="biz-regnum" type="text" placeholder="123-45-67890" style="width:100%;padding:8px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
             </div>
             <div id="biz-granted-at" style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:10px"></div>
+            <!-- E-6 협상 단가 -->
+            <div style="margin-bottom:10px">
+              <label style="font-size:12px;color:rgba(255,255,255,0.5);display:block;margin-bottom:6px">협상 단가 (비워두면 표준 적용)</label>
+              <div style="display:flex;gap:10px">
+                <div style="flex:1">
+                  <label style="font-size:11px;color:rgba(255,255,255,0.4)">AI프리미엄 (표준 25)</label>
+                  <input id="biz-rate-ai" type="number" min="1" max="200" placeholder="25" style="width:100%;padding:7px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
+                </div>
+                <div style="flex:1">
+                  <label style="font-size:11px;color:rgba(255,255,255,0.4)">프리미엄플러스 (표준 40)</label>
+                  <input id="biz-rate-pp" type="number" min="1" max="200" placeholder="40" style="width:100%;padding:7px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
+                </div>
+              </div>
+            </div>
           </div>
           <button onclick="saveBizMember()" style="background:#3b82f6;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">저장</button>
+        </div>
+        <!-- E-5e 누적 참고자료 (기업회원만) -->
+        <div id="biz-refs-wrap" style="display:none;margin-top:14px;padding:14px;background:rgba(22,184,148,0.05);border:1px solid rgba(22,184,148,0.15);border-radius:8px">
+          <div style="font-weight:700;color:#16B894;margin-bottom:10px;font-size:13px"><i class="ti ti-files" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>누적 참고자료</div>
+          <div id="biz-refs-list"><span style="font-size:12px;color:rgba(255,255,255,0.4)">불러오는 중…</span></div>
         </div>
       </div>
     </div>
@@ -2740,7 +2759,7 @@ async function loadMembers(search) {
   }
 }
 
-function openMemberDetail(id) {
+async function openMemberDetail(id) {
   var m = (window._membersData||[]).find(function(x){ return x.id === id; });
   if (!m) return;
   _selectedMember = m;
@@ -2751,8 +2770,14 @@ function openMemberDetail(id) {
   document.getElementById('biz-details').style.display = m.isBusiness ? 'block' : 'none';
   document.getElementById('biz-grade').value = m.bizGrade || '표준';
   document.getElementById('biz-regnum').value = m.bizRegNum || '';
+  document.getElementById('biz-rate-ai').value = m.aiPremiumRate || '';
+  document.getElementById('biz-rate-pp').value = m.premiumPlusRate || '';
   document.getElementById('biz-granted-at').textContent = m.bizGrantedAt ? '부여일: ' + new Date(m.bizGrantedAt).toLocaleString('ko-KR') : '';
   document.getElementById('member-detail').style.display = 'block';
+  // E-5e: 기업회원이면 자료 목록 fetch
+  var refsWrap = document.getElementById('biz-refs-wrap');
+  if (m.isBusiness) { refsWrap.style.display='block'; await loadBizReferences(m.email); }
+  else { refsWrap.style.display='none'; }
 }
 
 async function saveBizMember() {
@@ -2760,9 +2785,11 @@ async function saveBizMember() {
   var isBusiness = document.getElementById('biz-toggle').checked;
   var grade = document.getElementById('biz-grade').value;
   var regNum = document.getElementById('biz-regnum').value.trim();
+  var aiPremiumRate = document.getElementById('biz-rate-ai').value;
+  var premiumPlusRate = document.getElementById('biz-rate-pp').value;
   try {
     var res = await adminFetch('/api/admin/member/' + _selectedMember.id + '/biz', {
-      method: 'PATCH', body: JSON.stringify({ isBusiness, grade, regNum })
+      method: 'PATCH', body: JSON.stringify({ isBusiness, grade, regNum, aiPremiumRate, premiumPlusRate })
     });
     if (!res.success) throw new Error(res.error || '저장 실패');
     showToast('기업회원 정보 저장 완료', 'ok');
@@ -2771,6 +2798,56 @@ async function saveBizMember() {
   } catch(e) {
     showToast('저장 실패: ' + e.message, 'error');
   }
+}
+
+// ── [E-5e] 기업참고자료 관리 함수 ──
+async function loadBizReferences(email) {
+  var wrap = document.getElementById('biz-refs-list');
+  wrap.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,0.4)">불러오는 중…</span>';
+  try {
+    var res = await adminFetch('/api/admin/biz-references?email=' + encodeURIComponent(email));
+    if (!res.ok && res.error) throw new Error(res.error);
+    var records = res.records || [];
+    if (!records.length) { wrap.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,0.4)">누적 자료 없음</span>'; return; }
+    wrap.innerHTML = records.map(function(rec) {
+      var statusColor = rec.활성상태==='활성' ? 'rgba(22,184,148,0.2)' : 'rgba(150,150,150,0.15)';
+      var statusTxt   = rec.활성상태==='활성' ? '#16B894' : 'rgba(255,255,255,0.4)';
+      var files = rec.파일.map(function(f){ return '<a href="'+f.url+'" target="_blank" style="color:#16B894;font-size:11px">'+f.filename+'</a>'; }).join(' ');
+      return '<div class="biz-ref-item" data-id="'+rec.id+'" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.06)">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center">'+
+          '<strong style="font-size:13px;color:#fafaf8">'+rec.자료명+'</strong>'+
+          '<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:'+statusColor+';color:'+statusTxt+'">'+rec.활성상태+'</span>'+
+        '</div>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px">'+rec.업로드일?.slice(0,10)+' · '+rec.추출텍스트길이.toLocaleString()+'자'+(files?' · '+files:'')+'</div>'+
+        '<textarea class="biz-ref-memo" placeholder="메모" style="width:100%;margin-top:6px;padding:5px 8px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#fafaf8;font-size:11px;border-radius:3px;resize:none;outline:none;box-sizing:border-box">'+rec.메모+'</textarea>'+
+        '<div style="display:flex;gap:6px;margin-top:6px">'+
+          '<button onclick="toggleRefStatus(\''+rec.id+'\',\''+rec.활성상태+'\')" style="font-size:11px;padding:3px 8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:3px;cursor:pointer">'+((rec.활성상태==='활성')?'비활성화':'활성화')+'</button>'+
+          '<button onclick="saveRefMemo(\''+rec.id+'\')" style="font-size:11px;padding:3px 8px;background:rgba(22,184,148,0.1);border:1px solid rgba(22,184,148,0.3);color:#16B894;border-radius:3px;cursor:pointer">메모 저장</button>'+
+          '<button onclick="deleteRef(\''+rec.id+'\')" style="font-size:11px;padding:3px 8px;background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.3);color:#e05555;border-radius:3px;cursor:pointer">삭제</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    window._bizRefsEmail = email;
+  } catch(e) {
+    wrap.innerHTML = '<span style="font-size:12px;color:#f87171">로드 실패: '+e.message+'</span>';
+  }
+}
+
+async function toggleRefStatus(id, current) {
+  var newStatus = current==='활성' ? '비활성' : '활성';
+  await adminFetch('/api/admin/biz-reference/'+id, { method:'PATCH', body:JSON.stringify({활성상태:newStatus}) });
+  if (window._bizRefsEmail) await loadBizReferences(window._bizRefsEmail);
+}
+async function saveRefMemo(id) {
+  var item = document.querySelector('.biz-ref-item[data-id="'+id+'"]');
+  var memo = item ? item.querySelector('.biz-ref-memo').value : '';
+  var res = await adminFetch('/api/admin/biz-reference/'+id, { method:'PATCH', body:JSON.stringify({메모:memo}) });
+  if (res.ok) showToast('메모 저장됨', 'ok');
+}
+async function deleteRef(id) {
+  if (!confirm('이 자료를 영구 삭제합니다. 계속?')) return;
+  var res = await adminFetch('/api/admin/biz-reference/'+id, { method:'DELETE' });
+  if (res.ok && window._bizRefsEmail) await loadBizReferences(window._bizRefsEmail);
 }
 </script>
 </body>

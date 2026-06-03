@@ -4447,8 +4447,10 @@ function calcDelivery(words){
   return '별도 협의';
 }
 function showEstimate(w){
-  // 기본 가격 + 자격사 추가 가격
-  var basePrice=currentPlan==="ai"?25:40;
+  // [E-6] 기업회원 협상 단가 우선, 없으면 표준
+  var basePrice=currentPlan==="ai"
+    ? (window._memberRateAi||25)
+    : (window._memberRatePp||40);
   var expertExtra=(currentPlan==='standard' && selectedReviewerIsExpert)?20:0;
   var price=basePrice+expertExtra;
   var base=w*price;
@@ -5125,8 +5127,13 @@ function loadMyInfo(){
         if(d.member&&d.member.isBusiness){
           var grade=d.member.bizGrade||'표준';
           badge.innerHTML='<span class="biz-badge biz-'+grade+'"><i class="ti ti-building" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>기업회원 · '+grade+'</span>';
+          // [E-6] 협상 단가 전역 저장
+          window._memberRateAi = d.member.aiPremiumRate  || null;
+          window._memberRatePp = d.member.premiumPlusRate || null;
         } else {
           badge.innerHTML='';
+          window._memberRateAi = null;
+          window._memberRatePp = null;
         }
       }).catch(function(){});
   }
