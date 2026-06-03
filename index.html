@@ -4108,6 +4108,11 @@ function openTermsAtAnchor(anchorId){
 // 페이지 진입 시 URL hash 확인 → 약관 앵커면 자동 처리
 function handleInitialRoute(){
   var path = window.location.pathname;
+  // 마이페이지 로그인 가드 — 미로그인 시 URL 정리 + 홈
+  if (path === '/mypage' && !isLoggedIn) {
+    history.replaceState({}, '', '/');
+    return;
+  }
   var pathToPage = {
     '/mypage':    'mypage',
     '/terms':     'terms',
@@ -4243,7 +4248,12 @@ function doLogout(){
   currentUserName='';
   currentUser='';
   freeTrialUsed=false;
-  location.reload();
+  // 보호 경로(/mypage 등)에 있으면 홈으로 이동, 아니면 새로고침
+  if (window.location.pathname !== '/') {
+    window.location.href = '/';
+  } else {
+    location.reload();
+  }
 }
 function restoreLogin(){
   try{
