@@ -4106,6 +4106,20 @@ function openTermsAtAnchor(anchorId){
 }
 
 // 페이지 진입 시 URL hash 확인 → 약관 앵커면 자동 처리
+function handleInitialRoute(){
+  var path = window.location.pathname;
+  var pathToPage = {
+    '/mypage':    'mypage',
+    '/terms':     'terms',
+    '/privacy':   'privacy',
+    '/biz-terms': 'biz-terms',
+    '/faq':       'faq'
+  };
+  if (pathToPage[path]) {
+    showPage(pathToPage[path]);
+  }
+}
+
 function handleInitialHash(){
   var hash = window.location.hash;
   if (!hash) return;
@@ -5719,6 +5733,7 @@ window.addEventListener('DOMContentLoaded', function(){
     try{ Kakao.init('d37fe286e0256c9199a29236ed10c244'); }catch(e){}
   }
   restoreLogin();
+  handleInitialRoute();
   handleInitialHash();
   loadReviews();
 });
