@@ -3086,39 +3086,6 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         <p style="margin:12px 0 0 0;font-size:11px;color:rgba(255,255,255,0.5)">※ 총 결제금액 200만원 초과 시 법인계좌 입금 방식으로 진행</p>
       </div>
 
-      <!-- 원문 파일 첨부 -->
-      <div style="margin-bottom:20px">
-        <label class="lbl">원문 파일 첨부</label>
-
-        <!-- 파일 형식 안내 -->
-        <div style="background:rgba(22,184,148,0.05);border:1px solid rgba(22,184,148,0.15);border-radius:3px;padding:16px 18px;margin-bottom:12px;font-size:12px;line-height:2;color:rgba(255,255,255,0.65)">
-          <p style="color:var(--gold);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-paperclip icon-g" style="margin-right:3px"></i>지원 파일 형식</p>
-          <p style="margin-bottom:10px">Word(.doc .docx) · Excel(.xls .xlsx) · PPT(.ppt .pptx) · HWP(.hwp .hwpx) · PDF · 이미지(.jpg .png .jpeg .gif 등)</p>
-
-          <p style="color:var(--gold);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-coin icon-g" style="margin-right:3px"></i>요금 안내</p>
-          <p style="margin-bottom:6px">모든 파일 → <strong style="color:var(--gold)">공백 제외 글자수 × 25원</strong> (위 파일 자동 추출 후 자동 계산)</p>
-          <p style="color:rgba(255,200,100,0.8);font-size:11px;line-height:1.8;margin-bottom:6px">※ PPT·HWP 등 자동 추출 안 되는 형식은 텍스트 직접 붙여넣기 후 납품 형식으로 이 파일을 첨부해 주세요.<br>※ 파일이 많거나 대량일 경우 <span style="color:var(--gold)">iumm.master@gmail.com</span>으로 문의해 주세요.</p>
-
-          <p style="color:rgba(255,100,100,0.8);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-ban icon-g" style="margin-right:3px"></i>업로드 불가</p>
-          <p>포토샵(.psd) · 일러스트(.ai) · InDesign(.indd) · Figma 등 디자인 전문 툴<br>→ PDF로 변환 후 업로드 또는 <span style="color:var(--gold)">iumm.master@gmail.com</span> 문의</p>
-        </div>
-
-        <!-- 보안 안내 -->
-        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:3px;padding:14px 18px;margin-bottom:12px;font-size:12px;line-height:1.9;color:rgba(255,255,255,0.55)">
-          <p style="color:rgba(255,255,255,0.8);font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:0.5px"><i class="ti ti-lock icon-g" style="margin-right:3px"></i>고객 문서 보안 안내</p>
-          <p style="word-break:keep-all">ChatGPT 등 일반 AI 서비스와 달리, IUMM은 고객 문서가 AI 학습에 사용되거나 외부에 노출되지 않습니다. 모든 문서는 번역 완료 후 <strong style="color:var(--gold)">21일 이내 완전 삭제</strong>되며, 기밀 계약서·특허·재무 자료도 안심하고 의뢰하실 수 있습니다.</p>
-        </div>
-        <div onclick="document.getElementById('fileInput').click()" ondrop="handleFileDrop(event)" ondragover="event.preventDefault()" id="file-attach-zone" style="border:1px dashed rgba(255,255,255,0.12);padding:20px 24px;text-align:center;cursor:pointer;border-radius:2px;transition:border-color 0.3s" onclick="addMoreFiles()" onmouseover="this.style.borderColor='rgba(22,184,148,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
-          <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300"><i class="ti ti-paperclip icon-g" style="margin-right:3px"></i>클릭하여 파일 첨부 (최대 3개) · Excel · PPT</p>
-          <input type="file" id="fileInput" style="display:none" accept=".doc,.docx,.pdf,.xls,.xlsx,.xlsm,.ppt,.pptx,.pps,.ppsx,.jpg,.jpeg,.png,.gif,.tiff,.bmp,.webp,.hwp,.hwpx" multiple onchange="handleFileAttach(this)">
-        </div>
-        <p id="file-attached-name" style="display:none;font-size:12px;color:#97c459;margin-top:8px;font-weight:300">✓ <span id="attached-filename"></span></p>
-        <!-- [page-count-div 폐기] 페이지 단가 흐름 폐기 — 숨김 유지 (JS 참조용) -->
-        <div id="page-count-div" style="display:none">
-          <input id="page-count-input" type="hidden" value="0">
-          <span id="page-price-display"></span>
-        </div>
-      </div>
       <!-- 번역 방향 (항상 표시) -->
       <div style="margin-bottom:18px" id="lang-row">
         <label class="lbl">번역 방향</label>
@@ -5394,11 +5361,6 @@ async function completePayment(){
     var labelText=labelEl?labelEl.textContent.trim():'';
     payMethod=labelText.split('\n')[0].trim()||'신용카드';
   }
-  var fileInput=document.getElementById('file-upload');
-  var fileName='첨부파일 없음';
-  if(fileInput&&fileInput.files&&fileInput.files.length>0){
-    fileName=Array.from(fileInput.files).map(function(f){return f.name;}).join(', ');
-  }
   var savedUserInfo={};
   if(currentUserKakaoId){
     try{
@@ -5410,6 +5372,10 @@ async function completePayment(){
   var fieldSelect=document.getElementById('field-select');
   var fieldValue=fieldSelect?fieldSelect.value:'general';
   var fieldLabel=fieldSelect?fieldSelect.options[fieldSelect.selectedIndex].text:'일반';
+  var fileName='첨부파일 없음';
+  if(window._iummSourceFiles&&window._iummSourceFiles.length>0){
+    fileName=window._iummSourceFiles.map(function(f){return f.name;}).join(', ');
+  }
 
   var orderNumber='IUM-'+Date.now();
   var data={
@@ -5444,6 +5410,17 @@ async function completePayment(){
     body:JSON.stringify(data)
   }).catch(function(e){console.log('Webhook 오류:',e);});
 
+  // 원문 파일 첨부 (fire-and-forget, 결제 완료 독립)
+  if(window._iummSourceFiles&&window._iummSourceFiles.length>0){
+    var srcFd=new FormData();
+    srcFd.append('orderNumber', orderNumber);
+    window._iummSourceFiles.forEach(function(f){ srcFd.append('sourceFiles', f); });
+    fetch(MEMBER_API_BASE+'/api/order/attach-source-files', { method:'POST', body: srcFd })
+      .then(function(r){return r.json();})
+      .then(function(d){console.log('[원문첨부]', d.count+'개 완료');})
+      .catch(function(e){console.error('[원문첨부] 실패 (결제는 완료됨):', e.message);});
+  }
+
   // [D-1c-frontend] 참고자료 업로드 (Make webhook 발사 직후, fire-and-forget)
   // 백엔드 retry(5회×2s)가 race condition 처리 — 완료 화면 딜레이 없음
   if(window._referenceFiles&&window._referenceFiles.length>0){
@@ -5457,6 +5434,7 @@ async function completePayment(){
 }
 function closeAllAndReset(){
   closeModal('payment');
+  window._iummSourceFiles = [];
   document.getElementById('payment-form').style.display='block';
   document.getElementById('payment-complete').style.display='none';
 }
@@ -5494,10 +5472,9 @@ function confirmBankTransfer(){
       if(!glossaryText.trim()) glossaryText='';
     }
   }
-  var fileInput=document.getElementById('file-upload');
   var fileName='첨부파일 없음';
-  if(fileInput&&fileInput.files&&fileInput.files.length>0){
-    fileName=Array.from(fileInput.files).map(function(f){return f.name;}).join(', ');
+  if(window._iummSourceFiles&&window._iummSourceFiles.length>0){
+    fileName=window._iummSourceFiles.map(function(f){return f.name;}).join(', ');
   }
   var savedUserInfo={};
   if(currentUserKakaoId){
@@ -5517,8 +5494,9 @@ function confirmBankTransfer(){
   var bankPageCountEl=document.getElementById('page-count-input');
   var bankPageCount=bankPageCountEl?parseInt(bankPageCountEl.value)||0:0;
   var bankIsExpert=(typeof selectedReviewerIsExpert!=='undefined'&&selectedReviewerIsExpert===true);
+  var bankOrderNumber='IUM-'+Date.now();
   var data={
-    주문번호: 'IUM-'+Date.now(),
+    주문번호: bankOrderNumber,
     플랜: currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스',
     결제방식: '계좌입금',
     번역방향: langVal,
@@ -5548,6 +5526,15 @@ function confirmBankTransfer(){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(data)
   }).catch(function(e){console.log('Webhook 오류:',e);});
+  if(window._iummSourceFiles&&window._iummSourceFiles.length>0){
+    var bkFd=new FormData();
+    bkFd.append('orderNumber', bankOrderNumber);
+    window._iummSourceFiles.forEach(function(f){ bkFd.append('sourceFiles', f); });
+    fetch(MEMBER_API_BASE+'/api/order/attach-source-files', { method:'POST', body: bkFd })
+      .then(function(r){return r.json();})
+      .then(function(d){console.log('[원문첨부]', d.count+'개 완료');})
+      .catch(function(e){console.error('[원문첨부] 실패:', e.message);});
+  }
   document.getElementById('bank-transfer-form').style.display='none';
   document.getElementById('bank-transfer-complete').style.display='block';
 }
@@ -5609,6 +5596,7 @@ function resendCode(){showToast('인증코드를 재발송했습니다 ✓');}
 // ─── 입력 모드 전환 (텍스트 / OCR) ─────────────────────────
 window._inputMode = 'text';
 window._ocrCustomerFiles = [];
+window._iummSourceFiles = [];  // 자동추출/OCR 원문 파일 보관 (결제 시 Airtable 첨부)
 function switchInputMode(mode) {
   window._inputMode = mode;
   var tabText = document.getElementById('input-tab-text');
@@ -5670,6 +5658,7 @@ function ocrSetCustomerFiles(files) {
 async function runCustomerOcr() {
   var files = window._ocrCustomerFiles;
   if (!files || files.length === 0) { showToast('파일을 먼저 선택해주세요'); return; }
+  window._iummSourceFiles = Array.from(files);
   var btn    = document.getElementById('btn-customer-ocr');
   var status = document.getElementById('ocr-customer-status');
   if (btn)    { btn.disabled = true; btn.textContent = 'OCR 처리 중...'; btn.style.opacity = '0.6'; }
@@ -5918,6 +5907,7 @@ function handleSrcFileExtract(input){
   var f=input.files&&input.files[0];
   if(!f) return;
   if(!trySetMode('auto')){input.value='';return;}
+  window._iummSourceFiles = [f];
   var status=document.getElementById('srcFileStatus');
   status.textContent='추출 중...';
   status.style.color='rgba(22,184,148,0.8)';
