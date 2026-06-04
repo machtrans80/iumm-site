@@ -5880,8 +5880,9 @@ async function handleExtractFileChange(input) {
       if (!d.success) throw new Error(d.error || '추출 실패');
       text = d.text; charCount = d.charCount || text.replace(/\s/g,'').length;
     }
+    window._sourceInputMode = null;  // trySetMode confirm 방지
     var pt = document.getElementById('pasteText');
-    if (pt) { pt.value = text; pt.dataset.source = 'auto'; onPasteTextInput(pt); }
+    if (pt) { pt.value = text; pt.dataset.source = 'auto'; }
     calcTextChads(text);
     var notice = document.getElementById('extracted-notice');
     if (notice) notice.style.display = 'flex';
@@ -5904,7 +5905,11 @@ function clearExtractFile() {
   if (statusEl) statusEl.textContent = '';
   window._iummSourceFiles = [];
   window._sourceInputMode = null;
-  clearSourceMode('auto');
+  // pasteText 직접 비우기 (dataset.source 조건 없이)
+  var pt = document.getElementById('pasteText');
+  if (pt) { pt.value = ''; pt.dataset.source = 'manual'; }
+  var notice = document.getElementById('extracted-notice');
+  if (notice) notice.style.display = 'none';
   calcTextChads('');
 }
 
