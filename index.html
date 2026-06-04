@@ -202,8 +202,9 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 /* [J-19b] 원문 삭제 버튼 */
 .btn-clear-source{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all 0.2s;font-family:inherit}
 .btn-clear-source:hover{border-color:#16B894;color:#16B894}
-/* [J-18] OCR만 복붙 방지 (자동추출은 자유 편집) */
+/* [J-18] OCR/추출 결과 복붙 차단 */
 #ocr-result-text{user-select:none;-webkit-user-select:none;-moz-user-select:none;cursor:default}
+#pasteText[data-source="auto"],#pasteText[data-source="ocr"]{user-select:none;-webkit-user-select:none;-moz-user-select:none}
 /* [J-1] 정보입력 페이지 섹션 헤더 */
 #page-userinfo h2,#page-login h2{font-family:'Nanum Myeongjo',serif}
 #page-userinfo .lbl:has(+ .inp:focus),#page-mypage .lbl:has(+ .inp:focus){color:rgba(201,168,76,0.8)}
@@ -2947,7 +2948,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       <div id="input-section-text">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <label class="lbl" style="margin:0">✏️ 직접 입력 또는 추출된 텍스트 확인·수정</label>
-          <button type="button" class="btn-clear-source" onclick="if(document.getElementById('pasteText').value&&confirm('입력한 내용을 모두 지우시겠습니까?')){clearSourceMode('manual');window._sourceInputMode=null;calcTextChads('');}">✕ 내용 지우기</button>
+          <button type="button" class="btn-clear-source" onclick="clearPasteText()">✕ 내용 지우기</button>
         </div>
         <div style="position:relative">
           <textarea id="pasteText" data-source="manual" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="onPasteTextInput(this)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
@@ -2956,6 +2957,10 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
             <button onclick="unlockExtracted()" style="font-size:10px;color:rgba(255,255,255,0.4);background:none;border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:2px 7px;cursor:pointer">수정하기</button>
           </div>
         </div>
+      </div>
+      <!-- ⚠ 면책 안내 (pasteText 바로 아래) -->
+      <div style="margin:8px 0 16px 0;padding:8px 12px;background:rgba(224,85,85,0.08);border-left:3px solid rgba(224,85,85,0.6);border-radius:4px;font-size:12px;color:#ff8c8c;line-height:1.6">
+        ⚠ 추출된 본문은 반드시 확인·수정 후 주문하세요. <span style="color:rgba(255,255,255,0.5)">OCR 오류로 인한 번역 결과 차이는 당사 책임이 아닙니다.</span>
       </div>
 
       <!-- [hidden] manual-chars JS 참조용 -->
@@ -2969,7 +2974,6 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         <p style="margin:0 0 6px 0;padding:6px 10px;background:rgba(255,167,38,0.12);border-radius:4px;font-size:12px;color:#ffa726">⚠ <strong>HWP(한글) 파일</strong> — 본문 텍스트를 복사하여 위 [직접 입력] 영역에 붙여넣어 주세요.</p>
         <p style="margin:0 0 6px 0;padding:6px 10px;background:rgba(217,119,6,0.12);border-left:3px solid #d97706;border-radius:4px;font-weight:500">📌 <strong>여러 파일을 번역하시려면 파일별로 별도 주문해 주세요.</strong></p>
         <p style="margin:0 0 6px 0;padding:6px 10px;background:rgba(22,184,148,0.09);border-left:3px solid #16B894;border-radius:4px;font-size:12px">📧 <strong>대량 번역 문의:</strong> <a href="mailto:iumm.master@gmail.com" style="color:#16B894;font-weight:500">iumm.master@gmail.com</a> 으로 보내주시면 확인 후 별도 연락드립니다.</p>
-        <p style="margin:0;font-size:12px;color:#ff8c8c">⚠ 추출된 본문은 반드시 확인·수정 후 주문하세요. OCR 오류로 인한 번역 결과 차이는 당사 책임이 아닙니다.</p>
       </div>
 
       <!-- ※ 결제 한도 + ⚠ 정확하게 입력 (통합) -->
@@ -3120,12 +3124,12 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <button onclick="selectOrderMode('맡기기')" id="btn-맡기기" style="padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.5);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap">IUMM에 맡기기</button>
         </div>
       </div>
-      <!-- 선택사항 구분선 -->
+      <!-- 선택사항 구분선 (골드) -->
       <div style="margin:24px 0 16px 0">
-        <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);margin-bottom:14px"></div>
-        <div style="display:flex;align-items:center;gap:10px;padding:7px 12px;background:rgba(255,255,255,0.03);border-radius:4px">
-          <span style="padding:2px 8px;background:rgba(255,255,255,0.09);border-radius:4px;font-size:11px;color:rgba(255,255,255,0.6);font-weight:500;letter-spacing:0.3px">선택 사항</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45)">아래 항목은 입력하지 않아도 주문이 가능합니다</span>
+        <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.40),transparent);margin-bottom:12px"></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.02));border:1px solid rgba(201,168,76,0.28);border-radius:6px">
+          <span style="padding:2px 8px;background:rgba(201,168,76,0.18);border:1px solid rgba(201,168,76,0.38);border-radius:4px;font-size:10px;color:#c9a84c;font-weight:700;letter-spacing:0.8px">OPTIONAL</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.55)">아래 항목들은 번역 퀄리티를 올리기 위한 추가 작업입니다. 입력하지 않아도 주문 진행이 가능합니다</span>
         </div>
       </div>
 
@@ -5893,11 +5897,47 @@ async function handleExtractFileChange(input) {
 
 function clearPasteText() {
   var pt = document.getElementById('pasteText');
-  if (pt) { pt.value = ''; pt.dataset.source = 'manual'; }
+  if (pt) {
+    pt.value = '';
+    delete pt.dataset.source;  // 복붙 차단 해제 (추출 상태 초기화)
+    pt.readOnly = false;
+  }
   var notice = document.getElementById('extracted-notice');
   if (notice) notice.style.display = 'none';
   window._sourceInputMode = null;
   calcTextChads('');
+}
+
+// ─── pasteText 복붙 차단 (추출/OCR 결과 보호) ──────────────
+// Admin (admin/index.html) 미적용. dataset.source='auto'/'ocr'일 때만 차단.
+function setupPasteTextProtection() {
+  var pt = document.getElementById('pasteText');
+  if (!pt) return;
+  var isExtracted = function() { return pt.dataset.source === 'auto' || pt.dataset.source === 'ocr'; };
+  var deny = function(e) { if (isExtracted()) { e.preventDefault(); return false; } };
+  pt.addEventListener('copy', deny);
+  pt.addEventListener('cut', deny);
+  pt.addEventListener('selectstart', deny);
+  pt.addEventListener('contextmenu', deny);
+  pt.addEventListener('dragstart', deny);
+  pt.addEventListener('keydown', function(e) {
+    if (isExtracted() && (e.ctrlKey || e.metaKey) && ['c','x','a','s'].includes(e.key.toLowerCase())) {
+      e.preventDefault(); return false;
+    }
+  });
+  // Paste — 옵션C: 추출 결과 위에만 차단, 직접 입력(빈 칸)은 허용
+  pt.addEventListener('paste', function(e) {
+    if (isExtracted()) {
+      e.preventDefault();
+      alert('추출된 텍스트 위에는 붙여넣기가 안 됩니다.\n[✕ 내용 지우기]를 먼저 눌러주세요.');
+      return false;
+    }
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupPasteTextProtection);
+} else {
+  setupPasteTextProtection();
 }
 
 function clearExtractFile() {
@@ -5911,9 +5951,9 @@ function clearExtractFile() {
   if (statusEl) statusEl.textContent = '';
   window._iummSourceFiles = [];
   window._sourceInputMode = null;
-  // pasteText 직접 비우기 (dataset.source 조건 없이)
+  // pasteText 직접 비우기 + 복붙 차단 해제
   var pt = document.getElementById('pasteText');
-  if (pt) { pt.value = ''; pt.dataset.source = 'manual'; }
+  if (pt) { pt.value = ''; delete pt.dataset.source; pt.readOnly = false; }
   var notice = document.getElementById('extracted-notice');
   if (notice) notice.style.display = 'none';
   calcTextChads('');
