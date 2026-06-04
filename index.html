@@ -89,6 +89,33 @@ section{padding:64px 44px}
 .section-title em{color:#5DE0BC;font-style:normal}
 .section-title .mint{color:#5DE0BC}
 .comp-grid{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:0;max-width:920px;margin:0 auto;align-items:start}
+/* A. 법률 분야 적용 카드 호버 */
+.iumm-law-card{transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
+.iumm-law-card:hover{transform:translateY(-4px);background:rgba(22,184,148,0.12)!important;border-color:rgba(22,184,148,0.65)!important;box-shadow:0 10px 28px rgba(22,184,148,0.28)!important}
+/* B. 분야 카드 호버 (클릭 외 hover 추가) */
+.field-card:hover:not(.open){border-color:rgba(22,184,148,0.40)!important;background:rgba(22,184,148,0.07)!important;box-shadow:0 4px 16px rgba(22,184,148,0.14)}
+/* C. ChatGPT 보안 박스 호버 — 항목 순차 등장 */
+@keyframes secItemIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.security-hover-box:hover .sec-check-item{animation:secItemIn 0.4s ease forwards}
+.security-hover-box:hover .sec-check-item:nth-child(1){animation-delay:0.05s}
+.security-hover-box:hover .sec-check-item:nth-child(2){animation-delay:0.15s}
+.security-hover-box:hover .sec-check-item:nth-child(3){animation-delay:0.25s}
+.security-hover-box:hover .sec-check-item:nth-child(4){animation-delay:0.35s}
+.security-hover-box:hover .sec-check-item:nth-child(5){animation-delay:0.45s}
+.security-hover-box:hover .sec-check-item:nth-child(6){animation-delay:0.55s}
+.security-hover-box:hover{border-color:rgba(22,184,148,0.35)!important;background:rgba(22,184,148,0.04)!important}
+.security-hover-box:not(:hover) .sec-check-item{opacity:0;transform:translateX(-8px);transition:opacity 0.2s,transform 0.2s}
+.security-hover-box:not(:hover){border-color:rgba(22,184,148,0.15)!important;transition:all 0.3s}
+/* D. 민감한 문서 그라데이션 */
+.security-emphasis-text{background:linear-gradient(90deg,#16B894 0%,#5ed0b0 20%,#c9a84c 40%,#5ed0b0 60%,#16B894 80%,#16B894 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:taglineFlow 4s linear infinite}
+@media(prefers-reduced-motion:reduce){.security-emphasis-text{animation:none;-webkit-text-fill-color:#16B894;background:none}}
+/* E. 보안 3카드 호버 */
+.sec-card{transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
+.sec-card:hover{transform:translateY(-5px);background:rgba(22,184,148,0.09)!important;border-color:rgba(22,184,148,0.45)!important;box-shadow:0 10px 28px rgba(22,184,148,0.22)}
+/* F. 21가지 STEP 카드 호버 */
+.checklist-banner .expandable-card{transition:all 0.35s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden}
+.checklist-banner .expandable-card:hover{transform:translateY(-4px);border-color:rgba(22,184,148,0.55)!important;box-shadow:0 10px 28px rgba(22,184,148,0.30),0 0 40px rgba(22,184,148,0.15)}
+.checklist-banner .expandable-card:last-child:hover{border-color:rgba(217,119,6,0.58)!important;box-shadow:0 10px 28px rgba(217,119,6,0.30),0 0 40px rgba(217,119,6,0.15)}
 /* IUMM 프로세스 카드 호버 펼침 */
 #process .process-step .step-collapsed{transition:opacity 0.25s ease,visibility 0s linear 0.25s;visibility:visible}
 #process .process-step .step-expanded{opacity:0!important;visibility:hidden;transition:opacity 0.3s ease 0.05s,visibility 0s linear 0.3s;pointer-events:none}
@@ -2384,7 +2411,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </div>
 
       <!-- IUMM 법률 -->
-      <div class="expandable-card" style="padding:32px 28px;border:1px solid rgba(22,184,148,0.4);background:rgba(22,184,148,0.06);position:relative;border-radius:12px">
+      <div class="expandable-card iumm-law-card" style="padding:32px 28px;border:1px solid rgba(22,184,148,0.4);background:rgba(22,184,148,0.06);position:relative;border-radius:12px">
         <div style="position:absolute;top:-13px;left:24px;background:#16B894;color:#fff;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 14px;border-radius:99px;text-transform:uppercase">IUMM</div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
           <span style="font-size:20px;color:#16B894">✓</span>
@@ -2684,7 +2711,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   <div style="max-width:860px;margin:0 auto;text-align:center">
     <p class="section-label">Security</p>
     <h2 class="section-title">당신의 문서<br><span class="mint">철저하게 보호됩니다</span></h2>
-    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(22,184,148,0.15);border-radius:4px;padding:48px;margin-bottom:48px;text-align:left">
+    <div class="security-hover-box" style="background:rgba(255,255,255,0.03);border:1px solid rgba(22,184,148,0.15);border-radius:4px;padding:48px;margin-bottom:48px;text-align:left;cursor:default">
       <p style="font-size:17px;line-height:2;color:rgba(255,255,255,0.85);margin-bottom:28px;word-break:keep-all">많은 분들이 번역을 위해 ChatGPT나 일반 AI 서비스에 문서를 직접 업로드하고 계십니다.<br>하지만 이 방식은 생각보다 심각한 보안 문제를 내포하고 있습니다.</p>
       <div style="background:rgba(255,80,80,0.06);border:1px solid rgba(255,80,80,0.2);border-radius:3px;padding:24px;margin-bottom:28px">
         <p style="font-size:15px;color:rgba(255,120,120,0.9);letter-spacing:1px;font-weight:700;margin-bottom:12px"><i class="ti ti-alert-triangle icon-g" style="margin-right:5px"></i>일반 AI 서비스 직접 업로드의 위험</p>
@@ -2692,17 +2719,16 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </div>
       <p style="font-size:16px;color:var(--gold);font-weight:700;margin-bottom:24px;letter-spacing:0.5px">IUMM은 이 문제를 해결하기 위해 설계된 번역 서비스입니다.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">고객 문서가 AI 학습에 절대 사용되지 않습니다</p></div>
-        <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">번역 처리 중 외부 노출 및 제3자 공유 없음</p></div>
-        <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">번역 완료 후 21일 이내 문서 완전 삭제</p></div>
-        <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">계약서·특허·법률·재무 문서도 안심하고 의뢰 가능</p></div>
-        <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">데이터 판매 및 마케팅 활용 완전 금지</p></div>
-        <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">보안 전송 및 독립된 처리 환경에서 운영</p></div>
+        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">고객 문서가 AI 학습에 절대 사용되지 않습니다</p></div>
+        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">번역 처리 중 외부 노출 및 제3자 공유 없음</p></div>
+        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">번역 완료 후 21일 이내 문서 완전 삭제</p></div>
+        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">계약서·특허·법률·재무 문서도 안심하고 의뢰 가능</p></div>
+        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">데이터 판매 및 마케팅 활용 완전 금지</p></div>
+        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">보안 전송 및 독립된 처리 환경에서 운영</p></div>
       </div>
     </div>
     <div style="border-top:1px solid rgba(22,184,148,0.15);padding-top:32px;margin-top:8px">
-    <p style="font-size:20px;line-height:1.8;color:rgba(255,255,255,0.9);word-break:keep-all;font-weight:500;text-align:center">민감한 문서일수록, 번역 서비스 선택이 중요합니다.</p>
-    <p style="font-size:18px;line-height:1.9;color:var(--gold);font-weight:700;word-break:keep-all;text-align:center;margin-top:12px">IUMM은 AI를 통해 정보가 유출되거나 수집되지 않는<br>독자적인 프로세스를 통해 보안을 최우선으로 설계된<br>기업 전문 번역 플랫폼입니다.</p>
+    <p class="security-emphasis-text" style="font-size:20px;line-height:1.8;font-weight:600;word-break:keep-all;text-align:center">민감한 문서일수록 번역 서비스 선택이 중요합니다.<br>IUMM은 AI를 통해 정보가 유출되거나 수집되지 않는<br>독자적인 프로세스로 보안을 최우선으로 설계된<br>기업 전문 번역 플랫폼입니다.</p>
   </div>
   </div>
 </section>
