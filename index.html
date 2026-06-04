@@ -2918,32 +2918,39 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       </div>
       <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;font-weight:300">번역할 텍스트를 붙여넣으면 글자수와 견적이 자동 산출됩니다</p>
 
-      <!-- 원문 파일 자동 추출 (텍스트 추출 가능 파일: PDF/Word/Excel/TXT) -->
-      <div style="margin-bottom:14px;padding:14px 16px;background:rgba(22,184,148,0.04);border:1px solid rgba(22,184,148,0.18);border-radius:6px">
-        <label class="lbl" style="margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-file-text" style="color:#16B894;font-size:13px"></i>원문 파일 첨부 — 텍스트 자동 추출 <span style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:400">(PDF · Word · Excel · TXT)</span></label>
-        <input type="file" id="srcFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" style="display:none" onchange="handleSrcFileExtract(this)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <label for="srcFileInput" style="display:inline-block;padding:9px 16px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.5);border-radius:4px;cursor:pointer;font-size:12px;color:#16B894;transition:all 0.2s"><i class="ti ti-upload" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>파일 선택</label>
-          <button type="button" class="btn-clear-source" onclick="clearSourceMode('auto');window._sourceInputMode=null;calcTextChads('')">✕ 원문 삭제</button>
-          <span id="srcFileStatus" style="font-size:11px;color:rgba(255,255,255,0.5)"></span>
+      <!-- 통합 파일 추출 (자동추출 + OCR) -->
+      <div id="unified-extract-section" style="margin-bottom:14px">
+        <div style="padding:14px 18px;background:rgba(217,119,6,0.08);border-left:4px solid #d97706;border-radius:8px;margin-bottom:12px;color:rgba(255,255,255,0.9);font-size:13px;line-height:1.7">
+          <p style="margin:0 0 8px 0"><strong style="color:#d97706;font-size:14px">📂 원문 파일 추출</strong></p>
+          <p style="margin:0 0 5px 0"><strong>지원</strong>: Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT (50MB 이하)</p>
+          <p style="margin:0 0 5px 0;font-size:12px;color:rgba(255,255,255,0.7)">※ 텍스트 PDF, 스캔 PDF, 이미지를 자동 판별해 처리합니다. 파일 1개씩 업로드.</p>
+          <p style="margin:0 0 10px 0;padding:7px 10px;background:rgba(255,167,38,0.12);border-radius:4px;font-size:12px;color:#ffa726">⚠ <strong>HWP(한글) 파일 미지원</strong> — 아래 직접 입력 영역에 본문을 붙여넣어 주세요.</p>
+          <p style="margin:0 0 10px 0;font-size:12px;color:#ff8c8c">⚠ 추출된 본문은 반드시 확인·수정 후 주문하세요.<br><span style="color:rgba(255,255,255,0.5)">OCR 오류로 인한 번역 결과 차이는 당사 책임이 아닙니다.</span></p>
+          <div style="padding:9px 12px;background:rgba(22,184,148,0.09);border:1px solid rgba(22,184,148,0.3);border-radius:6px">
+            <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer">
+              <input type="checkbox" id="extract-hanja-mode" style="margin-top:3px;accent-color:#16B894;width:15px;height:15px">
+              <span>
+                <strong style="color:#16B894;font-size:13px">한자어가 섞여있는 문서입니다</strong>
+                <span style="display:block;font-size:11px;color:rgba(255,255,255,0.55);margin-top:1px">계약서·법률·학술 등 한자 혼용 문서. 스캔 PDF·이미지 OCR 시 한자 인식이 더 정확해집니다.</span>
+              </span>
+            </label>
+          </div>
         </div>
-        <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:6px">스캔본·이미지는 아래 OCR 사용 · 자동 추출 후 아래 텍스트 창에서 확인·수정 가능</p>
-        <div style="background:rgba(22,184,148,0.06);border-left:2px solid #16B894;padding:10px 14px;border-radius:6px;margin:8px 0 4px;color:rgba(255,255,255,0.75);font-size:12px;line-height:1.6">
-          <i class="ti ti-paperclip" style="font-size:12px;vertical-align:-1px;margin-right:5px;color:#16B894"></i>한 주문에 원문 파일은 <strong style="color:#16B894">1개</strong>만 첨부 가능합니다.<br>
-          여러 파일을 번역하시려면 <strong>파일별로 별도 주문</strong>해 주세요.
+        <input type="file" id="extractFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="handleExtractFileChange(this)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+          <label for="extractFileInput" style="display:inline-block;padding:9px 16px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.5);border-radius:4px;cursor:pointer;font-size:12px;color:#16B894;transition:all 0.2s"><i class="ti ti-upload" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>파일 선택</label>
+          <button type="button" class="btn-clear-source" id="btn-clear-extract" style="display:none" onclick="clearExtractFile()">✕ 파일 삭제</button>
+          <span id="extract-file-name" style="font-size:12px;color:rgba(255,255,255,0.75)"></span>
         </div>
+        <div id="extract-status" style="font-size:12px;min-height:16px;margin-bottom:6px"></div>
       </div>
 
-      <!-- 입력 방식 선택 -->
-      <div style="display:flex;gap:0;margin-bottom:18px;border:1px solid rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">
-        <button id="input-tab-text" onclick="switchInputMode('text')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:var(--gold);color:var(--black)">✏️ 텍스트 직접 입력</button>
-        <button id="input-tab-ocr" onclick="switchInputMode('ocr')" style="flex:1;padding:9px 4px;font-size:12px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">📷 OCR (스캔본/이미지)</button>
-      </div>
+      <!-- 직접 입력 라벨 -->
 
-      <!-- 텍스트 붙여넣기 영역 -->
+      <!-- 직접 입력 영역 -->
       <div id="input-section-text">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <label class="lbl" style="margin:0">번역할 텍스트 붙여넣기</label>
+          <label class="lbl" style="margin:0">✏️ 직접 입력 또는 추출된 텍스트 확인·수정</label>
           <button type="button" class="btn-clear-source" onclick="if(document.getElementById('pasteText').value&&confirm('입력한 내용을 모두 지우시겠습니까?')){clearSourceMode('manual');window._sourceInputMode=null;calcTextChads('');}">✕ 내용 지우기</button>
         </div>
         <div style="position:relative">
@@ -2955,58 +2962,6 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         </div>
       </div>
 
-      <!-- 하드카피 OCR 영역 -->
-      <div id="input-section-ocr" style="display:none">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
-          <button type="button" class="btn-clear-source" onclick="clearSourceMode('ocr');window._sourceInputMode=null;calcTextChads('')">✕ OCR 삭제</button>
-        </div>
-        <!-- 파일 업로드 드롭존 (멀티 + PDF) -->
-        <div id="ocr-customer-dropzone" onclick="document.getElementById('ocr-customer-file').click()" ondragover="ocrCustomerDragOver(event)" ondragleave="ocrCustomerDragLeave(event)" ondrop="ocrCustomerDrop(event)" style="border:2px dashed rgba(22,184,148,0.3);border-radius:4px;padding:24px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:10px;position:relative">
-          <input type="file" id="ocr-customer-file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none" onchange="ocrCustomerFileSelected(this)">
-          <p style="font-size:28px;margin-bottom:6px;color:#c9a84c"><i class="ti ti-paperclip"></i></p>
-          <p id="ocr-customer-file-label" style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px">이미지 또는 PDF를 끌어다 놓거나 클릭하여 선택</p>
-          <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:8px">JPEG · PNG · WEBP · PDF · 여러 파일 동시 선택 가능 (최대 10장/페이지)</p>
-          <div id="ocr-file-list" style="display:none;text-align:left;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px"></div>
-        </div>
-        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:6px"><i class="ti ti-bulb icon-g" style="margin-right:3px"></i>10페이지 초과 의뢰: <a href="mailto:iumm.master@gmail.com" style="color:rgba(22,184,148,0.7);text-decoration:none">iumm.master@gmail.com</a></p>
-        <div style="padding:14px 18px;background:rgba(217,119,6,0.08);border-left:4px solid #d97706;border-radius:8px;margin-bottom:12px;color:rgba(255,255,255,0.9);line-height:1.7;font-size:13px">
-          <p style="margin:0 0 10px 0"><strong style="color:#d97706">📋 OCR 추출 안내</strong></p>
-          <p style="margin:0 0 6px 0"><strong>지원 형식</strong>: JPG · PNG · WEBP · PDF · TIFF (50MB 이하, 최대 10장)</p>
-          <p style="margin:0 0 6px 0"><strong>권장 해상도</strong>: 150dpi 이상 (A4 기준)</p>
-          <p style="margin:0 0 12px 0"><strong>인식률</strong>: 일반적으로 90% 이상이나 저화질·손글씨·복잡한 표 등은 오인식 발생 가능</p>
-          <p style="margin:0 0 6px 0;color:#ff8c8c;font-weight:600">⚠ 추출된 본문은 반드시 직접 확인하고 수정 후 주문해주세요.</p>
-          <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.5)">OCR 추출 오류로 인한 번역 결과 차이는 당사가 책임지지 않습니다.</p>
-        </div>
-        <div style="margin:0 0 12px 0;padding:11px 14px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.25);border-radius:6px">
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
-            <input type="checkbox" id="ocr-hanja-mode" name="hanjaMode" style="margin-top:3px;accent-color:#16B894">
-            <span style="font-size:13px;line-height:1.6">
-              <strong style="color:#16B894">한자어가 섞여있는 문서입니다</strong>
-              <span style="display:block;font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px">계약서·법률·학술 자료 등 한자가 자주 섞인 문서. 체크 시 한자 인식이 더 정확합니다.</span>
-            </span>
-          </label>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
-          <button id="btn-customer-ocr" onclick="runCustomerOcr()" disabled style="padding:10px 22px;background:var(--gold);color:var(--black);border:none;border-radius:2px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;opacity:0.4">OCR 텍스트 추출</button>
-          <span id="ocr-customer-status" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6"></span>
-        </div>
-
-        <!-- OCR 결과 (처음엔 숨김) -->
-        <div id="ocr-result-section" style="display:none">
-          <!-- 안내 문구 -->
-          <div style="background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-left:3px solid var(--gold);padding:12px 16px;margin-bottom:12px;border-radius:2px">
-            <p style="font-size:12px;color:rgba(22,184,148,0.9);font-weight:600;margin-bottom:4px"><i class="ti ti-bulb icon-g" style="margin-right:3px"></i>OCR 결과 안내</p>
-            <p style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8">수정할 곳이 있다면 아래 텍스트를 직접 수정해주세요. 해당 텍스트로 번역이 진행됩니다.<br>품질이 좋지 않으면 해상도가 높은 이미지를 다시 첨부해주세요.</p>
-          </div>
-          <!-- 보호된 텍스트 영역 -->
-          <label class="lbl" style="display:flex;justify-content:space-between;align-items:center">
-            <span>추출된 텍스트 (수정 가능)</span>
-            <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:400">복사 방지 적용됨</span>
-          </label>
-          <textarea id="ocr-result-text" data-source="extracted" oninput="ocrTextChanged(this.value)" oncopy="ocrBlockCopy(event)" oncut="ocrBlockCopy(event)" oncontextmenu="return false" ondragstart="return false" onkeydown="if((event.ctrlKey||event.metaKey)&&['c','x','a','s'].includes(event.key.toLowerCase())){event.preventDefault();var n=document.getElementById('ocr-copy-notice');if(n){n.style.display='block';setTimeout(function(){n.style.display='none'},2000);}return false;}" style="width:100%;height:180px;padding:14px 16px;background:#0e0e0e;border:1px solid rgba(22,184,148,0.25);border-radius:2px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:vertical;line-height:1.8;margin-bottom:0"></textarea>
-          <p id="ocr-copy-notice" style="display:none;font-size:11px;color:rgba(224,85,85,0.9);margin-top:5px;font-weight:500"><i class="ti ti-lock icon-g" style="margin-right:3px"></i>OCR 텍스트는 복사할 수 없습니다.</p>
-        </div>
-      </div>
       <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;text-align:right;letter-spacing:0.3px">※ 1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내</p>
 
       <!-- [hidden] manual-chars JS 참조용 -->
@@ -4753,17 +4708,13 @@ function selectReviewer(el,name,id){
   else if(name) showToast(name+' 선택 완료');
 }
 function getSourceText(){
-  switch(window._sourceInputMode){
-    case 'auto': {var pt=document.getElementById('pasteText');return pt?pt.value:'';}
-    case 'ocr':  {var ot=document.getElementById('ocr-result-text');return ot?ot.value:'';}
-    case 'manual':{var pt2=document.getElementById('pasteText');return pt2?pt2.value:'';}
-    default: return '';
-  }
+  var pt = document.getElementById('pasteText');
+  return pt ? pt.value : '';
 }
 function goToPayment(){
   // [J-19c] 원문 입력 검증
-  if(!window._sourceInputMode||!getSourceText().trim()){
-    alert('번역할 원문을 입력해주세요.\n(파일 자동 추출, OCR, 직접 입력 중 하나)');
+  if(!getSourceText().trim()){
+    alert('번역할 원문을 입력해주세요.\n(파일 추출 또는 직접 입력)');
     return;
   }
   // estimate-amount에 이미 최종 금액이 계산되어 있음
@@ -5593,27 +5544,12 @@ function verifyCode(){
   }
 }
 function resendCode(){showToast('인증코드를 재발송했습니다 ✓');}
-// ─── 입력 모드 전환 (텍스트 / OCR) ─────────────────────────
+// ─── 입력 모드 (통합 파일 추출 + 직접 입력) ────────────────
 window._inputMode = 'text';
 window._ocrCustomerFiles = [];
-window._iummSourceFiles = [];  // 자동추출/OCR 원문 파일 보관 (결제 시 Airtable 첨부)
+window._iummSourceFiles = [];  // 원문 파일 보관 (결제 시 Airtable 첨부)
 function switchInputMode(mode) {
-  window._inputMode = mode;
-  var tabText = document.getElementById('input-tab-text');
-  var tabOcr  = document.getElementById('input-tab-ocr');
-  var secText = document.getElementById('input-section-text');
-  var secOcr  = document.getElementById('input-section-ocr');
-  if (mode === 'ocr') {
-    if (tabText) { tabText.style.background = 'rgba(255,255,255,0.04)'; tabText.style.color = 'rgba(255,255,255,0.5)'; }
-    if (tabOcr)  { tabOcr.style.background  = 'var(--gold)'; tabOcr.style.color = 'var(--black)'; }
-    if (secText) secText.style.display = 'none';
-    if (secOcr)  secOcr.style.display  = 'block';
-  } else {
-    if (tabText) { tabText.style.background = 'var(--gold)'; tabText.style.color = 'var(--black)'; }
-    if (tabOcr)  { tabOcr.style.background  = 'rgba(255,255,255,0.04)'; tabOcr.style.color = 'rgba(255,255,255,0.5)'; }
-    if (secText) secText.style.display = 'block';
-    if (secOcr)  secOcr.style.display  = 'none';
-  }
+  window._inputMode = mode;  // 하위 호환 유지
 }
 // ─── OCR 드래그 앤 드롭 ──────────────────────────────────────
 function ocrCustomerDragOver(e) {
@@ -5901,8 +5837,78 @@ function uploadReference(orderNumber, files){
     return r.json();
   });
 }
-/* [D-1c] 원문 파일 자동 추출 */
-var EXTRACT_API='https://iumm-pipeline-production.up.railway.app/api/extract-source';
+/* 통합 파일 추출 (자동추출 + OCR) */
+var EXTRACT_API = MEMBER_API_BASE + '/api/extract-source';
+var IMAGE_EXTS = ['jpg','jpeg','png','webp','tiff','tif'];
+
+async function handleExtractFileChange(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  var ext = file.name.toLowerCase().split('.').pop();
+  if (ext === 'hwp' || ext === 'hwpx') {
+    alert('HWP(한글) 파일은 자동 추출이 지원되지 않습니다.\n아래 직접 입력 영역에 본문을 붙여넣기 해주세요.');
+    input.value = '';
+    return;
+  }
+  window._iummSourceFiles = [file];
+  window._sourceInputMode = 'extract';
+  var nameEl = document.getElementById('extract-file-name');
+  var clearBtn = document.getElementById('btn-clear-extract');
+  var statusEl = document.getElementById('extract-status');
+  if (nameEl) nameEl.textContent = file.name;
+  if (clearBtn) clearBtn.style.display = 'inline-block';
+  if (statusEl) statusEl.innerHTML = '<span style="color:rgba(255,167,38,0.9)">⏳ 추출 중...</span>';
+  var langVal = document.getElementById('lang-select')?.value || '';
+  var sourceLang = langVal.split('→')[0].trim() || '한국어';
+  var hanjaMode = document.getElementById('extract-hanja-mode')?.checked || false;
+  try {
+    var text, charCount;
+    if (IMAGE_EXTS.includes(ext)) {
+      var fd = new FormData();
+      fd.append('files', file);
+      fd.append('sourceLang', sourceLang);
+      fd.append('hanjaMode', String(hanjaMode));
+      var r = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', body: fd });
+      var d = await r.json();
+      if (!d.success) throw new Error(d.error || 'OCR 실패');
+      text = d.text; charCount = d.charCount || text.replace(/\s/g,'').length;
+    } else {
+      var fd = new FormData();
+      fd.append('file', file);
+      var r = await fetch(EXTRACT_API, { method: 'POST', body: fd });
+      var d = await r.json();
+      if (!d.success) throw new Error(d.error || '추출 실패');
+      text = d.text; charCount = d.charCount || text.replace(/\s/g,'').length;
+    }
+    var pt = document.getElementById('pasteText');
+    if (pt) { pt.value = text; pt.dataset.source = 'auto'; onPasteTextInput(pt); }
+    calcTextChads(text);
+    var notice = document.getElementById('extracted-notice');
+    if (notice) notice.style.display = 'flex';
+    if (statusEl) statusEl.innerHTML = '<span style="color:rgba(151,196,89,0.9)">✓ 추출 완료 (공백제외 ' + charCount.toLocaleString() + '자) — 아래에서 확인·수정 가능</span>';
+  } catch(e) {
+    if (statusEl) statusEl.innerHTML = '<span style="color:rgba(224,85,85,0.9)">❌ 추출 실패: ' + e.message + '</span>';
+    window._iummSourceFiles = [];
+    window._sourceInputMode = null;
+  }
+}
+
+function clearExtractFile() {
+  var input = document.getElementById('extractFileInput');
+  if (input) input.value = '';
+  var nameEl = document.getElementById('extract-file-name');
+  var clearBtn = document.getElementById('btn-clear-extract');
+  var statusEl = document.getElementById('extract-status');
+  if (nameEl) nameEl.textContent = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (statusEl) statusEl.textContent = '';
+  window._iummSourceFiles = [];
+  window._sourceInputMode = null;
+  clearSourceMode('auto');
+  calcTextChads('');
+}
+
+/* [D-1c] 원문 파일 자동 추출 (하위 호환 유지) */
 function handleSrcFileExtract(input){
   var f=input.files&&input.files[0];
   if(!f) return;
