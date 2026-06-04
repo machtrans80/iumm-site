@@ -503,7 +503,8 @@ body.admin-focus .focus-exit-hint{display:inline}
         <div class="bp-section-title">📂 원문 파일 추출 (자동추출 + OCR)</div>
         <div style="padding:10px 14px;background:rgba(217,119,6,0.1);border-left:3px solid #d97706;border-radius:6px;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
           지원: Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT, 50MB 이하<br>
-          <strong style="color:#ffa726">⚠ HWP 미지원</strong> — 아래 원문 텍스트 입력란에 직접 붙여넣기<br>
+          <strong style="color:#ffa726">⚠ HWP(한글) 파일</strong> — HWP 한글 파일의 형식은 본문 텍스트를 복사하여 아래 원문 텍스트 입력란에 붙여넣기<br>
+          📌 <strong>여러 파일은 파일별로 별도 주문해 주세요.</strong><br>
           <strong style="color:#ff8c8c">⚠ 본문 직접 확인 + 수정 필수.</strong>
         </div>
         <div style="margin-bottom:10px;padding:8px 10px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:4px">
@@ -2328,7 +2329,7 @@ async function bpExtractFileChange(input) {
   if (!file) return;
   var ext = file.name.toLowerCase().split('.').pop();
   if (ext === 'hwp' || ext === 'hwpx') {
-    showToast('HWP 파일 미지원 — 원문 텍스트 입력란에 직접 붙여넣기해 주세요.', 'error');
+    showToast('HWP(한글) 파일 — 본문 텍스트를 복사하여 아래 원문 입력란에 붙여넣기해 주세요.', 'error');
     input.value = '';
     return;
   }
