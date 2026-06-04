@@ -501,6 +501,11 @@ body.admin-focus .focus-exit-hint{display:inline}
       <!-- OCR 섹션 -->
       <div class="bp-section">
         <div class="bp-section-title">📄 OCR — 하드카피 이미지/PDF → 텍스트 추출</div>
+        <div style="padding:10px 14px;background:rgba(217,119,6,0.1);border-left:3px solid #d97706;border-radius:6px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
+          <strong style="color:#d97706">⚠ OCR 추출 안내</strong><br>
+          지원: JPG · PNG · WEBP · PDF · TIFF, 50MB 이하, 최대 10장, 해상도 150dpi+ 권장<br>
+          인식률 90%+이지만 저화질·손글씨·복잡한 표 등은 오류 가능. <strong style="color:#ff8c8c">본문 직접 확인 + 수정 필수.</strong>
+        </div>
         <div class="ocr-zone" id="ocr-drop-zone" ondragover="bpDragOver(event)" ondragleave="bpDragLeave(event)" ondrop="bpDrop(event)">
           <input type="file" id="ocr-file-input" accept="image/jpeg,image/png,image/webp,application/pdf" multiple onchange="bpFileSelected(this)">
           <div class="ocr-zone-label" id="ocr-zone-label">이미지 또는 PDF를 끌어다 놓거나 클릭하여 선택</div>
@@ -988,34 +993,111 @@ function switchTab(tab) {
   }
 }
 
+var _orderPage = 1;
+var ORDER_PAGE_SIZE = 10;
+
 async function loadOrders() {
+  _orderPage = 1;
   var wrap = document.getElementById('orders-wrap');
   wrap.innerHTML = '<table class="orders-table"><thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜/상태</th><th>접수일</th><th>금액</th><th>평가</th></tr></thead><tbody id="orders-tbody"><tr class="empty-row"><td colspan="7">로딩 중…</td></tr></tbody></table>';
   try {
     var res = await adminFetch('/api/admin/orders?tab=' + currentTab);
     if (!res.success) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
-    var orders = res.orders || [];
-    if (!orders.length) {
-      var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">해당 주문이 없습니다</td></tr>';
-      return;
-    }
-    var tb = document.getElementById('orders-tbody');
-    if (tb) tb.innerHTML = orders.map(function(o) {
+    window._orders = res.orders || [];
+    renderOrderTable();
+  } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>'; }
+}
+
+function renderOrderTable() {
+  var orders = window._orders || [];
+  var wrap = document.getElementById('orders-wrap');
+  var showBatch = (currentTab === 'ai_premium' || currentTab === 'premium_plus');
+  var colCount = showBatch ? 8 : 7;
+  var totalPages = Math.max(1, Math.ceil(orders.length / ORDER_PAGE_SIZE));
+  if (_orderPage > totalPages) _orderPage = totalPages;
+  var start = (_orderPage - 1) * ORDER_PAGE_SIZE;
+  var pageOrders = orders.slice(start, start + ORDER_PAGE_SIZE);
+
+  var batchBar = showBatch
+    ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(22,184,148,0.04);border:1px solid rgba(22,184,148,0.1);border-radius:4px;margin-bottom:8px">'
+      + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.7)">'
+      + '<input type="checkbox" id="select-all-orders" onchange="toggleSelectAllOrders(this)">'
+      + '전체 선택 (<span id="selected-count">0</span>건 선택)</label>'
+      + '<button onclick="batchHideOrders()" style="padding:5px 14px;background:rgba(217,119,6,0.15);color:#d97706;border:1px solid rgba(217,119,6,0.4);border-radius:4px;cursor:pointer;font-size:12px;font-family:\'Noto Sans KR\',sans-serif">선택 항목 숨기기</button>'
+      + '</div>'
+    : '';
+
+  var checkTh = showBatch ? '<th style="width:32px;padding:10px 8px"></th>' : '';
+  var thead = '<thead><tr>' + checkTh + '<th>주문번호</th><th>고객이메일</th><th>글자수</th><th>플랜/상태</th><th>접수일</th><th>금액</th><th>평가</th></tr></thead>';
+
+  var rowsHtml;
+  if (!orders.length) {
+    rowsHtml = '<tr class="empty-row"><td colspan="' + colCount + '">해당 주문이 없습니다</td></tr>';
+  } else {
+    rowsHtml = pageOrders.map(function(o) {
       var planTag = (o.plan||'').includes('plus') || (o.plan||'').includes('플러스') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
       var statusTag = o.status === '납품완료' ? ' <span class="tag" style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">납품완료</span>' : '';
       var ratingCell = o.isEvaluated && o.customerRating != null ? '⭐ ' + o.customerRating + '.0' + (o.isReviewConfirmed ? ' ✅' : '') : '—';
-      return '<tr onclick="selectOrder(\'' + o.orderId + '\',this)" data-id="' + o.orderId + '">' +
-        '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>' +
-        '<td>' + (o.customerEmail||'—') + '</td>' +
-        '<td>' + (o.charCount||0).toLocaleString() + '자</td>' +
-        '<td>' + planTag + statusTag + '</td>' +
-        '<td>' + ymd(o.receivedAt) + '</td>' +
-        '<td>₩' + (o.paymentAmount||0).toLocaleString() + '</td>' +
-        '<td style="font-size:12px">' + ratingCell + '</td>' +
-        '</tr>';
+      var checkCell = showBatch
+        ? '<td onclick="event.stopPropagation()" style="padding:12px 8px"><input type="checkbox" class="order-check" value="' + o.orderId + '" onchange="updateSelectedCount()"></td>'
+        : '';
+      return '<tr onclick="selectOrder(\'' + o.orderId + '\',this)" data-id="' + o.orderId + '">'
+        + checkCell
+        + '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>'
+        + '<td>' + (o.customerEmail||'—') + '</td>'
+        + '<td>' + (o.charCount||0).toLocaleString() + '자</td>'
+        + '<td>' + planTag + statusTag + '</td>'
+        + '<td>' + ymd(o.receivedAt) + '</td>'
+        + '<td>₩' + (o.paymentAmount||0).toLocaleString() + '</td>'
+        + '<td style="font-size:12px">' + ratingCell + '</td>'
+        + '</tr>';
     }).join('');
-    window._orders = orders;
-  } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>'; }
+  }
+
+  var pageNav = '';
+  if (totalPages > 1) {
+    pageNav = '<div style="display:flex;gap:4px;justify-content:center;margin-top:12px">';
+    for (var p = 1; p <= totalPages; p++) {
+      var active = p === _orderPage;
+      pageNav += '<button onclick="goToOrderPage(' + p + ')" style="padding:5px 11px;background:' + (active ? '#16B894' : 'rgba(255,255,255,0.07)') + ';color:' + (active ? '#fff' : 'rgba(255,255,255,0.7)') + ';border:1px solid ' + (active ? '#16B894' : 'rgba(255,255,255,0.15)') + ';border-radius:4px;cursor:pointer;font-size:12px;font-family:\'Noto Sans KR\',sans-serif">' + p + '</button>';
+    }
+    pageNav += '</div>';
+  }
+
+  wrap.innerHTML = batchBar + '<table class="orders-table">' + thead + '<tbody id="orders-tbody">' + rowsHtml + '</tbody></table>' + pageNav;
+}
+
+function updateSelectedCount() {
+  var checked = document.querySelectorAll('#orders-wrap .order-check:checked').length;
+  var el = document.getElementById('selected-count');
+  if (el) el.textContent = checked;
+  var sa = document.getElementById('select-all-orders');
+  if (sa) {
+    var total = document.querySelectorAll('#orders-wrap .order-check').length;
+    sa.checked = total > 0 && checked === total;
+    sa.indeterminate = checked > 0 && checked < total;
+  }
+}
+
+function toggleSelectAllOrders(cb) {
+  document.querySelectorAll('#orders-wrap .order-check').forEach(function(c){ c.checked = cb.checked; });
+  updateSelectedCount();
+}
+
+async function batchHideOrders() {
+  var ids = Array.from(document.querySelectorAll('#orders-wrap .order-check:checked')).map(function(c){ return c.value; });
+  if (!ids.length) { showToast('선택된 주문이 없습니다', 'error'); return; }
+  if (!confirm(ids.length + '건을 화면에서 숨기시겠습니까?\n\n※ Airtable 데이터는 그대로 보존됩니다.\n※ Airtable에서 admin_hidden 해제로 복구 가능합니다.')) return;
+  try {
+    var res = await adminFetch('/api/admin/orders/hide', { method: 'POST', body: JSON.stringify({ recordIds: ids }) });
+    if (res.ok) { showToast('✅ ' + res.hiddenCount + '건 숨김 처리 완료', 'success'); loadOrders(); }
+    else showToast('숨김 실패: ' + (res.error||'오류'), 'error');
+  } catch(e) { showToast('네트워크 오류: ' + e.message, 'error'); }
+}
+
+function goToOrderPage(page) {
+  _orderPage = page;
+  renderOrderTable();
 }
 
 async function loadFailedOrders() {
@@ -2288,6 +2370,8 @@ async function runBypassOcr() {
   try {
     var formData = new FormData();
     bpSelectedFiles.forEach(function(f){ formData.append('files', f); });
+    var bpDirectionVal = document.getElementById('bp-direction')?.value || '한국어 → 영어';
+    formData.append('sourceLang', bpDirectionVal.split('→')[0].trim() || '한국어');
     var res = await fetch(API_BASE + '/api/admin/ocr', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken() },
