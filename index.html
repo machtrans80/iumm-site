@@ -89,8 +89,20 @@ section{padding:64px 44px}
 .section-title em{color:#5DE0BC;font-style:normal}
 .section-title .mint{color:#5DE0BC}
 .comp-grid{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:0;max-width:920px;margin:0 auto;align-items:start}
-.comp-card{padding:28px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);border-radius:14px}
-.comp-card.featured{background:rgba(201,168,76,0.06);border:2px solid #c9a84c;position:relative;transform:scale(1.05);box-shadow:0 8px 48px rgba(201,168,76,0.18),0 0 0 1px rgba(201,168,76,0.1)}
+.comp-card{padding:28px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);border-radius:14px;transition:all 0.35s cubic-bezier(0.4,0,0.2,1);overflow:hidden;position:relative}
+.comp-card.featured{background:rgba(201,168,76,0.06);border:2px solid #c9a84c;position:relative;transform:scale(1.05);box-shadow:0 8px 48px rgba(201,168,76,0.18),0 0 0 1px rgba(201,168,76,0.1);z-index:2}
+/* IUMM 카드 호버: 빛나며 떠오름 */
+.comp-card.featured:hover{transform:scale(1.09) translateY(-6px)!important;box-shadow:0 20px 60px rgba(201,168,76,0.50),0 0 50px rgba(22,184,148,0.30),0 0 0 2px rgba(201,168,76,0.65)!important;border-color:#e8c94a!important}
+/* 광택 효과 */
+.comp-card.featured::before{content:'';position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:linear-gradient(45deg,transparent 30%,rgba(255,215,50,0.10) 50%,transparent 70%);transform:rotate(45deg);opacity:0;transition:opacity 0.5s,transform 1.4s;pointer-events:none;z-index:0}
+.comp-card.featured:hover::before{opacity:1;transform:rotate(45deg) translate(8%,8%)}
+.comp-card.featured>*{position:relative;z-index:1}
+/* 펄스 (시선 유도) */
+@keyframes iummPulse{0%,100%{box-shadow:0 8px 48px rgba(201,168,76,0.18),0 0 0 1px rgba(201,168,76,0.1)}50%{box-shadow:0 10px 52px rgba(201,168,76,0.32),0 0 22px rgba(22,184,148,0.18),0 0 0 1px rgba(201,168,76,0.2)}}
+.comp-card.featured:not(:hover){animation:iummPulse 3.5s ease-in-out infinite}
+/* 양옆 카드 호버: 어두워짐 */
+.comp-card:not(.featured):hover{filter:brightness(0.58) saturate(0.7);opacity:0.72;transform:translateY(3px)!important;cursor:default}
+@media(hover:none){.comp-card.featured{transform:scale(1.07) translateY(-4px)!important;box-shadow:0 14px 44px rgba(201,168,76,0.40),0 0 0 2px rgba(201,168,76,0.45)!important}.comp-card:not(.featured){opacity:0.82;filter:brightness(0.82)}}
 .comp-best{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#c9a84c;color:#0a0a0a;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 18px;white-space:nowrap}
 .comp-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;font-weight:500;color:rgba(255,255,255,0.5)}
 .comp-card.featured .comp-tag{color:#16B894}
@@ -519,7 +531,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .comp-card:not(.featured).mob-expanded{display:block !important}
   .mob-compare-toggle{display:flex !important}
   /* 비교/플랜 카드 scale 리셋 (scale(1.02/1.05) 모바일 불필요) */
-  .comp-card.featured{transform:none !important;margin:0 auto !important;max-width:380px}
+  .comp-card.featured{transform:none !important;margin:0 auto !important;max-width:380px;animation:none!important}
   .premium-compare > div{transform:none !important;box-shadow:none !important}
   /* 플랜 카드 4번째 이후 리스트 접힘 */
   .premium-compare ul li:nth-child(n+4){display:none}
