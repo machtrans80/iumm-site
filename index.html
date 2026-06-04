@@ -2928,16 +2928,14 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
       <!-- 통합 파일 추출 — 순서: 한자 체크박스 → 파일 선택 버튼 -->
       <div id="unified-extract-section" style="margin-bottom:18px">
-        <!-- 한자 체크박스 (강화) -->
-        <div style="margin-bottom:18px;padding:18px 20px;background:linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06));border:2.5px solid rgba(22,184,148,0.55);border-radius:10px;box-shadow:0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08);cursor:pointer;transition:all 0.25s" onmouseover="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.26),rgba(22,184,148,0.10))';this.style.borderColor='rgba(22,184,148,0.75)';this.style.boxShadow='0 6px 24px rgba(22,184,148,0.30),inset 0 1px 0 rgba(255,255,255,0.12)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06))';this.style.borderColor='rgba(22,184,148,0.55)';this.style.boxShadow='0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08)'" onclick="document.getElementById('extract-hanja-mode').click()">
-          <label style="display:flex;align-items:flex-start;gap:14px;cursor:pointer;pointer-events:none">
-            <input type="checkbox" id="extract-hanja-mode" style="margin-top:3px;width:24px;height:24px;accent-color:#16B894;flex-shrink:0;pointer-events:auto">
-            <span style="flex:1">
-              <strong style="color:#16B894;font-size:16px;display:block;margin-bottom:6px;letter-spacing:-0.3px">☑ 한자어가 섞여있는 문서입니다</strong>
-              <span style="color:rgba(255,255,255,0.85);font-size:13px;line-height:1.6;display:block">계약서·법률·학술 등 한자 혼용 문서.<br>스캔 PDF·이미지 OCR 시 한자 인식이 더 정확해집니다.</span>
-            </span>
-          </label>
-        </div>
+        <!-- 한자 체크박스 — label 전환, 1줄 텍스트, 전체 박스 클릭 -->
+        <label style="display:flex;align-items:center;gap:14px;margin:0 0 18px 0;padding:18px 20px;background:linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06));border:2.5px solid rgba(22,184,148,0.55);border-radius:10px;box-shadow:0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08);cursor:pointer;transition:all 0.25s;user-select:none" onmouseover="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.26),rgba(22,184,148,0.10))';this.style.borderColor='rgba(22,184,148,0.75)';this.style.boxShadow='0 6px 24px rgba(22,184,148,0.30),inset 0 1px 0 rgba(255,255,255,0.12)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06))';this.style.borderColor='rgba(22,184,148,0.55)';this.style.boxShadow='0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08)'">
+          <input type="checkbox" id="extract-hanja-mode" name="hanjaMode" style="width:24px;height:24px;accent-color:#16B894;cursor:pointer;flex-shrink:0;margin:0">
+          <span style="flex:1;font-size:14px;line-height:1.5">
+            <strong style="color:#16B894;font-size:15px">한자어가 섞여있는 문서입니다</strong>
+            <span style="color:rgba(255,255,255,0.65);font-size:12px;margin-left:6px">— 계약서·법률·학술 등 한자 혼용 문서. 스캔 PDF·이미지 OCR 시 한자 인식이 더 정확합니다.</span>
+          </span>
+        </label>
         <!-- ★ 파일 선택 버튼 (크게) -->
         <input type="file" id="extractFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="handleExtractFileChange(this)">
         <button type="button" onclick="document.getElementById('extractFileInput').click()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:20px 24px;background:linear-gradient(135deg,#16B894,#0e9d7e);border:none;border-radius:10px;color:#fff;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 5px 18px rgba(22,184,148,0.38);transition:all 0.2s;margin-bottom:10px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(22,184,148,0.50)'" onmouseout="this.style.transform='';this.style.boxShadow='0 5px 18px rgba(22,184,148,0.38)'">
