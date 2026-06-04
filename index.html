@@ -89,6 +89,12 @@ section{padding:64px 44px}
 .section-title em{color:#5DE0BC;font-style:normal}
 .section-title .mint{color:#5DE0BC}
 .comp-grid{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:0;max-width:920px;margin:0 auto;align-items:start}
+/* WHY 3박스 인터랙션 */
+.why-box{transition:all 0.35s cubic-bezier(0.4,0,0.2,1);overflow:hidden;position:relative}
+.why-box:hover{transform:translateY(-6px);box-shadow:0 10px 28px rgba(22,184,148,0.22),0 0 30px rgba(22,184,148,0.12);border-color:rgba(22,184,148,0.50)!important;background:rgba(22,184,148,0.10)!important}
+.why-box::before{content:'';position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:linear-gradient(135deg,transparent 35%,rgba(22,184,148,0.10) 50%,transparent 65%);opacity:0;transform:translateX(-30%);transition:opacity 0.4s,transform 0.8s;pointer-events:none;z-index:0}
+.why-box:hover::before{opacity:1;transform:translateX(30%)}
+.why-box>*{position:relative;z-index:1}
 .comp-card{padding:28px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);border-radius:14px;transition:all 0.35s cubic-bezier(0.4,0,0.2,1);overflow:hidden;position:relative}
 .comp-card.featured{background:rgba(201,168,76,0.06);border:2px solid #c9a84c;position:relative;transform:scale(1.05);box-shadow:0 8px 48px rgba(201,168,76,0.18),0 0 0 1px rgba(201,168,76,0.1);z-index:2}
 /* IUMM 카드 호버: 빛나며 떠오름 */
@@ -571,6 +577,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .why-box{cursor:pointer;user-select:none}
   .why-box::after{content:" ▼";font-size:10px;color:rgba(255,255,255,0.35)}
   .why-box.open::after{content:" ▲";color:rgba(22,184,148,0.7)}
+  .why-box:hover{transform:none!important}
   /* 분야 섹션 설명 p 숨김 */
   #fields > div > p[style*="text-align:center"]{display:none !important}
   /* 9.5단계 섹션 긴 부제 숨김 */
@@ -2210,13 +2217,16 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(22,184,148,0.08) 0%,transparent 70%);pointer-events:none"></div>
   <div style="position:relative;z-index:1;max-width:820px;margin:0 auto">
     <p style="display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#5DE0BC;letter-spacing:0.06em;margin-bottom:20px;padding:6px 18px;border:1px solid rgba(93,224,188,0.25);border-radius:99px"><i class="ti ti-star-filled" style="color:#c9a84c;font-size:12px"></i> WHY WE'RE DIFFERENT</p>
-    <h2 style="font-size:clamp(32px,4vw,42px);font-weight:500;color:#ffffff;line-height:1.25;letter-spacing:-0.03em;margin-bottom:20px;word-break:keep-all"><span style="color:#5DE0BC">20년</span>의 번역 노하우,<br>슈퍼 AI에 담다</h2>
-    <p style="font-size:16px;color:#C9D2DC;line-height:1.75;margin-bottom:14px;max-width:680px;margin-left:auto;margin-right:auto;word-break:keep-all">
-      번역 회사를 운영하며 쌓은 <strong style="color:#ffffff;font-weight:500">20년의 모든 노하우</strong>를 접목해,<br>
-      일반 AI 시스템이 놓치는 오류를 최소화한 <span style="color:#5DE0BC;font-weight:500">이음만의 슈퍼 번역 AI</span>를 직접 개발했습니다.
+    <h2 style="font-size:clamp(32px,4vw,44px);font-weight:700;color:#ffffff;line-height:1.30;letter-spacing:-0.03em;margin-bottom:24px;word-break:keep-all"><span style="color:#c9a84c">20년</span>의 번역 노하우,<br><span style="color:#16B894">슈퍼 AI</span>에 담다</h2>
+    <p style="font-size:17px;color:rgba(255,255,255,0.88);line-height:1.85;margin-bottom:18px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
+      번역 회사를 운영하며 쌓은 <strong style="color:#c9a84c;font-weight:600">20년의 모든 노하우</strong>를 접목해,<br>
+      일반 AI 시스템이 놓치는 오류를 최소화한<br>
+      <strong style="color:#16B894;font-weight:600">이음만의 슈퍼 번역 AI</strong>를 직접 개발했습니다.
     </p>
-    <p style="font-size:15px;color:#A8B6C6;line-height:1.7;margin-bottom:24px;max-width:680px;margin-left:auto;margin-right:auto;word-break:keep-all">
-      AI 프리미엄으로 의뢰하셔도 이음만의 <strong style="color:#ffffff;font-weight:500">독자적인 9.5단계 AI 분석·검증·검수·검토 프로세스</strong>를 거쳐 충분한 퀄리티의 번역물을 받으실 수 있습니다.
+    <p style="font-size:17px;color:rgba(255,255,255,0.82);line-height:1.85;margin-bottom:28px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
+      AI 프리미엄으로 의뢰하셔도 이음만의 독자적인<br>
+      <strong style="color:#16B894;font-weight:600">9.5단계 AI 분석·검증·검수·검토 프로세스</strong>를 거쳐<br>
+      충분한 퀄리티의 번역물을 받으실 수 있습니다.
     </p>
     <!-- WHY 3박스 -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:820px;margin:0 auto 28px">
