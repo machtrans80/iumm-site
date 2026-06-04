@@ -512,6 +512,12 @@ body.admin-focus .focus-exit-hint{display:inline}
           <div class="ocr-zone-sub">JPEG · PNG · WEBP · PDF · 여러 파일 동시 가능 (최대 10장/페이지)</div>
           <div id="bp-ocr-file-list" style="display:none;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;text-align:left"></div>
         </div>
+        <div style="margin:10px 0;padding:9px 12px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:4px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8)">
+            <input type="checkbox" id="bp-ocr-hanja-mode" style="accent-color:#16B894">
+            <span><strong style="color:#16B894">한자어 혼용 문서</strong> — 체크 시 Google Vision 사용 (한자 인식 강함)</span>
+          </label>
+        </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <button class="btn-ocr" id="btn-ocr-run" onclick="runBypassOcr()" disabled>텍스트 추출 (OCR)</button>
           <span class="bp-ocr-status" id="ocr-status"></span>
@@ -2372,6 +2378,7 @@ async function runBypassOcr() {
     bpSelectedFiles.forEach(function(f){ formData.append('files', f); });
     var bpDirectionVal = document.getElementById('bp-direction')?.value || '한국어 → 영어';
     formData.append('sourceLang', bpDirectionVal.split('→')[0].trim() || '한국어');
+    formData.append('hanjaMode', String(document.getElementById('bp-ocr-hanja-mode')?.checked || false));
     var res = await fetch(API_BASE + '/api/admin/ocr', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken() },

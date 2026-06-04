@@ -2977,6 +2977,15 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <p style="margin:0 0 6px 0;color:#ff8c8c;font-weight:600">⚠ 추출된 본문은 반드시 직접 확인하고 수정 후 주문해주세요.</p>
           <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.5)">OCR 추출 오류로 인한 번역 결과 차이는 당사가 책임지지 않습니다.</p>
         </div>
+        <div style="margin:0 0 12px 0;padding:11px 14px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.25);border-radius:6px">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+            <input type="checkbox" id="ocr-hanja-mode" name="hanjaMode" style="margin-top:3px;accent-color:#16B894">
+            <span style="font-size:13px;line-height:1.6">
+              <strong style="color:#16B894">한자어가 섞여있는 문서입니다</strong>
+              <span style="display:block;font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px">계약서·법률·학술 자료 등 한자가 자주 섞인 문서. 체크 시 한자 인식이 더 정확합니다.</span>
+            </span>
+          </label>
+        </div>
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
           <button id="btn-customer-ocr" onclick="runCustomerOcr()" disabled style="padding:10px 22px;background:var(--gold);color:var(--black);border:none;border-radius:2px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;opacity:0.4">OCR 텍스트 추출</button>
           <span id="ocr-customer-status" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6"></span>
@@ -2994,7 +3003,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
             <span>추출된 텍스트 (수정 가능)</span>
             <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:400">복사 방지 적용됨</span>
           </label>
-          <textarea id="ocr-result-text" data-source="extracted" oninput="ocrTextChanged(this.value)" oncopy="ocrBlockCopy(event)" oncut="ocrBlockCopy(event)" oncontextmenu="return false" style="width:100%;height:180px;padding:14px 16px;background:#0e0e0e;border:1px solid rgba(22,184,148,0.25);border-radius:2px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:vertical;line-height:1.8;margin-bottom:0"></textarea>
+          <textarea id="ocr-result-text" data-source="extracted" oninput="ocrTextChanged(this.value)" oncopy="ocrBlockCopy(event)" oncut="ocrBlockCopy(event)" oncontextmenu="return false" ondragstart="return false" onkeydown="if((event.ctrlKey||event.metaKey)&&['c','x','a','s'].includes(event.key.toLowerCase())){event.preventDefault();var n=document.getElementById('ocr-copy-notice');if(n){n.style.display='block';setTimeout(function(){n.style.display='none'},2000);}return false;}" style="width:100%;height:180px;padding:14px 16px;background:#0e0e0e;border:1px solid rgba(22,184,148,0.25);border-radius:2px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:vertical;line-height:1.8;margin-bottom:0"></textarea>
           <p id="ocr-copy-notice" style="display:none;font-size:11px;color:rgba(224,85,85,0.9);margin-top:5px;font-weight:500"><i class="ti ti-lock icon-g" style="margin-right:3px"></i>OCR 텍스트는 복사할 수 없습니다.</p>
         </div>
       </div>
@@ -5671,6 +5680,8 @@ async function runCustomerOcr() {
     var langSelectVal = document.getElementById('lang-select')?.value || '한국어';
     var sourceLang = langSelectVal.split('→')[0].trim() || '한국어';
     fd.append('sourceLang', sourceLang);
+    var hanjaMode = document.getElementById('ocr-hanja-mode')?.checked || false;
+    fd.append('hanjaMode', String(hanjaMode));
     var res  = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', body: fd });
     var json = await res.json();
     if (!json.success) {
