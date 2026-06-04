@@ -56,12 +56,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:fl
 .hero-btns{display:flex;gap:12px;flex-wrap:wrap;animation:fadeUp 0.8s 0.45s ease both;margin-top:24px}
 .btn-primary{background:#16B894;color:#fff;padding:14px 36px;border:none;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
 /* ── 플랜별 모달 전체 분위기 ── */
-#order-modal-box.plan-free{border-color:rgba(200,200,200,0.85)!important;border-top-width:6px!important;box-shadow:0 8px 40px rgba(120,120,120,0.50);background:linear-gradient(180deg,rgba(140,140,140,0.40) 0%,rgba(100,100,100,0.18) 15%,#111 35%) !important}
-#order-modal-box.plan-ai{border-color:#16B894!important;border-top-width:6px!important;box-shadow:0 8px 40px rgba(22,184,148,0.55);background:linear-gradient(180deg,rgba(22,184,148,0.42) 0%,rgba(22,184,148,0.18) 15%,#111 35%) !important}
-#order-modal-box.plan-standard{border-color:#d97706!important;border-top-width:6px!important;box-shadow:0 8px 40px rgba(217,119,6,0.55);background:linear-gradient(180deg,rgba(217,119,6,0.42) 0%,rgba(201,168,76,0.24) 12%,rgba(217,119,6,0.08) 26%,#111 40%) !important}
-#order-modal-box.plan-free .btn-primary{background:linear-gradient(135deg,#8a8a8a,#6a6a6a)!important;box-shadow:0 4px 18px rgba(120,120,120,0.50)!important}
-#order-modal-box.plan-ai .btn-primary{background:linear-gradient(135deg,#16B894,#0e9d7e)!important;box-shadow:0 4px 18px rgba(22,184,148,0.60)!important}
-#order-modal-box.plan-standard .btn-primary{background:linear-gradient(135deg,#d97706,#b45309)!important;box-shadow:0 4px 18px rgba(217,119,6,0.60)!important}
+/* 플랜별 모달 — overlay 방식 (원래 배경 유지, 색상 hint만) */
+#order-modal-box{transition:border-color 0.5s,box-shadow 0.5s}
+#order-modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:260px;pointer-events:none;border-radius:inherit;background:transparent;transition:background 0.5s;z-index:0}
+#order-modal-box>*{position:relative;z-index:1}
+#order-modal-box.plan-free{border-color:rgba(200,200,200,0.50)!important;box-shadow:0 4px 28px rgba(160,160,160,0.18)}
+#order-modal-box.plan-free::before{background:linear-gradient(180deg,rgba(200,200,200,0.18) 0%,rgba(180,180,180,0.08) 35%,rgba(180,180,180,0.02) 70%,transparent 100%)}
+#order-modal-box.plan-ai{border-color:#16B894!important;box-shadow:0 4px 28px rgba(22,184,148,0.22)}
+#order-modal-box.plan-ai::before{background:linear-gradient(180deg,rgba(22,184,148,0.22) 0%,rgba(22,184,148,0.10) 35%,rgba(22,184,148,0.03) 70%,transparent 100%)}
+#order-modal-box.plan-standard{border-color:#d97706!important;box-shadow:0 4px 28px rgba(217,119,6,0.22)}
+#order-modal-box.plan-standard::before{background:linear-gradient(180deg,rgba(217,119,6,0.20) 0%,rgba(201,168,76,0.14) 18%,rgba(217,119,6,0.05) 45%,transparent 100%)}
+#order-modal-box.plan-free .btn-primary{background:linear-gradient(135deg,#8a8a8a,#6a6a6a)!important;box-shadow:0 4px 14px rgba(120,120,120,0.35)!important}
+#order-modal-box.plan-ai .btn-primary{background:linear-gradient(135deg,#16B894,#0e9d7e)!important;box-shadow:0 4px 14px rgba(22,184,148,0.40)!important}
+#order-modal-box.plan-standard .btn-primary{background:linear-gradient(135deg,#d97706,#b45309)!important;box-shadow:0 4px 14px rgba(217,119,6,0.40)!important}
 .btn-primary:hover{background:#5DE0BC;color:#0F2540;transform:translateY(-2px)}
 .btn-secondary{background:transparent;color:#C9D2DC;padding:14px 36px;border:1px solid rgba(255,255,255,0.22);border-radius:9px;font-size:15px;font-weight:400;cursor:pointer;transition:all 0.2s}
 .btn-secondary:hover{border-color:#16B894;color:#5DE0BC}
@@ -2902,7 +2909,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
 <!-- 스탠다드 주문 모달 -->
 <div id="modal-order" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;overflow-y:auto">
-  <div id="order-modal-box" style="max-width:720px;margin:40px auto;background:#111;border:1px solid rgba(22,184,148,0.2);padding:48px 44px;position:relative;transition:border-color 0.4s,box-shadow 0.4s,background 0.4s">
+  <div id="order-modal-box" style="max-width:720px;margin:40px auto;background:#111;border:1px solid rgba(22,184,148,0.2);padding:48px 44px;position:relative">
     <button onclick="closeModal('order')" style="position:absolute;top:20px;right:24px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <div id="order-step1">
       <h3 style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:700;margin-bottom:12px;color:var(--gold)">번역 주문</h3>
