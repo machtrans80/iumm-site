@@ -2916,33 +2916,28 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <p style="font-size:18px;color:#97c459;font-weight:700">- 7,500원</p>
         </div>
       </div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;font-weight:300">번역할 텍스트를 붙여넣으면 글자수와 견적이 자동 산출됩니다</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px;text-align:center">번역할 파일을 올려주시거나 직접 복사 후 붙여주시면 글자수와 견적이 자동 산출됩니다</p>
 
-      <!-- 통합 파일 추출 (자동추출 + OCR) -->
-      <div id="unified-extract-section" style="margin-bottom:14px">
-        <div style="padding:14px 18px;background:rgba(217,119,6,0.08);border-left:4px solid #d97706;border-radius:8px;margin-bottom:12px;color:rgba(255,255,255,0.9);font-size:13px;line-height:1.7">
-          <p style="margin:0 0 8px 0"><strong style="color:#d97706;font-size:14px">📂 원문 파일 추출</strong></p>
-          <p style="margin:0 0 5px 0"><strong>지원</strong>: Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT (50MB 이하)</p>
-          <p style="margin:0 0 5px 0;font-size:12px;color:rgba(255,255,255,0.7)">※ 텍스트 PDF, 스캔 PDF, 이미지를 자동 판별해 처리합니다. 파일 1개씩 업로드.</p>
-          <p style="margin:0 0 10px 0;padding:7px 10px;background:rgba(255,167,38,0.12);border-radius:4px;font-size:12px;color:#ffa726">⚠ <strong>HWP(한글) 파일</strong> — HWP 한글 파일의 형식은 본문 텍스트를 복사하여 아래 [직접 입력] 영역에 붙여넣어 주세요.</p>
-          <p style="margin:0 0 10px 0;padding:7px 10px;background:rgba(217,119,6,0.12);border-left:3px solid #d97706;border-radius:4px;font-size:13px;color:rgba(255,255,255,0.95);font-weight:500">📌 <strong>여러 파일을 번역하시려면 파일별로 별도 주문해 주세요.</strong></p>
-          <p style="margin:0 0 10px 0;font-size:12px;color:#ff8c8c">⚠ 추출된 본문은 반드시 확인·수정 후 주문하세요.<br><span style="color:rgba(255,255,255,0.5)">OCR 오류로 인한 번역 결과 차이는 당사 책임이 아닙니다.</span></p>
-          <div style="padding:9px 12px;background:rgba(22,184,148,0.09);border:1px solid rgba(22,184,148,0.3);border-radius:6px">
-            <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer">
-              <input type="checkbox" id="extract-hanja-mode" style="margin-top:3px;accent-color:#16B894;width:15px;height:15px">
-              <span>
-                <strong style="color:#16B894;font-size:13px">한자어가 섞여있는 문서입니다</strong>
-                <span style="display:block;font-size:11px;color:rgba(255,255,255,0.55);margin-top:1px">계약서·법률·학술 등 한자 혼용 문서. 스캔 PDF·이미지 OCR 시 한자 인식이 더 정확해집니다.</span>
-              </span>
-            </label>
-          </div>
+      <!-- 통합 파일 추출 — 순서: 한자 체크박스 → 파일 선택 버튼 -->
+      <div id="unified-extract-section" style="margin-bottom:18px">
+        <!-- 한자 체크박스 (눈에 띄게) -->
+        <div style="margin-bottom:14px;padding:14px 16px;background:linear-gradient(135deg,rgba(22,184,148,0.14),rgba(22,184,148,0.07));border:2px solid rgba(22,184,148,0.45);border-radius:8px;box-shadow:0 2px 8px rgba(22,184,148,0.10)">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+            <input type="checkbox" id="extract-hanja-mode" style="margin-top:4px;width:17px;height:17px;accent-color:#16B894">
+            <span>
+              <strong style="color:#16B894;font-size:14px">☑ 한자어가 섞여있는 문서입니다</strong><br>
+              <span style="color:rgba(255,255,255,0.75);font-size:12px">계약서·법률·학술 등 한자 혼용 문서. 스캔 PDF·이미지 OCR 시 한자 인식이 더 정확해집니다.</span>
+            </span>
+          </label>
         </div>
+        <!-- ★ 파일 선택 버튼 (크게) -->
         <input type="file" id="extractFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="handleExtractFileChange(this)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
-          <label for="extractFileInput" style="display:inline-block;padding:9px 16px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.5);border-radius:4px;cursor:pointer;font-size:12px;color:#16B894;transition:all 0.2s"><i class="ti ti-upload" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>파일 선택</label>
-          <button type="button" class="btn-clear-source" id="btn-clear-extract" style="display:none" onclick="clearExtractFile()">✕ 파일 삭제</button>
-          <span id="extract-file-name" style="font-size:12px;color:rgba(255,255,255,0.75)"></span>
-        </div>
+        <button type="button" onclick="document.getElementById('extractFileInput').click()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:20px 24px;background:linear-gradient(135deg,#16B894,#0e9d7e);border:none;border-radius:10px;color:#fff;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 5px 18px rgba(22,184,148,0.38);transition:all 0.2s;margin-bottom:10px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(22,184,148,0.50)'" onmouseout="this.style.transform='';this.style.boxShadow='0 5px 18px rgba(22,184,148,0.38)'">
+          📁 파일 선택하기
+          <span style="font-size:13px;opacity:0.88;font-weight:normal">(클릭 또는 드래그)</span>
+        </button>
+        <span id="extract-file-name" style="display:block;font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:4px"></span>
+        <button type="button" id="btn-clear-extract" style="display:none;padding:4px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;margin-bottom:6px" onclick="clearExtractFile()">✕ 파일 삭제</button>
         <div id="extract-status" style="font-size:12px;min-height:16px;margin-bottom:6px"></div>
       </div>
 
@@ -2963,15 +2958,25 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         </div>
       </div>
 
-      <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;text-align:right;letter-spacing:0.3px">※ 1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내</p>
-
       <!-- [hidden] manual-chars JS 참조용 -->
       <input type="number" id="manual-chars" style="display:none">
 
-      <!-- 원문 정확 입력 경고 -->
-      <div style="background:rgba(217,119,6,0.08);border-left:3px solid #d97706;padding:12px 18px;border-radius:8px;margin:16px 0;color:rgba(255,255,255,0.88);font-size:13px;line-height:1.7">
-        <strong style="color:#d97706"><i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>정확하게 입력해주세요</strong> — 수정이 필요한 곳은 직접 수정해주셔야 합니다.<br>
-        원문 오기재 시 수정이 불가하며, 주문 착수 후에는 불이익이 발생할 수 있습니다.
+      <!-- 📂 원문 파일 추출 안내 박스 -->
+      <div style="margin:18px 0;padding:14px 18px;background:rgba(217,119,6,0.06);border-left:4px solid #d97706;border-radius:8px;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.85)">
+        <p style="margin:0 0 8px 0"><strong style="color:#d97706;font-size:14px">📂 원문 파일 추출 안내</strong></p>
+        <p style="margin:0 0 5px 0"><strong>지원</strong>: Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT (50MB 이하)</p>
+        <p style="margin:0 0 5px 0;font-size:12px;color:rgba(255,255,255,0.65)">※ 텍스트 PDF, 스캔 PDF, 이미지를 자동 판별해 처리합니다. 파일 1개씩 업로드.</p>
+        <p style="margin:0 0 6px 0;padding:6px 10px;background:rgba(255,167,38,0.12);border-radius:4px;font-size:12px;color:#ffa726">⚠ <strong>HWP(한글) 파일</strong> — 본문 텍스트를 복사하여 위 [직접 입력] 영역에 붙여넣어 주세요.</p>
+        <p style="margin:0 0 6px 0;padding:6px 10px;background:rgba(217,119,6,0.12);border-left:3px solid #d97706;border-radius:4px;font-weight:500">📌 <strong>여러 파일을 번역하시려면 파일별로 별도 주문해 주세요.</strong></p>
+        <p style="margin:0 0 6px 0;padding:6px 10px;background:rgba(22,184,148,0.09);border-left:3px solid #16B894;border-radius:4px;font-size:12px">📧 <strong>대량 번역 문의:</strong> <a href="mailto:iumm.master@gmail.com" style="color:#16B894;font-weight:500">iumm.master@gmail.com</a> 으로 보내주시면 확인 후 별도 연락드립니다.</p>
+        <p style="margin:0;font-size:12px;color:#ff8c8c">⚠ 추출된 본문은 반드시 확인·수정 후 주문하세요. OCR 오류로 인한 번역 결과 차이는 당사 책임이 아닙니다.</p>
+      </div>
+
+      <!-- ※ 결제 한도 + ⚠ 정확하게 입력 (통합) -->
+      <div style="margin:0 0 18px 0;padding:11px 14px;background:rgba(255,255,255,0.03);border-left:3px solid rgba(255,167,38,0.45);border-radius:4px;font-size:13px;line-height:1.7">
+        <p style="margin:0 0 5px 0;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.3px">※ 1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내</p>
+        <p style="margin:0;color:rgba(255,255,255,0.85)"><strong style="color:#ffa726"><i class="ti ti-alert-triangle" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>정확하게 입력해주세요</strong> — 수정이 필요한 곳은 직접 수정해주셔야 합니다.<br>
+        원문 오기재 시 수정이 불가하며, 주문 착수 후에는 불이익이 발생할 수 있습니다.</p>
       </div>
 
       <!-- 자동 견적 -->
@@ -2999,43 +3004,6 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <p style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px">예상 납품 시간 <span style="color:rgba(255,255,255,0.2);font-size:10px">(영업일 기준)</span></p>
           <p id="delivery-time" style="font-size:13px;color:rgba(255,255,255,0.75);font-weight:500">-</p>
         </div>
-      </div>
-
-      <!-- 소요시간 안내 -->
-      <div style="background:rgba(22,184,148,0.05);border:1px solid rgba(22,184,148,0.2);border-radius:4px;padding:16px;margin:16px 0">
-        <h4 style="color:var(--gold);font-size:14px;margin:0 0 12px 0;font-weight:600"><i class="ti ti-clock icon-g" style="margin-right:4px"></i>번역 소요시간 안내</h4>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;color:rgba(255,255,255,0.85)">
-          <thead>
-            <tr style="border-bottom:1px solid rgba(22,184,148,0.3)">
-              <th style="padding:8px 6px;text-align:left;font-weight:600;color:#e8c94a;font-size:12px">글자수</th>
-              <th style="padding:8px 6px;text-align:center;font-weight:600;color:#e8c94a;font-size:12px">AI 프리미엄</th>
-              <th style="padding:8px 6px;text-align:center;font-weight:600;color:#e8c94a;font-size:12px">프리미엄 플러스</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
-              <td style="padding:8px 6px">1,000~5,000자</td>
-              <td style="padding:8px 6px;text-align:center">24시간 이내</td>
-              <td style="padding:8px 6px;text-align:center">2일 이내</td>
-            </tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
-              <td style="padding:8px 6px">5,001~10,000자</td>
-              <td style="padding:8px 6px;text-align:center">36시간 이내</td>
-              <td style="padding:8px 6px;text-align:center">3~4일 이내</td>
-            </tr>
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
-              <td style="padding:8px 6px">10,001~15,000자</td>
-              <td style="padding:8px 6px;text-align:center">48시간 이내</td>
-              <td style="padding:8px 6px;text-align:center">4~5일 이내</td>
-            </tr>
-            <tr>
-              <td style="padding:8px 6px">15,001~20,000자</td>
-              <td style="padding:8px 6px;text-align:center">60시간 이내</td>
-              <td style="padding:8px 6px;text-align:center">5~7일 이내</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="margin:12px 0 0 0;font-size:11px;color:rgba(255,255,255,0.5)">※ 총 결제금액 200만원 초과 시 법인계좌 입금 방식으로 진행</p>
       </div>
 
       <!-- 번역 방향 (항상 표시) -->
@@ -3191,6 +3159,27 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         <div class="ref-consent" id="refConsentBox">
           <label><input type="checkbox" id="refConsent"><span>[필수] 참고자료 활용 및 21일 후 자동 삭제에 동의합니다.</span></label>
         </div>
+      </div>
+
+      <!-- 소요시간 안내 (맨 마지막) -->
+      <div style="background:rgba(22,184,148,0.04);border:1px solid rgba(22,184,148,0.18);border-radius:6px;padding:14px 16px;margin-bottom:22px">
+        <h4 style="color:var(--gold);font-size:13px;margin:0 0 10px 0;font-weight:600"><i class="ti ti-clock icon-g" style="margin-right:4px"></i>번역 소요시간 안내</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;color:rgba(255,255,255,0.85)">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(22,184,148,0.25)">
+              <th style="padding:7px 6px;text-align:left;font-weight:600;color:#e8c94a;font-size:11px">글자수</th>
+              <th style="padding:7px 6px;text-align:center;font-weight:600;color:#e8c94a;font-size:11px">AI 프리미엄</th>
+              <th style="padding:7px 6px;text-align:center;font-weight:600;color:#e8c94a;font-size:11px">프리미엄 플러스</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:7px 6px">1,000~5,000자</td><td style="padding:7px 6px;text-align:center">24시간 이내</td><td style="padding:7px 6px;text-align:center">2일 이내</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:7px 6px">5,001~10,000자</td><td style="padding:7px 6px;text-align:center">36시간 이내</td><td style="padding:7px 6px;text-align:center">3~4일 이내</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:7px 6px">10,001~15,000자</td><td style="padding:7px 6px;text-align:center">48시간 이내</td><td style="padding:7px 6px;text-align:center">4~5일 이내</td></tr>
+            <tr><td style="padding:7px 6px">15,001~20,000자</td><td style="padding:7px 6px;text-align:center">60시간 이내</td><td style="padding:7px 6px;text-align:center">5~7일 이내</td></tr>
+          </tbody>
+        </table>
+        <p style="margin:10px 0 0 0;font-size:11px;color:rgba(255,255,255,0.4)">※ 총 결제금액 200만원 초과 시 법인계좌 입금 방식으로 진행</p>
       </div>
 
       <button onclick="goToPayment()" class="btn-primary" style="width:100%;padding:16px;font-size:15px">선택 완료 → 최종 결제하기</button>
@@ -3924,6 +3913,7 @@ function renderExpertList(){
 function showMoreExperts(){showAllExperts=true;renderExpertList();}
 
 function filterReviewers(lang){
+  currentExpertFilter = lang;  // 전문가 소개 #expert-list 필터 동기화
   document.querySelectorAll('.rlang-btn').forEach(function(b){
     var active=b.getAttribute('data-lang')===lang;
     b.style.background=active?'var(--gold)':'transparent';
@@ -3931,6 +3921,7 @@ function filterReviewers(lang){
     b.style.borderColor=active?'var(--gold)':'rgba(255,255,255,0.15)';
     b.style.fontWeight=active?'600':'300';
   });
+  renderExpertList();  // #expert-list 업데이트
   var panel=document.getElementById('reviewer-list-panel');
   if(!panel) return;
   var filtered=expertsData.filter(function(e){
@@ -4031,7 +4022,7 @@ function showPage(p){
   else if(p==='login'){document.getElementById('page-login').style.display='block';window.scrollTo(0,0);}
   else if(p==='verify'){document.getElementById('page-verify').style.display='block';window.scrollTo(0,0);}
   else if(p==='mypage'){document.getElementById('page-mypage').style.display='block';window.scrollTo(0,0);loadMyInfo();}
-  else if(p==='experts'){document.getElementById('page-experts').style.display='block';window.scrollTo(0,0);renderExpertList();}
+  else if(p==='experts'){document.getElementById('page-experts').style.display='block';window.scrollTo(0,0);loadReviewers(function(){filterReviewers(currentExpertFilter||'전체');});}
   else if(p==='terms'){document.getElementById('page-terms').style.display='block';window.scrollTo(0,0);}
   else if(p==='privacy'){document.getElementById('page-privacy').style.display='block';window.scrollTo(0,0);}
   else if(p==='faq'){document.getElementById('page-faq').style.display='block';window.scrollTo(0,0);}
@@ -5898,6 +5889,15 @@ async function handleExtractFileChange(input) {
     window._iummSourceFiles = [];
     window._sourceInputMode = null;
   }
+}
+
+function clearPasteText() {
+  var pt = document.getElementById('pasteText');
+  if (pt) { pt.value = ''; pt.dataset.source = 'manual'; }
+  var notice = document.getElementById('extracted-notice');
+  if (notice) notice.style.display = 'none';
+  window._sourceInputMode = null;
+  calcTextChads('');
 }
 
 function clearExtractFile() {
