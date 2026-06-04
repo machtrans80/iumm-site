@@ -5908,31 +5908,33 @@ function clearPasteText() {
   calcTextChads('');
 }
 
-// ─── pasteText 복붙 차단 (추출/OCR 결과 보호) ──────────────
-// Admin (admin/index.html) 미적용. dataset.source='auto'/'ocr'일 때만 차단.
+// ─── pasteText 외부 유출 차단 (강화: 무조건 차단) ───────────
+// 비즈니스 정책: 창 안의 모든 텍스트 외부 복사 절대 금지 (수정하기 후에도 유지).
+// copy/cut/contextmenu/dragstart/Ctrl+C/X/A/S → 무조건 차단 (dataset.source 무관).
+// selectstart → 추출 결과일 때만 차단 (직접 입력은 편집 위해 선택 가능).
+// paste → 무조건 허용 (외부 → IUMM 매출 흐름).
+// Admin (admin/index.html) 미적용.
 function setupPasteTextProtection() {
   var pt = document.getElementById('pasteText');
   if (!pt) return;
   var isExtracted = function() { return pt.dataset.source === 'auto' || pt.dataset.source === 'ocr'; };
-  var deny = function(e) { if (isExtracted()) { e.preventDefault(); return false; } };
-  pt.addEventListener('copy', deny);
-  pt.addEventListener('cut', deny);
-  pt.addEventListener('selectstart', deny);
-  pt.addEventListener('contextmenu', deny);
-  pt.addEventListener('dragstart', deny);
+  var denyAlways = function(e) { e.preventDefault(); return false; };
+  // 무조건 차단 (dataset.source 무관)
+  pt.addEventListener('copy', denyAlways);
+  pt.addEventListener('cut', denyAlways);
+  pt.addEventListener('contextmenu', denyAlways);
+  pt.addEventListener('dragstart', denyAlways);
+  // keydown Ctrl+C/X/A/S — 무조건 차단
   pt.addEventListener('keydown', function(e) {
-    if (isExtracted() && (e.ctrlKey || e.metaKey) && ['c','x','a','s'].includes(e.key.toLowerCase())) {
+    if ((e.ctrlKey || e.metaKey) && ['c','x','a','s'].includes(e.key.toLowerCase())) {
       e.preventDefault(); return false;
     }
   });
-  // Paste — 옵션C: 추출 결과 위에만 차단, 직접 입력(빈 칸)은 허용
-  pt.addEventListener('paste', function(e) {
-    if (isExtracted()) {
-      e.preventDefault();
-      alert('추출된 텍스트 위에는 붙여넣기가 안 됩니다.\n[✕ 내용 지우기]를 먼저 눌러주세요.');
-      return false;
-    }
+  // selectstart — 추출 결과일 때만 차단 (직접 입력 편집 허용)
+  pt.addEventListener('selectstart', function(e) {
+    if (isExtracted()) { e.preventDefault(); return false; }
   });
+  // paste — 무조건 허용 (리스너 없음)
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', setupPasteTextProtection);
