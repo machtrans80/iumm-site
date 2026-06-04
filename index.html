@@ -56,16 +56,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:fl
 .hero-btns{display:flex;gap:12px;flex-wrap:wrap;animation:fadeUp 0.8s 0.45s ease both;margin-top:24px}
 .btn-primary{background:#16B894;color:#fff;padding:14px 36px;border:none;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
 /* ── 플랜별 모달 전체 분위기 ── */
+/* 결제 모달 텍스트 선명도 강화 */
+#order-modal-box p,#order-modal-box span,#order-modal-box label{color:rgba(255,255,255,0.92)}
+#order-modal-box strong{color:#fff}
+#order-modal-box .lbl{color:rgba(255,255,255,0.95)}
 /* 플랜별 모달 — overlay 방식 (원래 배경 유지, 색상 hint만) */
 #order-modal-box{transition:border-color 0.5s,box-shadow 0.5s}
 #order-modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:260px;pointer-events:none;border-radius:inherit;background:transparent;transition:background 0.5s;z-index:0}
 #order-modal-box>*{position:relative;z-index:1}
 #order-modal-box.plan-free{border-color:rgba(200,200,200,0.50)!important;box-shadow:0 4px 28px rgba(160,160,160,0.18)}
-#order-modal-box.plan-free::before{background:linear-gradient(180deg,rgba(200,200,200,0.18) 0%,rgba(180,180,180,0.08) 35%,rgba(180,180,180,0.02) 70%,transparent 100%)}
+#order-modal-box.plan-free::before{background:linear-gradient(180deg,rgba(200,200,200,0.13) 0%,rgba(180,180,180,0.06) 35%,transparent 100%)}
 #order-modal-box.plan-ai{border-color:#16B894!important;box-shadow:0 4px 28px rgba(22,184,148,0.22)}
-#order-modal-box.plan-ai::before{background:linear-gradient(180deg,rgba(22,184,148,0.22) 0%,rgba(22,184,148,0.10) 35%,rgba(22,184,148,0.03) 70%,transparent 100%)}
+#order-modal-box.plan-ai::before{background:linear-gradient(180deg,rgba(22,184,148,0.14) 0%,rgba(22,184,148,0.07) 35%,rgba(22,184,148,0.02) 70%,transparent 100%)}
 #order-modal-box.plan-standard{border-color:#d97706!important;box-shadow:0 4px 28px rgba(217,119,6,0.22)}
-#order-modal-box.plan-standard::before{background:linear-gradient(180deg,rgba(217,119,6,0.20) 0%,rgba(201,168,76,0.14) 18%,rgba(217,119,6,0.05) 45%,transparent 100%)}
+#order-modal-box.plan-standard::before{background:linear-gradient(180deg,rgba(217,119,6,0.14) 0%,rgba(201,168,76,0.10) 18%,rgba(217,119,6,0.03) 45%,transparent 100%)}
 #order-modal-box.plan-free .btn-primary{background:linear-gradient(135deg,#8a8a8a,#6a6a6a)!important;box-shadow:0 4px 14px rgba(120,120,120,0.35)!important}
 #order-modal-box.plan-ai .btn-primary{background:linear-gradient(135deg,#16B894,#0e9d7e)!important;box-shadow:0 4px 14px rgba(22,184,148,0.40)!important}
 #order-modal-box.plan-standard .btn-primary{background:linear-gradient(135deg,#d97706,#b45309)!important;box-shadow:0 4px 14px rgba(217,119,6,0.40)!important}
@@ -2935,12 +2939,12 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
       <!-- 통합 파일 추출 — 순서: 한자 체크박스 → 파일 선택 버튼 -->
       <div id="unified-extract-section" style="margin-bottom:18px">
-        <!-- 한자 체크박스 — label 전환, 1줄 텍스트, 전체 박스 클릭 -->
-        <label style="display:flex;align-items:center;gap:14px;margin:0 0 18px 0;padding:18px 20px;background:linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06));border:2.5px solid rgba(22,184,148,0.55);border-radius:10px;box-shadow:0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08);cursor:pointer;transition:all 0.25s;user-select:none" onmouseover="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.26),rgba(22,184,148,0.10))';this.style.borderColor='rgba(22,184,148,0.75)';this.style.boxShadow='0 6px 24px rgba(22,184,148,0.30),inset 0 1px 0 rgba(255,255,255,0.12)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06))';this.style.borderColor='rgba(22,184,148,0.55)';this.style.boxShadow='0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08)'">
-          <input type="checkbox" id="extract-hanja-mode" name="hanjaMode" style="width:24px;height:24px;accent-color:#16B894;cursor:pointer;flex-shrink:0;margin:0">
-          <span style="flex:1;font-size:14px;line-height:1.5">
-            <strong style="color:#16B894;font-size:15px">한자어가 섞여있는 문서입니다</strong>
-            <span style="color:rgba(255,255,255,0.65);font-size:12px;margin-left:6px">— 계약서·법률·학술 등 한자 혼용 문서. 스캔 PDF·이미지 OCR 시 한자 인식이 더 정확합니다.</span>
+        <!-- 한자 체크박스 — 2줄 문구, 전체 박스 클릭 -->
+        <label style="display:flex;align-items:flex-start;gap:14px;margin:0 0 18px 0;padding:18px 20px;background:linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06));border:2.5px solid rgba(22,184,148,0.55);border-radius:10px;box-shadow:0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08);cursor:pointer;transition:all 0.25s;user-select:none" onmouseover="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.26),rgba(22,184,148,0.10))';this.style.borderColor='rgba(22,184,148,0.75)';this.style.boxShadow='0 6px 24px rgba(22,184,148,0.30),inset 0 1px 0 rgba(255,255,255,0.12)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06))';this.style.borderColor='rgba(22,184,148,0.55)';this.style.boxShadow='0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08)'">
+          <input type="checkbox" id="extract-hanja-mode" name="hanjaMode" style="margin-top:3px;width:24px;height:24px;accent-color:#16B894;cursor:pointer;flex-shrink:0">
+          <span style="flex:1;line-height:1.6">
+            <strong style="color:#16B894;font-size:15px;font-weight:700;display:block;margin-bottom:5px">한자어가 섞여 있는 문서일 경우, 먼저 체크 표시를 해주세요.</strong>
+            <span style="color:rgba(255,255,255,0.88);font-size:13px;display:block">계약서·법률·학술 등 한자 혼용 문서일 경우 OCR 한자 인식이 더 정확해집니다.</span>
           </span>
         </label>
         <!-- ★ 파일 선택 버튼 (크게) -->
