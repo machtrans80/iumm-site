@@ -3837,6 +3837,7 @@ function loadReviewers(cb){
           specialty:  Array.isArray(r.specialty)?r.specialty.join('·'):'',
           langs:      r.langs||[],
           cert:       r.cert||'',
+          edu:        r.education||'-',
           msg:        r.msg||'',
           count:      typeof r.count==='number'?r.count.toLocaleString('ko-KR')+'건':String(r.count||'-')+'건',
           career:     r.career||'-',
