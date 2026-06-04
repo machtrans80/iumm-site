@@ -100,7 +100,7 @@ section{padding:64px 44px}
 @keyframes planPlusPulse{0%,100%{box-shadow:0 4px 32px rgba(232,128,74,0.12)}50%{box-shadow:0 4px 40px rgba(232,128,74,0.30),0 0 30px rgba(217,119,6,0.15)}}
 .plan-ai-card:not(:hover){animation:planAiPulse 4s ease-in-out infinite}
 .plan-plus-card:not(:hover){animation:planPlusPulse 4s ease-in-out infinite;animation-delay:2s}
-.plan-ai-card,.plan-plus-card{transition:all 0.4s cubic-bezier(0.4,0,0.2,1)!important;position:relative;overflow:hidden;cursor:default}
+.plan-ai-card,.plan-plus-card{transition:all 0.4s cubic-bezier(0.4,0,0.2,1)!important;position:relative;overflow:visible;cursor:default}
 .comp-card{padding:28px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);border-radius:14px;transition:all 0.35s cubic-bezier(0.4,0,0.2,1);overflow:hidden;position:relative}
 .comp-card.featured{background:rgba(201,168,76,0.06);border:2px solid #c9a84c;position:relative;transform:scale(1.05);box-shadow:0 8px 48px rgba(201,168,76,0.18),0 0 0 1px rgba(201,168,76,0.1);z-index:2}
 /* IUMM 카드 호버: 빛나며 떠오름 */
@@ -2332,7 +2332,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     필요에 맞는 최적의 번역 등급을 선택하세요<br>둘 다 글로벌 표준 기반 정밀 번역입니다
   </p>
   
-  <div class="premium-compare" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1080px;margin:0 auto">
+  <div class="premium-compare" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1080px;margin:0 auto;padding-top:18px;overflow:visible">
     
     <!-- AI 프리미엄 — 골드 와쿠 -->
     <div class="plan-ai-card" style="padding:36px 32px;border:2px solid #c9a84c;background:linear-gradient(180deg,rgba(201,168,76,0.06) 0%,rgba(201,168,76,0.01) 100%);position:relative;transform:scale(1.02);box-shadow:0 4px 32px rgba(201,168,76,0.12)" onmouseover="this.style.transform='scale(1.02) translateY(-8px)';this.style.borderColor='rgba(201,168,76,0.85)';this.style.boxShadow='0 16px 44px rgba(201,168,76,0.38),0 0 55px rgba(22,184,148,0.18)'" onmouseout="this.style.transform='scale(1.02)';this.style.borderColor='#c9a84c';this.style.boxShadow='0 4px 32px rgba(201,168,76,0.12)'">
