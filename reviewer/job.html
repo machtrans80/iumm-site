@@ -614,8 +614,9 @@ function renderJob(job) {
     el.addEventListener('contextmenu', denyAlways);
     el.addEventListener('dragstart', denyAlways);
     el.addEventListener('selectstart', denyAlways);
+    el.addEventListener('paste', denyAlways);
     el.addEventListener('keydown', function(e) {
-      if ((e.ctrlKey || e.metaKey) && ['c','x','a','s'].includes(e.key.toLowerCase())) {
+      if ((e.ctrlKey || e.metaKey) && ['c','x','a','s','v'].includes(e.key.toLowerCase())) {
         e.preventDefault(); return false;
       }
     });
