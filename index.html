@@ -551,7 +551,9 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
 /* ── 브랜드 시그니처 ── */
 .brand-signature-block{text-align:center;margin:12px auto 8px;padding:4px 16px;width:100%}
-.brand-signature-line{display:inline-block;font-size:clamp(16px,1.6vw,18px);color:#D5DDE5;font-weight:500;letter-spacing:0.12em;line-height:1.6;white-space:nowrap}
+.brand-signature-line{display:inline-block;font-size:clamp(16px,1.6vw,18px);font-weight:500;letter-spacing:0.12em;line-height:1.6;white-space:nowrap;background:linear-gradient(90deg,#16B894 0%,#5ed0b0 20%,#c9a84c 40%,#5ed0b0 60%,#16B894 80%,#16B894 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:taglineFlow 6s linear infinite}
+@keyframes taglineFlow{0%{background-position:0% center}100%{background-position:200% center}}
+@media(prefers-reduced-motion:reduce){.brand-signature-line{animation:none;-webkit-text-fill-color:#16B894;background:none}}
 
 /* ── 모바일 추가 최적화 C-2.7 ── */
 @media(max-width:768px){
@@ -573,7 +575,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .btn-primary,.btn-secondary{min-height:48px !important}
   /* 브랜드 시그니처 모바일 강제 */
   .brand-signature-block{margin:4px auto 4px !important;padding:0 12px !important}
-  .brand-signature-line{color:rgba(201,168,76,0.9) !important;font-size:10.5px !important;letter-spacing:0.06em !important;white-space:normal !important;line-height:1.4 !important}
+  .brand-signature-line{font-size:10.5px !important;letter-spacing:0.06em !important;white-space:normal !important;line-height:1.4 !important;animation-duration:8s !important}
   /* 시그니처 부모 섹션(설마 경고박스 섹션) 상단 padding 축소 */
   .brand-signature-block + section{padding-top:12px !important}
   /* 경고박스 위 섹션 padding 줄임 */
