@@ -553,7 +553,7 @@ function renderJob(job) {
     '  <div class="pane-header"><span class="pane-title">번역본 수정</span><span class="pane-badge">' + (job.targetLang||'—') + ' · 예상 보수 ₩' + (job.estimatedPay||0).toLocaleString() + '</span></div>',
     '  <div class="pane-progress-bar"><div id="rv-prog-tr" class="pane-progress-fill"></div></div>',
     '  <div class="pane-ta-wrap-s">',
-    '    <textarea class="pane-ta editable" id="translation-ta" oninput="updateSubmitBtn();rvUpdateCounters()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
+    '    <textarea class="pane-ta editable no-copy" id="translation-ta" oninput="updateSubmitBtn();rvUpdateCounters()" oncopy="return false;" oncut="return false;" oncontextmenu="return false;" ondragstart="return false;" placeholder="번역본을 검수·수정하세요">' + escHtml(job.draftTranslation || job.aiTranslation) + '</textarea>',
     '    <div class="pane-overlay" id="rv-ov-tr" oncopy="return false;" oncut="return false;" oncontextmenu="return false;"></div>',
     '    <div class="rv-diff-view" id="rv-diff-view"></div>',
     '  </div>',
@@ -604,14 +604,23 @@ function renderJob(job) {
     }
   })();
 
-  // 복사 차단 — Ctrl+C / Cmd+C 키 이벤트
-  var _srcTa = document.getElementById('source-ta');
-  if (_srcTa) _srcTa.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'c') e.preventDefault();
-  });
-  var _trTa = document.getElementById('translation-ta');
-  if (_trTa) _trTa.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'c') e.preventDefault();
+  // 복사 차단 강화 — 원문/번역/코멘트 모든 영역, 모든 이벤트 (AI 회피 방지)
+  ['source-ta', 'translation-ta', 'comment-ta'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var denyAlways = function(e) { e.preventDefault(); return false; };
+    el.addEventListener('copy', denyAlways);
+    el.addEventListener('cut', denyAlways);
+    el.addEventListener('contextmenu', denyAlways);
+    el.addEventListener('dragstart', denyAlways);
+    el.addEventListener('selectstart', denyAlways);
+    el.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && ['c','x','a','s'].includes(e.key.toLowerCase())) {
+        e.preventDefault(); return false;
+      }
+    });
+    el.style.userSelect = 'none';
+    el.style.webkitUserSelect = 'none';
   });
 
   // 기존 코멘트 복원
