@@ -267,6 +267,8 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 #reviewer-list-panel>div{border-radius:6px !important}
 /* [C-3] 참고자료 첨부 폼 */
 .ref-section{margin:20px 0;padding:18px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px}
+.optional-section-wrapper{position:relative;margin:28px -44px 0 -44px;padding:24px 44px 28px 44px;background:linear-gradient(180deg,transparent 0%,rgba(255,255,255,0.028) 6%,rgba(255,255,255,0.040) 50%,rgba(255,255,255,0.028) 94%,transparent 100%);border-top:1px solid rgba(201,168,76,0.20);border-bottom:1px solid rgba(201,168,76,0.15)}
+.optional-section-wrapper::before{content:'';position:absolute;top:0;left:0;right:0;height:90px;background:linear-gradient(180deg,rgba(201,168,76,0.04) 0%,transparent 100%);pointer-events:none}
 .ref-title{font-size:14px;font-weight:600;color:#16B894;display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .ref-subtitle{font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;margin-left:22px;display:block;margin-bottom:10px}
 .ref-file-btn{display:inline-block;padding:10px 18px;background:rgba(22,184,148,0.1);border:1px dashed rgba(22,184,148,0.6);border-radius:6px;cursor:pointer;font-size:13px;color:#16B894;transition:all 0.2s}
@@ -280,7 +282,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 .ref-consent{margin-top:12px;display:none}
 .ref-consent label{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);line-height:1.5}
 .ref-consent input[type=checkbox]{margin-top:2px;accent-color:#16B894;flex-shrink:0}
-@media(max-width:768px){.ref-section{padding:14px}.ref-file-btn{font-size:12px;padding:9px 14px}.ref-notice ul{font-size:10px}}
+@media(max-width:768px){.ref-section{padding:14px}.ref-file-btn{font-size:12px;padding:9px 14px}.ref-notice ul{font-size:10px}.optional-section-wrapper{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
 @media(max-width:768px){
   /* === 모바일 가독성 글로벌 향상 === */
   body{line-height:1.85}
@@ -3152,6 +3154,8 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
           <button onclick="selectOrderMode('맡기기')" id="btn-맡기기" style="padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.5);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap">IUMM에 맡기기</button>
         </div>
       </div>
+      <!-- OPTIONAL 영역 배경 구분 wrapper -->
+      <div class="optional-section-wrapper">
       <!-- 선택사항 구분선 (골드) -->
       <div style="margin:24px 0 16px 0">
         <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.40),transparent);margin-bottom:12px"></div>
@@ -3213,6 +3217,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
         </table>
         <p style="margin:10px 0 0 0;font-size:11px;color:rgba(255,255,255,0.4)">※ 총 결제금액 200만원 초과 시 법인계좌 입금 방식으로 진행</p>
       </div>
+      </div><!-- /optional-section-wrapper -->
 
       <button onclick="goToPayment()" class="btn-primary" style="width:100%;padding:16px;font-size:15px">선택 완료 → 최종 결제하기</button>
       <p style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;margin-top:14px;font-weight:300">결제 후 번역 작업 프로세스가 바로 시작되므로 취소 및 환불이 불가합니다.</p>
