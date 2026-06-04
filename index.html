@@ -3921,6 +3921,17 @@ function renderExpertList(){
 }
 function showMoreExperts(){showAllExperts=true;renderExpertList();}
 
+function filterExperts(lang){
+  currentExpertFilter = lang;
+  document.querySelectorAll('.lang-filter-btn').forEach(function(b){
+    var active = b.getAttribute('data-lang') === lang;
+    b.style.background = active ? 'var(--gold)' : 'transparent';
+    b.style.color = active ? 'var(--black)' : 'rgba(255,255,255,0.55)';
+    b.style.borderColor = active ? 'var(--gold)' : 'rgba(255,255,255,0.15)';
+    b.style.fontWeight = active ? '600' : '300';
+  });
+  renderExpertList();
+}
 function filterReviewers(lang){
   currentExpertFilter = lang;  // 전문가 소개 #expert-list 필터 동기화
   document.querySelectorAll('.rlang-btn').forEach(function(b){
