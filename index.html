@@ -3908,6 +3908,11 @@ function renderExpertList(){
     if(currentExpertFilter==='기타') return !['영어','일본어','중국어','프랑스어','스페인어','러시아어','포르투갈어','아랍어','태국어'].some(function(l){return e.langs.indexOf(l)>-1;});
     return e.langs.indexOf(currentExpertFilter)>-1;
   });
+  if(filtered.length===0){
+    list.innerHTML='<div style="padding:48px 20px;text-align:center;color:rgba(255,255,255,0.5)"><p style="font-size:16px;margin-bottom:10px">📋 해당 언어 전문가 모집 중</p><p style="font-size:13px">'+(currentExpertFilter==='전체'?'등록된 전문가가 없습니다.':currentExpertFilter+' 언어 검수자가 아직 등록되지 않았습니다.')+'</p><p style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.3)">곧 전문 번역사가 등록될 예정입니다.</p></div>';
+    if(moreBtn) moreBtn.style.display='none';
+    return;
+  }
   // 자격사 먼저 정렬
   filtered.sort(function(a,b){return (b.isExpert?1:0)-(a.isExpert?1:0);});
   var show=showAllExperts?filtered:filtered.slice(0,10);
