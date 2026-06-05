@@ -21,7 +21,7 @@
   --mint:#16B894;
   --mint-light:#5DE0BC;
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
 /* 배너 활성 시 nav 28px 아래 — body 클래스 방식 (브라우저 style 직렬화 무관) */
 body.preview-on nav{top:28px !important}
 #preview-banner{background:#fbbf24 !important;color:#1a1a1a !important}
@@ -348,6 +348,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   }
   
   /* 네비게이션 */
+  html{scroll-padding-top:52px}
   nav{padding:13px 20px !important; height:auto}
   .nav-links{display:none}
   .nav-logo{font-size:20px !important}
@@ -740,7 +741,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
 <!-- NAV -->
 <nav>
-  <a class="nav-logo" href="#top">IUMM 아이움</a>
+  <a class="nav-logo" href="/" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})">IUMM 아이움</a>
   <div style="display:flex;align-items:center;gap:32px">
     <div class="nav-links" id="nav-links-desktop">
       <a href="#about">서비스 소개</a>
