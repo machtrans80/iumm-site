@@ -841,7 +841,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       <li>무료 체험 서비스(300글자)는 회원 1인당 1회에 한하여 제공됩니다.</li>
     </ul>
 
-    <h2>제5조 (결제 및 환불 정책)</h2>
+    <h2 id="article-5">제5조 (결제 및 환불 정책)</h2>
     
     <div style="background:rgba(224,85,85,0.05);border-left:3px solid #e05555;padding:16px 20px;margin:12px 0 20px 0;border-radius:4px">
       <p style="font-weight:700;color:#e05555;margin-bottom:8px;font-size:14px"><i class="ti ti-alert-triangle icon-g" style="margin-right:4px"></i>환불 불가 정책 안내</p>
@@ -1807,7 +1807,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
     <h2>제9조 (쿠키 사용)</h2>
     <p>회사는 서비스 이용 편의를 위해 쿠키(Cookie)를 사용할 수 있습니다. 이용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있으나, 일부 서비스 이용이 제한될 수 있습니다.</p>
 
-    <h2>제10조 (개인정보보호 책임자)</h2>
+    <h2 id="article-10">제10조 (개인정보보호 책임자)</h2>
     <ul>
       <li>책임자: IUMM 운영팀</li>
       <li>이메일: <span class="highlight">iumm.master@gmail.com</span></li>
@@ -3736,8 +3736,8 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
       <a href="#" onclick="showPage('faq');return false">FAQ</a>
       <a href="#" onclick="showPage('terms');return false">이용약관</a>
       <a href="#" onclick="showPage('privacy');return false">개인정보처리방침</a>
-      <a href="#" onclick="showPage('refund');return false">환불정책</a>
-      <a href="mailto:iumm.master@gmail.com">고객센터</a>
+      <a href="#" onclick="openTermsAtAnchor('article-5');return false">환불정책</a>
+      <a href="#" onclick="openPrivacyAtAnchor('article-10');return false">고객센터</a>
     </div>
   </div>
   
@@ -4079,6 +4079,17 @@ function showPage(p){
 // /index.html#article-8-2 같은 직접 링크로 접속 시 자동으로 약관 페이지 열고 해당 앵커로 스크롤
 function openTermsAtAnchor(anchorId){
   showPage('terms');
+  requestAnimationFrame(function(){
+    setTimeout(function(){
+      var el = document.getElementById(anchorId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  });
+}
+function openPrivacyAtAnchor(anchorId){
+  showPage('privacy');
   requestAnimationFrame(function(){
     setTimeout(function(){
       var el = document.getElementById(anchorId);
