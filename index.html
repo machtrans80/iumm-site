@@ -743,6 +743,22 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
   .collapsible-toggle::before{width:12px}
   .collapsible-toggle::after{height:12px}
 }
+/* ── Collapsible 미리보기 ────────────────────────────────── */
+.collapsible-preview{display:block !important;font-size:14px !important;color:rgba(255,255,255,0.60) !important;margin:10px auto 0 auto !important;padding:0 !important;line-height:1.6 !important;text-align:center !important;font-weight:400 !important;letter-spacing:0 !important;max-width:600px;transition:color 0.3s ease}
+.collapsible-header:hover .collapsible-preview{color:rgba(255,255,255,0.85) !important}
+section[data-collapsible].open .collapsible-preview{display:none !important}
+@media(max-width:768px){.collapsible-preview{font-size:12px !important;margin-top:8px !important;padding:0 8px !important}}
+/* ── Security 통합 섹션 ──────────────────────────────────── */
+.security-warning-box{background:rgba(217,119,6,0.08);border-left:3px solid #d97706;padding:20px 24px;margin-bottom:24px;border-radius:0 8px 8px 0}
+.security-warning-box p{margin:8px 0;font-size:15px;line-height:1.8;color:rgba(255,255,255,0.85)}
+.security-warning-box .warning-detail{font-size:14px;color:rgba(255,255,255,0.65);margin-top:12px}
+.security-promises{margin:24px 0}
+.security-promises h3{font-size:18px;color:#16B894;margin-bottom:16px;text-align:center;font-weight:600}
+.security-promises ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.security-promises li{padding:12px 16px;background:rgba(22,184,148,0.05);border-radius:6px;font-size:14px;color:rgba(255,255,255,0.82);line-height:1.6}
+.security-conclusion{margin-top:24px;padding:20px;background:rgba(22,184,148,0.08);border-radius:8px;text-align:center}
+.security-conclusion p{font-size:16px;line-height:1.8;color:rgba(255,255,255,0.85);margin:6px 0}
+@media(max-width:768px){.security-promises ul{grid-template-columns:1fr}}
 /* ── 브랜드 시그니처 3줄 ──────────────────────────────────── */
 .signature-brand{font-size:28px;font-weight:700;color:#c9a84c;letter-spacing:0.5px;margin-bottom:12px;font-style:normal}
 .signature-tagline{font-size:20px;font-weight:600;letter-spacing:-0.3px;margin-bottom:8px;font-style:normal;background:linear-gradient(90deg,#16B894 0%,#5ed0b0 20%,#c9a84c 40%,#5ed0b0 60%,#16B894 80%,#16B894 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:signatureFlow 4s linear infinite}
@@ -2237,7 +2253,7 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
 </section>
 
 <!-- COMPARISON -->
-<section class="comparison" id="about">
+<section class="comparison" id="about" data-collapsible data-category="WHY IUMM" data-preview="전문가 번역(100~200원)  ·  IUMM 아이움(25원~)  ·  기계 번역(무료)">
   <p class="section-label">Why IUMM</p>
   <h2 class="section-title">번역 서비스 이제 <span class="mint">다르게</span> 선택하세요</h2>
   <div class="comp-grid" style="margin-top:52px;padding-top:18px">
@@ -2287,7 +2303,7 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
 </section>
 
 <!-- 20년 노하우 섹션 -->
-<section id="section-20year" data-collapsible data-category="WHY WE'RE DIFFERENT" style="padding:2.5rem 56px;background:#0F2540;position:relative;text-align:center">
+<section id="section-20year" data-collapsible data-category="WHY WE'RE DIFFERENT" data-preview="✓ 20년 노하우  ✓ 9.5단계 정밀 검수  ✓ 정부 조달 수준" style="padding:2.5rem 56px;background:#0F2540;position:relative;text-align:center">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(22,184,148,0.08) 0%,transparent 70%);pointer-events:none"></div>
   <div style="position:relative;z-index:1;max-width:820px;margin:0 auto">
     <p style="display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#5DE0BC;letter-spacing:0.06em;margin-bottom:20px;padding:6px 18px;border:1px solid rgba(93,224,188,0.25);border-radius:99px"><i class="ti ti-star-filled" style="color:#c9a84c;font-size:12px"></i> WHY WE'RE DIFFERENT</p>
@@ -2462,7 +2478,7 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
 
 
 <!-- 16개 전문 분야 + 글로벌 표준 (통합형, 클릭 가능) -->
-<section id="fields" data-collapsible data-category="17 SPECIALIZED FIELDS · GLOBAL STANDARDS" style="padding:56px 60px;background:linear-gradient(180deg,rgba(22,184,148,0.025) 0%,var(--black) 100%)">
+<section id="fields" data-collapsible data-category="17 SPECIALIZED FIELDS · GLOBAL STANDARDS" data-preview="법률·의료·특허·금융·기술·학술 등 17개 분야 · 30개 언어" style="padding:56px 60px;background:linear-gradient(180deg,rgba(22,184,148,0.025) 0%,var(--black) 100%)">
   <p class="section-label">17 Specialized Fields · Global Standards</p>
   <h2 class="section-title">분야 선택 한 번<br><em>전문가급 번역</em>의 시작</h2>
   <p style="text-align:center;font-size:15px;color:rgba(255,255,255,0.55);font-weight:300;margin-bottom:32px;max-width:680px;margin-left:auto;margin-right:auto;line-height:1.8">
@@ -2676,29 +2692,32 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
 </section>
 
 <!-- SECURITY -->
-<section data-collapsible data-category="SECURITY" style="padding:48px 60px;background:rgba(22,184,148,0.04);border-top:1px solid rgba(22,184,148,0.08);border-bottom:1px solid rgba(22,184,148,0.08)">
-  <div style="max-width:860px;margin:0 auto;text-align:center">
+<section data-collapsible data-category="SECURITY" data-preview="✓ AI 학습 차단  ✓ 21일 후 자동 삭제  ✓ NDA 보안  ✓ 즉시 폐기" style="padding:48px 60px;background:rgba(22,184,148,0.04);border-top:1px solid rgba(22,184,148,0.08);border-bottom:1px solid rgba(22,184,148,0.08)">
+  <div style="max-width:860px;margin:0 auto">
     <p class="section-label">Security</p>
-    <h2 class="section-title">당신의 문서<br><span class="mint">철저하게 보호됩니다</span></h2>
-    <div class="security-hover-box" style="background:rgba(255,255,255,0.03);border:1px solid rgba(22,184,148,0.15);border-radius:4px;padding:48px;margin-bottom:48px;text-align:left;cursor:default">
-      <p style="font-size:17px;line-height:2;color:rgba(255,255,255,0.85);margin-bottom:28px;word-break:keep-all">많은 분들이 번역을 위해 ChatGPT나 일반 AI 서비스에 문서를 직접 업로드하고 계십니다.<br>하지만 이 방식은 생각보다 심각한 보안 문제를 내포하고 있습니다.</p>
-      <div style="background:rgba(255,80,80,0.06);border:1px solid rgba(255,80,80,0.2);border-radius:3px;padding:24px;margin-bottom:28px">
-        <p style="font-size:15px;color:rgba(255,120,120,0.9);letter-spacing:1px;font-weight:700;margin-bottom:12px"><i class="ti ti-alert-triangle icon-g" style="margin-right:5px"></i>일반 AI 서비스 직접 업로드의 위험</p>
-        <p style="font-size:15px;line-height:1.9;color:rgba(255,255,255,0.7);word-break:keep-all">업로드된 문서가 AI 학습 데이터로 활용될 수 있으며, 계약서·특허·재무자료 등 민감한 정보가 의도치 않게 외부에 노출될 위험이 있습니다.</p>
-      </div>
-      <p style="font-size:16px;color:var(--gold);font-weight:700;margin-bottom:24px;letter-spacing:0.5px">IUMM은 이 문제를 해결하기 위해 설계된 번역 서비스입니다.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">고객 문서가 AI 학습에 절대 사용되지 않습니다</p></div>
-        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">번역 처리 중 외부 노출 및 제3자 공유 없음</p></div>
-        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">번역 완료 후 21일 이내 문서 완전 삭제</p></div>
-        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">계약서·특허·법률·재무 문서도 안심하고 의뢰 가능</p></div>
-        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">데이터 판매 및 마케팅 활용 완전 금지</p></div>
-        <div class="sec-check-item" style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--gold);font-size:18px;flex-shrink:0;margin-top:2px">✓</span><p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.8);word-break:keep-all">보안 전송 및 독립된 처리 환경에서 운영</p></div>
-      </div>
+    <h2 class="section-title">당신의 문서,<br><span class="mint">철저하게 보호됩니다</span></h2>
+    <div class="security-warning-box">
+      <p style="font-size:18px;font-weight:500;color:#F09595">설마, 중요한 계약서를 AI 채팅창에 넣고 계신가요?</p>
+      <p>많은 분들이 번역을 위해 ChatGPT나 일반 AI 서비스에 문서를 직접 업로드하고 계십니다. 하지만 이 방식은 생각보다 심각한 보안 문제를 내포하고 있습니다.</p>
+      <p class="warning-detail">업로드된 문서가 AI 학습 데이터로 활용될 수 있으며, 계약서·특허·재무자료 등 민감한 정보가 의도치 않게 외부에 노출될 위험이 있습니다.</p>
     </div>
-    <div style="border-top:1px solid rgba(22,184,148,0.15);padding-top:32px;margin-top:8px">
-    <p class="security-emphasis-text" style="font-size:20px;line-height:1.8;font-weight:600;word-break:keep-all;text-align:center">민감한 문서일수록 번역 서비스 선택이 중요합니다.<br>IUMM은 AI를 통해 정보가 유출되거나 수집되지 않는<br>독자적인 프로세스로 보안을 최우선으로 설계된<br>기업 전문 번역 플랫폼입니다.</p>
-  </div>
+    <div class="security-promises">
+      <h3>IUMM은 이 문제를 해결하기 위해 설계된 번역 서비스입니다</h3>
+      <ul>
+        <li>✓ AI 학습 차단 — 고객 문서가 AI 학습에 절대 사용되지 않습니다</li>
+        <li>✓ 21일 후 자동 삭제 — 번역 완료 후 21일 이내 문서 완전 삭제</li>
+        <li>✓ 즉시 완전 폐기 — 번역 완료 즉시 원문과 번역문 완전 폐기</li>
+        <li>✓ NDA 보안 계약 — 모든 검수자 NDA 체결 · 기업 고객 별도 체결 가능</li>
+        <li>✓ 외부 노출 차단 — 번역 처리 중 제3자 공유 없음</li>
+        <li>✓ 독립된 처리 환경 — 보안 전송 및 분리된 인프라에서 운영</li>
+        <li>✓ 데이터 판매 금지 — 마케팅 활용 완전 금지</li>
+        <li>✓ 기업 문서 안심 — 계약서·특허·법률·재무 모두 안심하고 의뢰 가능</li>
+      </ul>
+    </div>
+    <div class="security-conclusion">
+      <p>민감한 문서일수록 번역 서비스 선택이 중요합니다.</p>
+      <p><strong>IUMM은 AI를 통해 정보가 유출되거나 수집되지 않는 독자적인 프로세스로 보안을 최우선으로 설계된 기업 전문 번역 플랫폼</strong>입니다.</p>
+    </div>
   </div>
 </section>
 
@@ -2805,27 +2824,9 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
   </div>
 </section>
 
-<!-- SECURITY 2 -->
-<section class="security" id="security" data-collapsible data-category="SECURITY 2">
-  <div class="security-inner">
-    <p class="section-label">Security</p>
-    <h2 class="security-main">고객의 문서는 안전합니다</h2>
-    <p class="security-desc">
-      IUMM는 <strong>철저한 보안 환경</strong>에서 번역을 처리합니다.<br>
-      <strong>AI 학습에 사용하지 않으며 수집하지 않습니다.</strong><br>
-      모든 문서는 번역 완료 후 <strong>즉시 폐기</strong>되며<br>
-      어디에도 저장되거나 보유되지 않습니다.
-    </p>
-    <div class="sec-cards">
-      <div class="sec-card expandable-card"><div class="sec-icon"><i class="ti ti-shield-lock" style="font-size:30px;color:#5DE0BC"></i></div><p class="sec-title">철저한 보안 환경</p><p class="hint">↓ 상세 보기</p><div class="detail"><p class="sec-desc">외부에 노출되지 않는 독립 보안 환경에서 번역이 처리됩니다. AI 학습 및 데이터 수집에 사용되지 않습니다.</p></div></div>
-      <div class="sec-card expandable-card"><div class="sec-icon"><i class="ti ti-trash" style="font-size:30px;color:#7FB7EB"></i></div><p class="sec-title">즉시 완전 폐기</p><p class="hint">↓ 상세 보기</p><div class="detail"><p class="sec-desc">번역 완료 즉시 원문과 번역문 모두 완전히 폐기됩니다. 어디에도 저장되거나 보유되지 않습니다.</p></div></div>
-      <div class="sec-card expandable-card"><div class="sec-icon"><i class="ti ti-file-certificate" style="font-size:30px;color:#5DE0BC"></i></div><p class="sec-title">NDA 보안 계약</p><p class="hint">↓ 상세 보기</p><div class="detail"><p class="sec-desc">모든 검수자는 NDA 계약 체결. 법률·의료·특허·계약서 문서도 안심하고 맡기세요.</p></div></div>
-    </div>
-  </div>
-</section>
 
 <!-- GLOSSARY -->
-<section data-collapsible data-category="GLOSSARY" style="background:var(--black);padding:70px 60px">
+<section data-collapsible data-category="GLOSSARY" data-preview="무료 용어집 자동 생성 · 업계 표준 용어 기반" style="background:var(--black);padding:70px 60px">
   <p class="section-label">Glossary</p>
   <h2 class="section-title">용어집, <em>무료로</em> 제작해드립니다</h2>
   <div class="glossary-grid" style="max-width:820px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px">
@@ -2845,7 +2846,7 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
 </section>
 
 <!-- CHECKLIST -->
-<section class="checklist-section" data-collapsible data-category="HUMAN TOUCH">
+<section class="checklist-section" data-collapsible data-category="HUMAN TOUCH" data-preview="21가지 자체 검수 기준 · 전문 번역사 1:1 대조 · STEP 9.5">
   <div class="checklist-inner">
     <p class="section-label" style="text-align:center">Human Touch</p>
     <h2 class="section-title">철저한 자체 <em>21가지</em> 전문 검수 기준</h2>
@@ -6051,6 +6052,7 @@ function collectRefMaterial(){
   function buildCollapsible(section){
     if(section.classList.contains('collapsible-built')) return;
     var category  = section.dataset.category || '';
+    var preview   = section.dataset.preview   || '';
     var labelEl   = section.querySelector('.section-label');
     var h2El      = section.querySelector('h2');
     var titleHTML = h2El ? h2El.innerHTML : '';
@@ -6062,12 +6064,17 @@ function collectRefMaterial(){
     content.className = 'collapsible-content';
     while(section.firstChild) content.appendChild(section.firstChild);
 
+    var previewHTML = preview
+      ? '<p class="collapsible-preview">' + preview + '</p>'
+      : '';
+
     var header = document.createElement('div');
     header.className = 'collapsible-header';
     header.innerHTML =
       '<div class="collapsible-header-text">' +
         '<p class="section-label">' + category + '</p>' +
         '<h2 class="collapsible-title">' + titleHTML + '</h2>' +
+        previewHTML +
       '</div>' +
       '<div class="collapsible-toggle" aria-hidden="true"></div>';
     header.addEventListener('click', function(){ toggleSection(section); });
@@ -6083,6 +6090,14 @@ function collectRefMaterial(){
     // HOW IT WORKS 기본 열림
     var processSection = document.getElementById('process');
     if(processSection) processSection.classList.add('open');
+
+    // THE DIFFERENCE 기본 열림
+    var diffSection = document.querySelector('section[data-category="THE DIFFERENCE"]');
+    if(diffSection) diffSection.classList.add('open');
+
+    // PRICING 기본 열림
+    var pricingSection = document.getElementById('pricing');
+    if(pricingSection) pricingSection.classList.add('open');
 
     // URL 해시 자동 펼침
     var hash = window.location.hash;
