@@ -622,6 +622,32 @@ body.admin-focus .focus-exit-hint{display:inline}
           </div>
         </div>
 
+        <!-- 참고자료 섹션 -->
+        <details id="bp-reference-details" style="margin-top:16px;padding:14px 16px;background:rgba(22,184,148,0.05);border:1px solid rgba(22,184,148,0.20);border-radius:8px">
+          <summary style="cursor:pointer;color:#16B894;font-weight:600;font-size:13px;user-select:none">
+            📎 참고자료 (선택사항) — 번역 시 참고할 자료 추가
+          </summary>
+          <div style="margin-top:12px">
+            <label class="bp-label">참고자료 텍스트 (직접 입력)</label>
+            <textarea id="bp-reference-text" rows="5" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:rgba(255,255,255,0.92);font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:vertical;box-sizing:border-box;margin-top:4px" placeholder="용어집, 스타일 가이드, 이전 번역 등 참고할 텍스트"></textarea>
+          </div>
+          <div style="margin-top:10px">
+            <label class="bp-label">참고 용어집</label>
+            <textarea id="bp-reference-glossary" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:rgba(255,255,255,0.92);font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:vertical;box-sizing:border-box;margin-top:4px" placeholder="원문 용어 → 번역 용어 매핑 (예: 갑 → Party A)"></textarea>
+          </div>
+          <div style="margin-top:10px">
+            <label class="bp-label">번역 의견/지시사항</label>
+            <textarea id="bp-reference-notes" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:rgba(255,255,255,0.92);font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:vertical;box-sizing:border-box;margin-top:4px" placeholder="격식 수준, 어조, 특수 처리 지시사항 등"></textarea>
+          </div>
+          <div style="margin-top:10px">
+            <label class="bp-label">참고자료 파일 (PDF, DOCX, TXT 등)</label>
+            <input type="file" id="bp-reference-file" multiple accept=".pdf,.docx,.txt,.doc,.xlsx,.hwp" style="margin-top:6px;color:rgba(255,255,255,0.85);font-size:12px">
+          </div>
+          <p style="margin-top:10px;margin-bottom:0;font-size:12px;color:rgba(255,255,255,0.50);line-height:1.6">
+            💡 참고자료는 STEP 0 (사전 문서 분석) 시점에 70K+ 컨텍스트로 활용됩니다. 번역 품질 향상 및 일관성 보장에 큰 도움이 됩니다.
+          </p>
+        </details>
+
         <button class="btn-bp-submit" id="btn-bp-submit" onclick="submitBypassOrder()"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>우회 주문 시작 (결제 없이 파이프라인 실행)</button>
 
         <!-- 결과 -->
@@ -2733,6 +2759,12 @@ async function submitBypassOrder() {
   var resultDiv = document.getElementById('bp-result');
   resultDiv.style.display = 'none';
 
+  // 참고자료 수집
+  var referenceText    = (document.getElementById('bp-reference-text')?.value    || '').trim();
+  var referenceGlossary = (document.getElementById('bp-reference-glossary')?.value || '').trim();
+  var referenceNotes   = (document.getElementById('bp-reference-notes')?.value   || '').trim();
+  var referenceFiles   = document.getElementById('bp-reference-file')?.files;
+
   try {
     var payload = {
       text: text,
@@ -2745,6 +2777,9 @@ async function submitBypassOrder() {
       plan: plan,
     };
     if (email) payload.customerEmail = email;
+    if (referenceText)     payload.referenceText     = referenceText;
+    if (referenceGlossary) payload.referenceGlossary = referenceGlossary;
+    if (referenceNotes)    payload.referenceNotes    = referenceNotes;
 
     var res = await fetch(API_BASE + '/api/admin/translate-bypass', {
       method: 'POST',
@@ -2769,6 +2804,22 @@ async function submitBypassOrder() {
         .catch(function(e){ console.warn('[bypass] 원문첨부 실패:', e.message); });
     }
     window._iummBypassSourceFiles = [];
+
+    // 참고자료 파일 업로드 (fire-and-forget — STEP 0 컨텍스트 보강용)
+    if (referenceFiles && referenceFiles.length > 0 && orderNum !== '생성됨') {
+      var refFd = new FormData();
+      refFd.append('orderNumber', orderNum);
+      Array.from(referenceFiles).forEach(function(f){ refFd.append('files', f); });
+      fetch(API_BASE + '/api/admin/upload-reference', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + adminToken() },
+        body: refFd,
+      })
+        .then(function(r){ return r.json(); })
+        .then(function(d){ console.log('[bypass] 참고자료 파일', d.count + '개 업로드 완료'); })
+        .catch(function(e){ console.warn('[bypass] 참고자료 파일 업로드 실패:', e.message); });
+    }
+
     var planLabel = isPP ? '프리미엄 플러스 (검수자 자동 배정)' : 'AI 프리미엄';
     document.getElementById('bp-result-order').textContent = '✅ ' + orderNum;
     document.getElementById('bp-result-info').textContent =
