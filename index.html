@@ -766,6 +766,29 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 @keyframes signatureFlow{0%{background-position:0% center}100%{background-position:200% center}}
 @media(prefers-reduced-motion:reduce){.signature-tagline{animation:none;-webkit-text-fill-color:#16B894;background:none;color:#16B894}}
 @media(max-width:768px){.signature-brand{font-size:22px}.signature-tagline{font-size:16px}.signature-subtitle{font-size:14px}}
+/* ── 접힌 섹션 박스 그리드 ──────────────────────────────── */
+.collapsed-grid-section{max-width:1200px;margin:0 auto;padding:40px 32px 20px}
+.collapsed-grid-header{text-align:center;margin-bottom:28px}
+.collapsed-grid-title{font-size:22px;font-weight:700;color:rgba(255,255,255,0.95);margin:0 0 8px;letter-spacing:-0.3px}
+.collapsed-grid-desc{font-size:13px;color:rgba(255,255,255,0.45);margin:0;line-height:1.6}
+.collapsed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.collapsed-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:rgba(22,184,148,0.03);border:1px solid rgba(22,184,148,0.15);border-radius:10px;padding:20px 20px 44px;cursor:pointer;transition:background 0.25s ease,border-color 0.25s ease,transform 0.25s ease,box-shadow 0.25s ease;min-height:160px;width:100%;font-family:inherit;color:inherit}
+.collapsed-card:hover{background:rgba(22,184,148,0.08);border-color:rgba(22,184,148,0.40);transform:translateY(-2px);box-shadow:0 6px 24px rgba(22,184,148,0.15)}
+.collapsed-card-category{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#16B894;margin-bottom:10px;line-height:1.3}
+.collapsed-card-title{font-size:16px;font-weight:700;color:rgba(255,255,255,0.95);margin:0 0 10px;line-height:1.45;letter-spacing:-0.2px}
+.collapsed-card-preview{font-size:12px;color:rgba(255,255,255,0.5);margin:0;line-height:1.6}
+.collapsed-card-preview strong{color:#16B894;font-weight:600}
+.collapsed-card-arrow{position:absolute;bottom:16px;right:20px;font-size:16px;color:#16B894;opacity:0.7;transition:transform 0.25s ease,opacity 0.25s ease}
+.collapsed-card:hover .collapsed-card-arrow{transform:translateX(4px);opacity:1}
+@media(max-width:1024px){.collapsed-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.collapsed-grid{grid-template-columns:1fr}.collapsed-card{min-height:auto}}
+/* ── 접힌 6개 섹션: 기본 숨김 ─────────────────────────── */
+#about:not(.open),
+#section-20year:not(.open),
+#fields:not(.open),
+#section-security:not(.open),
+#section-glossary:not(.open),
+#section-human-touch:not(.open){display:none}
 
 </style>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -2252,6 +2275,52 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   </div>
 </section>
 
+<!-- 접힌 섹션 박스 그리드 -->
+<div class="collapsed-grid-section">
+  <div class="collapsed-grid-header">
+    <h3 class="collapsed-grid-title">자세히 알아보기</h3>
+    <p class="collapsed-grid-desc">관심 있는 항목을 클릭하면 자세한 내용이 펼쳐집니다</p>
+  </div>
+  <div class="collapsed-grid">
+    <button class="collapsed-card" onclick="openCollapsedCard('section-20year')" type="button">
+      <div class="collapsed-card-category">WHY WE'RE DIFFERENT</div>
+      <h4 class="collapsed-card-title">20년의 번역 노하우<br>슈퍼 AI에 담다</h4>
+      <p class="collapsed-card-preview"><strong>20년 노하우</strong> · <strong>9.5단계 정밀 검수</strong> · <strong>정부 조달 수준</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCollapsedCard('about')" type="button">
+      <div class="collapsed-card-category">WHY IUMM</div>
+      <h4 class="collapsed-card-title">번역 서비스<br>이제 다르게 선택하세요</h4>
+      <p class="collapsed-card-preview">전문가 <strong>100~200원</strong> · IUMM <strong>25원~</strong> · 기계 <strong>무료</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCollapsedCard('fields')" type="button">
+      <div class="collapsed-card-category">17 SPECIALIZED FIELDS</div>
+      <h4 class="collapsed-card-title">분야 선택 하나로<br>전문성의 깊이가 달라집니다</h4>
+      <p class="collapsed-card-preview"><strong>17개 분야</strong> · <strong>30개 언어</strong> · 글로벌 표준</p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCollapsedCard('section-security')" type="button">
+      <div class="collapsed-card-category">SECURITY</div>
+      <h4 class="collapsed-card-title">당신의 문서,<br>철저하게 보호됩니다</h4>
+      <p class="collapsed-card-preview"><strong>AI 학습 차단</strong> · <strong>21일 자동 삭제</strong> · <strong>NDA 보안</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCollapsedCard('section-glossary')" type="button">
+      <div class="collapsed-card-category">GLOSSARY</div>
+      <h4 class="collapsed-card-title">용어집,<br>무료로 제작해드립니다</h4>
+      <p class="collapsed-card-preview"><strong>무료 용어집</strong> 자동 생성 · <strong>업계 표준</strong> 용어 기반</p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCollapsedCard('section-human-touch')" type="button">
+      <div class="collapsed-card-category">HUMAN TOUCH</div>
+      <h4 class="collapsed-card-title">철저한 자체 21가지<br>전문 검수 기준</h4>
+      <p class="collapsed-card-preview"><strong>21가지 자체 검수</strong> · 전문 번역사 <strong>1:1 대조</strong> · <strong>STEP 9.5</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+  </div>
+</div>
+
 <!-- COMPARISON -->
 <section class="comparison" id="about" data-collapsible data-category="WHY IUMM" data-preview="전문가 번역(100~200원)  ·  IUMM 아이움(25원~)  ·  기계 번역(무료)">
   <p class="section-label">Why IUMM</p>
@@ -2692,7 +2761,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 </section>
 
 <!-- SECURITY -->
-<section data-collapsible data-category="SECURITY" data-preview="✓ AI 학습 차단  ✓ 21일 후 자동 삭제  ✓ NDA 보안  ✓ 즉시 폐기" style="padding:48px 60px;background:rgba(22,184,148,0.04);border-top:1px solid rgba(22,184,148,0.08);border-bottom:1px solid rgba(22,184,148,0.08)">
+<section id="section-security" data-collapsible data-category="SECURITY" data-preview="✓ AI 학습 차단  ✓ 21일 후 자동 삭제  ✓ NDA 보안  ✓ 즉시 폐기" style="padding:48px 60px;background:rgba(22,184,148,0.04);border-top:1px solid rgba(22,184,148,0.08);border-bottom:1px solid rgba(22,184,148,0.08)">
   <div style="max-width:860px;margin:0 auto">
     <p class="section-label">Security</p>
     <h2 class="section-title">당신의 문서,<br><span class="mint">철저하게 보호됩니다</span></h2>
@@ -2826,7 +2895,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 
 <!-- GLOSSARY -->
-<section data-collapsible data-category="GLOSSARY" data-preview="무료 용어집 자동 생성 · 업계 표준 용어 기반" style="background:var(--black);padding:70px 60px">
+<section id="section-glossary" data-collapsible data-category="GLOSSARY" data-preview="무료 용어집 자동 생성 · 업계 표준 용어 기반" style="background:var(--black);padding:70px 60px">
   <p class="section-label">Glossary</p>
   <h2 class="section-title">용어집, <em>무료로</em> 제작해드립니다</h2>
   <div class="glossary-grid" style="max-width:820px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px">
@@ -2846,7 +2915,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 </section>
 
 <!-- CHECKLIST -->
-<section class="checklist-section" data-collapsible data-category="HUMAN TOUCH" data-preview="21가지 자체 검수 기준 · 전문 번역사 1:1 대조 · STEP 9.5">
+<section id="section-human-touch" class="checklist-section" data-collapsible data-category="HUMAN TOUCH" data-preview="21가지 자체 검수 기준 · 전문 번역사 1:1 대조 · STEP 9.5">
   <div class="checklist-inner">
     <p class="section-label" style="text-align:center">Human Touch</p>
     <h2 class="section-title">철저한 자체 <em>21가지</em> 전문 검수 기준</h2>
@@ -6125,6 +6194,19 @@ function collectRefMaterial(){
     initCollapsibles();
   }
 })();
+</script>
+<script>
+function openCollapsedCard(sectionId) {
+  var section = document.getElementById(sectionId);
+  if (!section) return;
+  if (!section.classList.contains('open')) {
+    section.classList.add('open');
+  }
+  setTimeout(function() {
+    var top = section.getBoundingClientRect().top + window.pageYOffset - 80;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }, 150);
+}
 </script>
 </body>
 </html>
