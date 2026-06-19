@@ -722,12 +722,12 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 
 /* ── Collapsible 섹션 ─────────────────────────────────────── */
 section[data-collapsible].collapsible-built{padding-top:0 !important;padding-bottom:0 !important}
-.collapsible-header{position:relative;display:block;text-align:center;cursor:pointer;padding-top:28px;padding-bottom:28px;padding-right:52px;user-select:none;transition:background 0.2s ease}
+.collapsible-header{position:relative;display:block;text-align:center;cursor:pointer;padding-top:28px;padding-bottom:28px;padding-right:80px;padding-left:24px;user-select:none;transition:background 0.2s ease}
 .collapsible-header:hover{background:rgba(255,255,255,0.025)}
 .collapsible-header-text{display:block;text-align:center}
 .collapsible-header .section-label{text-align:center !important;margin-bottom:8px}
 .collapsible-title{display:block;font-size:clamp(20px,2.8vw,32px) !important;font-weight:700 !important;color:rgba(255,255,255,0.98) !important;margin:0 !important;line-height:1.35 !important;letter-spacing:-0.5px !important;text-align:center !important}
-.collapsible-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(22,184,148,0.10);border:1px solid rgba(22,184,148,0.28);display:flex;align-items:center;justify-content:center;transition:background 0.3s ease,border-color 0.3s ease}
+.collapsible-toggle{position:absolute;right:24px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(22,184,148,0.10);border:1px solid rgba(22,184,148,0.28);display:flex;align-items:center;justify-content:center;transition:background 0.3s ease,border-color 0.3s ease}
 .collapsible-toggle::before{content:'';position:absolute;width:14px;height:2px;background:#16B894;border-radius:1px}
 .collapsible-toggle::after{content:'';position:absolute;width:2px;height:14px;background:#16B894;border-radius:1px;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
 .collapsible-header:hover .collapsible-toggle{background:rgba(22,184,148,0.18);border-color:rgba(22,184,148,0.5)}
@@ -737,7 +737,7 @@ section[data-collapsible].open .collapsible-toggle{background:rgba(22,184,148,0.
 section[data-collapsible].open .collapsible-toggle::after{transform:scaleY(0)}
 section[data-collapsible].collapsible-built + section[data-collapsible].collapsible-built{border-top:1px solid rgba(255,255,255,0.07)}
 @media(max-width:768px){
-  .collapsible-header{padding-top:18px;padding-bottom:18px;padding-right:44px}
+  .collapsible-header{padding-top:18px;padding-bottom:18px;padding-right:64px;padding-left:16px}
   .collapsible-title{font-size:clamp(17px,5vw,24px) !important}
   .collapsible-toggle{width:34px;height:34px}
   .collapsible-toggle::before{width:12px}
@@ -767,21 +767,38 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 @media(prefers-reduced-motion:reduce){.signature-tagline{animation:none;-webkit-text-fill-color:#16B894;background:none;color:#16B894}}
 @media(max-width:768px){.signature-brand{font-size:22px}.signature-tagline{font-size:16px}.signature-subtitle{font-size:14px}}
 /* ── 접힌 섹션 박스 그리드 ──────────────────────────────── */
-.collapsed-grid-section{max-width:1200px;margin:0 auto;padding:40px 32px 20px}
-.collapsed-grid-header{text-align:center;margin-bottom:28px}
-.collapsed-grid-title{font-size:22px;font-weight:700;color:rgba(255,255,255,0.95);margin:0 0 8px;letter-spacing:-0.3px}
-.collapsed-grid-desc{font-size:13px;color:rgba(255,255,255,0.45);margin:0;line-height:1.6}
-.collapsed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.collapsed-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:rgba(22,184,148,0.03);border:1px solid rgba(22,184,148,0.15);border-radius:10px;padding:20px 20px 44px;cursor:pointer;transition:background 0.25s ease,border-color 0.25s ease,transform 0.25s ease,box-shadow 0.25s ease;min-height:160px;width:100%;font-family:inherit;color:inherit}
-.collapsed-card:hover{background:rgba(22,184,148,0.08);border-color:rgba(22,184,148,0.40);transform:translateY(-2px);box-shadow:0 6px 24px rgba(22,184,148,0.15)}
-.collapsed-card-category{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#16B894;margin-bottom:10px;line-height:1.3}
-.collapsed-card-title{font-size:16px;font-weight:700;color:rgba(255,255,255,0.95);margin:0 0 10px;line-height:1.45;letter-spacing:-0.2px}
-.collapsed-card-preview{font-size:12px;color:rgba(255,255,255,0.5);margin:0;line-height:1.6}
-.collapsed-card-preview strong{color:#16B894;font-weight:600}
-.collapsed-card-arrow{position:absolute;bottom:16px;right:20px;font-size:16px;color:#16B894;opacity:0.7;transition:transform 0.25s ease,opacity 0.25s ease}
-.collapsed-card:hover .collapsed-card-arrow{transform:translateX(4px);opacity:1}
-@media(max-width:1024px){.collapsed-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:640px){.collapsed-grid{grid-template-columns:1fr}.collapsed-card{min-height:auto}}
+.collapsed-grid-section{max-width:1200px;margin:40px auto 60px auto;padding:0 24px}
+.collapsed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.collapsed-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:linear-gradient(135deg,rgba(22,184,148,0.06) 0%,rgba(201,168,76,0.04) 100%);border:1px solid rgba(22,184,148,0.25);border-radius:16px;padding:28px 24px 60px;cursor:pointer;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);min-height:200px;width:100%;font-family:inherit;color:inherit;overflow:hidden}
+.collapsed-card::before{content:'';position:absolute;top:-50%;right:-30%;width:200px;height:200px;background:radial-gradient(circle,rgba(201,168,76,0.12) 0%,transparent 70%);opacity:0;transition:opacity 0.4s ease;pointer-events:none}
+.collapsed-card:hover::before{opacity:1}
+.collapsed-card:hover{background:linear-gradient(135deg,rgba(22,184,148,0.14) 0%,rgba(201,168,76,0.08) 100%);border-color:rgba(22,184,148,0.6);transform:translateY(-4px);box-shadow:0 12px 36px rgba(22,184,148,0.22),0 0 0 1px rgba(201,168,76,0.15),inset 0 1px 0 rgba(255,255,255,0.08)}
+.collapsed-card-category{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#16B894;margin-bottom:16px;line-height:1.3}
+.collapsed-card-title{font-size:18px;font-weight:700;color:rgba(255,255,255,0.97);margin:0 0 16px;line-height:1.5;letter-spacing:-0.3px;font-style:normal}
+.collapsed-card-title .kw{color:#16B894;font-weight:800;font-style:normal}
+.collapsed-card-preview{font-size:14px;color:rgba(255,255,255,0.70);margin:0;margin-top:auto;line-height:1.7;font-style:normal}
+.collapsed-card-preview strong{color:#c9a84c;font-weight:600;font-style:normal}
+.collapsed-card-arrow{position:absolute;bottom:24px;right:24px;font-size:20px;color:#16B894;transition:transform 0.3s ease,color 0.3s ease;font-weight:700}
+.collapsed-card:hover .collapsed-card-arrow{transform:translateX(6px);color:#c9a84c}
+@media(max-width:1024px){.collapsed-grid{grid-template-columns:repeat(2,1fr);gap:16px}}
+@media(max-width:640px){.collapsed-grid{grid-template-columns:1fr;gap:14px}.collapsed-card{min-height:auto;padding:24px 20px 56px}.collapsed-card-title{font-size:16px}.collapsed-card-preview{font-size:13px}}
+/* ── IUMM 모달 ──────────────────────────────────────────── */
+.iumm-modal{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s ease}
+.iumm-modal.active{opacity:1;visibility:visible}
+.iumm-modal-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.iumm-modal-container{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.95);width:90%;max-width:880px;max-height:88vh;overflow-y:auto;background:linear-gradient(135deg,#0a1a2e 0%,#0d2540 100%);border:1px solid rgba(22,184,148,0.35);border-radius:20px;padding:40px;box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(201,168,76,0.10),inset 0 1px 0 rgba(255,255,255,0.05);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+.iumm-modal.active .iumm-modal-container{transform:translate(-50%,-50%) scale(1)}
+.iumm-modal-close{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(22,184,148,0.10);border:1px solid rgba(22,184,148,0.30);color:#16B894;font-size:18px;cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;justify-content:center}
+.iumm-modal-close:hover{background:rgba(22,184,148,0.25);border-color:rgba(22,184,148,0.6);transform:rotate(90deg)}
+.iumm-modal-header{text-align:center;margin-bottom:32px;padding-right:40px}
+.iumm-modal-category{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#16B894;margin-bottom:12px}
+.iumm-modal-title{font-size:28px;font-weight:700;color:rgba(255,255,255,0.98);margin:0;line-height:1.4;letter-spacing:-0.5px;font-style:normal}
+.iumm-modal-body{color:rgba(255,255,255,0.85);line-height:1.7;font-size:15px}
+.iumm-modal-container::-webkit-scrollbar{width:8px}
+.iumm-modal-container::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:4px}
+.iumm-modal-container::-webkit-scrollbar-thumb{background:rgba(22,184,148,0.4);border-radius:4px}
+.iumm-modal-container::-webkit-scrollbar-thumb:hover{background:rgba(22,184,148,0.6)}
+@media(max-width:768px){.iumm-modal-container{width:95%;max-height:92vh;padding:28px 20px;border-radius:16px}.iumm-modal-title{font-size:22px}.iumm-modal-body{font-size:14px}.iumm-modal-close{top:12px;right:12px;width:36px;height:36px}}
 /* ── 접힌 6개 섹션: 기본 숨김 ─────────────────────────── */
 #about:not(.open),
 #section-20year:not(.open),
@@ -2277,45 +2294,41 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 <!-- 접힌 섹션 박스 그리드 -->
 <div class="collapsed-grid-section">
-  <div class="collapsed-grid-header">
-    <h3 class="collapsed-grid-title">자세히 알아보기</h3>
-    <p class="collapsed-grid-desc">관심 있는 항목을 클릭하면 자세한 내용이 펼쳐집니다</p>
-  </div>
   <div class="collapsed-grid">
-    <button class="collapsed-card" onclick="openCollapsedCard('section-20year')" type="button">
+    <button class="collapsed-card" onclick="openCardModal('section-20year')" type="button">
       <div class="collapsed-card-category">WHY WE'RE DIFFERENT</div>
-      <h4 class="collapsed-card-title">20년의 번역 노하우<br>슈퍼 AI에 담다</h4>
-      <p class="collapsed-card-preview"><strong>20년 노하우</strong> · <strong>9.5단계 정밀 검수</strong> · <strong>정부 조달 수준</strong></p>
+      <h4 class="collapsed-card-title"><span class="kw">20년</span>의 번역 노하우<br><span class="kw">슈퍼 AI</span>에 담다</h4>
+      <p class="collapsed-card-preview"><strong>20년 노하우</strong> · <strong>9.5단계</strong> · <strong>정부 조달 수준</strong></p>
       <span class="collapsed-card-arrow">→</span>
     </button>
-    <button class="collapsed-card" onclick="openCollapsedCard('about')" type="button">
+    <button class="collapsed-card" onclick="openCardModal('about')" type="button">
       <div class="collapsed-card-category">WHY IUMM</div>
-      <h4 class="collapsed-card-title">번역 서비스<br>이제 다르게 선택하세요</h4>
+      <h4 class="collapsed-card-title">번역 서비스<br>이제 <span class="kw">다르게</span> 선택하세요</h4>
       <p class="collapsed-card-preview">전문가 <strong>100~200원</strong> · IUMM <strong>25원~</strong> · 기계 <strong>무료</strong></p>
       <span class="collapsed-card-arrow">→</span>
     </button>
-    <button class="collapsed-card" onclick="openCollapsedCard('fields')" type="button">
+    <button class="collapsed-card" onclick="openCardModal('fields')" type="button">
       <div class="collapsed-card-category">17 SPECIALIZED FIELDS</div>
-      <h4 class="collapsed-card-title">분야 선택 하나로<br>전문성의 깊이가 달라집니다</h4>
+      <h4 class="collapsed-card-title"><span class="kw">분야 선택 하나</span>로<br><span class="kw">전문성</span>의 깊이가 달라집니다</h4>
       <p class="collapsed-card-preview"><strong>17개 분야</strong> · <strong>30개 언어</strong> · 글로벌 표준</p>
       <span class="collapsed-card-arrow">→</span>
     </button>
-    <button class="collapsed-card" onclick="openCollapsedCard('section-security')" type="button">
+    <button class="collapsed-card" onclick="openCardModal('section-security')" type="button">
       <div class="collapsed-card-category">SECURITY</div>
-      <h4 class="collapsed-card-title">당신의 문서,<br>철저하게 보호됩니다</h4>
-      <p class="collapsed-card-preview"><strong>AI 학습 차단</strong> · <strong>21일 자동 삭제</strong> · <strong>NDA 보안</strong></p>
+      <h4 class="collapsed-card-title">당신의 문서,<br><span class="kw">철저하게 보호</span>됩니다</h4>
+      <p class="collapsed-card-preview"><strong>AI 학습 차단</strong> · <strong>21일 자동 삭제</strong> · <strong>NDA</strong></p>
       <span class="collapsed-card-arrow">→</span>
     </button>
-    <button class="collapsed-card" onclick="openCollapsedCard('section-glossary')" type="button">
+    <button class="collapsed-card" onclick="openCardModal('section-glossary')" type="button">
       <div class="collapsed-card-category">GLOSSARY</div>
-      <h4 class="collapsed-card-title">용어집,<br>무료로 제작해드립니다</h4>
-      <p class="collapsed-card-preview"><strong>무료 용어집</strong> 자동 생성 · <strong>업계 표준</strong> 용어 기반</p>
+      <h4 class="collapsed-card-title">용어집,<br><span class="kw">무료</span>로 제작해드립니다</h4>
+      <p class="collapsed-card-preview"><strong>무료 용어집</strong> 자동 생성 · 업계 표준 용어</p>
       <span class="collapsed-card-arrow">→</span>
     </button>
-    <button class="collapsed-card" onclick="openCollapsedCard('section-human-touch')" type="button">
+    <button class="collapsed-card" onclick="openCardModal('section-human-touch')" type="button">
       <div class="collapsed-card-category">HUMAN TOUCH</div>
-      <h4 class="collapsed-card-title">철저한 자체 21가지<br>전문 검수 기준</h4>
-      <p class="collapsed-card-preview"><strong>21가지 자체 검수</strong> · 전문 번역사 <strong>1:1 대조</strong> · <strong>STEP 9.5</strong></p>
+      <h4 class="collapsed-card-title">철저한 자체 <span class="kw">21가지</span><br><span class="kw">전문 검수</span> 기준</h4>
+      <p class="collapsed-card-preview"><strong>21가지 검수</strong> · 전문 번역사 <strong>1:1 대조</strong></p>
       <span class="collapsed-card-arrow">→</span>
     </button>
   </div>
@@ -2484,7 +2497,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <!-- BEFORE / AFTER 비교 (NEW - 차별화 포인트) -->
 <section data-collapsible data-category="THE DIFFERENCE" style="padding:56px 60px;background:var(--black)">
   <p class="section-label">The Difference</p>
-  <h2 class="section-title">같은 원문 <em>다른 결과</em></h2>
+  <h2 class="section-title">같은 원문 다른 결과</h2>
   <p style="text-align:center;font-size:17px;color:rgba(255,255,255,0.75);font-weight:300;margin-bottom:36px;max-width:680px;margin-left:auto;margin-right:auto;line-height:1.8">
     분야 선택 하나로<br>전문성의 깊이가 달라집니다
   </p>
@@ -6196,16 +6209,62 @@ function collectRefMaterial(){
 })();
 </script>
 <script>
-function openCollapsedCard(sectionId) {
+function openCardModal(sectionId) {
   var section = document.getElementById(sectionId);
   if (!section) return;
-  if (!section.classList.contains('open')) {
+
+  // collapsible-content가 없으면 먼저 열어서 buildCollapsible 실행
+  if (!section.classList.contains('collapsible-built')) {
     section.classList.add('open');
   }
-  setTimeout(function() {
-    var top = section.getBoundingClientRect().top + window.pageYOffset - 80;
-    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-  }, 150);
+
+  var content = section.querySelector('.collapsible-content');
+  if (!content) return;
+
+  var category = (section.dataset.category || '').trim();
+  var titleEl  = section.querySelector('.collapsible-title');
+  var titleText = titleEl ? titleEl.textContent.trim() : '';
+
+  var modal = document.getElementById('iumm-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'iumm-modal';
+    modal.className = 'iumm-modal';
+    modal.innerHTML =
+      '<div class="iumm-modal-overlay"></div>' +
+      '<div class="iumm-modal-container">' +
+        '<button class="iumm-modal-close" type="button" aria-label="닫기">&#10005;</button>' +
+        '<div class="iumm-modal-header">' +
+          '<div class="iumm-modal-category"></div>' +
+          '<h2 class="iumm-modal-title"></h2>' +
+        '</div>' +
+        '<div class="iumm-modal-body"></div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    modal.querySelector('.iumm-modal-overlay').addEventListener('click', closeCardModal);
+    modal.querySelector('.iumm-modal-close').addEventListener('click', closeCardModal);
+  }
+
+  modal.querySelector('.iumm-modal-category').textContent = category;
+  modal.querySelector('.iumm-modal-title').textContent = titleText;
+  modal.querySelector('.iumm-modal-body').innerHTML = content.innerHTML;
+
+  document.body.style.overflow = 'hidden';
+  modal.classList.add('active');
+  document.addEventListener('keydown', escCloseModal);
+}
+
+function closeCardModal() {
+  var modal = document.getElementById('iumm-modal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  document.removeEventListener('keydown', escCloseModal);
+}
+
+function escCloseModal(e) {
+  if (e.key === 'Escape') closeCardModal();
 }
 </script>
 </body>
