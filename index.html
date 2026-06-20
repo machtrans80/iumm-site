@@ -781,8 +781,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .collapsed-card-arrow{position:absolute;bottom:24px;right:24px;font-size:20px;color:#16B894;transition:transform 0.3s ease,color 0.3s ease;font-weight:700}
 .collapsed-card:hover .collapsed-card-arrow{transform:translateX(6px);color:#c9a84c}
 @media(max-width:1024px){.collapsed-grid{grid-template-columns:repeat(2,1fr);gap:16px}}
-@media(max-width:768px){.collapsed-grid-section{padding:0 16px;margin:32px auto 48px auto}.collapsed-grid{grid-template-columns:1fr;gap:12px}.collapsed-card{min-height:auto;padding:20px 18px 56px}.collapsed-card-category{font-size:10px;letter-spacing:1.5px;margin-bottom:10px}.collapsed-card-title{font-size:16px;margin-bottom:12px}.collapsed-card-preview{font-size:13px}.collapsed-card-arrow{bottom:20px;right:18px;font-size:18px}}
-@media(max-width:375px){.collapsed-card{padding:18px 16px 52px}.collapsed-card-title{font-size:15px}.collapsible-toggle{right:12px;width:36px;height:36px}.collapsible-header{padding-right:52px}}
+@media(max-width:768px){.collapsed-grid-section{padding:0 12px;margin:24px auto 40px auto}.collapsed-grid{grid-template-columns:repeat(2,1fr);gap:10px}.collapsed-card{min-height:120px;padding:16px 14px 34px;border-radius:12px}.collapsed-card-category{font-size:9px;letter-spacing:1.2px;margin-bottom:8px;line-height:1.2}.collapsed-card-title{font-size:13px;margin-bottom:0;line-height:1.4;font-weight:700}.collapsed-card-title br{display:none}.collapsed-card-preview{display:none}.collapsed-card-arrow{bottom:12px;right:12px;font-size:16px}}
+@media(max-width:375px){.collapsed-card{min-height:110px;padding:14px 12px 30px}.collapsed-card-title{font-size:12px}.collapsed-card-category{font-size:8px;letter-spacing:1px}.collapsible-toggle{right:12px;width:36px;height:36px}.collapsible-header{padding-right:52px}}
 /* ── IUMM 모달 ──────────────────────────────────────────── */
 .iumm-modal{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s ease}
 .iumm-modal.active{opacity:1;visibility:visible}
@@ -799,7 +799,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .iumm-modal-container::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:4px}
 .iumm-modal-container::-webkit-scrollbar-thumb{background:rgba(22,184,148,0.4);border-radius:4px}
 .iumm-modal-container::-webkit-scrollbar-thumb:hover{background:rgba(22,184,148,0.6)}
-@media(max-width:768px){.iumm-modal-container{width:94%;max-height:90vh;padding:24px 18px;border-radius:14px}.iumm-modal-title{font-size:20px}.iumm-modal-category{font-size:11px}.iumm-modal-body{font-size:14px;line-height:1.7}.iumm-modal-close{top:12px;right:12px;width:36px;height:36px;font-size:16px}}
+@media(max-width:768px){.iumm-modal-overlay{background:rgba(0,0,0,0.85)}.iumm-modal-container{top:0;left:0;transform:none;width:100%;height:100%;max-width:none;max-height:none;border-radius:0;padding:56px 18px 32px;-webkit-overflow-scrolling:touch;box-sizing:border-box}.iumm-modal.active .iumm-modal-container{transform:none}.iumm-modal-close{position:fixed;top:12px;right:12px;width:40px;height:40px;font-size:16px;z-index:10000;background:rgba(22,184,148,0.15);border-color:rgba(22,184,148,0.4)}.iumm-modal-header{text-align:left;margin-bottom:24px;padding-right:50px}.iumm-modal-title{font-size:22px;text-align:left}.iumm-modal-category{font-size:11px}.iumm-modal-body{font-size:14px;line-height:1.7}.iumm-modal-body *{max-width:100%;box-sizing:border-box}.iumm-modal-body img,.iumm-modal-body svg{max-width:100%;height:auto}.iumm-modal-body p,.iumm-modal-body li,.iumm-modal-body h3,.iumm-modal-body h4{word-break:keep-all;overflow-wrap:break-word}}
 /* ── 접힌 6개 섹션: 기본 숨김 ─────────────────────────── */
 #about:not(.open),
 #section-20year:not(.open),
@@ -6248,11 +6248,41 @@ function openCardModal(sectionId) {
 
   modal.querySelector('.iumm-modal-category').textContent = category;
   modal.querySelector('.iumm-modal-title').textContent = titleText;
-  modal.querySelector('.iumm-modal-body').innerHTML = content.innerHTML;
+
+  // ★ 콘텐츠 깊은 복사 (cloneNode) — 인라인 onclick/스타일 보존
+  var modalBody = modal.querySelector('.iumm-modal-body');
+  modalBody.innerHTML = '';
+  var contentClone = content.cloneNode(true);
+  while (contentClone.firstChild) modalBody.appendChild(contentClone.firstChild);
+
+  // ★ addEventListener로 걸린 토글/더보기 핸들러 재연결
+  rebindModalEvents(modalBody);
 
   document.body.style.overflow = 'hidden';
   modal.classList.add('active');
+
+  // 스크롤 위치 초기화 (전체 화면 모달 상단부터)
+  var container = modal.querySelector('.iumm-modal-container');
+  if (container) container.scrollTop = 0;
+
   document.addEventListener('keydown', escCloseModal);
+}
+
+// 모달 내부 이벤트 재연결 (복제본은 addEventListener 핸들러를 잃음)
+function rebindModalEvents(modalBody) {
+  // expandable-card / stat-card 탭 토글 (모바일 hover:none 환경)
+  modalBody.querySelectorAll('.expandable-card, .stat-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      if (window.matchMedia('(hover: none)').matches) {
+        card.classList.toggle('is-open');
+      }
+    });
+  });
+  // 외부 링크는 새 창에서 열기
+  modalBody.querySelectorAll('a[href^="http"]').forEach(function(a){
+    if (!a.target) a.target = '_blank';
+    if (!a.getAttribute('rel')) a.rel = 'noopener noreferrer';
+  });
 }
 
 function closeCardModal() {
