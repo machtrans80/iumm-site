@@ -1270,7 +1270,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
           <span class="faq-arrow">▼</span>
         </div>
         <div class="faq-a">
-          <p>신용카드/체크카드(국내 모든 카드), 카카오페이, 네이버페이를 지원합니다. 모든 결제는 PG사를 통해 안전하게 처리됩니다.</p>
+          <p>신용카드/체크카드(국내 모든 카드)와 실시간 계좌이체를 지원합니다. 모든 결제는 PG사를 통해 안전하게 처리됩니다.</p>
         </div>
       </div>
 
@@ -1319,7 +1319,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
             <li>카드 한도가 충분한지</li>
             <li>해외 결제 차단 설정이 되어 있는지</li>
             <li>카드 유효기간이 지나지 않았는지</li>
-            <li>다른 결제 수단(카카오페이 등)으로 시도</li>
+            <li>다른 결제 수단(카드 ↔ 실시간 계좌이체)으로 시도</li>
           </ul>
           <p>계속 문제가 발생하면 iumm.master@gmail.com으로 주문번호와 함께 문의해 주세요.</p>
         </div>
@@ -3344,10 +3344,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <!-- 결제 수단 선택 -->
       <p class="lbl" style="margin-bottom:12px">결제 수단 선택</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
-        <label id="pay-kakao" onclick="selectPayMethod('kakao')" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:border-color 0.2s;border-radius:2px">
-          <input type="radio" name="paymethod" style="accent-color:var(--gold)">
-          <div><p style="font-size:13px;font-weight:500">카카오페이</p><p style="font-size:10px;color:rgba(255,255,255,0.35)">간편결제</p></div>
-        </label>
         <label id="pay-card" onclick="selectPayMethod('card')" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:border-color 0.2s;border-radius:2px">
           <input type="radio" name="paymethod" style="accent-color:var(--gold)">
           <div><p style="font-size:13px;font-weight:500">신용·체크카드</p><p style="font-size:10px;color:rgba(255,255,255,0.35)">국내 전 카드</p></div>
@@ -3355,10 +3351,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         <label id="pay-bank" onclick="selectPayMethod('bank')" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:border-color 0.2s;border-radius:2px">
           <input type="radio" name="paymethod" style="accent-color:var(--gold)">
           <div><p style="font-size:13px;font-weight:500">실시간 계좌이체</p><p style="font-size:10px;color:rgba(255,255,255,0.35)">국내 전 은행</p></div>
-        </label>
-        <label id="pay-other" onclick="selectPayMethod('other')" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:border-color 0.2s;border-radius:2px;opacity:0.6">
-          <input type="radio" name="paymethod" disabled style="accent-color:var(--gold)">
-          <div><p style="font-size:13px;font-weight:500">기타 결제</p><p style="font-size:10px;color:rgba(255,255,255,0.35)">페이앱 등 (준비 중)</p></div>
         </label>
       </div>
       <!-- 번역 방향 확인 -->
@@ -5170,17 +5162,12 @@ async function requestRenewal(){
   }catch(e){showToast('연장 요청 실패: '+e.message,'error');}
 }
 function selectPayMethod(method){
-  if(method==='other'){
-    alert('현재 추가 결제 수단을 준비 중입니다.\n\n페이앱 등 추가 결제 옵션을 빠른 시일 내 제공할 예정입니다.\n현재는 카카오페이 / 신용·체크카드 / 실시간 계좌이체로 결제 부탁드립니다.');
-    var otherRadio=document.querySelector('#pay-other input[type="radio"]');
-    if(otherRadio) otherRadio.checked=false;
-    return;
-  }
-  ['kakao','card','bank','other'].forEach(function(m){
+  ['card','bank'].forEach(function(m){
     var el=document.getElementById('pay-'+m);
     if(el) el.style.borderColor='rgba(255,255,255,0.1)';
   });
-  document.getElementById('pay-'+method).style.borderColor='rgba(201,168,76,0.5)';
+  var sel=document.getElementById('pay-'+method);
+  if(sel) sel.style.borderColor='rgba(201,168,76,0.5)';
 }
 function switchOrderPlan(plan){
   // 탭 스타일 업데이트
@@ -5244,6 +5231,53 @@ function switchToPremiumPlus(){
   var modal=document.getElementById('modal-order');
   if(modal) modal.scrollTo({top:0,behavior:'smooth'});
 }
+function showPaymentConfirmModal(amountNum){
+  return new Promise(function(resolve){
+    // 현재 주문 정보 수집 (DOM 기준)
+    var dirEl=document.getElementById('payment-lang');
+    var direction=dirEl?dirEl.textContent.trim():'-';
+    var fieldSel=document.getElementById('field-select');
+    var field=fieldSel?fieldSel.options[fieldSel.selectedIndex].text:'일반';
+    var ccEl=document.getElementById('char-count');
+    var charCount=ccEl?(parseInt(ccEl.textContent.replace(/[^0-9]/g,''))||0):0;
+    var _pt=document.getElementById('pasteText');
+    var _ot=document.getElementById('ocr-result-text');
+    var srcText=(window._inputMode==='ocr')?(_ot?_ot.value:''):(_pt?_pt.value:'');
+    srcText=srcText||'';
+    var preview=srcText.substring(0,200)+(srcText.length>200?'…':'');
+    var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+
+    var modal=document.createElement('div');
+    modal.id='payment-confirm-modal';
+    modal.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\'Noto Sans KR\',sans-serif';
+    modal.innerHTML=''
+      +'<div data-act="cancel" style="position:absolute;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)"></div>'
+      +'<div style="position:relative;background:linear-gradient(135deg,#0a1a2e,#0d2540);border:1px solid rgba(201,168,76,0.4);border-radius:14px;padding:28px;max-width:520px;width:92%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">'
+        +'<h3 style="color:var(--gold);font-size:20px;font-weight:700;margin:0 0 18px;text-align:center;font-family:\'Nanum Myeongjo\',serif">⚠ 결제 전 최종 확인</h3>'
+        +'<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 18px;margin-bottom:14px">'
+          +'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:rgba(255,255,255,0.55);font-size:13px">번역 방향</span><strong style="color:#fff;font-size:13px">'+esc(direction)+'</strong></div>'
+          +'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:rgba(255,255,255,0.55);font-size:13px">전문 분야</span><strong style="color:#fff;font-size:13px">'+esc(field)+'</strong></div>'
+          +'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:rgba(255,255,255,0.55);font-size:13px">글자수</span><strong style="color:#fff;font-size:13px">'+charCount.toLocaleString()+'자</strong></div>'
+          +'<div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:rgba(255,255,255,0.55);font-size:13px">결제 금액</span><strong style="color:var(--gold);font-size:16px">'+(amountNum||0).toLocaleString()+'원</strong></div>'
+        +'</div>'
+        +'<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px 14px;margin-bottom:14px">'
+          +'<p style="color:rgba(255,255,255,0.7);font-size:12px;margin:0 0 6px;font-weight:500">원문 미리보기</p>'
+          +'<p style="margin:0;color:rgba(255,255,255,0.6);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+(esc(preview)||'<span style="color:rgba(255,255,255,0.3)">(원문 없음)</span>')+'</p>'
+        +'</div>'
+        +'<div style="background:rgba(224,85,85,0.08);border-left:3px solid #e05555;padding:12px 14px;border-radius:4px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.85);margin-bottom:20px">'
+          +'⚠ <strong>중요 안내</strong><br>• 결제 완료 후 <strong style="color:#ffb84d">AI 번역이 즉시 자동 착수</strong>됩니다<br>• 착수 후에는 <strong style="color:#ff8888">원문 수정 / 환불 불가</strong>합니다<br>• 번역 방향·분야·원문에 오류가 없는지 다시 확인해 주세요'
+        +'</div>'
+        +'<div style="display:flex;gap:10px">'
+          +'<button data-act="cancel" style="flex:1;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);font-family:inherit">✗ 취소 (수정)</button>'
+          +'<button data-act="confirm" style="flex:1;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:var(--gold);color:#0a1a2e;font-family:inherit">✓ 확인 · 결제 진행</button>'
+        +'</div>'
+      +'</div>';
+    document.body.appendChild(modal);
+    var done=function(v){ if(modal.parentNode) modal.parentNode.removeChild(modal); resolve(v); };
+    modal.querySelectorAll('[data-act="cancel"]').forEach(function(el){ el.onclick=function(){done(false);}; });
+    modal.querySelector('[data-act="confirm"]').onclick=function(){done(true);};
+  });
+}
 async function completePayment(){
   // 200만원 초과 시 법인계좌 입금 안내
   var amountEl=document.getElementById('payment-amount');
@@ -5264,19 +5298,22 @@ async function completePayment(){
   if(_refData===null)return;
   if(_refData.hasReference){console.log('[참고자료]',_refData.referenceFiles.map(function(f){return f.name;}));}
 
-  // 결제수단 → 포트원 payMethod 매핑
+  // 결제수단 → 포트원 payMethod 매핑 (카드 / 실시간 계좌이체만 허용)
   var selectedPayEl=document.querySelector('input[name="paymethod"]:checked');
   var portonePayMethod='';
   if(selectedPayEl){
     var selectedLabel=selectedPayEl.closest('label');
-    if(selectedLabel&&selectedLabel.id==='pay-kakao') portonePayMethod='EASY_PAY';
-    else if(selectedLabel&&selectedLabel.id==='pay-card') portonePayMethod='CARD';
+    if(selectedLabel&&selectedLabel.id==='pay-card') portonePayMethod='CARD';
     else if(selectedLabel&&selectedLabel.id==='pay-bank') portonePayMethod='TRANSFER';
   }
   if(!portonePayMethod){
     alert('결제 수단을 선택해주세요.');
     return;
   }
+
+  // ── [P4] 결제 전 최종 재확인 모달 (1회) ────────────────────
+  var _confirmed=await showPaymentConfirmModal(amountNum);
+  if(!_confirmed) return;
 
   // ── 포트원 V2 결제 요청 ──────────────────────────────────
     var paymentId='iumm_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
