@@ -317,6 +317,7 @@ body.admin-focus .focus-exit-hint{display:inline}
   </nav>
   <div class="admin-body">
     <div class="tabs">
+      <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')" style="color:#f59e0b"><i class="ti ti-wallet" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>입금대기<span id="bp-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#d97706;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
       <button class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
       <button class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
       <button class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
@@ -325,7 +326,6 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
       <button class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>미배정</button>
       <button class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#f87171"><i class="ti ti-ban" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>번역실패</button>
-      <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기</button>
       <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
       <button class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
       <button class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
@@ -958,6 +958,7 @@ async function doAdminLogin() {
       document.getElementById('login-view').style.display = 'none';
       document.getElementById('admin-view').style.display = 'flex';
       loadOrders();
+      refreshBpBadge();
     } else {
       document.getElementById('login-err').textContent = res.error || '로그인 실패';
     }
@@ -1159,34 +1160,73 @@ async function loadFailedOrders() {
   }
 }
 
-async function loadBankPending() {
-  var wrap = document.getElementById('orders-wrap');
-  wrap.innerHTML = '<table class="orders-table"><thead><tr><th>주문번호</th><th>고객이메일</th><th>글자수</th><th>결제방식</th><th>접수일</th><th>금액</th><th>처리</th></tr></thead><tbody id="orders-tbody"><tr class="empty-row"><td colspan="7">로딩 중…</td></tr></tbody></table>';
+function _bpEsc(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _bpUpdateBadge(n) {
+  var b = document.getElementById('bp-badge');
+  if (!b) return;
+  b.textContent = n;
+  b.style.display = n > 0 ? 'inline-block' : 'none';
+}
+async function refreshBpBadge() {
   try {
     var res = await adminFetch('/api/admin/orders?tab=bank_pending');
-    if (!res.success) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
+    if (res && res.success) _bpUpdateBadge((res.orders||[]).length);
+  } catch(e) {}
+}
+async function loadBankPending() {
+  var wrap = document.getElementById('orders-wrap');
+  wrap.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,0.5);padding:16px">로딩 중…</p>';
+  try {
+    var res = await adminFetch('/api/admin/orders?tab=bank_pending');
+    if (!res.success) { wrap.innerHTML = '<p style="font-size:13px;color:#f87171;padding:16px">로드 실패: ' + _bpEsc(res.error||'') + '</p>'; return; }
     var orders = res.orders || [];
+    _bpUpdateBadge(orders.length);
     if (!orders.length) {
-      var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">입금대기 주문이 없습니다</td></tr>';
+      wrap.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,0.45);padding:24px;text-align:center">입금대기 중인 주문이 없습니다.</p>';
       return;
     }
-    var tb = document.getElementById('orders-tbody');
-    if (tb) tb.innerHTML = orders.map(function(o) {
-      return '<tr>' +
-        '<td>' + (o.orderNumber||o.orderId.slice(0,12)) + '</td>' +
-        '<td>' + (o.customerEmail||'—') + '</td>' +
-        '<td>' + (o.charCount||0).toLocaleString() + '자</td>' +
-        '<td><span class="tag tag-ap">계좌입금</span></td>' +
-        '<td>' + ymd(o.receivedAt) + '</td>' +
-        '<td>₩' + (o.paymentAmount||0).toLocaleString() + '</td>' +
-        '<td><button onclick="confirmBankPayment(\'' + o.orderId + '\',\'' + (o.orderNumber||'').replace(/'/g,"\\'") + '\')" style="padding:4px 10px;font-size:12px;background:#22c55e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600">입금확인</button></td>' +
-        '</tr>';
+    var head = '<div style="padding:8px 2px 14px"><p style="font-size:14px;font-weight:700;color:#f59e0b;margin-bottom:3px"><i class="ti ti-wallet" style="vertical-align:-1px;margin-right:4px"></i>200만원 초과 입금 대기 주문 (' + orders.length + '건)</p><p style="font-size:11px;color:rgba(255,255,255,0.4)">법인 계좌 입금 확인 후 \'입금 확인 · AI 번역 착수\'를 눌러 처리하세요.</p></div>';
+    var row = function(lbl, val) {
+      return '<div style="display:flex;font-size:12px;line-height:1.7"><span style="flex:0 0 76px;color:rgba(255,255,255,0.4)">' + lbl + '</span><span style="color:rgba(255,255,255,0.85);word-break:break-all">' + val + '</span></div>';
+    };
+    wrap.innerHTML = head + orders.map(function(o) {
+      var on = _bpEsc(o.orderNumber || o.orderId.slice(0,12));
+      var src = _bpEsc(o.originalText || '');
+      var gloss = (o.customerGlossary && o.customerGlossary !== '없음')
+        ? '<div style="margin-top:8px"><span style="font-size:11px;color:rgba(255,255,255,0.4)">고객 용어집</span><pre style="margin:4px 0 0;white-space:pre-wrap;word-break:break-all;font-size:11px;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.03);border-radius:4px;padding:8px 10px;font-family:inherit">' + _bpEsc(o.customerGlossary) + '</pre></div>'
+        : '';
+      return '<div style="background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.3);border-radius:10px;padding:16px 18px;margin-bottom:14px">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08)">'
+          + '<strong style="font-size:15px;color:var(--gold)">' + on + '</strong>'
+          + '<span style="font-size:16px;font-weight:700;color:#22c55e">₩' + (o.paymentAmount||0).toLocaleString() + '</span>'
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;margin-bottom:10px">'
+          + row('회원', _bpEsc(o.customerName||'—'))
+          + row('이메일', _bpEsc(o.customerEmail||'—'))
+          + row('전화', _bpEsc(o.customerPhone||'—'))
+          + row('플랜', _bpEsc(o.plan||'—'))
+          + row('번역방향', _bpEsc(o.direction||'—'))
+          + row('전문분야', _bpEsc(o.fieldLabel||'—'))
+          + row('분야코드', _bpEsc(o.fieldCode||'—'))
+          + row('글자수', (o.charCount||0).toLocaleString() + '자')
+          + row('접수일시', _bpEsc(ymd(o.receivedAt)))
+          + row('결제상태', _bpEsc(o.paymentStatus||'입금대기'))
+        + '</div>'
+        + '<div><span style="font-size:11px;color:rgba(255,255,255,0.4)">원문</span><pre style="margin:4px 0 0;white-space:pre-wrap;word-break:break-all;font-size:12px;color:rgba(255,255,255,0.82);background:rgba(255,255,255,0.03);border-radius:4px;padding:10px 12px;max-height:180px;overflow-y:auto;font-family:inherit">' + (src||'<span style="color:rgba(255,255,255,0.3)">(원문 없음)</span>') + '</pre></div>'
+        + gloss
+        + '<div style="display:flex;gap:10px;margin-top:14px">'
+          + '<button onclick="confirmBankPayment(\'' + o.orderId + '\',\'' + (o.orderNumber||'').replace(/'/g,"\\'") + '\')" style="flex:1;padding:11px;font-size:13px;background:#16B894;color:#fff;border:none;border-radius:7px;cursor:pointer;font-weight:700;font-family:\'Noto Sans KR\',sans-serif">✓ 입금 확인 · AI 번역 착수</button>'
+          + '<button onclick="cancelBankPayment(\'' + o.orderId + '\',\'' + (o.orderNumber||'').replace(/'/g,"\\'") + '\')" style="flex:0 0 90px;padding:11px;font-size:13px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;border-radius:7px;cursor:pointer;font-weight:600;font-family:\'Noto Sans KR\',sans-serif">✗ 취소</button>'
+        + '</div>'
+      + '</div>';
     }).join('');
-  } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>'; }
+  } catch(e) { wrap.innerHTML = '<p style="font-size:13px;color:#f87171;padding:16px">오류: ' + _bpEsc(e.message) + '</p>'; }
 }
 
 async function confirmBankPayment(orderId, orderNumber) {
-  if (!confirm('입금을 확인하고 AI 번역을 시작합니다.\n주문: ' + (orderNumber||orderId))) return;
+  if (!confirm('주문 ' + (orderNumber||orderId) + '의 입금이 확인되었나요?\n\n확인 시 AI 번역이 즉시 시작되며 취소할 수 없습니다.')) return;
   try {
     var res = await adminFetch('/api/admin/payment/confirm/' + orderId, { method: 'POST' });
     if (res.ok) {
@@ -1194,6 +1234,21 @@ async function confirmBankPayment(orderId, orderNumber) {
       loadBankPending();
     } else {
       showToast('⚠️ ' + (res.error||'처리 실패'), 'error');
+    }
+  } catch(e) {
+    showToast('⚠️ 서버 오류: ' + e.message, 'error');
+  }
+}
+
+async function cancelBankPayment(orderId, orderNumber) {
+  if (!confirm('주문 ' + (orderNumber||orderId) + '을(를) 입금대기에서 취소 처리하시겠습니까?')) return;
+  try {
+    var res = await adminFetch('/api/admin/payment/cancel/' + orderId, { method: 'POST' });
+    if (res.ok) {
+      showToast('✗ 입금대기 취소: ' + (orderNumber||orderId), 'success');
+      loadBankPending();
+    } else {
+      showToast('⚠️ ' + (res.error||'취소 실패'), 'error');
     }
   } catch(e) {
     showToast('⚠️ 서버 오류: ' + e.message, 'error');
@@ -2337,6 +2392,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('admin-view').style.display = 'flex';
     loadOrders();
+    refreshBpBadge();
   }
 });
 
