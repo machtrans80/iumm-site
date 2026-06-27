@@ -748,13 +748,6 @@ section[data-collapsible].collapsible-built + section[data-collapsible].collapsi
 .collapsible-header:hover .collapsible-preview{color:rgba(255,255,255,0.85) !important}
 section[data-collapsible].open .collapsible-preview{display:none !important}
 @media(max-width:768px){.collapsible-preview{font-size:12px !important;margin-top:8px !important;padding:0 8px !important}}
-/* ── 데스크톱 호버 자동 펼침 (769px↑·hover 가능 기기). 클릭 토글(.open)은 그대로 유지 ── */
-@media(hover:hover) and (min-width:769px){
-  section[data-collapsible].collapsible-built:hover .collapsible-content{max-height:9000px;opacity:1;pointer-events:auto;padding-top:20px;padding-bottom:40px;padding-left:24px;padding-right:24px}
-  section[data-collapsible].collapsible-built:hover .collapsible-toggle{background:rgba(22,184,148,0.22);border-color:rgba(22,184,148,0.5)}
-  section[data-collapsible].collapsible-built:hover .collapsible-toggle::after{transform:scaleY(0)}
-  section[data-collapsible].collapsible-built:hover .collapsible-preview{display:none !important}
-}
 /* ── Security 통합 섹션 ──────────────────────────────────── */
 .security-warning-box{background:rgba(217,119,6,0.08);border-left:3px solid #d97706;padding:20px 24px;margin-bottom:24px;border-radius:0 8px 8px 0}
 .security-warning-box p{margin:8px 0;font-size:15px;line-height:1.8;color:rgba(255,255,255,0.85)}
@@ -2300,106 +2293,130 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   </div>
 </section>
 
-<!-- PRICING -->
-<section class="pricing" id="pricing" data-collapsible data-category="PRICING">
-  <p class="section-label">Pricing</p>
-  <h2 class="section-title">투명한 <span class="mint">요금제</span></h2>
-  <div class="pricing-cards" style="grid-template-columns:repeat(4,1fr);max-width:1200px">
-    <div class="price-card featured">
-      <div class="price-badge">무료 체험</div>
-      <p class="price-type">회원가입 시 · 1회 한정</p>
-      <h3 class="price-name">무료 체험</h3>
-      <p class="price-amount">0원</p>
-      <p class="price-unit">300글자 · 신용카드 불필요</p>
-      <ul class="price-list">
-        <li><span>✓</span> AI 9.5단계 정밀 검수</li>
-        <li><span>✓</span> 사전 문서 분석 포함</li>
-        <li><span>✓</span> 용어집 자동 생성</li>
-        <li><span>✗</span> 전문가 검수 미포함</li>
-        <li><span>✓</span> 회원가입 후 즉시 사용</li>
-      </ul>
-      <button style="background:var(--gold);color:var(--black);border:none;width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false">무료로 시작하기</button>
-    </div>
+<!-- 접힌 섹션 박스 그리드 -->
+<div class="collapsed-grid-section">
+  <div class="collapsed-grid">
+    <button class="collapsed-card" onclick="openCardModal('section-20year')" type="button">
+      <div class="collapsed-card-category">WHY WE'RE DIFFERENT</div>
+      <h4 class="collapsed-card-title"><span class="kw">20년</span>의 번역 노하우<br><span class="kw">슈퍼 AI</span>에 담다</h4>
+      <p class="collapsed-card-preview"><strong>20년 노하우</strong> · <strong>9.5단계</strong> · <strong>정부 조달 수준</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCardModal('about')" type="button">
+      <div class="collapsed-card-category">WHY IUMM</div>
+      <h4 class="collapsed-card-title">번역 서비스<br>이제 <span class="kw">다르게</span> 선택하세요</h4>
+      <p class="collapsed-card-preview">전문가 <strong>100~200원</strong> · IUMM <strong>25원~</strong> · 기계 <strong>무료</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCardModal('fields')" type="button">
+      <div class="collapsed-card-category">17 SPECIALIZED FIELDS</div>
+      <h4 class="collapsed-card-title"><span class="kw">분야 선택 하나</span>로<br><span class="kw">전문성</span>의 깊이가 달라집니다</h4>
+      <p class="collapsed-card-preview"><strong>17개 분야</strong> · <strong>30개 언어</strong> · 글로벌 표준</p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCardModal('section-security')" type="button">
+      <div class="collapsed-card-category">SECURITY</div>
+      <h4 class="collapsed-card-title">당신의 문서,<br><span class="kw">철저하게 보호</span>됩니다</h4>
+      <p class="collapsed-card-preview"><strong>AI 학습 차단</strong> · <strong>21일 자동 삭제</strong> · <strong>NDA</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCardModal('section-glossary')" type="button">
+      <div class="collapsed-card-category">GLOSSARY</div>
+      <h4 class="collapsed-card-title">용어집,<br><span class="kw">무료</span>로 제작해드립니다</h4>
+      <p class="collapsed-card-preview"><strong>무료 용어집</strong> 자동 생성 · 업계 표준 용어</p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+    <button class="collapsed-card" onclick="openCardModal('section-human-touch')" type="button">
+      <div class="collapsed-card-category">HUMAN TOUCH</div>
+      <h4 class="collapsed-card-title">철저한 자체 <span class="kw">21가지</span><br><span class="kw">전문 검수</span> 기준</h4>
+      <p class="collapsed-card-preview"><strong>21가지 검수</strong> · 전문 번역사 <strong>1:1 대조</strong></p>
+      <span class="collapsed-card-arrow">→</span>
+    </button>
+  </div>
+</div>
 
-    <div class="price-card" style="border-color:rgba(120,160,255,0.35);background:rgba(120,160,255,0.05)">
-      <div id="badge-ai" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#1a2d6e;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
-      <p class="price-type" style="color:#8ba8ff">개인 · 기업</p>
-      <h3 class="price-name">AI 프리미엄</h3>
-      <p class="price-amount" style="color:#8ba8ff">25원~</p>
-      <p class="price-unit">글자당 · AI 9.5단계 정밀 검수</p>
-      <ul class="price-list">
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 1-2 · 사전 문서 분석</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">원문 분석 · 용어집 생성 · 방향성 수립</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 3-4 · 정밀 번역</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">용어집 + 지침 100% 적용</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 5-6 · AI 품질 검수</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">오역·누락·어색한 표현 철저 검수</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 7-8 · AI 교차 검증</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">독립적 관점 교차 검증</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 9.5 · 최종 완성</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">모든 의견 반영 최종 번역 완성</span>
-        </li>
-        <li><span>✗</span> <span style="color:rgba(255,255,255,0.35);font-size:12px">전문가 검수 미포함</span></li>
+<!-- COMPARISON -->
+<section class="comparison" id="about" data-collapsible data-category="WHY IUMM" data-preview="전문가 번역(100~200원)  ·  IUMM 아이움(25원~)  ·  기계 번역(무료)">
+  <p class="section-label">Why IUMM</p>
+  <h2 class="section-title">번역 서비스 이제 <span class="mint">다르게</span> 선택하세요</h2>
+  <div class="comp-grid" style="margin-top:52px;padding-top:18px">
+    <div class="comp-card">
+      <p class="comp-tag">기존 번역 회사</p>
+      <h3 class="comp-name">전문가 번역</h3>
+      <p class="comp-price">100~200원</p>
+      <p class="comp-price-sub">글자당 · 검수 별도 추가비용</p>
+      <ul class="comp-features">
+        <li><span>✗</span> 높은 단가</li>
+        <li><span>✗</span> 긴 납기</li>
+        <li><span>✓</span> 전문가 번역</li>
+        <li><span>✗</span> 보안 불확실</li>
       </ul>
-      <p style="font-size:11px;color:rgba(120,160,255,0.6);line-height:1.7;margin-bottom:14px;font-weight:300;flex:1">어떤 AI 번역보다 높은 퀄리티.<br>만족스러운 퀄리티 대비 최저가 실현.</p>
-      <button id="btn-ai" onclick="handleAI()" style="background:rgba(120,160,255,0.12);color:rgba(139,168,255,0.55);border:1px solid rgba(120,160,255,0.22);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">시작하기</button>
     </div>
-
-    <div class="price-card" style="border-color:rgba(99,153,34,0.35);background:rgba(99,153,34,0.05)">
-      <div id="badge-standard" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#3d6614;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
-      <p class="price-type" style="color:#97c459">개인 · 기업</p>
-      <h3 class="price-name">프리미엄 플러스</h3>
-      <p class="price-amount" style="color:#97c459">40원~</p>
-      <p class="price-unit">글자당 · AI 9.5단계 + 전문가 직접검수</p>
-      <ul class="price-list">
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#97c459;font-weight:700;font-size:12px">AI 9.5단계 정밀 검수</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">사전분석 · 정밀번역 · 품질검수 · 교차검증 · 최종완성</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px;border-left:2px solid rgba(99,153,34,0.5);padding-left:10px;margin-top:4px">
-          <span style="color:#97c459;font-weight:700;font-size:12px">전문가 · 번역사 직접 대조 검수</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">원문 1:1 대조 + 21가지 전문 체크리스트</span>
-          <span style="font-size:12px;color:#97c459;font-weight:400">전문 번역사가 직접 최종 완성</span>
-        </li>
+    <div class="comp-card featured">
+      <div class="comp-best"><i class="ti ti-star-filled" style="font-size:10px;vertical-align:1px;color:#c9a84c"></i> BEST</div>
+      <p class="comp-tag">AI 기반 프리미엄</p>
+      <h3 class="comp-name">IUMM 아이움</h3>
+      <p class="comp-price">25원~</p>
+      <p class="comp-price-sub">글자당 · AI 프리미엄 기준<br><span style="font-size:11px;color:var(--gold)">+전문가 검수 포함 40원~</span></p>
+      <ul class="comp-features">
+        <li><span>✓</span> 합리적인 가격</li>
+        <li><span>✓</span> 빠른 당일 납품 (업계 최고 수준)</li>
+        <li><span>✓</span> <span><strong style="color:var(--gold)">독자적인 9.5단계 정밀 검수</strong><br><span style="font-size:11px">분석·번역·교차검수·최종 검토</span></span></li>
+        <li><span>✓</span> <span style="color:var(--gold);font-weight:600">전문가 직접 대조 검수</span><br><span style="font-size:11px">프리미엄 플러스 옵션</span></li>
+        <li><span>✓</span> AI 학습 차단 보안 환경</li>
       </ul>
-        <li style="margin-top:4px">
-          <span>✓</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.6)">업계 최고 속도 납기<br><span style="color:rgba(255,255,255,0.35)">(5페이지 기준 24~48시간)</span></span>
-        </li>
-      </ul>
-      <button id="btn-standard" onclick="handleStandard()" style="background:rgba(99,153,34,0.15);color:rgba(150,196,89,0.6);border:1px solid rgba(99,153,34,0.25);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">시작하기</button>
     </div>
-
-    <div class="price-card" style="border-color:rgba(55,138,221,0.35);background:rgba(55,138,221,0.05)">
-      <div id="badge-biz" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#0c3b6e;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
-      <p class="price-type" style="color:#85b7eb">기업 · 기관</p>
-      <h3 class="price-name">비즈니스</h3>
-      <p class="price-amount" style="color:#85b7eb">견적</p>
-      <p class="price-unit">연간 · 월간 계약 단위</p>
-      <ul class="price-list">
-        <li><span>✓</span> 전담 번역가 배정</li>
-        <li><span>✓</span> 기업 전용 용어집 관리</li>
-        <li><span>✓</span> NDA 보안 계약</li>
-        <li><span>✓</span> 계약서·매뉴얼·IR 자료</li>
-        <li><span>✓</span> 우선 납기 · 전담 CS 지원</li>
+    <div class="comp-card">
+      <p class="comp-tag">AI 번역 서비스</p>
+      <h3 class="comp-name">기계 번역</h3>
+      <p class="comp-price">무료~</p>
+      <p class="comp-price-sub">글자당 · 검수 없음</p>
+      <ul class="comp-features">
+        <li><span>✓</span> 저렴한 가격</li>
+        <li><span>✓</span> 빠른 속도</li>
+        <li><span>✗</span> 전문가 검수 없어 불안</li>
+        <li><span>✗</span> 뉘앙스 오류 다수</li>
       </ul>
-      <button id="btn-biz" onclick="handleBiz()" style="background:rgba(55,138,221,0.1);color:rgba(133,183,235,0.5);border:1px solid rgba(55,138,221,0.2);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">문의하기</button>
     </div>
   </div>
-  <div class="plan-guide">
-    <div class="guide-icon"><i class="ti ti-help-circle"></i></div>
-    <h3 class="guide-title">어떤 플랜을 선택해야 할까요?</h3>
-    <p class="guide-body">일반적인 업무·콘텐츠는 <strong class="key-ai">AI 프리미엄 번역</strong>으로 충분합니다.</p>
-    <p class="guide-body">계약서·논문·특허 등 완벽함이 필요한 문서도 AI 프리미엄 번역으로 커버가 가능하나, 전문가의 터치가 한번 더 필요하시다면 <strong class="key-plus">프리미엄 플러스</strong>를 추천드립니다.</p>
+  <!-- 모바일 전용: 다른 서비스 비교 토글 -->
+  <div class="mob-compare-toggle" style="display:none;justify-content:center;margin-top:18px">
+    <button style="padding:10px 22px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.6);font-size:12px;cursor:pointer;font-family:inherit" onclick="document.querySelectorAll('.comp-card:not(.featured)').forEach(function(c){c.classList.toggle('mob-expanded')});this.textContent=this.textContent.includes('비교')? '접기 ▲' : '다른 서비스와 비교 ▼'">다른 서비스와 비교 ▼</button>
+  </div>
+</section>
+
+<!-- 20년 노하우 섹션 -->
+<section id="section-20year" data-collapsible data-category="WHY WE'RE DIFFERENT" data-preview="✓ 20년 노하우  ✓ 9.5단계 정밀 검수  ✓ 정부 조달 수준" style="padding:2.5rem 56px;background:#0F2540;position:relative;text-align:center">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(22,184,148,0.08) 0%,transparent 70%);pointer-events:none"></div>
+  <div style="position:relative;z-index:1;max-width:820px;margin:0 auto">
+    <p style="display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#5DE0BC;letter-spacing:0.06em;margin-bottom:20px;padding:6px 18px;border:1px solid rgba(93,224,188,0.25);border-radius:99px"><i class="ti ti-star-filled" style="color:#c9a84c;font-size:12px"></i> WHY WE'RE DIFFERENT</p>
+    <h2 style="font-size:clamp(24px,3.2vw,42px);font-weight:600;color:#ffffff;line-height:1.2;letter-spacing:-0.03em;margin-bottom:24px;word-break:keep-all"><span style="color:#c9a84c">20년</span>의 번역 노하우<br><span style="color:#16B894">슈퍼 AI</span>에 담다</h2>
+    <p style="font-size:17px;color:rgba(255,255,255,0.88);line-height:1.85;margin-bottom:18px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
+      <strong style="color:#c9a84c;font-weight:600">20년 번역 노하우</strong>를 접목해, 일반 AI가 놓치는 오류를 최소화한<br>
+      <strong style="color:#16B894;font-weight:600">아이움만의 슈퍼 번역 AI</strong>를 직접 개발했습니다.
+    </p>
+    <p style="font-size:17px;color:rgba(255,255,255,0.82);line-height:1.85;margin-bottom:28px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
+      AI 프리미엄으로 의뢰하셔도 <strong style="color:#16B894;font-weight:600">9.5단계 분석·검증·검수·검토</strong>를 거쳐<br>
+      충분한 퀄리티의 번역물을 받으실 수 있습니다.
+    </p>
+    <!-- WHY 3박스 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:820px;margin:0 auto 28px">
+      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:8px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-bolt"></i></div>
+        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">빠른 처리</div>
+        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">빠른 당일 납품<br><strong style="color:#16B894">업계 최고 수준</strong><br><span style="font-size:13px;color:rgba(255,255,255,0.55)">(A4 5페이지 이하 기준)</span></div>
+      </div>
+      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-target"></i></div>
+        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">9.5단계 정밀 검수</div>
+        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">독자 알고리즘 + 최종 검토<br><strong style="color:#16B894">어디에도 없는 기술</strong></div>
+      </div>
+      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(93,224,188,0.05);border:1px solid rgba(93,224,188,0.15);border-radius:8px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-user-check"></i></div>
+        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">전문가 검수 옵션</div>
+        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">자격사 직접 1:1 대조<br><strong style="color:#d97706">프리미엄 플러스 선택 시</strong></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2542,90 +2559,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   </div>
 </section>
 
-<!-- COMPARISON -->
-<section class="comparison" id="about" data-collapsible data-category="WHY IUMM" data-preview="전문가 번역(100~200원)  ·  IUMM 아이움(25원~)  ·  기계 번역(무료)">
-  <p class="section-label">Why IUMM</p>
-  <h2 class="section-title">번역 서비스 이제 <span class="mint">다르게</span> 선택하세요</h2>
-  <div class="comp-grid" style="margin-top:52px;padding-top:18px">
-    <div class="comp-card">
-      <p class="comp-tag">기존 번역 회사</p>
-      <h3 class="comp-name">전문가 번역</h3>
-      <p class="comp-price">100~200원</p>
-      <p class="comp-price-sub">글자당 · 검수 별도 추가비용</p>
-      <ul class="comp-features">
-        <li><span>✗</span> 높은 단가</li>
-        <li><span>✗</span> 긴 납기</li>
-        <li><span>✓</span> 전문가 번역</li>
-        <li><span>✗</span> 보안 불확실</li>
-      </ul>
-    </div>
-    <div class="comp-card featured">
-      <div class="comp-best"><i class="ti ti-star-filled" style="font-size:10px;vertical-align:1px;color:#c9a84c"></i> BEST</div>
-      <p class="comp-tag">AI 기반 프리미엄</p>
-      <h3 class="comp-name">IUMM 아이움</h3>
-      <p class="comp-price">25원~</p>
-      <p class="comp-price-sub">글자당 · AI 프리미엄 기준<br><span style="font-size:11px;color:var(--gold)">+전문가 검수 포함 40원~</span></p>
-      <ul class="comp-features">
-        <li><span>✓</span> 합리적인 가격</li>
-        <li><span>✓</span> 빠른 당일 납품 (업계 최고 수준)</li>
-        <li><span>✓</span> <span><strong style="color:var(--gold)">독자적인 9.5단계 정밀 검수</strong><br><span style="font-size:11px">분석·번역·교차검수·최종 검토</span></span></li>
-        <li><span>✓</span> <span style="color:var(--gold);font-weight:600">전문가 직접 대조 검수</span><br><span style="font-size:11px">프리미엄 플러스 옵션</span></li>
-        <li><span>✓</span> AI 학습 차단 보안 환경</li>
-      </ul>
-    </div>
-    <div class="comp-card">
-      <p class="comp-tag">AI 번역 서비스</p>
-      <h3 class="comp-name">기계 번역</h3>
-      <p class="comp-price">무료~</p>
-      <p class="comp-price-sub">글자당 · 검수 없음</p>
-      <ul class="comp-features">
-        <li><span>✓</span> 저렴한 가격</li>
-        <li><span>✓</span> 빠른 속도</li>
-        <li><span>✗</span> 전문가 검수 없어 불안</li>
-        <li><span>✗</span> 뉘앙스 오류 다수</li>
-      </ul>
-    </div>
-  </div>
-  <!-- 모바일 전용: 다른 서비스 비교 토글 -->
-  <div class="mob-compare-toggle" style="display:none;justify-content:center;margin-top:18px">
-    <button style="padding:10px 22px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.6);font-size:12px;cursor:pointer;font-family:inherit" onclick="document.querySelectorAll('.comp-card:not(.featured)').forEach(function(c){c.classList.toggle('mob-expanded')});this.textContent=this.textContent.includes('비교')? '접기 ▲' : '다른 서비스와 비교 ▼'">다른 서비스와 비교 ▼</button>
-  </div>
-</section>
-
-<!-- 20년 노하우 섹션 -->
-<section id="section-20year" data-collapsible data-category="WHY WE'RE DIFFERENT" data-preview="✓ 20년 노하우  ✓ 9.5단계 정밀 검수  ✓ 정부 조달 수준" style="padding:2.5rem 56px;background:#0F2540;position:relative;text-align:center">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(22,184,148,0.08) 0%,transparent 70%);pointer-events:none"></div>
-  <div style="position:relative;z-index:1;max-width:820px;margin:0 auto">
-    <p style="display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#5DE0BC;letter-spacing:0.06em;margin-bottom:20px;padding:6px 18px;border:1px solid rgba(93,224,188,0.25);border-radius:99px"><i class="ti ti-star-filled" style="color:#c9a84c;font-size:12px"></i> WHY WE'RE DIFFERENT</p>
-    <h2 style="font-size:clamp(24px,3.2vw,42px);font-weight:600;color:#ffffff;line-height:1.2;letter-spacing:-0.03em;margin-bottom:24px;word-break:keep-all"><span style="color:#c9a84c">20년</span>의 번역 노하우<br><span style="color:#16B894">슈퍼 AI</span>에 담다</h2>
-    <p style="font-size:17px;color:rgba(255,255,255,0.88);line-height:1.85;margin-bottom:18px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
-      <strong style="color:#c9a84c;font-weight:600">20년 번역 노하우</strong>를 접목해, 일반 AI가 놓치는 오류를 최소화한<br>
-      <strong style="color:#16B894;font-weight:600">아이움만의 슈퍼 번역 AI</strong>를 직접 개발했습니다.
-    </p>
-    <p style="font-size:17px;color:rgba(255,255,255,0.82);line-height:1.85;margin-bottom:28px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
-      AI 프리미엄으로 의뢰하셔도 <strong style="color:#16B894;font-weight:600">9.5단계 분석·검증·검수·검토</strong>를 거쳐<br>
-      충분한 퀄리티의 번역물을 받으실 수 있습니다.
-    </p>
-    <!-- WHY 3박스 -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:820px;margin:0 auto 28px">
-      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:8px;text-align:center">
-        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-bolt"></i></div>
-        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">빠른 처리</div>
-        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">빠른 당일 납품<br><strong style="color:#16B894">업계 최고 수준</strong><br><span style="font-size:13px;color:rgba(255,255,255,0.55)">(A4 5페이지 이하 기준)</span></div>
-      </div>
-      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;text-align:center">
-        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-target"></i></div>
-        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">9.5단계 정밀 검수</div>
-        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">독자 알고리즘 + 최종 검토<br><strong style="color:#16B894">어디에도 없는 기술</strong></div>
-      </div>
-      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(93,224,188,0.05);border:1px solid rgba(93,224,188,0.15);border-radius:8px;text-align:center">
-        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-user-check"></i></div>
-        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">전문가 검수 옵션</div>
-        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">자격사 직접 1:1 대조<br><strong style="color:#d97706">프리미엄 플러스 선택 시</strong></div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- 16개 전문 분야 + 글로벌 표준 (통합형, 클릭 가능) -->
 <section id="fields" data-collapsible data-category="17 SPECIALIZED FIELDS · GLOBAL STANDARDS" data-preview="법률·의료·특허·금융·기술·학술 등 17개 분야 · 30개 언어" style="padding:56px 60px;background:linear-gradient(180deg,rgba(22,184,148,0.025) 0%,var(--black) 100%)">
@@ -2870,6 +2803,110 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     </div>
   </div>
 </section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing" data-collapsible data-category="PRICING">
+  <p class="section-label">Pricing</p>
+  <h2 class="section-title">투명한 <span class="mint">요금제</span></h2>
+  <div class="pricing-cards" style="grid-template-columns:repeat(4,1fr);max-width:1200px">
+    <div class="price-card featured">
+      <div class="price-badge">무료 체험</div>
+      <p class="price-type">회원가입 시 · 1회 한정</p>
+      <h3 class="price-name">무료 체험</h3>
+      <p class="price-amount">0원</p>
+      <p class="price-unit">300글자 · 신용카드 불필요</p>
+      <ul class="price-list">
+        <li><span>✓</span> AI 9.5단계 정밀 검수</li>
+        <li><span>✓</span> 사전 문서 분석 포함</li>
+        <li><span>✓</span> 용어집 자동 생성</li>
+        <li><span>✗</span> 전문가 검수 미포함</li>
+        <li><span>✓</span> 회원가입 후 즉시 사용</li>
+      </ul>
+      <button style="background:var(--gold);color:var(--black);border:none;width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false">무료로 시작하기</button>
+    </div>
+
+    <div class="price-card" style="border-color:rgba(120,160,255,0.35);background:rgba(120,160,255,0.05)">
+      <div id="badge-ai" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#1a2d6e;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
+      <p class="price-type" style="color:#8ba8ff">개인 · 기업</p>
+      <h3 class="price-name">AI 프리미엄</h3>
+      <p class="price-amount" style="color:#8ba8ff">25원~</p>
+      <p class="price-unit">글자당 · AI 9.5단계 정밀 검수</p>
+      <ul class="price-list">
+        <li style="flex-direction:column;align-items:flex-start;gap:3px">
+          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 1-2 · 사전 문서 분석</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">원문 분석 · 용어집 생성 · 방향성 수립</span>
+        </li>
+        <li style="flex-direction:column;align-items:flex-start;gap:3px">
+          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 3-4 · 정밀 번역</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">용어집 + 지침 100% 적용</span>
+        </li>
+        <li style="flex-direction:column;align-items:flex-start;gap:3px">
+          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 5-6 · AI 품질 검수</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">오역·누락·어색한 표현 철저 검수</span>
+        </li>
+        <li style="flex-direction:column;align-items:flex-start;gap:3px">
+          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 7-8 · AI 교차 검증</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">독립적 관점 교차 검증</span>
+        </li>
+        <li style="flex-direction:column;align-items:flex-start;gap:3px">
+          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 9.5 · 최종 완성</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">모든 의견 반영 최종 번역 완성</span>
+        </li>
+        <li><span>✗</span> <span style="color:rgba(255,255,255,0.35);font-size:12px">전문가 검수 미포함</span></li>
+      </ul>
+      <p style="font-size:11px;color:rgba(120,160,255,0.6);line-height:1.7;margin-bottom:14px;font-weight:300;flex:1">어떤 AI 번역보다 높은 퀄리티.<br>만족스러운 퀄리티 대비 최저가 실현.</p>
+      <button id="btn-ai" onclick="handleAI()" style="background:rgba(120,160,255,0.12);color:rgba(139,168,255,0.55);border:1px solid rgba(120,160,255,0.22);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">시작하기</button>
+    </div>
+
+    <div class="price-card" style="border-color:rgba(99,153,34,0.35);background:rgba(99,153,34,0.05)">
+      <div id="badge-standard" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#3d6614;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
+      <p class="price-type" style="color:#97c459">개인 · 기업</p>
+      <h3 class="price-name">프리미엄 플러스</h3>
+      <p class="price-amount" style="color:#97c459">40원~</p>
+      <p class="price-unit">글자당 · AI 9.5단계 + 전문가 직접검수</p>
+      <ul class="price-list">
+        <li style="flex-direction:column;align-items:flex-start;gap:3px">
+          <span style="color:#97c459;font-weight:700;font-size:12px">AI 9.5단계 정밀 검수</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">사전분석 · 정밀번역 · 품질검수 · 교차검증 · 최종완성</span>
+        </li>
+        <li style="flex-direction:column;align-items:flex-start;gap:3px;border-left:2px solid rgba(99,153,34,0.5);padding-left:10px;margin-top:4px">
+          <span style="color:#97c459;font-weight:700;font-size:12px">전문가 · 번역사 직접 대조 검수</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">원문 1:1 대조 + 21가지 전문 체크리스트</span>
+          <span style="font-size:12px;color:#97c459;font-weight:400">전문 번역사가 직접 최종 완성</span>
+        </li>
+      </ul>
+        <li style="margin-top:4px">
+          <span>✓</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.6)">업계 최고 속도 납기<br><span style="color:rgba(255,255,255,0.35)">(5페이지 기준 24~48시간)</span></span>
+        </li>
+      </ul>
+      <button id="btn-standard" onclick="handleStandard()" style="background:rgba(99,153,34,0.15);color:rgba(150,196,89,0.6);border:1px solid rgba(99,153,34,0.25);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">시작하기</button>
+    </div>
+
+    <div class="price-card" style="border-color:rgba(55,138,221,0.35);background:rgba(55,138,221,0.05)">
+      <div id="badge-biz" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#0c3b6e;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
+      <p class="price-type" style="color:#85b7eb">기업 · 기관</p>
+      <h3 class="price-name">비즈니스</h3>
+      <p class="price-amount" style="color:#85b7eb">견적</p>
+      <p class="price-unit">연간 · 월간 계약 단위</p>
+      <ul class="price-list">
+        <li><span>✓</span> 전담 번역가 배정</li>
+        <li><span>✓</span> 기업 전용 용어집 관리</li>
+        <li><span>✓</span> NDA 보안 계약</li>
+        <li><span>✓</span> 계약서·매뉴얼·IR 자료</li>
+        <li><span>✓</span> 우선 납기 · 전담 CS 지원</li>
+      </ul>
+      <button id="btn-biz" onclick="handleBiz()" style="background:rgba(55,138,221,0.1);color:rgba(133,183,235,0.5);border:1px solid rgba(55,138,221,0.2);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">문의하기</button>
+    </div>
+  </div>
+  <div class="plan-guide">
+    <div class="guide-icon"><i class="ti ti-help-circle"></i></div>
+    <h3 class="guide-title">어떤 플랜을 선택해야 할까요?</h3>
+    <p class="guide-body">일반적인 업무·콘텐츠는 <strong class="key-ai">AI 프리미엄 번역</strong>으로 충분합니다.</p>
+    <p class="guide-body">계약서·논문·특허 등 완벽함이 필요한 문서도 AI 프리미엄 번역으로 커버가 가능하나, 전문가의 터치가 한번 더 필요하시다면 <strong class="key-plus">프리미엄 플러스</strong>를 추천드립니다.</p>
+  </div>
+</section>
+
 
 <!-- GLOSSARY -->
 <section id="section-glossary" data-collapsible data-category="GLOSSARY" data-preview="무료 용어집 자동 생성 · 업계 표준 용어 기반" style="background:var(--black);padding:70px 60px">
@@ -6153,12 +6190,6 @@ function collectRefMaterial(){
     if(wasOpen){
       section.classList.remove('open');
     } else {
-      // 모바일(≤768px): 한 번에 하나만 펼침 — 다른 섹션 닫기
-      if(window.matchMedia('(max-width:768px)').matches){
-        document.querySelectorAll('section[data-collapsible].open').forEach(function(s){
-          if(s !== section) s.classList.remove('open');
-        });
-      }
       section.classList.add('open');
       setTimeout(function(){
         var top = section.getBoundingClientRect().top + window.pageYOffset - 76;
