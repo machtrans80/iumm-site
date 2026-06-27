@@ -5142,6 +5142,39 @@ function _myOrderStatusBadge(o){
   var s=map[o.statusKey]||map.progress;
   return '<span style="background:'+s.bg+';color:'+s.c+';font-size:11px;font-weight:500;padding:4px 12px;border:1px solid '+s.bd+';white-space:nowrap">'+_esc(o.statusLabel||'')+'</span>';
 }
+// 최종납품완료 + 21일 미경과 시 다운로드 버튼 렌더링
+function _myOrderDownload(o){
+  if(!o||!o.downloadable) return '';
+  var cnt=o.attachmentCount||0;
+  if(cnt<1) return '';
+  var names=o.attachmentNames||[];
+  var btns='';
+  for(var i=0;i<cnt;i++){
+    var label=cnt>1?('다운로드 '+(i+1)+(names[i]?(' · '+names[i]):'')):'최종 번역본 다운로드';
+    btns+='<button onclick="downloadDelivery(this,\''+encodeURIComponent(o.orderNumber||'')+'\','+i+')" '
+      +'style="flex:1;min-width:160px;padding:11px 16px;background:var(--gold);color:var(--black);border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">'
+      +'↓ '+_esc(label)+'</button>';
+  }
+  var expire='';
+  if(o.deleteDate){
+    var dd=new Date(o.deleteDate);
+    if(!isNaN(dd)) expire='<p style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:300;margin-top:8px">'
+      +'※ '+dd.getFullYear()+'.'+(dd.getMonth()+1)+'.'+dd.getDate()+'까지 다운로드 가능 (이후 자동 삭제)</p>';
+  }
+  return '<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.07)">'
+    +'<div style="display:flex;flex-wrap:wrap;gap:8px">'+btns+'</div>'+expire+'</div>';
+}
+// 다운로드 클릭 핸들러: 토큰을 쿼리로 실어 네이티브 내비게이션 → 서버 302 redirect →
+// 브라우저가 Airtable에서 바로 다운로드 (CORS 회피, 첨부 파일명 그대로 사용)
+function downloadDelivery(btn, orderNumberEnc, index){
+  var orderNumber=decodeURIComponent(orderNumberEnc);
+  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
+  if(!token){ showToast('카카오 로그인 후 이용해주세요','error'); return; }
+  var url=MEMBER_API_BASE+'/api/member/download/'+encodeURIComponent(orderNumber)
+    +'?index='+index+'&token='+encodeURIComponent(token);
+  // 새 탭으로 열어 서버 302 → Airtable 다운로드 (모든 파일 타입에서 동작, 팝업 차단 회피)
+  window.open(url,'_blank');
+}
 async function loadMyOrders(){
   var list=document.getElementById('my-orders-list');
   if(!list) return;
@@ -5169,6 +5202,7 @@ async function loadMyOrders(){
           +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">결제금액</p><p style="font-size:12px;font-weight:500;color:var(--gold)">'+(o.amount||0).toLocaleString()+'원</p></div>'
           +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">검수자</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">'+_esc(o.reviewer||'자동 배정')+'</p></div>'
         +'</div>'
+        +_myOrderDownload(o)
       +'</div>';
     }).join('');
   }catch(e){ list.innerHTML='<p style="font-size:13px;color:#e05555;font-weight:300;padding:20px 0">오류: '+_esc(e.message)+'</p>'; }
