@@ -3611,42 +3611,10 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
     </div>
 
-    <!-- 주문 목록 탭 -->
+    <!-- 주문 목록 탭 (실데이터 — loadMyOrders) -->
     <div id="my-panel-orders" style="display:none">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <!-- 주문 샘플 1 -->
-        <div style="padding:22px 24px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
-            <div>
-              <p style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:400;margin-bottom:4px">2026.04.13 · 주문번호 IUM-0001</p>
-              <p style="font-size:15px;font-weight:500">계약서_영문번역_최종.docx</p>
-            </div>
-            <span style="background:rgba(99,153,34,0.15);color:#97c459;font-size:11px;font-weight:500;padding:4px 12px;border:1px solid rgba(99,153,34,0.3);white-space:nowrap">완료</span>
-          </div>
-          <div class="order-info-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">플랜</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">프리미엄 플러스</p></div>
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">글자수</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">1,240단어</p></div>
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">결제금액</p><p style="font-size:12px;font-weight:500;color:var(--gold)">109,120원</p></div>
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">검수자</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">김민준</p></div>
-          </div>
-        </div>
-        <!-- 주문 샘플 2 -->
-        <div style="padding:22px 24px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
-            <div>
-              <p style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:400;margin-bottom:4px">2026.04.10 · 주문번호 IUM-0002</p>
-              <p style="font-size:15px;font-weight:500">제품설명서_일본어.pdf</p>
-            </div>
-            <span style="background:rgba(22,184,148,0.12);color:var(--gold);font-size:11px;font-weight:500;padding:4px 12px;border:1px solid rgba(22,184,148,0.3);white-space:nowrap">번역 중</span>
-          </div>
-          <div class="order-info-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">플랜</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">AI 프리미엄</p></div>
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">글자수</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">2,850단어</p></div>
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">결제금액</p><p style="font-size:12px;font-weight:500;color:var(--gold)">188,100원</p></div>
-            <div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">검수자</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">자동 배정</p></div>
-          </div>
-        </div>
-        <!-- 주문 없을 때 -->
+      <div id="my-orders-list" style="display:flex;flex-direction:column;gap:14px">
+        <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;padding:20px 0">주문 내역을 불러오는 중…</p>
       </div>
     </div>
 
@@ -4883,6 +4851,7 @@ function switchMyTab(t){
       btn.style.fontWeight=t===tab?'500':'300';
     }
   });
+  if(t==='orders') loadMyOrders();
 }
 function toggleFavoriteFromMypage(name,specialty){
   var ids=['myfav-','expfav-','fav-'];
@@ -5144,6 +5113,55 @@ function loadMyInfo(){
         }
       }).catch(function(){});
   }
+}
+function _myOrderDate(s){
+  if(!s) return '';
+  var m=String(s).match(/(\d{4})[.\-\/]\s*(\d{1,2})[.\-\/]\s*(\d{1,2})/);
+  if(m) return m[1]+'.'+('0'+m[2]).slice(-2)+'.'+('0'+m[3]).slice(-2);
+  var d=new Date(s);
+  if(!isNaN(d.getTime())) return d.getFullYear()+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2);
+  return '';
+}
+function _myOrderStatusBadge(o){
+  var map={
+    done:     {bg:'rgba(99,153,34,0.15)',  bd:'rgba(99,153,34,0.3)',   c:'#97c459'},
+    progress: {bg:'rgba(22,184,148,0.12)', bd:'rgba(22,184,148,0.3)',  c:'var(--gold)'},
+    pending:  {bg:'rgba(217,119,6,0.15)',  bd:'rgba(217,119,6,0.35)',  c:'#f59e0b'},
+    cancelled:{bg:'rgba(255,255,255,0.06)',bd:'rgba(255,255,255,0.15)',c:'rgba(255,255,255,0.5)'}
+  };
+  var s=map[o.statusKey]||map.progress;
+  return '<span style="background:'+s.bg+';color:'+s.c+';font-size:11px;font-weight:500;padding:4px 12px;border:1px solid '+s.bd+';white-space:nowrap">'+_esc(o.statusLabel||'')+'</span>';
+}
+async function loadMyOrders(){
+  var list=document.getElementById('my-orders-list');
+  if(!list) return;
+  // index.html은 Kakao access_token을 Bearer로 사용 (탈퇴 등과 동일 패턴)
+  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
+  if(!token){ list.innerHTML='<p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;padding:20px 0">카카오 로그인 후 이용해주세요.</p>'; return; }
+  list.innerHTML='<p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;padding:20px 0">주문 내역을 불러오는 중…</p>';
+  try{
+    var r=await fetch(MEMBER_API_BASE+'/api/member/orders',{headers:{'Authorization':'Bearer '+token}});
+    var d=await r.json();
+    if(!d.success){ list.innerHTML='<p style="font-size:13px;color:#e05555;font-weight:300;padding:20px 0">주문을 불러오지 못했습니다: '+_esc(d.error||'')+'</p>'; return; }
+    var orders=d.orders||[];
+    if(!orders.length){ list.innerHTML='<p style="font-size:13px;color:rgba(255,255,255,0.3);font-weight:300;padding:24px 0;line-height:1.8">아직 주문 내역이 없습니다.<br>홈에서 첫 번역을 시작해보세요.</p>'; return; }
+    list.innerHTML=orders.map(function(o){
+      var title=(o.fileName&&o.fileName!=='첨부파일 없음')?o.fileName:(o.direction||'텍스트 번역');
+      return '<div style="padding:22px 24px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">'
+          +'<div><p style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:400;margin-bottom:4px">'+_esc(_myOrderDate(o.receivedAt))+' · 주문번호 '+_esc(o.orderNumber||'')+'</p>'
+          +'<p style="font-size:15px;font-weight:500">'+_esc(title)+'</p></div>'
+          +_myOrderStatusBadge(o)
+        +'</div>'
+        +'<div class="order-info-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">'
+          +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">플랜</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">'+_esc(o.plan||'-')+'</p></div>'
+          +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">글자수</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">'+(o.charCount||0).toLocaleString()+'자</p></div>'
+          +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">결제금액</p><p style="font-size:12px;font-weight:500;color:var(--gold)">'+(o.amount||0).toLocaleString()+'원</p></div>'
+          +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">검수자</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">'+_esc(o.reviewer||'자동 배정')+'</p></div>'
+        +'</div>'
+      +'</div>';
+    }).join('');
+  }catch(e){ list.innerHTML='<p style="font-size:13px;color:#e05555;font-weight:300;padding:20px 0">오류: '+_esc(e.message)+'</p>'; }
 }
 async function requestRenewal(){
   if(!confirm('무료로 2년 연장하시겠습니까?'))return;
