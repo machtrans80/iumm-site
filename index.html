@@ -839,7 +839,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <a href="#process" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">프로세스</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">요금제</a>
   <a href="#" onclick="handleExpertNav();document.getElementById('nav-mobile-menu').classList.remove('open');return false">전문가 소개 ✦</a>
-  <a href="#" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
+  <a href="#" id="nav-login-link-mobile" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
   <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=false;showModal('order');updateOrderModal();switchOrderPlan('ai');}else{showPage('login');}document.getElementById('nav-mobile-menu').classList.remove('open')">이용하기</button>
 </div>
 
@@ -4268,6 +4268,16 @@ function updateNavAfterLogin(){
   if(loginLink){
     loginLink.textContent='마이페이지';
     loginLink.onclick=function(){showPage('mypage');return false;};
+  }
+  // 모바일 메뉴 로그인 링크도 동일 갱신 (데스크톱과 별도 DOM)
+  var loginLinkM=document.getElementById('nav-login-link-mobile');
+  if(loginLinkM){
+    loginLinkM.textContent='마이페이지';
+    loginLinkM.onclick=function(){
+      showPage('mypage');
+      document.getElementById('nav-mobile-menu').classList.remove('open');
+      return false;
+    };
   }
   // AI 프리미엄 카드 활성화
   var ba=document.getElementById('badge-ai');
