@@ -5342,6 +5342,45 @@ function showPaymentConfirmModal(amountNum){
     modal.querySelector('[data-act="confirm"]').onclick=function(){done(true);};
   });
 }
+// ─── 주문 접수: 신경로(/api/order/create) + Make 자동 폴백 ──────────
+// 1차 호출 → 실패(5xx/네트워크) 시 1회 재시도 → 그래도 실패면 기존 Make webhook
+// 으로 자동 폴백(주문 유실 방지). 4xx(검증 거부)는 폴백하지 않고 오류 반환.
+async function submitOrderToServer(data, makeWebhookUrl){
+  for(var attempt=0; attempt<2; attempt++){
+    try{
+      var r=await fetch(MEMBER_API_BASE+'/api/order/create',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      });
+      if(r.ok){
+        var j=await r.json().catch(function(){return {};});
+        if(j&&j.ok){ console.log('[order/create] 성공', j); return {ok:true, result:j}; }
+        return {ok:false, rejected:true, error:(j&&j.error)||'주문 접수 실패'};
+      }
+      if(r.status>=400 && r.status<500 && r.status!==404 && r.status!==405){
+        // 검증 거부(400/402 등) — Make로 우회시키면 안 됨
+        var je=await r.json().catch(function(){return {};});
+        console.error('[order/create] 거부('+r.status+')', je);
+        return {ok:false, rejected:true, error:(je&&je.error)||('주문 접수 거부 ('+r.status+')')};
+      }
+      // 404/405(미배포·라우팅) 또는 5xx(서버오류) → 재시도 후 Make 폴백
+      console.error('[order/create] 인프라/서버오류('+r.status+') attempt='+attempt);
+    }catch(e){
+      console.error('[order/create] 네트워크오류 attempt='+attempt, e&&e.message);
+    }
+  }
+  // 2회(1차+재시도) 실패 → Make 자동 폴백 (최후 수단, 주문 유실 방지)
+  console.error('ORDER_CREATE_FALLBACK', data.주문번호);
+  try{
+    await fetch(makeWebhookUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    return {ok:true, fallback:true};
+  }catch(e2){
+    console.error('[order/create] Make 폴백도 실패', e2&&e2.message);
+    return {ok:false, fallbackFailed:true, error:'주문 접수 실패 (재시도·폴백 모두 실패)'};
+  }
+}
+
 async function completePayment(){
   // 200만원 초과 시 법인계좌 입금 안내
   var amountEl=document.getElementById('payment-amount');
@@ -5532,11 +5571,13 @@ async function completePayment(){
     고객선택검수자명: selectedReviewerName||'',
     배정방식: selectedOrderMode||''
   };
-  fetch(webhookUrl,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(data)
-  }).catch(function(e){console.log('Webhook 오류:',e);});
+  // 신경로(/api/order/create) 우선 + 실패 시 Make 자동 폴백
+  var createResult=await submitOrderToServer(data, webhookUrl);
+  if(!createResult.ok){
+    alert('주문 접수 중 오류가 발생했습니다.\n'+(createResult.error||'')+'\n\n결제는 정상 완료되었습니다. 마이페이지에 주문이 보이지 않으면 고객센터로 문의해 주세요.');
+    return;
+  }
+  if(createResult.fallback) console.warn('[주문접수] 신경로 실패 → Make 폴백으로 접수됨:', data.주문번호);
 
   // 원문 파일 첨부 (fire-and-forget, 결제 완료 독립)
   if(window._iummSourceFiles&&window._iummSourceFiles.length>0){
@@ -5580,7 +5621,7 @@ function closeBankModal(){
   document.getElementById('bank-transfer-form').style.display='block';
   document.getElementById('bank-transfer-complete').style.display='none';
 }
-function confirmBankTransfer(){
+async function confirmBankTransfer(){
   var webhookUrl='https://hook.eu2.make.com/mcujf5mztle5zf7qonaepniee5efe1g8';
   var langSelect=document.getElementById('lang-select');
   var langVal=langSelect?langSelect.value:'-';
@@ -5649,11 +5690,13 @@ function confirmBankTransfer(){
     고객선택검수자명: selectedReviewerName||'',
     배정방식: selectedOrderMode||''
   };
-  fetch(webhookUrl,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(data)
-  }).catch(function(e){console.log('Webhook 오류:',e);});
+  // 신경로(/api/order/create, 입금대기) 우선 + 실패 시 Make 자동 폴백
+  var createResult=await submitOrderToServer(data, webhookUrl);
+  if(!createResult.ok){
+    alert('주문 접수 중 오류가 발생했습니다.\n'+(createResult.error||'')+'\n\n다시 시도하시거나 고객센터로 문의해 주세요.');
+    return;
+  }
+  if(createResult.fallback) console.warn('[입금대기 접수] 신경로 실패 → Make 폴백으로 접수됨:', data.주문번호);
   if(window._iummSourceFiles&&window._iummSourceFiles.length>0){
     var bkFd=new FormData();
     bkFd.append('orderNumber', bankOrderNumber);
