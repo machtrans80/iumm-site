@@ -196,6 +196,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
     <a href="/reviewer" class="brand-header"><span class="brand-name">IUMM</span><span class="brand-suffix">REVIEWER</span></a>
     <div class="nav-right">
       <span class="nav-name">검수자: <strong id="nav-name">—</strong></span>
+      <button id="night-toggle" class="btn-logout" onclick="toggleNight()" style="display:none" title="심야(22:00~07:00) 검수 수주 가능 여부">심야수주: —</button>
       <button class="btn-logout" onclick="doLogout()">로그아웃</button>
     </div>
   </nav>
@@ -396,7 +397,7 @@ window.addEventListener('DOMContentLoaded', function() {
   if (!token) { location.href = '/reviewer/login'; return; }
   authFetch('/api/reviewer/me')
     .then(function(d) {
-      if (d.success) { fillNavName(d.reviewer.name); loadDashboard(); showPage('dashboard'); }
+      if (d.success) { fillNavName(d.reviewer.name); window._nightAvail = d.reviewer.nightAvailable === true; renderNightToggle(); loadDashboard(); showPage('dashboard'); }
       else throw new Error();
     })
     .catch(function() { localStorage.removeItem('reviewerToken'); location.href = '/reviewer/login'; });
@@ -427,6 +428,26 @@ function showPage(name) {
   document.getElementById('loading-screen').style.display = 'none';
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.getElementById('page-' + name).classList.add('active');
+}
+function renderNightToggle() {
+  var b = document.getElementById('night-toggle');
+  if (!b) return;
+  b.style.display = '';
+  b.textContent = '심야수주: ' + (window._nightAvail ? 'ON ✓' : 'OFF');
+  b.style.color = window._nightAvail ? 'var(--gold)' : 'rgba(255,255,255,0.5)';
+  b.style.borderColor = window._nightAvail ? 'rgba(201,168,76,0.5)' : 'rgba(255,255,255,0.15)';
+}
+async function toggleNight() {
+  var next = !window._nightAvail;
+  try {
+    var res = await authFetch('/api/reviewer/night-availability', {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: next })
+    });
+    if (res.success) { window._nightAvail = res.nightAvailable === true; renderNightToggle(); showToast('심야수주 ' + (window._nightAvail ? 'ON' : 'OFF'), 'success'); }
+    else showToast('⚠️ 변경 실패', 'error');
+  } catch (e) { showToast('⚠️ 서버 오류', 'error'); }
 }
 function fillNavName(name) {
   document.getElementById('nav-name').textContent = name || '—';
@@ -641,7 +662,8 @@ function renderPending(jobs) {
     // 후보 요청(경로2): 관심 수락 버튼만, 거절/카운트다운 없음
     var actionsHtml = isOffer
       ? '<button class="btn-detail" onclick="onDetail(\'' + j.orderId + '\')">상세 보기</button>' +
-        '<button class="btn-accept" onclick="onOfferAccept(\'' + j.orderId + '\')" style="background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);color:var(--gold)">관심있어요 ✋</button>'
+        '<button class="btn-accept" onclick="onOfferAccept(\'' + j.orderId + '\')" style="background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);color:var(--gold)">✅ 해당 건 제가 수주하여, 꼼꼼히 검수하겠습니다</button>' +
+        '<p style="font-size:10px;color:rgba(255,255,255,0.42);line-height:1.6;margin:8px 0 0 0;width:100%">※ 검수 수락 후 취소는 불가하며, 납품이 제대로 안될 경우 중대한 불이익이 있을 수 있습니다. (<a href="https://iumm.kr/index.html#article-8-2" target="_blank" style="color:var(--gold);text-decoration:underline">검수자 이용약관</a> 참고)</p>'
       : '<button class="btn-detail" onclick="onDetail(\'' + j.orderId + '\')">상세 보기</button>' +
         '<button class="btn-accept" onclick="onAccept(\'' + j.orderId + '\')">✅ 수락</button>' +
         '<button class="btn-reject" onclick="onReject(\'' + j.orderId + '\')">❌ 거절</button>';
@@ -657,7 +679,7 @@ function renderPending(jobs) {
       '    </div>',
       '    <div>',
       isOffer
-        ? '      <div class="countdown" style="color:rgba(255,255,255,0.3)">관리자대기</div><div class="countdown-label">최종선택 후 확정</div>'
+        ? '      <div class="countdown" style="color:var(--gold)">선착순</div><div class="countdown-label">먼저 수락 시 확정</div>'
         : '      <div class="countdown" id="' + cdId + '">--:--</div><div class="countdown-label">수락 마감</div>',
       '    </div>',
       '  </div>',
@@ -855,15 +877,16 @@ function onReject(id) {
   );
 }
 
-// ─── 후보 요청 수락 (경로2 동시발송) ───────────────────────────
+// ─── 라운드 선착순 수주 (round-accept) ───────────────────────────
 async function onOfferAccept(id) {
   try {
-    var res = await authFetch('/api/reviewer/orders/' + id + '/offer-accept', { method: 'POST' });
+    var res = await authFetch('/api/reviewer/orders/' + id + '/round-accept', { method: 'POST' });
     if (res.success) {
-      showToast('관심 등록 완료! 관리자 최종 선택 후 확정됩니다.', 'success');
-      refreshPending();
+      showToast('✅ 수주 확정! 마감 시각까지 꼼꼼히 검수해주세요.', 'success');
+      loadDashboard();
     } else {
-      showToast('⚠️ ' + (res.error || '오류'), 'error');
+      showToast('⚠️ ' + (res.error || '이미 마감되었거나 다른 검수자가 먼저 수락했습니다.'), 'error');
+      refreshPending();
     }
   } catch(e) { showToast('⚠️ 서버 오류', 'error'); }
 }

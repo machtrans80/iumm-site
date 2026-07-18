@@ -2712,7 +2712,7 @@ function renderUnassignedOrder(o) {
                 var isAccepted = accepted.includes(cid);
                 return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid ' + (isAccepted ? 'rgba(151,196,89,0.4)' : 'rgba(255,255,255,0.1)') + ';border-radius:3px;font-size:11px">' +
                   '<span>' + cid.slice(-6) + '</span>' +
-                  (isAccepted ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + o.orderId + '\',\'' + cid + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">최종선택</button>' : '<span style="color:rgba(255,255,255,0.3)">대기중</span>') +
+                  (isAccepted ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + o.orderId + '\',\'' + cid + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">이 검수자로 배정</button>' : '<span style="color:rgba(255,255,255,0.3)">대기중</span>') +
                   '</div>';
               }).join('')
             : '<span style="color:rgba(255,255,255,0.3);font-size:11px">후보 없음</span>') +
@@ -2736,12 +2736,11 @@ function renderUnassignedOrder(o) {
       '</select>' +
       '<button onclick="assignReviewerManual(\'' + o.orderId + '\')" style="padding:7px 14px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">단일 배정</button>' +
     '</div>' +
-    // 동시발송 체크박스
-    '<details style="margin-bottom:6px">' +
-      '<summary style="font-size:11px;color:rgba(255,255,255,0.5);cursor:pointer;user-select:none;margin-bottom:8px">▸ 동시발송 (복수 선택)</summary>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">' + rvCheckboxes + '</div>' +
-      '<button onclick="broadcastOrder(\'' + o.orderId + '\')" style="padding:6px 16px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);border-radius:4px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer">📢 동시 발송</button>' +
-    '</details>' +
+    // 라운드 엔진 자동 배정 + 강제 회수
+    '<div style="margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+      '<span style="font-size:11px;color:rgba(255,255,255,0.4)">배정은 라운드 엔진(2명 선착순)이 자동 처리</span>' +
+      '<button onclick="reclaimOrder(\'' + o.orderId + '\')" style="padding:6px 14px;background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.4);border-radius:4px;color:#e05555;font-size:12px;font-weight:600;cursor:pointer">♻️ 회수·재배정</button>' +
+    '</div>' +
     offerSection +
   '</div>';
 }
@@ -2757,7 +2756,7 @@ async function refreshOffers(orderId) {
       return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid ' + (c.accepted ? 'rgba(151,196,89,0.4)' : 'rgba(255,255,255,0.1)') + ';border-radius:3px;font-size:11px">' +
         '<span>' + (c.name || c.id.slice(-6)) + '</span>' +
         (c.accepted
-          ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + orderId + '\',\'' + c.id + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">최종선택</button>'
+          ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + orderId + '\',\'' + c.id + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">이 검수자로 배정</button>'
           : '<span style="color:rgba(255,255,255,0.3)">대기중</span>') +
         '</div>';
     }).join('');
@@ -2767,37 +2766,35 @@ async function refreshOffers(orderId) {
   }
 }
 
-async function broadcastOrder(orderId) {
-  var checkboxes = document.querySelectorAll('.rv-chk-' + orderId + ':checked');
-  var ids = Array.from(checkboxes).map(function(c) { return c.value; });
-  if (!ids.length) { showToast('⚠️ 검수자를 1명 이상 선택하세요', 'error'); return; }
-  if (!confirm('선택한 ' + ids.length + '명에게 후보 요청 카톡을 발송하시겠습니까?')) return;
-  try {
-    var res = await adminFetch('/api/admin/orders/' + orderId + '/broadcast', {
-      method: 'POST',
-      body: JSON.stringify({ reviewerIds: ids }),
-    });
-    if (!res.ok) throw new Error(res.error || '발송 실패');
-    showToast('✅ ' + res.sent + '명 발송 완료 (실패: ' + (res.failed || 0) + ')', 'success');
-    loadUnassigned();
-  } catch(e) {
-    showToast('⚠️ ' + e.message, 'error');
-  }
+// (동시발송 폐기 — 라운드 엔진이 2명 동시×선착순으로 자동 배정. 수동 배정은 [단일 배정] 사용)
+function broadcastOrder(orderId) {
+  showToast('라운드 엔진이 자동으로 2명 동시 발송·선착순 배정합니다. 특정 검수자 지정은 [단일 배정]을 사용하세요.', 'info');
 }
 
-async function finalizeReviewer(orderId, reviewerId) {
-  if (!confirm('이 검수자를 최종 확정하시겠습니까? 나머지 수락자에게 취소 카톡이 발송됩니다.')) return;
+// 강제 회수 → 라운드 재배정 (배정완료/검수중/라운드진행중 주문)
+async function reclaimOrder(orderId) {
+  if (!confirm('현재 배정을 회수하고 라운드 재배정을 시작하시겠습니까?\n(현재 검수자에게 취소 알림이 발송됩니다)')) return;
   try {
-    var res = await adminFetch('/api/admin/orders/' + orderId + '/finalize-reviewer', {
-      method: 'POST',
-      body: JSON.stringify({ reviewerId: reviewerId }),
+    var res = await adminFetch('/api/admin/orders/' + orderId + '/reclaim', {
+      method: 'POST', body: JSON.stringify({ mode: 'auto' }),
     });
-    if (!res.ok) throw new Error(res.error || '확정 실패');
-    showToast('✅ ' + (res.reviewerName || '검수자') + ' 최종 확정 완료 · 탈락 ' + (res.loserCount || 0) + '명 취소 카톡', 'success');
+    if (!res.ok) throw new Error(res.error || '회수 실패');
+    showToast('✅ 회수 완료 · ' + (res.mode === 'engine_off' ? '엔진 OFF → 관리자대기' : '라운드 재배정 시작'), 'success');
     loadUnassigned();
-  } catch(e) {
-    showToast('⚠️ ' + e.message, 'error');
-  }
+  } catch(e) { showToast('⚠️ ' + e.message, 'error'); }
+}
+
+// 특정 검수자로 즉시 강제배정 (라운드 후보 중 선택 or 회수 후 지정)
+async function finalizeReviewer(orderId, reviewerId) {
+  if (!confirm('이 검수자로 즉시 배정하시겠습니까? (현재 배정이 있으면 회수됩니다)')) return;
+  try {
+    var res = await adminFetch('/api/admin/orders/' + orderId + '/reclaim', {
+      method: 'POST', body: JSON.stringify({ mode: 'direct', reviewerId: reviewerId }),
+    });
+    if (!res.ok) throw new Error(res.error || '배정 실패');
+    showToast('✅ ' + (res.reviewer || '검수자') + ' 강제배정 완료', 'success');
+    loadUnassigned();
+  } catch(e) { showToast('⚠️ ' + e.message, 'error'); }
 }
 
 async function assignReviewerManual(orderId) {

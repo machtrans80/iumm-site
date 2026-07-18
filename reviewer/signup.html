@@ -326,6 +326,15 @@ footer a:hover{color:var(--gold-light)}
   </section>
 
   <section>
+    <div class="section-title">심야 수주 (선택)</div>
+    <div class="consent-item">
+      <input type="checkbox" id="night-available">
+      <label for="night-available">심야(22:00~07:00) 검수 수주 가능</label>
+    </div>
+    <p style="font-size:12px;color:#888;margin:6px 0 0 4px;line-height:1.6">※ 해외 거주 등으로 심야 시간대 작업이 가능하신 경우 체크해주세요. 미체크 시 22시~07시에는 배정 알림이 발송되지 않습니다.</p>
+  </section>
+
+  <section>
     <div class="section-title">약관 동의</div>
     <div class="consent-item">
       <input type="checkbox" id="agree1" required>
@@ -684,6 +693,7 @@ async function doSignup(e){
     fd.append('phone',         document.getElementById('phone').value.trim());
     fd.append('specialties',   JSON.stringify(Array.from(selectedSpecs)));
     fd.append('languages',     JSON.stringify(Array.from(selectedLangs)));
+    fd.append('nightAvailable', document.getElementById('night-available').checked ? 'true' : 'false');
     fd.append('certType',      selectedCert.name);
     fd.append('certGrade',     selectedCert.group === 'premium' ? '전문 자격사 프리미엄' : '전문 검수자');
     fd.append('education',     document.getElementById('education').value.trim());

@@ -3277,6 +3277,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
           </tbody>
         </table>
         <p style="margin:6px 0 0 0;font-size:10px;color:rgba(255,255,255,0.38)">※ 200만원 초과 시 법인계좌 입금 방식</p>
+        <p style="margin:4px 0 0 0;font-size:10px;color:rgba(255,255,255,0.38)">※ 19시 이후 접수 건은 익일 09시 접수 기준으로 납품일이 계산됩니다. (전문가 검수 일정 관계)</p>
       </div>
 
       <div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);font-size:12px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.6">
@@ -3308,7 +3309,9 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <button onclick="filterReviewers('프랑스어')" class="rlang-btn" data-lang="프랑스어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">프랑스어</button>
       <button onclick="filterReviewers('스페인어')" class="rlang-btn" data-lang="스페인어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">스페인어</button>
     </div>
+    <p style="font-size:12px;color:var(--gold);margin-bottom:12px;font-weight:400"><i class="ti ti-info-circle" style="margin-right:3px"></i>최대 <strong>2명</strong>(최선·차선)까지 선택하세요. 먼저 수락하는 검수자에게 우선 배정됩니다.</p>
     <div id="reviewer-list-panel" style="display:flex;flex-direction:column;gap:12px"></div>
+    <button onclick="closeReviewerPanel()" style="margin-top:20px;width:100%;padding:13px;background:var(--gold);color:var(--black);border:none;border-radius:2px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">선택 완료</button>
   </div>
 </div>
 
@@ -3796,6 +3799,12 @@ var selectedReviewerName='';
 var selectedReviewerId='';
 var selectedReviewerIsExpert=false;
 var selectedOrderMode=''; // '': 자동/직접선택(경로1), '맡기기': 경로2
+var selectedReviewers=[]; // 프리미엄플러스 고객선택 최대 2명 [{id,name,isExpert}] (라운드1 후보: 최선·차선)
+var premiumPlusEnabled=false; // /api/config — OFF면 프리미엄플러스 주문 차단(라운드 엔진 미가동)
+fetch('https://iumm-pipeline-production.up.railway.app/api/config')
+  .then(function(r){return r.json();})
+  .then(function(d){ premiumPlusEnabled=!!(d&&d.premiumPlusEnabled); })
+  .catch(function(){});
 
 // ───────────── 카카오ID 기반 무료체험 차단 ─────────────
 function checkFreeTrialUsed(kakaoId){
@@ -4328,6 +4337,7 @@ function clearEstimate(){
   selectedReviewerName='';
   selectedReviewerId='';
   selectedReviewerIsExpert=false;
+  selectedReviewers=[];
   selectedOrderMode='';
   var btnM=document.getElementById('btn-맡기기');
   if(btnM){btnM.style.background='rgba(255,255,255,0.04)';btnM.style.borderColor='rgba(255,255,255,0.1)';btnM.style.color='rgba(255,255,255,0.5)';}
@@ -4706,6 +4716,7 @@ function selectOrderMode(mode){
   selectedReviewerName='';
   selectedReviewerId='';
   selectedReviewerIsExpert=false;
+  selectedReviewers=[];
   var btn=document.getElementById('reviewer-btn');
   var btnM=document.getElementById('btn-맡기기');
   if(btn) btn.textContent='검수자 선택하기 →';
@@ -4715,35 +4726,39 @@ function selectOrderMode(mode){
     btnM.style.color=mode==='맡기기'?'var(--gold)':'rgba(255,255,255,0.5)';
   }
 }
+// 검수자 최대 2명 토글 선택 (최선·차선). 패널 유지 → "선택 완료"로 닫기.
 function selectReviewer(el,name,id){
   selectedOrderMode='';
   var btnM=document.getElementById('btn-맡기기');
   if(btnM){btnM.style.background='rgba(255,255,255,0.04)';btnM.style.borderColor='rgba(255,255,255,0.1)';btnM.style.color='rgba(255,255,255,0.5)';}
-  document.getElementById('reviewer-btn').textContent='✓ '+name+' 선택됨';
-  document.getElementById('reviewer-panel').style.display='none';
   var isExp=el&&el.getAttribute('data-expert')==='true';
-  selectedReviewerName=name;
-  selectedReviewerId=id||'';
-  selectedReviewerIsExpert=isExp;
-
-  // 페이지 단가 흐름 폐기 — 항상 글자수 기반
-  var isPageOrder=false;
-  if(isPageOrder){updatePagePrice();} else {
-    // 글자수 주문: showEstimate가 selectedReviewerIsExpert를 참조하므로 호출만 하면 됨
-    var charText=(document.getElementById('char-count')||{}).textContent||'0';
-    var chars=parseInt(charText.replace(/[^0-9]/g,''))||0;
-    if(chars>0){
-      showEstimate(chars);
-    } else {
-      // 글자수 아직 입력 전: 가격 라벨만 갱신
-      var basePrice=(currentPlan==='ai'?25:40)+(isExp?20:0);
-      var priceLabel=document.getElementById('price-label');
-      if(priceLabel) priceLabel.textContent='글자당 '+basePrice+'원'+(isExp?' (+20원 전문 자격사)':'');
-    }
+  var idx=selectedReviewers.findIndex(function(r){return r.id===id;});
+  if(idx>=0){
+    selectedReviewers.splice(idx,1);
+    if(el){el.classList.remove('rv-selected');el.style.borderColor=isExp?'rgba(201,168,76,0.25)':'rgba(255,255,255,0.07)';}
+  } else {
+    if(selectedReviewers.length>=2){ showToast('최대 2명까지 선택 가능합니다 (최선·차선)'); return; }
+    selectedReviewers.push({id:id||'',name:name,isExpert:isExp});
+    if(el){el.classList.add('rv-selected');el.style.borderColor='var(--gold)';}
   }
-  if(isExp) showToast('✦ 전문 자격사 선택 완료 - '+(isPageOrder?'페이지당 +10,000원':'글자당 +20원')+' 적용');
-  else if(name) showToast(name+' 선택 완료');
+  // 파생값: 가격은 최선(첫 선택) 기준
+  var first=selectedReviewers[0];
+  selectedReviewerName=first?first.name:'';
+  selectedReviewerId=first?first.id:'';
+  selectedReviewerIsExpert=first?!!first.isExpert:false;
+  var btn=document.getElementById('reviewer-btn');
+  if(btn) btn.textContent=selectedReviewers.length===0?'검수자 선택하기 →':('✓ '+selectedReviewers.map(function(r){return r.name;}).join(', ')+' ('+selectedReviewers.length+'명)');
+  // 가격 갱신
+  var charText=(document.getElementById('char-count')||{}).textContent||'0';
+  var chars=parseInt(charText.replace(/[^0-9]/g,''))||0;
+  if(chars>0){ showEstimate(chars); }
+  else {
+    var basePrice=(currentPlan==='ai'?25:40)+(selectedReviewerIsExpert?20:0);
+    var priceLabel=document.getElementById('price-label');
+    if(priceLabel) priceLabel.textContent='글자당 '+basePrice+'원'+(selectedReviewerIsExpert?' (+20원 전문 자격사)':'');
+  }
 }
+function closeReviewerPanel(){ document.getElementById('reviewer-panel').style.display='none'; }
 function getSourceText(){
   var pt = document.getElementById('pasteText');
   return pt ? pt.value : '';
@@ -5267,6 +5282,12 @@ function switchOrderPlan(plan){
     isFreeTrialOrder=false;
     applyOrderPlanTheme('ai');
   } else if(plan==='standard'){
+    if(!premiumPlusEnabled){
+      // 전문가 검수(프리미엄 플러스) 준비중 — 주문 차단 후 AI 프리미엄으로 안내
+      alert('현재는 AI 프리미엄만 이용 가능합니다.\n\n전문가 검수(프리미엄 플러스)는 준비 중이며, 곧 만나보실 수 있습니다.');
+      switchOrderPlan('ai');
+      return;
+    }
     currentPlan='standard';
     isFreeTrialOrder=false;
     applyOrderPlanTheme('standard');
@@ -5285,6 +5306,10 @@ function applyOrderPlanTheme(planKey){
   else if(planKey==='standard') box.classList.add('plan-standard');
 }
 function switchToPremiumPlus(){
+  if(!premiumPlusEnabled){
+    alert('현재는 AI 프리미엄만 이용 가능합니다.\n\n전문가 검수(프리미엄 플러스)는 준비 중이며, 곧 만나보실 수 있습니다.');
+    return;
+  }
   currentPlan='standard';
   isFreeTrialOrder=false;
   updateOrderModal();
@@ -5567,8 +5592,7 @@ async function completePayment(){
     원문텍스트: originText,
     파일첨부: fileName,
     고객요청용어집: glossaryText||'없음',
-    고객선택검수자ID: selectedReviewerId||'',
-    고객선택검수자명: selectedReviewerName||'',
+    고객선택검수자목록: JSON.stringify(selectedReviewers.map(function(r){return {id:r.id,name:r.name};})),
     배정방식: selectedOrderMode||''
   };
   // 신경로(/api/order/create) 우선 + 실패 시 Make 자동 폴백
@@ -5686,8 +5710,7 @@ async function confirmBankTransfer(){
     원문텍스트: originText,
     파일첨부: fileName,
     고객요청용어집: glossaryText||'없음',
-    고객선택검수자ID: selectedReviewerId||'',
-    고객선택검수자명: selectedReviewerName||'',
+    고객선택검수자목록: JSON.stringify(selectedReviewers.map(function(r){return {id:r.id,name:r.name};})),
     배정방식: selectedOrderMode||''
   };
   // 신경로(/api/order/create, 입금대기) 우선 + 실패 시 Make 자동 폴백
