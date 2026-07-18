@@ -2674,12 +2674,12 @@ async function loadUnassigned() {
 }
 
 function renderUnassignedOrder(o) {
-  var isBroadcast = o.status === '후보선정중';
+  var isBroadcast = o.status === '라운드진행중';
   var isManual    = o.status === '미배정' || (o.status === '관리자대기' && o.assignMode === '맡기기');
   var borderColor = isBroadcast ? 'rgba(201,168,76,0.3)' : 'rgba(239,68,68,0.25)';
   var bgColor     = isBroadcast ? 'rgba(201,168,76,0.04)' : 'rgba(239,68,68,0.04)';
   var statusBadge = isBroadcast
-    ? '<span style="font-size:10px;background:rgba(201,168,76,0.15);color:var(--gold);padding:2px 8px;border-radius:3px;margin-left:8px">후보선정중</span>'
+    ? '<span style="font-size:10px;background:rgba(201,168,76,0.15);color:var(--gold);padding:2px 8px;border-radius:3px;margin-left:8px">라운드진행중</span>'
     : o.assignMode === '맡기기'
       ? '<span style="font-size:10px;background:rgba(100,160,255,0.15);color:#64a0ff;padding:2px 8px;border-radius:3px;margin-left:8px">맡기기</span>'
       : '<span style="font-size:10px;background:rgba(239,68,68,0.15);color:#ef4444;padding:2px 8px;border-radius:3px;margin-left:8px">미배정</span>';
@@ -2701,24 +2701,23 @@ function renderUnassignedOrder(o) {
   // 후보선정중이면 수락 현황 표시
   var offerSection = '';
   if (isBroadcast) {
-    var accepted = o.acceptedIds || [];
-    var candidates = o.candidateIds || [];
+    var candidates = o.candidateIds || []; // 라운드 엔진 형식 [{id,name}] (구 [id] 호환)
     offerSection =
       '<div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px">' +
-        '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px">후보 ' + candidates.length + '명 발송 · 수락 ' + accepted.length + '명</div>' +
+        '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px">현재 라운드 후보 ' + candidates.length + '명 (선착순)</div>' +
         '<div id="offer-status-' + o.orderId + '" style="display:flex;flex-wrap:wrap;gap:6px">' +
           (candidates.length
             ? candidates.map(function(cid) {
-                var isAccepted = accepted.includes(cid);
-                return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid ' + (isAccepted ? 'rgba(151,196,89,0.4)' : 'rgba(255,255,255,0.1)') + ';border-radius:3px;font-size:11px">' +
-                  '<span>' + cid.slice(-6) + '</span>' +
-                  (isAccepted ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + o.orderId + '\',\'' + cid + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">이 검수자로 배정</button>' : '<span style="color:rgba(255,255,255,0.3)">대기중</span>') +
+                var cObj = (cid && typeof cid === 'object') ? cid : { id: cid, name: '' };
+                return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:3px;font-size:11px">' +
+                  '<span>' + (cObj.name || (cObj.id || '').slice(-6)) + '</span>' +
+                  '<button onclick="finalizeReviewer(\'' + o.orderId + '\',\'' + cObj.id + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">이 검수자로 배정</button>' +
                   '</div>';
               }).join('')
             : '<span style="color:rgba(255,255,255,0.3);font-size:11px">후보 없음</span>') +
         '</div>' +
         '<div style="margin-top:8px;display:flex;gap:8px">' +
-          '<button onclick="refreshOffers(\'' + o.orderId + '\')" style="padding:5px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:11px;cursor:pointer">🔄 수락현황 갱신</button>' +
+          '<button onclick="refreshOffers(\'' + o.orderId + '\')" style="padding:5px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:11px;cursor:pointer">🔄 라운드 현황 갱신</button>' +
         '</div>' +
       '</div>';
   }
@@ -2749,18 +2748,16 @@ async function refreshOffers(orderId) {
   try {
     var res = await adminFetch('/api/admin/orders/' + orderId + '/offers');
     if (!res.ok) throw new Error(res.error || '조회 실패');
-    var accepted   = res.candidates.filter(function(c) { return c.accepted; });
     var statusEl   = document.getElementById('offer-status-' + orderId);
     if (!statusEl) return;
-    statusEl.innerHTML = res.candidates.map(function(c) {
-      return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid ' + (c.accepted ? 'rgba(151,196,89,0.4)' : 'rgba(255,255,255,0.1)') + ';border-radius:3px;font-size:11px">' +
-        '<span>' + (c.name || c.id.slice(-6)) + '</span>' +
-        (c.accepted
-          ? '<span style="color:#97c459">✓수락</span><button onclick="finalizeReviewer(\'' + orderId + '\',\'' + c.id + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">이 검수자로 배정</button>'
-          : '<span style="color:rgba(255,255,255,0.3)">대기중</span>') +
+    var list = res.candidates || [];
+    statusEl.innerHTML = list.map(function(c) {
+      return '<div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:3px;font-size:11px">' +
+        '<span>' + (c.name || (c.id||'').slice(-6)) + (c.grade ? ' · ' + c.grade : '') + '</span>' +
+        '<button onclick="finalizeReviewer(\'' + orderId + '\',\'' + c.id + '\')" style="padding:2px 8px;background:var(--gold);color:#000;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">이 검수자로 배정</button>' +
         '</div>';
-    }).join('');
-    showToast('수락현황 갱신: ' + accepted.length + '명 수락', 'success');
+    }).join('') || '<span style="color:rgba(255,255,255,0.3);font-size:11px">현재 라운드 후보 없음</span>';
+    showToast('라운드 ' + (res.round || 0) + ' · 후보 ' + list.length + '명', 'success');
   } catch(e) {
     showToast('⚠️ ' + e.message, 'error');
   }
