@@ -1913,7 +1913,7 @@ async function confirmFinalDelivery() {
   var email = selectedOrder.customerEmail || '';
   if (!email) { showToast('고객 이메일이 없어 발송 불가', 'error'); return; }
   var fileList = files.map(function(f) { return '  • ' + f.filename; }).join('\n');
-  var msg = '다음 내용으로 고객에게 메일을 발송합니다.\n\n' +
+  var msg = '다음 내용으로 고객에게 납품 알림을 발송합니다.\n\n' +
     '📧 받는 사람: ' + email + '\n' +
     '📋 주문번호: ' + (selectedOrder.orderNumber || selectedOrder.orderId) + '\n' +
     '📎 첨부 파일 (' + files.length + '개):\n' + fileList + '\n\n' +
