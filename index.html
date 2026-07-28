@@ -4245,13 +4245,14 @@ function kakaoLogin(){
               kakaoId:kakaoId,name:nickname,email:email,loginTime:Date.now()
             }));
           }catch(e){}
-          // Airtable 회원 테이블 동기화 (fire-and-forget, 실패해도 UX 영향 없음)
+          // 회원 상태 동기화 + 가입 미완료 시 관리자 알림 (fire-and-forget, 실패해도 UX 영향 없음)
+          // ★signup은 약관 동의가 필수라 빈 body로 부르면 항상 400 → 전용 엔드포인트 사용
           if(authObj && authObj.access_token){
-            fetch(MEMBER_API_BASE+'/api/member/signup',{
+            fetch(MEMBER_API_BASE+'/api/member/login-sync',{
               method:'POST',
               headers:{'Authorization':'Bearer '+authObj.access_token,'Content-Type':'application/json'},
               body:JSON.stringify({})
-            }).catch(function(e){console.warn('member signup sync failed:',e);});
+            }).catch(function(e){console.warn('member login-sync failed:',e);});
           }
           // 추가 정보 입력 완료 여부 체크
           var hasUserInfo=false;
