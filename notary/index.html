@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공증 서류 번역 — IUMM</title>
+<meta name="description" content="가족관계증명서 등 공증용 서류 번역. 용어 사전 기반 정확 번역 + 원본 양식 그대로.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/notary/notary.css?v=1">
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+        integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+<script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+</head>
+<body>
+
+<nav class="ntr-nav">
+  <a href="/" class="logo">IUMM</a>
+  <div class="right">
+    <a href="/">← 번역 서비스</a>
+    <span id="who" style="color:var(--text-muted)"></span>
+  </div>
+</nav>
+
+<div class="ntr-wrap">
+  <h1 class="ntr-page-title">공증 서류 번역</h1>
+  <p class="ntr-page-sub">
+    원본 양식 그대로, 용어 사전 기반으로 번역합니다. 화면에서 직접 확인·수정한 뒤 확정하세요.
+  </p>
+
+  <!-- ── 로그인 ─────────────────────────────────────────── -->
+  <div class="ntr-card" id="card-login" style="display:none">
+    <h2><span class="ntr-step">!</span>카카오 로그인이 필요합니다</h2>
+    <p class="hint">공증 서류에는 주민등록번호 등 민감정보가 포함되어 본인 확인이 필수입니다.
+      로그인하면 창을 닫아도 마이페이지에서 이어서 진행할 수 있습니다.</p>
+    <button class="ntr-btn" onclick="doKakaoLogin()">카카오로 로그인</button>
+  </div>
+
+  <div id="form-area" style="display:none">
+
+    <!-- ── 1. 서류 ────────────────────────────────────── -->
+    <div class="ntr-card">
+      <h2><span class="ntr-step">1</span>서류 선택</h2>
+      <p class="hint">현재 가족관계증명서 한→영만 지원합니다.</p>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="docType">서류 종류</label>
+        <select class="ntr-inp" id="docType"></select>
+      </div>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="lang">번역 언어</label>
+        <select class="ntr-inp" id="lang"></select>
+      </div>
+    </div>
+
+    <!-- ── 2. 제출 국가 ───────────────────────────────── -->
+    <div class="ntr-card">
+      <h2><span class="ntr-step">2</span>제출 국가</h2>
+      <p class="hint">아포스티유 협약국 여부에 따라 선택 가능한 상품이 달라집니다.</p>
+      <div class="ntr-field">
+        <select class="ntr-inp" id="country" onchange="onCountryChange()">
+          <option value="">— 국가를 선택하세요 —</option>
+        </select>
+      </div>
+      <div id="country-note"></div>
+    </div>
+
+    <!-- ── 3. 상품 ────────────────────────────────────── -->
+    <div class="ntr-card">
+      <h2><span class="ntr-step">3</span>상품 선택</h2>
+      <div class="ntr-tiers" id="tiers"></div>
+      <div id="tier-note"></div>
+    </div>
+
+    <!-- ── 4. 서류 업로드 ─────────────────────────────── -->
+    <div class="ntr-card">
+      <h2><span class="ntr-step">4</span>서류 업로드</h2>
+      <p class="hint">
+        한글 원본을 올려주세요. 최대 10장.
+        <span id="upload-req"></span>
+      </p>
+      <input class="ntr-inp" type="file" id="files" multiple
+             accept="image/*,application/pdf" onchange="onFiles()">
+      <ul class="ntr-files" id="file-list"></ul>
+      <div id="precheck-msg" class="ntr-msg"></div>
+      <div class="ntr-note warn" style="margin-top:14px">
+        공증(등기 발송) 상품은 <strong>정부 발급 영문 증명서로는 진행할 수 없습니다.</strong>
+        반드시 한글 원본 PDF를 올려주세요.
+      </div>
+    </div>
+
+    <!-- ── 5. 배송지 (T2/T3) ──────────────────────────── -->
+    <div class="ntr-card" id="card-ship" style="display:none">
+      <h2><span class="ntr-step">5</span>등기 수령 정보</h2>
+      <p class="hint">공증 원본을 등기로 보내드립니다.</p>
+      <div class="ntr-row">
+        <div class="ntr-field">
+          <label class="ntr-lbl" for="recipient">수령인</label>
+          <input class="ntr-inp" id="recipient" type="text" autocomplete="name">
+        </div>
+        <div class="ntr-field">
+          <label class="ntr-lbl" for="recipientPhone">연락처</label>
+          <input class="ntr-inp" id="recipientPhone" type="tel" placeholder="010-0000-0000" autocomplete="tel">
+        </div>
+      </div>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="address">주소 (우편번호 포함)</label>
+        <textarea class="ntr-inp" id="address" autocomplete="street-address"></textarea>
+      </div>
+    </div>
+
+    <!-- ── 6. 동의 ────────────────────────────────────── -->
+    <div class="ntr-card">
+      <h2><span class="ntr-step">6</span>결제 전 확인</h2>
+      <div class="ntr-note danger">
+        <strong>반드시 확인해 주세요</strong>
+        <ul>
+          <li>결제 즉시 서류 인식·번역이 자동으로 시작됩니다.</li>
+          <li>결제 후에는 <strong>환불이 불가</strong>합니다.</li>
+          <li>화면에서 확인·수정한 뒤 <strong>최종 확정하면 수정·취소가 불가</strong>합니다.</li>
+          <li>발행 후 <strong>30일이 지나면</strong> 원본·번역본·개인정보가 서버에서 완전히 삭제됩니다.</li>
+        </ul>
+      </div>
+      <div style="margin-top:16px">
+        <label class="ntr-check"><input type="checkbox" class="agree" id="ag1"><span>위 안내사항을 확인했습니다</span></label>
+        <label class="ntr-check"><input type="checkbox" class="agree" id="ag2"><span>결제 후 환불이 불가함을 확인했습니다</span></label>
+        <label class="ntr-check"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
+      </div>
+    </div>
+
+    <!-- ── 결제 ───────────────────────────────────────── -->
+    <div class="ntr-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-size:13px;color:var(--text-muted)">결제 금액</span>
+        <strong id="amount" style="font-size:24px;color:var(--gold)">—</strong>
+      </div>
+      <button class="ntr-btn wide" id="payBtn" onclick="pay()" disabled>결제하고 시작하기</button>
+      <div id="pay-msg" class="ntr-msg"></div>
+    </div>
+
+  </div><!-- /form-area -->
+
+  <!-- ── 비협약국 영사확인 요청 ──────────────────────── -->
+  <div class="ntr-card" id="card-consular" style="display:none">
+    <h2>대사관 영사확인 요청</h2>
+    <p class="hint">비협약국은 아포스티유 대신 영사확인이 필요합니다.
+      시스템 자동 결제가 되지 않아 담당자가 확인 후 연락드립니다.</p>
+    <div class="ntr-field">
+      <label class="ntr-lbl" for="cr-contact">연락처 (전화 또는 이메일)</label>
+      <input class="ntr-inp" id="cr-contact" type="text">
+    </div>
+    <div class="ntr-field">
+      <label class="ntr-lbl" for="cr-content">요청 내용</label>
+      <textarea class="ntr-inp" id="cr-content" placeholder="서류 종류, 제출처, 희망 일정 등"></textarea>
+    </div>
+    <button class="ntr-btn ghost" onclick="sendConsular()">요청 보내기</button>
+    <div id="cr-msg" class="ntr-msg"></div>
+  </div>
+
+</div>
+
+<script>
+var API = 'https://iumm-pipeline-production.up.railway.app';
+var KAKAO_KEY = 'd37fe286e0256c9199a29236ed10c244';
+var PORTONE_STORE   = 'store-3676558e-d1ec-4955-b5ea-b12e121fc491';
+var PORTONE_CHANNEL = 'channel-key-6a333887-dfcd-490a-a661-aec79ee11974';
+
+var CFG = null, TIER = null, COUNTRY = null, PRECHECK_OK = false, PAYING = false;
+var ME = { kakaoId:'', name:'', email:'', phone:'' };
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function msg(el, text, kind){ var e=$(el); e.className='ntr-msg'+(kind?' '+kind:''); e.innerHTML=text; }
+
+// ─── 로그인 ──────────────────────────────────────────────
+function kakaoToken(){
+  try { return (window.Kakao && Kakao.Auth && Kakao.Auth.getAccessToken) ? Kakao.Auth.getAccessToken() : null; }
+  catch(e){ return null; }
+}
+function initKakao(){
+  if (typeof Kakao === 'undefined') return false;
+  if (!Kakao.isInitialized()) { try { Kakao.init(KAKAO_KEY); } catch(e){ return false; } }
+  return true;
+}
+function doKakaoLogin(){
+  if (!initKakao()) { alert('카카오 SDK를 불러오지 못했습니다. 새로고침해 주세요.'); return; }
+  Kakao.Auth.login({
+    scope:'profile_nickname,account_email',
+    success: function(){ Kakao.API.request({ url:'/v2/user/me', success: function(res){
+      var acc = res.kakao_account||{}, pf = acc.profile||{};
+      ME.kakaoId = String(res.id); ME.name = pf.nickname||''; ME.email = acc.email||'';
+      try { localStorage.setItem('iumm_user', JSON.stringify({
+        kakaoId:ME.kakaoId, name:ME.name, email:ME.email, loginTime:Date.now() })); } catch(e){}
+      showLoggedIn();
+    }, fail: function(){ alert('카카오 정보를 가져오지 못했습니다.'); }});},
+    fail: function(){ alert('로그인이 취소되었습니다.'); }
+  });
+}
+function showLoggedIn(){
+  $('who').textContent = ME.name ? (ME.name + ' 님') : '로그인됨';
+  $('card-login').style.display = 'none';
+  $('form-area').style.display  = '';
+}
+function checkLogin(){
+  initKakao();
+  try {
+    var saved = JSON.parse(localStorage.getItem('iumm_user')||'null');
+    if (saved && saved.kakaoId) { ME.kakaoId=String(saved.kakaoId); ME.name=saved.name||''; ME.email=saved.email||''; }
+    var info = JSON.parse(localStorage.getItem('iumm_userinfo_'+ME.kakaoId)||'null');
+    if (info) { if(info.name) ME.name=info.name; if(info.phone) ME.phone=info.phone; }
+  } catch(e){}
+  // 실제 API 호출에는 카카오 access_token 이 필요하다
+  if (ME.kakaoId && kakaoToken()) { showLoggedIn(); }
+  else { $('card-login').style.display=''; $('form-area').style.display='none'; }
+}
+
+// ─── 설정 로드 ───────────────────────────────────────────
+async function loadConfig(){
+  try {
+    var r = await fetch(API + '/api/notary/config');
+    CFG = await r.json();
+    if (!CFG || !CFG.ok) throw new Error('config');
+  } catch(e){
+    msg('pay-msg','설정을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.','err');
+    return;
+  }
+
+  var ds = $('docType');
+  ds.innerHTML = CFG.documents.map(function(d){
+    return '<option value="'+esc(d.code)+'"'+(d.ready?'':' disabled')+'>'+esc(d.label)+(d.ready?'':' (준비중)')+'</option>';
+  }).join('');
+  var ls = $('lang');
+  ls.innerHTML = CFG.langs.map(function(l){
+    return '<option value="'+esc(l.code)+'"'+(l.ready?'':' disabled')+'>'+esc(l.label)+(l.ready?'':' (준비중)')+'</option>';
+  }).join('');
+
+  var cs = $('country');
+  cs.innerHTML = '<option value="">— 국가를 선택하세요 —</option>' +
+    CFG.countries.map(function(c){
+      return '<option value="'+esc(c.nameKo)+'" data-member="'+(c.isMember?'1':'0')+'">'+
+             esc(c.nameKo)+(c.isMember?'':' (비협약국)')+'</option>';
+    }).join('');
+
+  renderTiers();
+  msg('pay-msg','');   // 초기 로드 실패 메시지가 남아 있으면 지운다
+  refresh();
+}
+
+/** 배송지 카드가 숨겨지면 단계 번호에 구멍이 생긴다 → 보이는 카드만 1..N 으로 다시 매긴다 */
+function renumber(){
+  var n = 0;
+  document.querySelectorAll('#form-area .ntr-card').forEach(function(card){
+    var step = card.querySelector('.ntr-step');
+    if (!step || card.style.display === 'none') return;
+    step.textContent = String(++n);
+  });
+}
+
+function renderTiers(){
+  $('tiers').innerHTML = CFG.tiers.map(function(t){
+    var blocked = t.apostille && COUNTRY && !COUNTRY.isMember;
+    return '<div class="ntr-tier'+(TIER&&TIER.code===t.code?' sel':'')+(blocked?' disabled':'')+
+      '" data-code="'+t.code+'" onclick="'+(blocked?'':'selectTier(\''+t.code+'\')')+'">'+
+      '<div class="code">'+esc(t.code)+'</div>'+
+      '<div class="price">'+t.amount.toLocaleString()+'원</div>'+
+      '<div class="desc">'+esc(t.desc)+(blocked?'<br><span style="color:var(--danger)">비협약국 선택 불가</span>':'')+'</div>'+
+      '</div>';
+  }).join('');
+}
+
+function selectTier(code){
+  TIER = CFG.tiers.filter(function(t){ return t.code===code; })[0] || null;
+  renderTiers();
+  $('card-ship').style.display = (TIER && TIER.needsAddress) ? '' : 'none';
+  $('upload-req').innerHTML = (TIER && TIER.needsPdfOriginal)
+    ? '<strong style="color:var(--warn)">이 상품은 원본 한글 PDF만 가능합니다.</strong>'
+    : '이미지(JPG/PNG) 또는 PDF 모두 가능합니다.';
+  $('tier-note').innerHTML = (TIER && TIER.code==='T1')
+    ? '<div class="ntr-note">' +
+      '· 번역 결과물(PDF)만 제공됩니다.<br>' +
+      '· 확인서·인증서는 발급되지 않습니다.<br>' +
+      '· 공증이 필요하시면 별도 서비스를 이용해 주세요 (변호사 공증 후 우편 발송).<br>' +
+      '· 개인정보 관련 서류는 발급하지 않습니다.' +
+      '</div>' : '';
+  PRECHECK_OK = false;
+  if ($('files').files.length) onFiles();
+  refresh();
+}
+
+function onCountryChange(){
+  var sel = $('country');
+  var opt = sel.options[sel.selectedIndex];
+  COUNTRY = sel.value ? { nameKo: sel.value, isMember: opt.getAttribute('data-member')==='1' } : null;
+
+  if (COUNTRY && !COUNTRY.isMember) {
+    $('country-note').innerHTML =
+      '<div class="ntr-note warn">' +
+      '<strong>대사관 영사확인이 필요한 국가입니다</strong><br>' +
+      '· 아포스티유(T3)는 선택할 수 없습니다.<br>' +
+      '· 영사확인은 담당자 확인이 필요합니다. ' +
+      '<a href="#" onclick="document.getElementById(\'card-consular\').style.display=\'\';' +
+      'document.getElementById(\'card-consular\').scrollIntoView({behavior:\'smooth\'});return false;">별도 요청하기</a>' +
+      '</div>';
+    if (TIER && TIER.apostille) { TIER = null; $('card-ship').style.display='none'; }
+  } else {
+    $('country-note').innerHTML = COUNTRY
+      ? '<div class="ntr-note">아포스티유 협약국입니다. 풀패키지(T3)를 선택할 수 있습니다.</div>' : '';
+  }
+  renderTiers();
+  refresh();
+}
+
+// ─── 파일 ────────────────────────────────────────────────
+function onFiles(){
+  var fs = $('files').files;
+  $('file-list').innerHTML = Array.prototype.map.call(fs, function(f){
+    return '<li>'+esc(f.originalname||f.name)+' — '+Math.round(f.size/1024).toLocaleString()+'KB</li>';
+  }).join('');
+  PRECHECK_OK = false;
+  refresh();
+  if (!fs.length || !TIER) return;
+  precheck();
+}
+
+async function precheck(){
+  msg('precheck-msg','<span class="ntr-spinner"></span> 파일 확인 중…');
+  var fd = new FormData();
+  fd.append('tier', TIER.code);
+  Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
+  try {
+    var r = await fetch(API + '/api/notary/precheck', { method:'POST', body: fd });
+    var d = await r.json();
+    if (d.ok) {
+      PRECHECK_OK = true;
+      var w = (d.warnings||[]).length ? '<br><span style="color:var(--warn)">'+d.warnings.map(esc).join('<br>')+'</span>' : '';
+      msg('precheck-msg','✓ 확인 완료 — '+(d.pages||0)+'장'+w,'ok');
+    } else {
+      PRECHECK_OK = false;
+      msg('precheck-msg', (d.errors||[d.error||'확인 실패']).map(esc).join('<br>'), 'err');
+    }
+  } catch(e){
+    PRECHECK_OK = false;
+    msg('precheck-msg','파일 확인에 실패했습니다: '+esc(e.message),'err');
+  }
+  refresh();
+}
+
+// ─── 유효성 ──────────────────────────────────────────────
+function agreedAll(){
+  return $('ag1').checked && $('ag2').checked && $('ag3').checked;
+}
+function shipOk(){
+  if (!TIER || !TIER.needsAddress) return true;
+  return $('recipient').value.trim() && $('recipientPhone').value.trim() && $('address').value.trim();
+}
+function refresh(){
+  renumber();
+  $('amount').textContent = TIER ? TIER.amount.toLocaleString()+'원' : '—';
+  var ok = !!(ME.kakaoId && TIER && COUNTRY && PRECHECK_OK && agreedAll() && shipOk() && !PAYING);
+  $('payBtn').disabled = !ok;
+}
+document.addEventListener('input', refresh);
+document.addEventListener('change', refresh);
+
+// ─── 결제 ────────────────────────────────────────────────
+async function pay(){
+  if (PAYING) return;
+  var token = kakaoToken();
+  if (!token) { alert('로그인이 만료되었습니다. 다시 로그인해 주세요.'); checkLogin(); return; }
+
+  PAYING = true; refresh();
+  msg('pay-msg','<span class="ntr-spinner"></span> 결제창을 여는 중…');
+
+  var orderNumber = 'NTR-' + Date.now();
+  var paymentId   = 'iumm_ntr_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+  var orderName   = 'IUMM 공증 서류 번역 (' + ($('docType').selectedOptions[0].textContent) + ')';
+
+  var pr;
+  try {
+    pr = await PortOne.requestPayment({
+      storeId: PORTONE_STORE, channelKey: PORTONE_CHANNEL,
+      paymentId: paymentId, orderName: orderName,
+      totalAmount: TIER.amount, currency: 'CURRENCY_KRW', payMethod: 'CARD',
+      customer: {
+        fullName: ME.name || '미입력',
+        phoneNumber: ME.phone || '01000000000',
+        email: ME.email || 'guest@iumm.kr'
+      }
+    });
+  } catch(err){
+    PAYING = false; refresh();
+    msg('pay-msg','결제창 호출 실패: '+esc(err.message||err),'err');
+    return;
+  }
+  if (!pr || pr.code) {
+    PAYING = false; refresh();
+    msg('pay-msg', esc((pr&&pr.message)||'결제가 취소되었습니다.'),'err');
+    return;
+  }
+
+  // 서버 1차 검증
+  msg('pay-msg','<span class="ntr-spinner"></span> 결제 확인 중…');
+  try {
+    var vr = await fetch(API + '/api/payment/verify', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ paymentId: pr.paymentId, expectedAmount: TIER.amount, orderName: orderName })
+    });
+    var v = await vr.json();
+    if (!v.ok) throw new Error(v.error || '결제 검증 실패');
+  } catch(e){
+    PAYING = false; refresh();
+    msg('pay-msg','결제 검증 실패: '+esc(e.message)+'<br>결제번호 <strong>'+esc(paymentId)+
+        '</strong> 를 저장해 두시고 iumm.master@gmail.com 으로 문의해 주세요.','err');
+    return;
+  }
+
+  // 주문 접수 (파일 포함)
+  msg('pay-msg','<span class="ntr-spinner"></span> 서류를 접수하는 중… 창을 닫지 마세요.');
+  var fd = new FormData();
+  fd.append('주문번호', orderNumber);
+  fd.append('결제ID', pr.paymentId);
+  fd.append('tier', TIER.code);
+  fd.append('docType', $('docType').value);
+  fd.append('lang', $('lang').value);
+  fd.append('제출국가', COUNTRY.nameKo);
+  fd.append('카카오ID', ME.kakaoId);
+  fd.append('회원이메일', ME.email || '');
+  fd.append('회원이름', ME.name || '');
+  fd.append('회원전화번호', ME.phone || '');
+  fd.append('동의', '1');
+  if (TIER.needsAddress) {
+    fd.append('수령인', $('recipient').value.trim());
+    fd.append('수령연락처', $('recipientPhone').value.trim());
+    fd.append('배송주소', $('address').value.trim());
+  }
+  Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
+
+  try {
+    var r2 = await fetch(API + '/api/notary/order/create', { method:'POST', body: fd });
+    var d2 = await r2.json();
+    if (!d2.ok) throw new Error(d2.error || '주문 접수 실패');
+    location.href = '/notary/edit.html?o=' + encodeURIComponent(orderNumber);
+  } catch(e){
+    PAYING = false; refresh();
+    msg('pay-msg','주문 접수 실패: '+esc(e.message)+
+        '<br>결제번호 <strong>'+esc(paymentId)+'</strong> / 주문번호 <strong>'+esc(orderNumber)+
+        '</strong> 를 저장해 두시고 iumm.master@gmail.com 으로 문의해 주세요. 담당자가 확인 후 처리해 드립니다.','err');
+  }
+}
+
+// ─── 영사확인 요청 ───────────────────────────────────────
+async function sendConsular(){
+  var contact = $('cr-contact').value.trim();
+  if (!COUNTRY) { msg('cr-msg','국가를 먼저 선택해 주세요.','err'); return; }
+  if (!contact) { msg('cr-msg','연락처를 입력해 주세요.','err'); return; }
+  msg('cr-msg','<span class="ntr-spinner"></span> 보내는 중…');
+  try {
+    var r = await fetch(API + '/api/notary/consular-request', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ country: COUNTRY.nameKo, contact: contact,
+                             content: $('cr-content').value.trim(), kakaoId: ME.kakaoId })
+    });
+    var d = await r.json();
+    if (!d.ok) throw new Error(d.error||'접수 실패');
+    msg('cr-msg','✓ 요청이 접수되었습니다. 담당자가 연락드립니다. (접수번호 '+esc(d.orderNumber)+')','ok');
+  } catch(e){ msg('cr-msg','접수 실패: '+esc(e.message),'err'); }
+}
+
+// ─── 시작 ────────────────────────────────────────────────
+checkLogin();
+loadConfig();
+</script>
+</body>
+</html>

@@ -1,6 +1,19 @@
 [build]
   publish = "."
 
+# ─── 공증 서류 번역 ───────────────────────────────────────────
+# 실제 파일이 있으므로 /notary/ 로 접근하면 이 매핑 없이도 열린다.
+# 슬래시 없는 /notary 로 들어오는 경우를 위해 둔다.
+[[redirects]]
+  from = "/notary"
+  to   = "/notary/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/notary/edit"
+  to   = "/notary/edit.html"
+  status = 200
+
 [[redirects]]
   from = "/reviewer"
   to   = "/reviewer/index.html"

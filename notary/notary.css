@@ -1,0 +1,212 @@
+/* ════════════════════════════════════════════════════════════════
+   IUMM 공증 서류 번역 — 공용 스타일
+   ────────────────────────────────────────────────────────────────
+   · 페이지 크롬(어두운 네이비)은 기존 사이트와 동일
+   · .ntr-doc(서류 틀)은 흰 종이. 화면과 인쇄가 같은 규칙을 쓴다
+   · 서류 틀 HTML은 서버가 만든다 (notary/templates/*.html) — 여기 복제 금지
+   ════════════════════════════════════════════════════════════════ */
+
+:root{
+  --black:#0F2540;
+  --black-deeper:#0A1628;
+  --white:#ffffff;
+  --gold:#16B894;
+  --gold-light:#5DE0BC;
+  --gray:#C9D2DC;
+  --text-muted:#9AA8B6;
+  --border:rgba(255,255,255,0.14);
+  --danger:#e05555;
+  --warn:#E0A73A;
+}
+
+*{box-sizing:border-box;font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--black);color:var(--gray);
+  line-height:1.7;-webkit-font-smoothing:antialiased;
+}
+a{color:var(--gold);text-decoration:none}
+h1,h2,h3{color:#fff;font-weight:600;letter-spacing:-0.02em;margin:0}
+
+/* ─── 페이지 크롬 ─────────────────────────────────────────── */
+.ntr-nav{
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;background:rgba(15,37,64,0.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.ntr-nav .logo{font-size:21px;font-weight:700;color:var(--gold);letter-spacing:0.5px}
+.ntr-nav .right{display:flex;gap:16px;align-items:center;font-size:14px}
+.ntr-wrap{max-width:960px;margin:0 auto;padding:40px 20px 100px}
+.ntr-page-title{font-size:26px;margin-bottom:8px}
+.ntr-page-sub{font-size:14px;color:var(--text-muted);margin:0 0 32px}
+
+.ntr-card{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);
+  border-radius:12px;padding:24px 26px;margin-bottom:18px;
+}
+.ntr-card h2{font-size:16px;margin-bottom:6px}
+.ntr-card .hint{font-size:12.5px;color:var(--text-muted);margin:0 0 16px}
+.ntr-step{
+  display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+  border-radius:50%;background:rgba(22,184,148,0.15);color:var(--gold);
+  font-size:12px;font-weight:700;margin-right:9px;
+}
+
+label.ntr-lbl{display:block;font-size:12px;color:var(--text-muted);margin:0 0 6px}
+.ntr-inp,select.ntr-inp,textarea.ntr-inp{
+  width:100%;padding:11px 13px;border-radius:8px;font-size:14px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#fff;
+}
+.ntr-inp:focus{outline:none;border-color:rgba(22,184,148,0.6)}
+textarea.ntr-inp{min-height:84px;resize:vertical}
+.ntr-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ntr-field{margin-bottom:14px}
+
+/* 티어 카드 */
+.ntr-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ntr-tier{
+  border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:16px 15px;
+  cursor:pointer;transition:border-color .15s,background .15s;background:rgba(255,255,255,0.02);
+}
+.ntr-tier:hover{border-color:rgba(22,184,148,0.4)}
+.ntr-tier.sel{border-color:var(--gold);background:rgba(22,184,148,0.08)}
+.ntr-tier.disabled{opacity:.38;cursor:not-allowed}
+.ntr-tier .code{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.06em}
+.ntr-tier .price{font-size:19px;color:#fff;font-weight:700;margin:5px 0 3px}
+.ntr-tier .desc{font-size:11.5px;color:var(--text-muted);line-height:1.55}
+
+.ntr-note{
+  background:rgba(255,255,255,0.03);border-left:3px solid var(--gold);
+  padding:13px 15px;border-radius:0 6px 6px 0;font-size:12.5px;line-height:1.85;margin-top:14px;
+}
+.ntr-note.warn{border-left-color:var(--warn);background:rgba(224,167,58,0.07)}
+.ntr-note.danger{border-left-color:var(--danger);background:rgba(224,85,85,0.07)}
+.ntr-note ul{margin:6px 0 0;padding-left:17px}
+
+.ntr-check{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;font-size:13px;cursor:pointer}
+.ntr-check input{margin-top:3px;width:16px;height:16px;accent-color:var(--gold);flex-shrink:0}
+
+.ntr-btn{
+  display:inline-block;padding:13px 22px;border:none;border-radius:8px;cursor:pointer;
+  font-size:14.5px;font-weight:700;background:var(--gold);color:#06202f;font-family:inherit;
+}
+.ntr-btn:disabled{opacity:.4;cursor:not-allowed}
+.ntr-btn.ghost{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85)}
+.ntr-btn.wide{width:100%}
+
+.ntr-files{margin-top:10px;font-size:12.5px;color:var(--text-muted)}
+.ntr-files li{margin:3px 0}
+.ntr-msg{font-size:13px;margin-top:12px;line-height:1.7}
+.ntr-msg.err{color:var(--danger)}
+.ntr-msg.ok{color:var(--gold)}
+
+.ntr-badge{
+  display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.75);
+}
+.ntr-badge.done{background:rgba(22,184,148,0.16);color:var(--gold-light)}
+.ntr-badge.editing{background:rgba(224,167,58,0.16);color:var(--warn)}
+.ntr-badge.failed{background:rgba(224,85,85,0.16);color:var(--danger)}
+
+.ntr-spinner{
+  display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,0.2);
+  border-top-color:var(--gold);border-radius:50%;animation:ntrspin .8s linear infinite;vertical-align:-2px;
+}
+@keyframes ntrspin{to{transform:rotate(360deg)}}
+
+/* ════════════════════════════════════════════════════════════
+   서류 틀 (.ntr-doc) — 흰 종이. 화면·인쇄 공용
+   ════════════════════════════════════════════════════════════ */
+.ntr-paper{
+  background:#fff;border-radius:6px;padding:0;overflow-x:auto;
+  box-shadow:0 10px 40px rgba(0,0,0,.35);
+}
+.ntr-doc{
+  background:#fff;color:#111;padding:22mm 18mm;min-width:720px;
+  font-family:'Nanum Myeongjo','Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',serif;
+  font-size:13px;line-height:1.65;
+}
+.ntr-doc .ntr-title{
+  text-align:center;font-size:22px;font-weight:700;letter-spacing:.04em;
+  color:#111;margin:0 0 18px;
+}
+.ntr-doc table{border-collapse:collapse;width:100%;margin:0 0 6px}
+.ntr-doc th,.ntr-doc td{border:1px solid #333;padding:6px 8px;font-size:12px;vertical-align:middle}
+.ntr-doc th{background:#f2f2f2;font-weight:700;text-align:center}
+.ntr-doc .ntr-head th{width:22%;text-align:center}
+.ntr-doc .ntr-head td{text-align:left}
+.ntr-doc .ntr-persons td{text-align:center}
+/* 해당 없는 칸 (내국인 행의 국적, 외국인 행의 본) — 편집 대상이 아니다 */
+.ntr-doc td.ntr-na{background:repeating-linear-gradient(135deg,#fafafa,#fafafa 4px,#f0f0f0 4px,#f0f0f0 8px)}
+@media print{ .ntr-doc td.ntr-na{background:#fff} }
+.ntr-doc .ntr-section-label{font-weight:700;font-size:13px;margin:16px 0 6px;color:#111}
+.ntr-doc .ntr-attest{margin:20px 0 6px;font-size:12.5px}
+.ntr-doc .ntr-legal{margin:0 0 22px;font-size:11.5px;color:#333}
+.ntr-doc .ntr-issue{text-align:center;margin:18px 0 20px}
+.ntr-doc .ntr-issue-date{font-size:13px;margin:0 0 8px}
+.ntr-doc .ntr-issue-office{font-size:15px;font-weight:700;margin:0}
+.ntr-doc .ntr-seal{
+  display:inline-block;margin-left:14px;font-size:11px;color:#777;
+  border:1px dashed #aaa;border-radius:50%;padding:9px 7px;
+}
+.ntr-doc .ntr-issue-meta th{width:15%}
+.ntr-doc .ntr-verify{font-size:10.5px;color:#333;margin:16px 0 4px}
+.ntr-doc .ntr-stamp{font-size:10.5px;color:#333;margin:0}
+.ntr-doc .ntr-block{margin:18px 0}
+.ntr-doc .ntr-block-title{font-size:13px;font-weight:700;margin:0 0 6px}
+
+/* 편집 가능한 값 */
+.ntr-doc .ntr-f{
+  display:inline-block;min-width:38px;padding:1px 3px;border-radius:3px;
+  outline:none;transition:background .12s,box-shadow .12s;
+}
+body.editing .ntr-doc .ntr-f{background:rgba(22,184,148,.10);box-shadow:inset 0 -1px 0 rgba(22,184,148,.5)}
+body.editing .ntr-doc .ntr-f:hover{background:rgba(22,184,148,.18)}
+body.editing .ntr-doc .ntr-f:focus{background:#fff8d8;box-shadow:0 0 0 2px #E0A73A}
+body.editing .ntr-doc .ntr-f:empty::before{content:'—';color:#c00}
+/* 확인이 필요한 값 — 사전 미등록·음역 자동생성·미인식 */
+body.editing .ntr-doc .ntr-f[data-warn="hangul"],
+body.editing .ntr-doc .ntr-f[data-warn="dict"],
+body.editing .ntr-doc .ntr-f[data-warn="missing"]{
+  background:rgba(224,85,85,.16);box-shadow:inset 0 -2px 0 #e05555;
+}
+body.editing .ntr-doc .ntr-f[data-warn="passport"],
+body.editing .ntr-doc .ntr-f[data-warn="place"],
+body.editing .ntr-doc .ntr-f[data-warn="office"]{
+  background:rgba(224,167,58,.18);box-shadow:inset 0 -2px 0 #E0A73A;
+}
+.ntr-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;margin:0 0 14px;color:var(--text-muted)}
+.ntr-legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.ntr-legend .g{background:rgba(22,184,148,.5)}
+.ntr-legend .y{background:#E0A73A}
+.ntr-legend .r{background:#e05555}
+
+/* ════════════════════════════════════════════════════════════
+   인쇄 (T1 = 고객 PDF)
+   ★브라우저 머리글/바닥글(URL·날짜)은 CSS로 끌 수 없다.
+     인쇄 대화상자에서 사용자가 직접 해제해야 한다 → 화면에 안내를 띄운다.
+   ════════════════════════════════════════════════════════════ */
+@page{ size:A4 portrait; margin:18mm 15mm; }
+
+@media print{
+  html,body{background:#fff !important;color:#000 !important;margin:0;padding:0}
+  .no-print{display:none !important}
+  .ntr-paper{box-shadow:none;border-radius:0;overflow:visible}
+  .ntr-doc{padding:0;min-width:0;font-size:11.5pt}
+  .ntr-doc .ntr-title{font-size:17pt}
+  .ntr-doc th,.ntr-doc td{font-size:9.5pt;padding:4px 6px}
+  /* 편집 하이라이트는 인쇄되면 안 된다 */
+  .ntr-doc .ntr-f{background:none !important;box-shadow:none !important}
+  .ntr-doc .ntr-f:empty::before{content:'' !important}
+  .ntr-doc table{page-break-inside:auto}
+  .ntr-doc tr{page-break-inside:avoid}
+  .ntr-doc thead{display:table-header-group}
+  .ntr-doc .ntr-attest,.ntr-doc .ntr-issue{page-break-inside:avoid}
+}
+
+@media (max-width:720px){
+  .ntr-wrap{padding:28px 14px 80px}
+  .ntr-tiers{grid-template-columns:1fr}
+  .ntr-row{grid-template-columns:1fr}
+  .ntr-nav{padding:12px 16px}
+}
