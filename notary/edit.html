@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=11">
+<link rel="stylesheet" href="/notary/notary.css?v=12">
 <!-- ★메인·주문 페이지와 같은 v1 SDK. 편집토큰이 없을 때는 카카오 토큰으로 인증하는데,
      버전이 다르면 같은 로그인 상태인데도 토큰을 읽지 못한다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -470,6 +470,17 @@ function renderUpsell(){
   $('upsell-desc').textContent = body;
   $('upsell-btn').innerHTML =
     esc(UP.label) + ' (+' + won(UP.supply) + ', 부가세 별도)';
+
+  /* ★아포스티유는 발송 전까지만 추가할 수 있다 — 고객이 시점을 알아야 한다 */
+  if (UP.to === 'T3') {
+    $('upsell-desc').innerHTML = esc(body) +
+      '<br><strong style="color:var(--gold)">아포스티유가 필요하시면 발송 전에 추가하세요. ' +
+      '서류 발송 후에는 추가할 수 없습니다.</strong>';
+  }
+
+  /* 마이페이지에서 "아포스티유 추가"로 들어온 경우 바로 폼을 연다 */
+  var q = new URLSearchParams(location.search);
+  if (q.get('upsell') === '1') setTimeout(startUpsell, 60);
 }
 
 function won(n){ return Number(n||0).toLocaleString()+'원'; }

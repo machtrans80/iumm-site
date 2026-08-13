@@ -5400,15 +5400,75 @@ async function loadMyOrders(){
 // 편집 중 창을 닫아도 여기서 이어서 진행할 수 있어야 한다.
 // 공증 주문이 없으면 섹션 자체를 숨긴다 → 기존 마이페이지 화면 무변화.
 function _ntrBadge(o){
-  var c = o.statusKey==='done' ? 'rgba(22,184,148,0.16);color:#5DE0BC'
+  // 등기 발송 상품(T2/T3)은 발행 이후 배송 단계를 보여준다. 그 전엔 기존 라벨 그대로.
+  var label = o.stageLabel || o.statusLabel || '';
+  var c;
+  if (o.stageKey === 'shipped')     c = 'rgba(22,184,148,0.16);color:#5DE0BC';
+  else if (o.stageKey === 'ready')  c = 'rgba(212,175,55,0.16);color:var(--gold)';
+  else if (o.stageKey === 'progress') c = 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.75)';
+  else c = o.statusKey==='done' ? 'rgba(22,184,148,0.16);color:#5DE0BC'
         : o.statusKey==='editing' ? 'rgba(224,167,58,0.16);color:#E0A73A'
         : o.statusKey==='failed' ? 'rgba(224,85,85,0.16);color:#e05555'
         : 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.75)';
   return '<span style="display:inline-block;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;background:'+c+'">'
-    + _esc(o.statusLabel||'') + '</span>';
+    + _esc(label) + '</span>';
 }
-async function openNotaryOrder(orderNumberEnc){
+
+/** 배송 단계별 안내 — 고객이 지금 무엇을 할 수 있는지 알려준다 */
+function _ntrStageNote(o){
+  if(o.stageKey==='shipped'){
+    return '<div style="margin-top:10px;padding:11px 13px;background:rgba(22,184,148,0.07);border-left:3px solid #16B894;border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.82);line-height:1.75">'
+      +'서류를 등기로 발송해 드렸습니다.<br>'
+      +'<strong style="color:#5DE0BC">실물 서류 수령 전에도 스캔본으로 해외 제출이 가능합니다.</strong></div>';
+  }
+  if(o.stageKey==='ready'){
+    return '<div style="margin-top:10px;padding:11px 13px;background:rgba(212,175,55,0.07);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.82);line-height:1.75">'
+      +(o.tier==='T3'?'공증 및 아포스티유가 완료되었습니다.':'공증이 완료되었습니다.')
+      +' 곧 등기로 발송해 드립니다.</div>';
+  }
+  if(o.stageKey==='progress'){
+    return '<div style="margin-top:10px;font-size:11.5px;color:rgba(255,255,255,0.55);line-height:1.7">'
+      +'공증 절차를 진행하고 있습니다. 완료되면 스캔본과 발송번호를 이곳에서 확인하실 수 있습니다.</div>';
+  }
+  return '';
+}
+
+/** 스캔본 목록 열기 — 발송완료 후에만 열린다 (서버가 409/410 로 가른다) */
+async function openNotaryScan(orderNumberEnc){
+  var orderNumber=decodeURIComponent(orderNumberEnc);
+  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
+  if(!token){ showToast('카카오 로그인 후 이용해주세요','error'); return; }
+  var box=document.getElementById('ntr-scan-'+orderNumber);
+  if(box && box.dataset.open==='1'){ box.style.display='none'; box.dataset.open='0'; return; }
+  if(!box) return;
+  box.style.display=''; box.dataset.open='1';
+  box.innerHTML='<p style="font-size:11.5px;color:rgba(255,255,255,0.5)">불러오는 중…</p>';
+  try{
+    var r=await fetch(MEMBER_API_BASE+'/api/notary/order/'+encodeURIComponent(orderNumber)+'/scan',
+      {headers:{'Authorization':'Bearer '+token}});
+    var d=await r.json();
+    if(!d.ok){ box.innerHTML='<p style="font-size:11.5px;color:#e05555">'+_esc(d.error||'스캔본을 불러오지 못했습니다')+'</p>'; return; }
+    var exp='';
+    if(d.scanDeleteDate){
+      var xd=new Date(d.scanDeleteDate);
+      if(!isNaN(xd)) exp='<p style="margin-top:8px;font-size:10.5px;color:rgba(255,255,255,0.45)">🔒 '
+        +xd.getFullYear()+'.'+(xd.getMonth()+1)+'.'+xd.getDate()+'까지 다운로드 가능 (발송 후 30일)</p>';
+    }
+    box.innerHTML='<p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px">공증 완료본 스캔</p>'
+      +d.files.map(function(f){
+        return '<a href="'+_esc(f.url)+'" target="_blank" rel="noopener" download '
+          +'style="display:inline-block;margin:0 8px 8px 0;padding:8px 14px;border-radius:6px;border:1px solid rgba(212,175,55,0.35);'
+          +'background:rgba(212,175,55,0.08);color:var(--gold);font-size:11.5px;font-weight:600;text-decoration:none">⬇ '
+          +_esc(f.name)+'</a>';
+      }).join('')+exp;
+  }catch(e){
+    box.innerHTML='<p style="font-size:11.5px;color:#e05555">스캔본을 불러오지 못했습니다.</p>';
+  }
+}
+
+async function openNotaryOrder(orderNumberEnc, mode){
   var orderNumber = decodeURIComponent(orderNumberEnc);
+  var suffix = mode==='upsell' ? '&upsell=1' : '';
   var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
   if(!token){ showToast('카카오 로그인 후 이용해주세요','error'); return; }
   // 편집 링크가 만료됐을 수 있으니 본인 확인 후 새 토큰을 받아서 연다
@@ -5417,12 +5477,12 @@ async function openNotaryOrder(orderNumberEnc){
       {method:'POST',headers:{'Authorization':'Bearer '+token}});
     var d=await r.json();
     if(d&&d.ok&&d.token){
-      location.href='/notary/edit.html?o='+encodeURIComponent(orderNumber)+'&t='+encodeURIComponent(d.token);
+      location.href='/notary/edit.html?o='+encodeURIComponent(orderNumber)+'&t='+encodeURIComponent(d.token)+suffix;
       return;
     }
   }catch(e){}
   // 재발급이 안 되면 로그인 기반으로 열어본다
-  location.href='/notary/edit.html?o='+encodeURIComponent(orderNumber);
+  location.href='/notary/edit.html?o='+encodeURIComponent(orderNumber)+(suffix?'?'+suffix.slice(1):'');
 }
 async function loadMyNotaryOrders(){
   var sec=document.getElementById('my-notary-section');
@@ -5447,8 +5507,28 @@ async function loadMyNotaryOrders(){
       var warn = o.hangulWarning && o.editable
         ? '<div style="margin-top:10px;padding:9px 12px;background:rgba(224,85,85,0.08);border-left:3px solid #e05555;border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.8)">확인이 필요한 항목이 있습니다. 편집 화면에서 붉게 표시된 부분을 확인해 주세요.</div>'
         : '';
+      // ── 발송완료: 스캔본 확인 + 아직 열려 있으면 아포스티유 추가 ──
+      if(o.stageKey==='shipped'){
+        btns+='<button onclick="openNotaryScan(\''+enc+'\')" style="padding:9px 16px;border-radius:6px;border:1px solid rgba(212,175,55,0.4);cursor:pointer;font-size:12px;font-weight:700;background:rgba(212,175,55,0.1);color:var(--gold);font-family:inherit">스캔본 확인 · 다운로드</button>';
+      }
+      // ★아포스티유 추가는 공증 완료 전까지만. 스캔본이 등록되면 서버가 false 로 내려 자동으로 사라진다.
+      if(o.canAddApostille){
+        btns+='<button onclick="openNotaryOrder(\''+enc+'\',\'upsell\')" style="padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--gold);color:#06202f;font-family:inherit">아포스티유 추가 (+22,000원)</button>';
+      }
+      var apoNote = o.canAddApostille
+        ? '<div style="margin-top:10px;padding:9px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.78);line-height:1.7">아포스티유가 필요하시면 <strong>발송 전에</strong> 추가하세요. 서류 발송 후에는 추가할 수 없습니다.</div>'
+        : '';
       var track = o.trackingNo
-        ? '<div style="margin-top:8px;font-size:11.5px;color:rgba(255,255,255,0.6)">등기번호 '+_esc(o.trackingNo)+'</div>' : '';
+        ? '<div style="margin-top:10px;padding:10px 13px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:5px">'
+            +'<p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:3px">발송번호 (등기)</p>'
+            +'<p style="font-size:13px;font-weight:600;color:#fafaf8;letter-spacing:0.3px">'+_esc(o.trackingNo)+'</p>'
+            +'<p style="margin-top:5px;font-size:10.5px;color:rgba(255,255,255,0.45)">우체국 등기 조회에서 위 번호로 배송 상황을 확인하실 수 있습니다.</p>'
+          +'</div>'
+        : '';
+      // 스캔본 목록이 펼쳐질 자리
+      var scanBox = o.stageKey==='shipped'
+        ? '<div id="ntr-scan-'+_esc(o.orderNumber)+'" data-open="0" style="display:none;margin-top:10px;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:5px"></div>'
+        : '';
       var expire='';
       if(o.deleteDate){
         var dd=new Date(o.deleteDate);
@@ -5469,8 +5549,9 @@ async function loadMyNotaryOrders(){
           +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">결제금액</p><p style="font-size:12px;font-weight:500;color:var(--gold)">'+(o.amount||0).toLocaleString()+'원</p></div>'
           +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">아포스티유</p><p style="font-size:12px;color:rgba(255,255,255,0.8)">'+(o.tier==='T3'?'포함':'해당 없음')+'</p></div>'
         +'</div>'
-        +warn+track+expire
+        +warn+_ntrStageNote(o)+apoNote+track+expire
         +(btns?'<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">'+btns+'</div>':'')
+        +scanBox
       +'</div>';
     }).join('');
   }catch(e){
