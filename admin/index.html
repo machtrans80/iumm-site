@@ -329,6 +329,27 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
       <button class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
       <button class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
+      <button class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')" style="color:#D4AF37"><i class="ti ti-package" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>공증 배송 관리<span id="ntr-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#b8860b;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
+    </div>
+
+    <!-- ── 공증 배송 관리 ────────────────────────────────────
+         스캔본을 올리면 표시 상태가 완료로 바뀌고, 발송번호를 넣으면
+         발송완료 + 고객 알림이 나간다. 대표 행동이 곧 상태다. -->
+    <div id="ntr-wrap" style="display:none;padding:4px 0 32px">
+      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+        <button class="tab-btn ntr-f active" data-f="all"      onclick="ntrFilter('all')">전체</button>
+        <button class="tab-btn ntr-f"        data-f="progress" onclick="ntrFilter('progress')">진행 중</button>
+        <button class="tab-btn ntr-f"        data-f="ready"    onclick="ntrFilter('ready')">발송대기</button>
+        <button class="tab-btn ntr-f"        data-f="shipped"  onclick="ntrFilter('shipped')">발송완료</button>
+        <span style="width:14px"></span>
+        <button class="tab-btn ntr-t active" data-t="all" onclick="ntrTier('all')">T2+T3</button>
+        <button class="tab-btn ntr-t"        data-t="T2"  onclick="ntrTier('T2')">T2 공증</button>
+        <button class="tab-btn ntr-t"        data-t="T3"  onclick="ntrTier('T3')">T3 아포스티유</button>
+        <span style="flex:1"></span>
+        <span id="ntr-count" style="font-size:12px;color:rgba(255,255,255,0.35)"></span>
+        <button class="tab-btn" onclick="loadNotaryShipping()">새로고침</button>
+      </div>
+      <div id="ntr-list"></div>
     </div>
     <!-- [E-2] 회원 관리 탭 -->
     <div id="members-wrap" style="display:none;padding:4px 0 32px">
@@ -1026,14 +1047,17 @@ function switchTab(tab) {
   document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '');
   document.getElementById('tab-gpt').className = 'tab-btn' + (tab==='gpt_review' ? ' active' : '');
   document.getElementById('tab-members').className = 'tab-btn' + (tab==='members' ? ' active' : '');
+  document.getElementById('tab-ntr').className = 'tab-btn' + (tab==='notary_ship' ? ' active' : '');
   var isBypass = tab === 'bypass';
   var isSettlement = tab === 'settlement';
   var isUnassigned = tab === 'unassigned';
   var isFailed = tab === 'failed';
   var isGptReview = tab === 'gpt_review';
   var isMembers = tab === 'members';
+  var isNtr = tab === 'notary_ship';
   document.getElementById('members-wrap').style.display = isMembers ? 'block' : 'none';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers) ? 'none' : 'block';
+  document.getElementById('ntr-wrap').style.display = isNtr ? 'block' : 'none';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
@@ -1056,6 +1080,8 @@ function switchTab(tab) {
     loadUnassigned();
   } else if (tab === 'failed') {
     loadFailedOrders();
+  } else if (tab === 'notary_ship') {
+    loadNotaryShipping();
   } else if (tab === 'members') {
     loadMembers('');
   } else {
@@ -3261,6 +3287,137 @@ async function deleteRef(id) {
   if (!confirm('이 자료를 영구 삭제합니다. 계속?')) return;
   var res = await adminFetch('/api/admin/biz-reference/'+id, { method:'DELETE' });
   if (res.ok && window._bizRefsEmail) await loadBizReferences(window._bizRefsEmail);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   공증 배송 관리
+   ══════════════════════════════════════════════════════════════
+   대표 행동이 곧 상태다.
+     스캔본 업로드 → T2 "공증완료" / T3 "공증 및 아포스티유 완료"
+     발송번호 입력 → "발송완료" + 고객 문자 + 마이페이지 노출
+   ★협력 처리 관련 내용은 관리자메모에만. 고객 화면엔 나가지 않는다. */
+var NTR_ORDERS = [], NTR_F = 'all', NTR_T = 'all';
+
+function _ne(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function _nd(s){ if(!s) return '-'; try{ return new Date(s).toLocaleString('ko-KR',{dateStyle:'short',timeStyle:'short'}); }catch(e){ return s; } }
+
+async function loadNotaryShipping() {
+  var box = document.getElementById('ntr-list');
+  box.innerHTML = '<p style="color:rgba(255,255,255,0.4);padding:20px">불러오는 중…</p>';
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/shipping',
+      { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '조회 실패');
+    NTR_ORDERS = j.orders || [];
+    // 발송대기(스캔본 등록됨, 미발송) 건수를 탭 배지로
+    var waiting = NTR_ORDERS.filter(function(o){ return o.stageKey === 'ready'; }).length;
+    var badge = document.getElementById('ntr-badge');
+    badge.textContent = waiting; badge.style.display = waiting ? 'inline-block' : 'none';
+    renderNotaryShipping();
+  } catch (e) {
+    box.innerHTML = '<p style="color:#f87171;padding:20px">불러오지 못했습니다: ' + _ne(e.message) + '</p>';
+  }
+}
+
+function ntrFilter(f){ NTR_F = f;
+  [].forEach.call(document.querySelectorAll('.ntr-f'), function(b){
+    b.className = 'tab-btn ntr-f' + (b.dataset.f === f ? ' active' : ''); });
+  renderNotaryShipping(); }
+function ntrTier(t){ NTR_T = t;
+  [].forEach.call(document.querySelectorAll('.ntr-t'), function(b){
+    b.className = 'tab-btn ntr-t' + (b.dataset.t === t ? ' active' : ''); });
+  renderNotaryShipping(); }
+
+function renderNotaryShipping() {
+  var rows = NTR_ORDERS.filter(function(o){
+    return (NTR_F === 'all' || o.stageKey === NTR_F) && (NTR_T === 'all' || o.tier === NTR_T);
+  });
+  document.getElementById('ntr-count').textContent = rows.length + ' / ' + NTR_ORDERS.length + '건';
+  var box = document.getElementById('ntr-list');
+  if (!rows.length) { box.innerHTML = '<p style="color:rgba(255,255,255,0.35);padding:24px">해당하는 주문이 없습니다.</p>'; return; }
+
+  box.innerHTML = rows.map(function(o){
+    var col = o.stageKey === 'shipped' ? '#22c55e' : (o.stageKey === 'ready' ? '#D4AF37' : 'rgba(255,255,255,0.45)');
+    var tierLabel = o.tier === 'T3' ? 'T3 아포스티유' : 'T2 공증';
+    return ''
+    + '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:16px;margin-bottom:12px;background:#141414">'
+    +   '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'
+    +     '<strong style="color:#fafaf8;font-size:14px">' + _ne(o.orderNumber) + '</strong>'
+    +     '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(212,175,55,0.15);color:#D4AF37">' + tierLabel + '</span>'
+    +     '<span style="font-size:12px;color:rgba(255,255,255,0.55)">' + _ne(o.docType || '-') + (o.country ? ' · ' + _ne(o.country) : '') + '</span>'
+    +     '<span style="flex:1"></span>'
+    +     '<span style="font-size:12px;font-weight:600;color:' + col + '">' + _ne(o.stageLabel) + '</span>'
+    +   '</div>'
+    +   '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;font-size:12px;color:rgba(255,255,255,0.65);margin-bottom:12px">'
+    +     '<div>고객 <span style="color:#fafaf8">' + _ne(o.customer || '-') + '</span></div>'
+    +     '<div>수령인 <span style="color:#fafaf8">' + _ne(o.recipient || '-') + '</span></div>'
+    +     '<div>연락처 <span style="color:#fafaf8">' + _ne(o.phone || '-') + '</span></div>'
+    +     '<div style="grid-column:1/-1">주소 <span style="color:#fafaf8">' + _ne(o.address || '-') + '</span></div>'
+    +     '<div>발행 ' + _nd(o.issuedAt) + '</div>'
+    +     '<div>스캔본 <span style="color:' + (o.scanCount ? '#22c55e' : '#f87171') + '">' + o.scanCount + '건</span></div>'
+    +     (o.shippedAt ? '<div>발송 ' + _nd(o.shippedAt) + '</div>' : '')
+    +   '</div>'
+    +   (o.stageKey === 'shipped'
+      ? '<div style="font-size:13px;color:#22c55e">✔ 발송완료 — 발송번호 <strong>' + _ne(o.trackingNo) + '</strong></div>'
+      : ''
+        + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)">'
+        +   '<input type="file" id="ntr-file-' + _ne(o.orderNumber) + '" multiple accept="image/*,application/pdf" style="font-size:12px;color:rgba(255,255,255,0.6);max-width:260px">'
+        +   '<button class="tab-btn" onclick="ntrUploadScan(\'' + _ne(o.orderNumber) + '\')">스캔본 등록</button>'
+        +   '<span style="width:12px"></span>'
+        +   '<input type="text" id="ntr-trk-' + _ne(o.orderNumber) + '" placeholder="발송번호(등기번호)" value="' + _ne(o.trackingNo) + '" style="padding:7px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:12px;width:200px;outline:none">'
+        +   '<button class="tab-btn" ' + (o.scanCount ? '' : 'disabled title="스캔본을 먼저 등록해야 합니다" style="opacity:0.4;cursor:not-allowed"')
+        +     ' onclick="ntrShip(\'' + _ne(o.orderNumber) + '\')">발송완료</button>'
+        + '</div>'
+        + '<div id="ntr-msg-' + _ne(o.orderNumber) + '" style="font-size:12px;margin-top:8px"></div>')
+    + '</div>';
+  }).join('');
+}
+
+function _ntrMsg(no, text, ok) {
+  var el = document.getElementById('ntr-msg-' + no);
+  if (el) { el.textContent = text; el.style.color = ok ? '#22c55e' : '#f87171'; }
+}
+
+async function ntrUploadScan(orderNumber) {
+  var inp = document.getElementById('ntr-file-' + orderNumber);
+  if (!inp || !inp.files.length) { _ntrMsg(orderNumber, '스캔본 파일을 선택해 주세요', false); return; }
+  var o = NTR_ORDERS.filter(function(x){ return x.orderNumber === orderNumber; })[0];
+  /* ★T2 는 스캔본을 올리는 순간 아포스티유 추가가 영구히 막힌다 — 되돌릴 수 없으니 확인받는다 */
+  if (o && o.apostilleStillOpen) {
+    if (!confirm('아포스티유 미신청 주문입니다.\n\n스캔본을 등록하면 발송 단계로 넘어가 고객이 더 이상 아포스티유를 추가할 수 없습니다.\n\n계속하시겠습니까?')) return;
+  }
+  _ntrMsg(orderNumber, '업로드 중…', true);
+  var fd = new FormData();
+  for (var i = 0; i < inp.files.length; i++) fd.append('scanFiles', inp.files[i]);
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/scan',
+      { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '등록 실패');
+    _ntrMsg(orderNumber, '스캔본 ' + j.scanCount + '건 등록 완료 — ' + j.stageLabel, true);
+    await loadNotaryShipping();
+  } catch (e) { _ntrMsg(orderNumber, '실패: ' + e.message, false); }
+}
+
+async function ntrShip(orderNumber) {
+  var inp = document.getElementById('ntr-trk-' + orderNumber);
+  var trk = inp ? inp.value.trim() : '';
+  if (!trk) { _ntrMsg(orderNumber, '발송번호를 입력해 주세요', false); return; }
+  if (!confirm('발송완료로 처리합니다.\n\n고객에게 발송 안내 문자가 발송되고,\n마이페이지에 스캔본·발송번호가 노출됩니다.\n\n발송번호: ' + trk + '\n\n계속하시겠습니까?')) return;
+  _ntrMsg(orderNumber, '처리 중…', true);
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/ship', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackingNo: trk })
+    });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '처리 실패');
+    _ntrMsg(orderNumber, '발송완료 처리됨', true);
+    await loadNotaryShipping();
+  } catch (e) { _ntrMsg(orderNumber, '실패: ' + e.message, false); }
 }
 </script>
 </body>
