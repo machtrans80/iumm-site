@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=10">
+<link rel="stylesheet" href="/notary/notary.css?v=11">
 <!-- ★메인·주문 페이지와 같은 v1 SDK. 편집토큰이 없을 때는 카카오 토큰으로 인증하는데,
      버전이 다르면 같은 로그인 상태인데도 토큰을 읽지 못한다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -100,7 +100,16 @@
       </div>
       <div class="ntr-field">
         <label class="ntr-lbl" for="up-address">주소 (우편번호 포함)</label>
-        <textarea class="ntr-inp" id="up-address" oninput="upRefresh()"></textarea>
+        <textarea class="ntr-inp" id="up-address" oninput="upRefresh()"
+                  placeholder="예) 06236 서울특별시 강남구 테헤란로 123, 4층 401호"></textarea>
+      </div>
+      <div class="ntr-note warn">
+        <strong>⚠ 우편 발송을 위해 수령인·연락처·주소를 정확히 입력해 주세요.</strong>
+        <ul>
+          <li>모든 항목을 빠짐없이 입력하셔야 발송이 진행됩니다.</li>
+          <li>입력하신 연락처·주소가 정확하지 않아 발생하는 오배송·반송·재발송 등의
+              책임은 고객님께 있으며, 이 경우 재발송 비용이 추가될 수 있습니다.</li>
+        </ul>
       </div>
     </div>
 
@@ -526,7 +535,13 @@ function onParty(){
 function upRefresh(){
   var ok = true;
   if (UP && UP.to === 'T2') {
-    ok = !!($('up-recipient').value.trim() && $('up-phone').value.trim() && $('up-address').value.trim());
+    /* ★서버(notary/index.js validateShipping)와 같은 기준. 한쪽만 고치지 말 것 */
+    var nm = $('up-recipient').value.trim();
+    var tl = $('up-phone').value.trim();
+    var ad = $('up-address').value.trim();
+    ok = !!(nm && tl && ad) && nm.length >= 2 &&
+         /^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(tl.replace(/\s/g,'')) &&
+         ad.length >= 10 && /\b\d{5}\b/.test(ad);
   } else if (UP && UP.to === 'T3') {
     var p = $('up-party').value;
     ok = !!(UP_COUNTRY && $('up-dest-name').value.trim() && $('up-dest-addr').value.trim() &&
