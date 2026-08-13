@@ -87,9 +87,18 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-sum-row span{color:var(--text-muted);flex-shrink:0}
 .ntr-sum-row strong{color:#fff;font-weight:600;text-align:right;word-break:keep-all}
 
+/* 부가세 분해 (결제 화면 전용) */
+.ntr-paybreak{margin-top:18px}
+.ntr-pb-row{display:flex;justify-content:space-between;align-items:baseline;
+  padding:7px 0;font-size:13px;color:var(--gray)}
+.ntr-pb-row span:last-child{color:#fff;font-variant-numeric:tabular-nums}
+/* 상품 카드의 '부가세 별도' 꼬리표 */
+.ntr-tier .price .vat-note{display:block;font-size:10.5px;font-weight:400;
+  color:var(--text-muted);font-style:normal;margin-top:2px;letter-spacing:0}
+
 /* 결제 금액 줄 */
-.ntr-payline{display:flex;justify-content:space-between;align-items:center;margin-top:18px;
-  padding-top:16px;border-top:1px solid rgba(255,255,255,0.10)}
+.ntr-payline{display:flex;justify-content:space-between;align-items:center;margin-top:0;
+  padding-top:14px;border-top:1px solid rgba(255,255,255,0.18)}
 .ntr-payline span{font-size:13px;color:var(--text-muted)}
 .ntr-payline strong{font-size:24px;color:var(--gold);font-weight:700}
 

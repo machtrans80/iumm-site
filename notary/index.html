@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=6">
+<link rel="stylesheet" href="/notary/notary.css?v=7">
 <!-- ★메인(index.html)과 같은 v1 SDK. 버전이 다르면 토큰 저장 형식이 달라
      같은 브라우저에서도 로그인 세션을 공유하지 못해 재로그인을 요구하게 된다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -167,8 +167,10 @@
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag2"><span>결제 후 환불이 불가함을 확인했습니다</span></label>
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
       </div>
+      <!-- ★결제 화면에서만 부가세를 분해해 보여준다 (앞 단계는 공급가만 표시) -->
+      <div class="ntr-paybreak" id="pay-break"></div>
       <div class="ntr-payline">
-        <span>결제 금액</span>
+        <span>최종 결제금액</span>
         <strong id="amount">—</strong>
       </div>
       <div id="pay-msg" class="ntr-msg"></div>
@@ -230,6 +232,25 @@ var ME = { kakaoId:'', name:'', email:'', phone:'' };
 var ORDER_NUMBER = '';   // 결제 완료 후 편집 화면으로 넘길 주문번호
 
 function $(id){ return document.getElementById(id); }
+/** 금액 표기 통일 */
+function won(n){ return Number(n||0).toLocaleString()+'원'; }
+
+/**
+ * 결제 화면 부가세 분해.
+ * ★공급가·부가세·총액은 전부 서버(pricing.js)가 계산해 내려준 값을 그대로 쓴다.
+ *   프론트에서 다시 계산하면 서버 화이트리스트와 1원이라도 어긋날 때 402가 난다.
+ */
+function renderPayBreak(){
+  var box = $('pay-break');
+  if (!box) return;
+  if (!TIER) { box.innerHTML = ''; return; }
+  var supply = TIER.supply != null ? TIER.supply : TIER.amount;
+  var vat    = TIER.vat    != null ? TIER.vat    : 0;
+  var pct    = Math.round(((CFG && CFG.vatRate) || 0) * 100);
+  box.innerHTML =
+    '<div class="ntr-pb-row"><span>상품금액 (공급가)</span><span>'+won(supply)+'</span></div>' +
+    (vat ? '<div class="ntr-pb-row"><span>부가세 ('+pct+'%)</span><span>'+won(vat)+'</span></div>' : '');
+}
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function msg(el, text, kind){ var e=$(el); e.className='ntr-msg'+(kind?' '+kind:''); e.innerHTML=text; }
 
@@ -420,7 +441,9 @@ function renderTiers(){
       '" data-code="'+t.code+'" onclick="selectTier(\''+t.code+'\')">'+
       '<div class="code">'+esc(t.code)+'</div>'+
       '<div class="label">'+esc(tierName(t))+'</div>'+
-      '<div class="price">'+t.amount.toLocaleString()+'원</div>'+
+      // ★상품 화면에는 공급가를 그대로 보여준다 (부가세는 결제 화면에서만 분해)
+      '<div class="price">'+won(t.supply != null ? t.supply : t.amount)+
+      '<em class="vat-note">부가세 별도</em></div>'+
       '<div class="desc">'+esc(t.desc)+extra+'</div>'+
       '</div>';
   }).join('');
@@ -709,7 +732,8 @@ function countryOk(){
   return !!COUNTRY;
 }
 function refresh(){
-  $('amount').textContent = TIER ? TIER.amount.toLocaleString()+'원' : '—';
+  renderPayBreak();
+  $('amount').textContent = TIER ? won(TIER.amount) : '—';
   var ok = !!(ME.kakaoId && TIER && countryOk() && PRECHECK_OK &&
               agreedAll() && shipOk() && !PAYING);
   $('payBtn').disabled = !ok;
