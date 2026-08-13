@@ -215,11 +215,14 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
   background:#fff;border-radius:6px;padding:0;overflow-x:auto;
   box-shadow:0 10px 40px rgba(0,0,0,.35);
 }
+/* ★결과물 폰트는 Times New Roman 으로 통일한다 (화면·인쇄·DOCX 동일).
+   뒤의 한글 폰트는 편집 중 한글이 남아 있을 때만 쓰이는 대비책이다. */
 .ntr-doc{
   background:#fff;color:#111;padding:22mm 18mm;min-width:720px;
-  font-family:'Nanum Myeongjo','Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',serif;
+  font-family:'Times New Roman',Times,'Nanum Myeongjo','Malgun Gothic',serif;
   font-size:13px;line-height:1.65;
 }
+.ntr-doc *{font-family:inherit}
 .ntr-doc .ntr-title{
   text-align:center;font-size:22px;font-weight:700;letter-spacing:.04em;
   color:#111;margin:0 0 18px;
@@ -241,7 +244,12 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc .ntr-legal{margin:0 0 14px;font-size:11.5px;color:#333}
 .ntr-doc .ntr-issue{text-align:center;margin:18px 0 20px}
 .ntr-doc .ntr-issue-date{font-size:13px;margin:0 0 8px}
-.ntr-doc .ntr-issue-office{font-size:15px;font-weight:700;margin:0}
+/* 기관명이 길면(대법원 온라인 발급본) 콤마 뒤에서 두 줄로 접힌다.
+   폭을 제한해 두 줄 이상 늘어지지 않게 한다. */
+.ntr-doc .ntr-issue-office{
+  font-size:15px;font-weight:700;margin:0;
+  max-width:78%;margin-left:auto;margin-right:auto;line-height:1.5;
+}
 .ntr-doc .ntr-seal{
   display:inline-block;margin-left:14px;font-size:11px;color:#777;
   border:1px dashed #aaa;border-radius:50%;padding:9px 7px;
