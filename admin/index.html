@@ -45,6 +45,18 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'Pr
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
 .tab-btn:hover:not(.active){color:rgba(255,255,255,0.7)}
 
+/* ─ 업무 모드 스위치 (전문 번역 / 번역공증) ─
+   탭이 많아 한 줄에 다 쌓이면 무엇이 무엇인지 안 보인다.
+   업무 단위로 먼저 가르고, 그 안의 탭만 보여준다. */
+.mode-bar{display:flex;gap:8px;margin-bottom:14px}
+.mode-btn{flex:0 0 auto;padding:11px 26px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;color:rgba(255,255,255,0.45);font-size:13px;font-weight:600;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:all 0.18s;letter-spacing:-0.2px}
+.mode-btn:hover:not(.active){color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.05)}
+.mode-btn.active{background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.45);color:var(--gold)}
+.mode-btn .mode-sub{display:block;font-size:10.5px;font-weight:400;opacity:0.6;margin-top:2px;letter-spacing:0}
+body.admin-focus .mode-bar{display:none}
+
 /* ─ 주문 테이블 ─ */
 .orders-table{width:100%;border-collapse:collapse;font-size:13px}
 .orders-table th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--card-border);color:var(--gray);font-weight:400;font-size:11px;letter-spacing:0.5px}
@@ -316,20 +328,27 @@ body.admin-focus .focus-exit-hint{display:inline}
     <button class="btn-logout" onclick="doAdminLogout()">로그아웃</button>
   </nav>
   <div class="admin-body">
+    <!-- ── 업무 모드 스위치 ──────────────────────────────────
+         탭은 그대로 두고 보이는 묶음만 가른다. 기본은 전문 번역 업무라
+         기존 화면이 그대로 열린다. -->
+    <div class="mode-bar">
+      <button class="mode-btn active" id="mode-tx"  onclick="setAdminMode('tx')">전문 번역 업무<span class="mode-sub">주문 · 검수 · 정산 · 회원</span></button>
+      <button class="mode-btn"        id="mode-ntr" onclick="setAdminMode('ntr')">번역공증 업무<span class="mode-sub">공증 배송</span></button>
+    </div>
     <div class="tabs">
-      <button class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')" style="color:#f59e0b"><i class="ti ti-wallet" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>입금대기<span id="bp-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#d97706;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
-      <button class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
-      <button class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
-      <button class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
-      <button class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
-      <button class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
-      <button class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
-      <button class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>미배정</button>
-      <button class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#f87171"><i class="ti ti-ban" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>번역실패</button>
-      <button class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
-      <button class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
-      <button class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
-      <button class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')" style="color:#D4AF37"><i class="ti ti-package" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>공증 배송 관리<span id="ntr-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#b8860b;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
+      <button class="tab-btn" data-mode="tx" id="tab-bp" onclick="switchTab('bank_pending')" style="color:#f59e0b"><i class="ti ti-wallet" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>입금대기<span id="bp-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#d97706;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
+      <button data-mode="tx" class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
+      <button data-mode="tx" class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
+      <button data-mode="tx" class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
+      <button data-mode="tx" class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
+      <button data-mode="tx" class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
+      <button data-mode="tx" class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
+      <button data-mode="tx" class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>미배정</button>
+      <button data-mode="tx" class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#f87171"><i class="ti ti-ban" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>번역실패</button>
+      <button data-mode="tx" class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
+      <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
+      <button data-mode="tx" class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
+      <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')" style="color:#D4AF37"><i class="ti ti-package" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>공증 배송 관리<span id="ntr-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#b8860b;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
     </div>
 
     <!-- ── 공증 배송 관리 ────────────────────────────────────
@@ -1018,6 +1037,7 @@ async function doAdminLogin() {
       localStorage.setItem('adminToken', res.token);
       document.getElementById('login-view').style.display = 'none';
       document.getElementById('admin-view').style.display = 'flex';
+      restoreAdminMode();
       loadOrders();
       refreshBpBadge();
     } else {
@@ -1029,6 +1049,38 @@ async function doAdminLogin() {
 function doAdminLogout() {
   localStorage.removeItem('adminToken');
   location.reload();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   업무 모드 (전문 번역 / 번역공증)
+   ══════════════════════════════════════════════════════════════
+   탭 자체는 하나도 건드리지 않는다. data-mode 로 보이는 묶음만 가르고,
+   모드를 바꿀 때 그 모드의 첫 탭으로 옮겨 준다.
+   공증 기능이 늘면 tabs 에 data-mode="ntr" 버튼만 추가하면 된다. */
+var ADMIN_MODE = 'tx';
+var MODE_HOME = { tx: 'ai_premium', ntr: 'notary_ship' };
+
+function setAdminMode(mode, keepTab) {
+  ADMIN_MODE = mode;
+  document.getElementById('mode-tx').className  = 'mode-btn' + (mode==='tx'  ? ' active' : '');
+  document.getElementById('mode-ntr').className = 'mode-btn' + (mode==='ntr' ? ' active' : '');
+  var shownActive = false;
+  [].forEach.call(document.querySelectorAll('.tabs .tab-btn'), function(b){
+    var on = (b.getAttribute('data-mode') || 'tx') === mode;
+    b.style.display = on ? '' : 'none';
+    if (on && b.className.indexOf('active') >= 0) shownActive = true;
+  });
+  try { localStorage.setItem('adminMode', mode); } catch(e){}
+  /* 숨겨진 탭이 열린 채로 남으면 화면과 탭이 어긋난다 → 그 모드의 기본 탭으로 */
+  if (!keepTab && !shownActive) switchTab(MODE_HOME[mode] || 'ai_premium');
+}
+
+/** 로그인 직후 복원 — 마지막에 보던 업무로 연다 */
+function restoreAdminMode() {
+  var m = 'tx';
+  try { m = localStorage.getItem('adminMode') || 'tx'; } catch(e){}
+  if (m !== 'tx' && m !== 'ntr') m = 'tx';
+  setAdminMode(m);
 }
 
 function switchTab(tab) {
@@ -2550,6 +2602,7 @@ window.addEventListener('DOMContentLoaded', function() {
   if (tok) {
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('admin-view').style.display = 'flex';
+    restoreAdminMode();
     loadOrders();
     refreshBpBadge();
   }
