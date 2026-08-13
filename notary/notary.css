@@ -87,6 +87,10 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-sum-row span{color:var(--text-muted);flex-shrink:0}
 .ntr-sum-row strong{color:#fff;font-weight:600;text-align:right;word-break:keep-all}
 
+/* 업셀 제안 카드 — 눈에 띄되 과하지 않게 */
+.ntr-upsell{border-color:rgba(22,184,148,0.35);background:rgba(22,184,148,0.06)}
+.ntr-upsell h2{font-size:17px;line-height:1.5}
+
 /* 부가세 분해 (결제 화면 전용) */
 .ntr-paybreak{margin-top:18px}
 .ntr-pb-row{display:flex;justify-content:space-between;align-items:baseline;

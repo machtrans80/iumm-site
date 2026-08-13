@@ -8,10 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=7">
+<link rel="stylesheet" href="/notary/notary.css?v=8">
 <!-- ★메인·주문 페이지와 같은 v1 SDK. 편집토큰이 없을 때는 카카오 토큰으로 인증하는데,
      버전이 다르면 같은 로그인 상태인데도 토큰을 읽지 못한다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
+<!-- 업셀(T1→T2 / T2→T3) 추가 결제용 -->
+<script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 </head>
 <body>
 
@@ -72,11 +74,140 @@
     <div id="done-body"></div>
   </div>
 
+  <!-- ── 업셀 제안 (서버가 upgrade 를 내려줄 때만) ─────────── -->
+  <div class="ntr-card no-print ntr-upsell" id="upsell-box" style="display:none;margin-top:18px">
+    <h2 id="upsell-head"></h2>
+    <p class="hint" id="upsell-desc"></p>
+    <button class="ntr-btn wide" id="upsell-btn" onclick="startUpsell()"></button>
+  </div>
+
+  <!-- ── 업셀 입력 폼 ─────────────────────────────────────── -->
+  <div class="ntr-card no-print" id="upform" style="display:none;margin-top:18px">
+    <h2 id="upform-title"></h2>
+
+    <!-- T1 → T2 : 배송지 -->
+    <div id="up-t2" style="display:none">
+      <p class="hint">공증 원본을 등기로 보내드립니다.</p>
+      <div class="ntr-row">
+        <div class="ntr-field">
+          <label class="ntr-lbl" for="up-recipient">수령인</label>
+          <input class="ntr-inp" id="up-recipient" type="text" autocomplete="name" oninput="upRefresh()">
+        </div>
+        <div class="ntr-field">
+          <label class="ntr-lbl" for="up-phone">연락처</label>
+          <input class="ntr-inp" id="up-phone" type="tel" placeholder="010-0000-0000" oninput="upRefresh()">
+        </div>
+      </div>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="up-address">주소 (우편번호 포함)</label>
+        <textarea class="ntr-inp" id="up-address" oninput="upRefresh()"></textarea>
+      </div>
+    </div>
+
+    <!-- T2 → T3 : 아포스티유 신청 -->
+    <div id="up-t3" style="display:none">
+      <div class="ntr-note">
+        당사가 고객님을 대신해 아포스티유를 <strong>대리 접수</strong>합니다.
+        2021년부터 외교부 개인정보이용동의서 제출이 필요하며,
+        대리 접수를 위해 신청인 신분증 사본이 필요합니다.
+      </div>
+
+      <!-- ① 제출 국가 -->
+      <div class="ntr-field" style="margin-top:16px">
+        <label class="ntr-lbl" for="up-country">① 제출 국가</label>
+        <select class="ntr-inp" id="up-country" onchange="onUpCountry();upRefresh()"></select>
+      </div>
+      <div id="up-country-note"></div>
+
+      <!-- ② 제출처 정보 -->
+      <div class="ntr-field" style="margin-top:16px">
+        <label class="ntr-lbl" for="up-dest-name">② 제출처 기관명 (상호)</label>
+        <input class="ntr-inp" id="up-dest-name" type="text" maxlength="80"
+               placeholder="아포스티유 신청서에 기재됩니다" oninput="upRefresh()">
+      </div>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="up-dest-addr">제출처 주소</label>
+        <textarea class="ntr-inp" id="up-dest-addr" oninput="upRefresh()"></textarea>
+      </div>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="up-dest-phone">제출처 전화번호 (선택)</label>
+        <input class="ntr-inp" id="up-dest-phone" type="text" maxlength="40" oninput="upRefresh()">
+      </div>
+
+      <!-- ③ 개인정보이용동의서 -->
+      <div class="ntr-field" style="margin-top:16px">
+        <label class="ntr-lbl" for="up-party">③ 서류 당사자 구분</label>
+        <select class="ntr-inp" id="up-party" onchange="onParty()">
+          <option value="">— 선택하세요 —</option>
+          <option value="개인">개인 (자필 서명)</option>
+          <option value="미성년자">미성년자 (부모 서명 + 가족관계증명서)</option>
+          <option value="법인">법인 (명판 + 인감 날인)</option>
+          <option value="법인(명판없음)">법인 — 명판 없음</option>
+        </select>
+      </div>
+      <div class="ntr-note warn" id="up-party-manual" style="display:none">
+        명판이 없는 법인은 자동 접수가 어렵습니다.
+        <strong>담당자가 확인 후 안내드립니다.</strong> iumm.master@gmail.com 으로 문의해 주세요.
+      </div>
+
+      <div class="ntr-note" style="margin-top:14px">
+        <strong>📄 개인정보이용동의서 작성 안내</strong>
+        <ul>
+          <li>아래 양식을 다운로드해 <strong>출력</strong>하세요.</li>
+          <li>‘동의함’에 체크하고, 신청인란에 <strong>자필로 성함을 적고 서명</strong>해 주세요.
+              (법인은 명판 + 인감 날인)</li>
+          <li>서명하신 동의서를 <strong>스캔(또는 사진 촬영)</strong>하여 업로드해 주세요.</li>
+        </ul>
+        <em style="font-style:normal;color:var(--text-muted)">
+          * 서명·날인한 동의서 사본(스캔) 1부로 접수됩니다.</em>
+      </div>
+      <button class="ntr-btn ghost" style="margin-top:12px" onclick="downloadConsent()">
+        동의서 양식 다운로드</button>
+
+      <div class="ntr-field" style="margin-top:16px">
+        <label class="ntr-lbl" for="up-consent">작성한 동의서 스캔 업로드</label>
+        <input class="ntr-inp" type="file" id="up-consent" multiple
+               accept="image/*,application/pdf" onchange="upRefresh()">
+      </div>
+
+      <!-- ④ 신분증 -->
+      <div class="ntr-field" style="margin-top:16px">
+        <label class="ntr-lbl" for="up-id">④ 신청인 신분증 사본</label>
+        <p class="hint" id="up-id-hint">신청인 본인의 신분증 사본을 올려주세요.</p>
+        <input class="ntr-inp" type="file" id="up-id" multiple
+               accept="image/*,application/pdf" onchange="upRefresh()">
+      </div>
+      <div class="ntr-note warn">
+        업로드하신 동의서·신분증은 민감 개인정보입니다.
+        접수 목적으로만 사용하며, <strong>30일이 지나면 서버에서 완전히 삭제</strong>됩니다.
+      </div>
+    </div>
+
+    <!-- ⑤ 추가 결제 -->
+    <div class="ntr-paybreak" id="up-break"></div>
+    <div class="ntr-payline">
+      <span>최종 결제금액</span>
+      <strong id="up-amount">—</strong>
+    </div>
+    <button class="ntr-btn wide" id="up-pay" onclick="payUpsell()" disabled>추가 결제하기</button>
+    <div id="up-msg" class="ntr-msg"></div>
+  </div>
+
+  <!-- 업셀 완료 -->
+  <div class="ntr-card no-print" id="up-done" style="display:none;margin-top:18px">
+    <h2>추가 결제 완료</h2>
+    <div class="ntr-note" id="up-done-msg"></div>
+    <div style="margin-top:14px"><a href="/mypage">← 마이페이지로</a></div>
+  </div>
+
 </div>
 
 <script>
 var API = 'https://iumm-pipeline-production.up.railway.app';
 var KAKAO_KEY = 'd37fe286e0256c9199a29236ed10c244';
+// 업셀 추가 결제 — 주문 페이지와 같은 상점·채널
+var PORTONE_STORE   = 'store-3676558e-d1ec-4955-b5ea-b12e121fc491';
+var PORTONE_CHANNEL = 'channel-key-6a333887-dfcd-490a-a661-aec79ee11974';
 
 var qs = new URLSearchParams(location.search);
 var ORDER = qs.get('o') || '';
@@ -302,6 +433,180 @@ function showDone(){
   }
   html += '<div style="margin-top:14px"><a href="/mypage">← 마이페이지로</a></div>';
   $('done-body').innerHTML = html;
+
+  renderUpsell();
+}
+
+// ═══════════════════════════════════════════════════════════
+// 업셀 — T1→T2(공증+우편) / T2→T3(아포스티유)
+// ═══════════════════════════════════════════════════════════
+// 제안 가능한 업그레이드는 서버가 주문 조회 응답의 upgrade 로 내려준다.
+// 금액(공급가·부가세·총액)도 서버 값을 그대로 쓴다 — 프론트에서 계산하지 않는다.
+var UP = null;
+
+function renderUpsell(){
+  UP = (STATE && STATE.upgrade) || null;
+  var box = $('upsell-box');
+  if (!UP) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  var head = UP.to === 'T2'
+    ? '번역 공증 대행 + 우편발송 서비스까지 진행하시겠어요?'
+    : '아포스티유 인증까지 진행하시겠어요?';
+  var body = UP.to === 'T2'
+    ? '번역자격인증 · 공증 · 등기발송 · 스캔까지 당사가 처리해 드립니다.'
+    : '당사가 고객님을 대신해 아포스티유를 대리 접수합니다. ' +
+      '2021년부터 외교부 개인정보이용동의서 제출이 필요하며, ' +
+      '대리 접수를 위해 신청인 신분증 사본이 필요합니다.';
+  $('upsell-head').textContent = head;
+  $('upsell-desc').textContent = body;
+  $('upsell-btn').innerHTML =
+    esc(UP.label) + ' (+' + won(UP.supply) + ', 부가세 별도)';
+}
+
+function won(n){ return Number(n||0).toLocaleString()+'원'; }
+
+/** 업셀 시작 — 티어에 맞는 추가 입력 폼을 연다 */
+function startUpsell(){
+  if (!UP) return;
+  $('upsell-box').style.display = 'none';
+  $('upform').style.display = '';
+  $('upform-title').textContent = UP.label;
+  $('up-t2').style.display = UP.to === 'T2' ? '' : 'none';
+  $('up-t3').style.display = UP.to === 'T3' ? '' : 'none';
+  if (UP.to === 'T3') loadCountriesForUpsell();
+  renderUpBreak();
+  window.scrollTo({ top: document.getElementById('upform').offsetTop - 20, behavior:'smooth' });
+}
+
+function renderUpBreak(){
+  $('up-break').innerHTML =
+    '<div class="ntr-pb-row"><span>상품금액 (공급가)</span><span>'+won(UP.supply)+'</span></div>' +
+    (UP.vat ? '<div class="ntr-pb-row"><span>부가세</span><span>'+won(UP.vat)+'</span></div>' : '');
+  $('up-amount').textContent = won(UP.amount);
+}
+
+/** T3 업셀의 국가 목록 — 주문 페이지와 같은 서버 데이터(협약 판정 포함) */
+var UP_COUNTRIES = [], UP_COUNTRY = null;
+async function loadCountriesForUpsell(){
+  if (UP_COUNTRIES.length) return;
+  try {
+    var r = await fetch(API + '/api/notary/config');
+    var d = await r.json();
+    UP_COUNTRIES = d.countries || [];
+    var sel = $('up-country');
+    sel.innerHTML = '<option value="">— 제출 국가를 선택하세요 —</option>' +
+      UP_COUNTRIES.map(function(c){
+        return '<option value="'+esc(c.nameKo)+'">'+esc(c.nameKo)+
+               (c.effectiveNow ? '' : ' (아포스티유 미적용)')+'</option>';
+      }).join('');
+  } catch(e){ $('up-msg').innerHTML = '국가 목록을 불러오지 못했습니다.'; }
+}
+
+function onUpCountry(){
+  var v = $('up-country').value;
+  UP_COUNTRY = UP_COUNTRIES.filter(function(c){ return c.nameKo === v; })[0] || null;
+  $('up-country-note').innerHTML = (UP_COUNTRY && !UP_COUNTRY.effectiveNow)
+    ? '<div class="ntr-note warn">이 국가는 아포스티유 후 <strong>대사관 영사인증이 추가로 필요</strong>합니다. ' +
+      '아포스티유까지는 이 상품에 포함되며, 영사인증은 결제 후 담당자가 안내드립니다.</div>'
+    : (UP_COUNTRY ? '<div class="ntr-note">아포스티유 협약이 발효 중인 국가입니다.</div>' : '');
+}
+
+/** 서류당사자 구분에 따라 필요한 서류 안내가 달라진다 */
+function onParty(){
+  var p = $('up-party').value;
+  var manual = (p === '법인(명판없음)');
+  $('up-party-manual').style.display = manual ? '' : 'none';
+  $('up-id-hint').innerHTML =
+    p === '미성년자' ? '부모님 신분증 사본 <strong>과 가족관계증명서</strong>를 함께 올려주세요.'
+  : p === '법인'     ? '사업자등록증 사본을 올려주세요. 동의서에는 <strong>명판 + 인감 날인</strong>이 필요합니다.'
+  : '신청인 본인의 신분증 사본을 올려주세요.';
+  upRefresh();
+}
+
+function upRefresh(){
+  var ok = true;
+  if (UP && UP.to === 'T2') {
+    ok = !!($('up-recipient').value.trim() && $('up-phone').value.trim() && $('up-address').value.trim());
+  } else if (UP && UP.to === 'T3') {
+    var p = $('up-party').value;
+    ok = !!(UP_COUNTRY && $('up-dest-name').value.trim() && $('up-dest-addr').value.trim() &&
+            p && p !== '법인(명판없음)' &&
+            $('up-consent').files.length && $('up-id').files.length);
+  }
+  $('up-pay').disabled = !ok || UP_PAYING;
+}
+
+/** 동의서 양식 다운로드 */
+function downloadConsent(){ location.href = API + '/api/notary/forms/consent'; }
+
+// ─── 업셀 결제 ───────────────────────────────────────────
+var UP_PAYING = false;
+async function payUpsell(){
+  if (UP_PAYING || !UP) return;
+  UP_PAYING = true; upRefresh();
+  $('up-msg').className = 'ntr-msg';
+  $('up-msg').innerHTML = '<span class="ntr-spinner"></span> 결제창을 여는 중…';
+
+  var paymentId = 'iumm_ntr_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+  var pr;
+  try {
+    pr = await PortOne.requestPayment({
+      storeId: PORTONE_STORE, channelKey: PORTONE_CHANNEL,
+      paymentId: paymentId, orderName: 'IUMM 공증 ' + UP.label,
+      totalAmount: UP.amount, currency: 'CURRENCY_KRW', payMethod: 'CARD'
+    });
+  } catch(err){
+    UP_PAYING = false; upRefresh();
+    $('up-msg').className = 'ntr-msg err';
+    $('up-msg').innerHTML = '결제창 호출 실패: ' + esc(err.message || err);
+    return;
+  }
+  if (!pr || pr.code) {
+    UP_PAYING = false; upRefresh();
+    $('up-msg').className = 'ntr-msg err';
+    $('up-msg').innerHTML = esc((pr && pr.message) || '결제가 취소되었습니다.');
+    return;
+  }
+
+  $('up-msg').innerHTML = '<span class="ntr-spinner"></span> 접수 중… 창을 닫지 마세요.';
+  var fd = new FormData();
+  fd.append('upgrade', UP.code);
+  fd.append('paymentId', pr.paymentId);
+  if (UP.to === 'T2') {
+    fd.append('recipient', $('up-recipient').value.trim());
+    fd.append('recipientPhone', $('up-phone').value.trim());
+    fd.append('address', $('up-address').value.trim());
+  } else {
+    fd.append('country',   $('up-country').value);
+    fd.append('destName',  $('up-dest-name').value.trim());
+    fd.append('destAddr',  $('up-dest-addr').value.trim());
+    fd.append('destPhone', $('up-dest-phone').value.trim());
+    fd.append('party',     $('up-party').value);
+    Array.prototype.forEach.call($('up-consent').files, function(f){ fd.append('consentFiles', f); });
+    Array.prototype.forEach.call($('up-id').files,      function(f){ fd.append('idFiles', f); });
+  }
+
+  try {
+    var url = '/api/notary/order/' + encodeURIComponent(ORDER) + '/upgrade';
+    var d = await api(url, { method:'POST', body: fd });
+    $('upform').style.display = 'none';
+    $('up-done').style.display = '';
+    $('up-done-msg').innerHTML =
+      '<strong>' + esc(UP.label) + ' 결제가 완료되었습니다.</strong><br>' +
+      (UP.to === 'T3'
+        ? '제출해 주신 동의서·신분증으로 당사가 아포스티유를 대리 접수합니다. 진행 상황은 마이페이지에서 확인하실 수 있습니다.'
+        : '번역자격인증 · 공증 · 등기발송이 진행됩니다. 진행 상황은 마이페이지에서 확인하실 수 있습니다.');
+    STATE.tier = d.tier;
+    UP = null;
+  } catch(e){
+    UP_PAYING = false; upRefresh();
+    $('up-msg').className = 'ntr-msg err';
+    $('up-msg').innerHTML = (e.data && e.data.manual)
+      ? '명판이 없는 법인은 자동 접수가 어렵습니다. 담당자가 확인 후 안내드립니다.<br>' +
+        '결제번호 <strong>' + esc(paymentId) + '</strong> 를 저장해 두시고 iumm.master@gmail.com 으로 문의해 주세요.'
+      : '접수 실패: ' + esc(e.message) + '<br>결제번호 <strong>' + esc(paymentId) +
+        '</strong> 를 저장해 두시고 iumm.master@gmail.com 으로 문의해 주세요.';
+  }
 }
 
 // ─── 시작 ────────────────────────────────────────────────
