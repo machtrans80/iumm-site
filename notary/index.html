@@ -58,11 +58,32 @@
     <div class="ntr-card">
       <h2><span class="ntr-step">2</span>제출 국가</h2>
       <p class="hint">모든 국가에서 상품을 선택할 수 있습니다. 아포스티유 적용 여부에 따라 안내만 달라집니다.</p>
+
+      <!-- 검색 가능한 그룹형 국가 선택 -->
       <div class="ntr-field">
-        <select class="ntr-inp" id="country" onchange="onCountryChange()">
-          <option value="">— 국가를 선택하세요 —</option>
-        </select>
+        <div class="ntr-combo" id="country-combo">
+          <button type="button" class="ntr-combo-btn" id="country-btn"
+                  aria-haspopup="listbox" aria-expanded="false" onclick="toggleCountry()">
+            <span id="country-label" class="ph">— 국가를 선택하세요 —</span>
+            <span class="caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="ntr-combo-pop" id="country-pop">
+            <input class="ntr-combo-search" id="country-q" type="text" autocomplete="off"
+                   placeholder="국가명 입력 (예: 베트, USA, UAE)"
+                   oninput="renderCountryList()" onkeydown="countryKey(event)">
+            <div class="ntr-combo-list" id="country-list" role="listbox"
+                 aria-label="제출 국가"></div>
+          </div>
+        </div>
       </div>
+
+      <!-- 목록에 없는 국가 → 담당자가 협약 여부를 확인해 안내한다 -->
+      <div class="ntr-field" id="country-other-field" style="display:none">
+        <label class="ntr-lbl" for="country-other">국가명 직접 입력</label>
+        <input class="ntr-inp" id="country-other" type="text" maxlength="40"
+               placeholder="제출하실 국가명을 입력해 주세요" oninput="onOtherCountry()">
+      </div>
+
       <div id="country-note"></div>
     </div>
 
@@ -249,18 +270,10 @@ async function loadConfig(){
     return '<option value="'+esc(l.code)+'"'+(l.ready?'':' disabled')+'>'+esc(l.label)+(l.ready?'':' (준비중)')+'</option>';
   }).join('');
 
-  // ★effectiveNow = 오늘 기준 아포스티유 발효 여부(서버 판정).
+  // ★effectiveNow·group = 오늘 기준 서버 판정값.
   //   가입은 했으나 발효 전인 나라(예: 베트남)를 협약국으로 잘못 안내하지 않기 위해
-  //   isMember 가 아니라 이 값으로만 분기한다.
-  var cs = $('country');
-  cs.innerHTML = '<option value="">— 국가를 선택하세요 —</option>' +
-    CFG.countries.map(function(c){
-      return '<option value="'+esc(c.nameKo)+'"'+
-             ' data-eff="'+(c.effectiveNow?'1':'0')+'"'+
-             ' data-member="'+(c.isMember?'1':'0')+'"'+
-             ' data-effdate="'+esc(c.effectiveDate||'')+'">'+
-             esc(c.nameKo)+(c.effectiveNow?'':' (아포스티유 미적용)')+'</option>';
-    }).join('');
+  //   isMember 가 아니라 이 값으로만 분기한다. 브라우저에서 날짜를 다시 계산하지 않는다.
+  renderCountryList();
 
   renderTiers();
   msg('pay-msg','');   // 초기 로드 실패 메시지가 남아 있으면 지운다
@@ -282,7 +295,9 @@ function renderTiers(){
   //   아포스티유만 받고 영사확인은 직접 하시는 분이 많다. 대신 아래에 안내를 띄운다.
   $('tiers').innerHTML = CFG.tiers.map(function(t){
     var extra = (t.apostille && COUNTRY && !COUNTRY.effectiveNow)
-      ? '<br><span style="color:var(--warn)">영사확인 별도 필요</span>' : '';
+      ? '<br><span style="color:var(--warn)">' +
+        (COUNTRY.unknown ? '담당자 확인 후 안내' : '영사확인 별도 필요') + '</span>'
+      : '';
     return '<div class="ntr-tier'+(TIER&&TIER.code===t.code?' sel':'')+
       '" data-code="'+t.code+'" onclick="selectTier(\''+t.code+'\')">'+
       '<div class="code">'+esc(t.code)+'</div>'+
@@ -303,15 +318,22 @@ function updateConsularInline(){
   }
   var n = esc(COUNTRY.nameKo), j = josa(COUNTRY.nameKo);
   // 가입은 했으나 발효 전인 나라를 "미가입국"이라 쓰면 사실과 다르다 (예: 베트남)
-  var head = (COUNTRY.isMember && COUNTRY.effectiveDate)
-    ? '<strong>' + n + j + ' 아포스티유 협약에 가입했으나 ' + esc(COUNTRY.effectiveDate) +
-      ' 부터 발효됩니다.</strong> 현재는 아포스티유가 적용되지 않습니다.'
-    : '<strong>' + n + j + ' 아포스티유 협약 미가입국입니다.</strong>';
+  var head = COUNTRY.unknown
+    ? '<strong>' + n + j + ' 목록에 없는 국가입니다.</strong> ' +
+      '담당자가 아포스티유 협약 적용 여부를 확인한 뒤 안내드립니다.'
+    : (COUNTRY.isMember && COUNTRY.effectiveDate)
+      ? '<strong>' + n + j + ' 아포스티유 협약에 가입했으나 ' + esc(COUNTRY.effectiveDate) +
+        ' 부터 발효됩니다.</strong> 현재는 아포스티유가 적용되지 않습니다.'
+      : '<strong>' + n + j + ' 아포스티유 협약 미가입국입니다.</strong>';
+  // 미등록 국가는 영사확인이 필요한지조차 아직 모른다 — 단정하지 않는다
+  var body = COUNTRY.unknown
+    ? '영사확인이 필요한 국가라면 절차와 비용을 함께 안내드립니다.<br>' +
+      '연락처를 남겨주시면 확인 후 담당자가 연락드립니다. '
+    : '아포스티유 후 대사관 영사확인이 추가로 필요합니다. ' +
+      '아포스티유까지만 받고 영사확인은 직접 하실 수 있습니다.<br>' +
+      '일괄 처리를 원하시면 연락처를 남겨주세요. 담당자가 안내합니다. ';
   $('consular-text').innerHTML =
-    head + '<br>' +
-    '아포스티유 후 대사관 영사확인이 추가로 필요합니다. ' +
-    '아포스티유까지만 받고 영사확인은 직접 하실 수 있습니다.<br>' +
-    '일괄 처리를 원하시면 연락처를 남겨주세요. 담당자가 안내합니다. ' +
+    head + '<br>' + body +
     '<strong style="color:var(--warn)">(추가 비용 발생)</strong>';
   $('consular-contact-field').style.display = $('consular-bundle').checked ? '' : 'none';
 }
@@ -344,33 +366,190 @@ function selectTier(code){
   refresh();
 }
 
-function onCountryChange(){
-  var sel = $('country');
-  var opt = sel.options[sel.selectedIndex];
-  COUNTRY = sel.value ? {
-    nameKo: sel.value,
-    effectiveNow: opt.getAttribute('data-eff')==='1',
-    isMember:     opt.getAttribute('data-member')==='1',
-    effectiveDate: opt.getAttribute('data-effdate')||''
-  } : null;
+// ─── 국가 선택 (검색 + 대륙 그룹 헤더) ───────────────────
+// 국가가 70개라 기본 select 로는 찾기 어렵다. 검색창 + 그룹 헤더로 바꾸고,
+// 목록에 없는 나라는 '기타 국가 직접 입력'으로 받아 담당자가 확인한다.
+var CQ_OPEN = false, CQ_ACTIVE = -1, CQ_ROWS = [];
+var OTHER_KEY = '__other__';
 
-  if (COUNTRY && !COUNTRY.effectiveNow) {
-    var when = COUNTRY.effectiveDate
-      ? '<br>· 협약 발효 예정일: <strong>'+esc(COUNTRY.effectiveDate)+'</strong> (그 전까지는 영사확인 필요)'
-      : '';
-    $('country-note').innerHTML =
-      '<div class="ntr-note warn">' +
-      '<strong>현재 아포스티유가 적용되지 않는 국가입니다</strong><br>' +
+// 그룹 헤더 아래 한 줄 설명. 키는 서버가 내려준 group 값 그대로.
+var GROUP_HINT = {
+  '발효 예정':     '지금은 영사확인 · 발효일부터 자동 아포스티유',
+  '영사확인 필요': '아포스티유 협약 미가입 — 대사관 영사확인 필요'
+};
+
+function countryGroups(){
+  return (CFG && CFG.groupOrder) ||
+         ['아메리카','유럽','아시아·오세아니아','발효 예정','영사확인 필요'];
+}
+
+/** 검색어 매칭 — 국가명(한·영)·ISO코드·검색별칭(UAE, 두바이 …) */
+function matchCountry(c, q){
+  if (!q) return true;
+  return (c.nameKo+' '+(c.nameEn||'')+' '+(c.iso||'')+' '+(c.alias||''))
+         .toLowerCase().indexOf(q) >= 0;
+}
+
+function renderCountryList(){
+  if (!CFG || !CFG.countries) return;
+  var q = ($('country-q').value || '').trim().toLowerCase();
+  var hit = CFG.countries.filter(function(c){ return matchCountry(c, q); });
+
+  // 그룹 순서대로 훑고, 어느 그룹에도 안 걸린 국가는 맨 뒤 '그 외'로 모은다.
+  // (서버가 아직 group 을 안 내려주는 구버전이어도 국가가 사라지지 않게 하는 안전망)
+  var order = countryGroups();
+  var leftover = hit.filter(function(c){ return order.indexOf(c.group||'') < 0; });
+  if (leftover.length) order = order.concat(['그 외']);
+
+  var html = '', rows = [];
+  order.forEach(function(g){
+    var list = (g === '그 외') ? leftover
+             : hit.filter(function(c){ return (c.group||'') === g; });
+    if (!list.length) return;
+    html += '<div class="ntr-grp">'+esc(g)+
+            (GROUP_HINT[g] ? '<em>'+esc(GROUP_HINT[g])+'</em>' : '')+'</div>';
+    list.forEach(function(c){
+      // 배지는 서버 판정(effectiveNow)만 따른다
+      var badge = !c.isMember
+        ? '<span class="b warn">영사확인</span>'
+        : (!c.effectiveNow
+            ? '<span class="b warn">'+esc(String(c.effectiveDate||'').slice(0,10))+' 발효</span>'
+            : '<span class="b">아포스티유</span>');
+      html += '<div class="ntr-opt" role="option" data-i="'+rows.length+'"'+
+              ' onclick="pickCountry('+rows.length+')">'+
+              '<span>'+esc(c.nameKo)+'</span>'+badge+'</div>';
+      rows.push(c);
+    });
+  });
+
+  // '기타 국가'는 항상 맨 아래에 둔다 — 검색 결과가 없어도 길이 막히지 않는다
+  html += '<div class="ntr-grp">기타 국가</div>'+
+          '<div class="ntr-opt" role="option" data-i="'+rows.length+'"'+
+          ' onclick="pickCountry('+rows.length+')">'+
+          '<span>목록에 없는 국가 — 직접 입력</span>'+
+          '<span class="b">담당자 확인</span></div>';
+  rows.push(OTHER_KEY);
+
+  CQ_ROWS = rows;
+  CQ_ACTIVE = q ? 0 : -1;   // 검색 중이면 Enter 로 첫 결과가 바로 선택되게
+  $('country-list').innerHTML = html;
+  paintActive();
+}
+
+function paintActive(){
+  var els = $('country-list').querySelectorAll('.ntr-opt');
+  for (var i=0; i<els.length; i++){
+    var on = Number(els[i].getAttribute('data-i')) === CQ_ACTIVE;
+    els[i].className = 'ntr-opt' + (on ? ' on' : '');
+    if (on && els[i].scrollIntoView) els[i].scrollIntoView({ block:'nearest' });
+  }
+}
+
+function openCountry(){
+  CQ_OPEN = true;
+  $('country-pop').classList.add('open');
+  $('country-btn').setAttribute('aria-expanded','true');
+  $('country-q').value = '';
+  renderCountryList();
+  $('country-q').focus();
+}
+function closeCountry(){
+  CQ_OPEN = false;
+  $('country-pop').classList.remove('open');
+  $('country-btn').setAttribute('aria-expanded','false');
+}
+function toggleCountry(){ if (CQ_OPEN) closeCountry(); else openCountry(); }
+
+document.addEventListener('click', function(e){
+  if (CQ_OPEN && !$('country-combo').contains(e.target)) closeCountry();
+});
+
+function countryKey(e){
+  var n = CQ_ROWS.length;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+    e.preventDefault();
+    if (!n) return;
+    CQ_ACTIVE = (CQ_ACTIVE + (e.key === 'ArrowDown' ? 1 : -1) + n) % n;
+    paintActive();
+  } else if (e.key === 'Enter'){
+    e.preventDefault();
+    if (CQ_ACTIVE >= 0) pickCountry(CQ_ACTIVE);
+  } else if (e.key === 'Escape'){
+    e.preventDefault(); closeCountry(); $('country-btn').focus();
+  }
+}
+
+function pickCountry(i){
+  var row = CQ_ROWS[i];
+  closeCountry();
+  $('country-label').className = '';
+
+  if (row === OTHER_KEY){
+    $('country-label').textContent = '기타 국가 (직접 입력)';
+    $('country-other-field').style.display = '';
+    $('country-other').value = '';
+    $('country-other').focus();
+    onOtherCountry();
+    return;
+  }
+
+  $('country-other-field').style.display = 'none';
+  $('country-other').value = '';
+  $('country-label').textContent = row.nameKo;
+  COUNTRY = {
+    nameKo: row.nameKo, isMember: !!row.isMember,
+    effectiveNow: !!row.effectiveNow, effectiveDate: row.effectiveDate || '',
+    group: row.group || '', unknown: false
+  };
+  applyCountry();
+}
+
+/** 기타 국가 — 협약 여부를 알 수 없으니 '미적용'으로 보수적으로 두고 담당자가 확인한다 */
+function onOtherCountry(){
+  var v = ($('country-other').value || '').trim();
+  COUNTRY = v ? { nameKo: v, isMember: false, effectiveNow: false,
+                  effectiveDate: '', group: '', unknown: true } : null;
+  applyCountry();
+}
+
+function consularLink(text){
+  return '<a href="#" onclick="document.getElementById(\'card-consular\').style.display=\'\';' +
+         'document.getElementById(\'card-consular\').scrollIntoView({behavior:\'smooth\'});return false;">'+
+         text+'</a>';
+}
+
+function applyCountry(){
+  var note = '';
+  if (!COUNTRY) {
+    note = '';
+  } else if (COUNTRY.unknown) {
+    note = '<div class="ntr-note warn">' +
+      '<strong>목록에 없는 국가입니다 — 담당자가 확인 후 안내드립니다</strong><br>' +
+      '· 아포스티유 협약 적용 여부를 확인해 진행 방법을 알려드립니다.<br>' +
+      '· 번역·공증(T1·T2)은 그대로 진행됩니다. 풀패키지(T3)는 결제 후 담당자가 먼저 연락드립니다.<br>' +
+      '· 미리 상담을 원하시면 ' + consularLink('여기로 문의') + '해 주세요.' +
+      '</div>';
+  } else if (COUNTRY.isMember && !COUNTRY.effectiveNow) {
+    // 가입은 했으나 발효 전 (예: 베트남 2026-09-11) — "미가입국"이라 쓰면 사실과 다르다
+    note = '<div class="ntr-note warn">' +
+      '<strong>' + esc(COUNTRY.nameKo) + josa(COUNTRY.nameKo) + ' ' +
+      esc(COUNTRY.effectiveDate) + '부터 아포스티유 협약이 발효됩니다</strong><br>' +
+      '· 그 전까지는 아포스티유 후 <strong>대사관 영사확인이 추가로 필요</strong>합니다.<br>' +
+      '· 발효일 이후 주문부터는 자동으로 아포스티유만으로 처리됩니다.<br>' +
+      '· 영사확인만 따로 문의하시려면 ' + consularLink('여기로 요청') + '하세요.' +
+      '</div>';
+  } else if (!COUNTRY.effectiveNow) {
+    note = '<div class="ntr-note warn">' +
+      '<strong>아포스티유 협약 미가입국입니다</strong><br>' +
       '· 풀패키지(T3)는 선택할 수 있으나, 아포스티유 후 <strong>대사관 영사확인이 추가로 필요</strong>합니다.<br>' +
-      '· 영사확인만 따로 문의하시려면 ' +
-      '<a href="#" onclick="document.getElementById(\'card-consular\').style.display=\'\';' +
-      'document.getElementById(\'card-consular\').scrollIntoView({behavior:\'smooth\'});return false;">여기로 요청</a>하세요.' +
-      when +
+      '· 영사확인만 따로 문의하시려면 ' + consularLink('여기로 요청') + '하세요.' +
       '</div>';
   } else {
-    $('country-note').innerHTML = COUNTRY
-      ? '<div class="ntr-note">아포스티유 협약이 발효 중인 국가입니다. 풀패키지(T3)로 아포스티유까지 처리됩니다.</div>' : '';
+    note = '<div class="ntr-note">아포스티유 협약이 발효 중인 국가입니다. ' +
+           '풀패키지(T3)로 아포스티유까지 처리됩니다.</div>';
   }
+  $('country-note').innerHTML = note;
+
   renderTiers();
   updateConsularInline();
   refresh();
