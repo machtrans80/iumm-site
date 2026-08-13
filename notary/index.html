@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=12">
+<link rel="stylesheet" href="/notary/notary.css?v=13">
 <!-- ★메인(index.html)과 같은 v1 SDK. 버전이 다르면 토큰 저장 형식이 달라
      같은 브라우저에서도 로그인 세션을 공유하지 못해 재로그인을 요구하게 된다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -988,8 +988,22 @@ function showDone(){
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function goEdit(){
-  location.href = '/notary/edit.html?o=' + encodeURIComponent(ORDER_NUMBER);
+/* 확인·수정 화면으로 이동.
+   ★편집토큰은 OCR 이 끝나야 생기므로 여기서는 붙일 수 없다. 편집 화면은
+   카카오 access token 으로 인증하는데, 카카오 SDK 는 토큰을 자동 갱신하지
+   않아 세션이 오래됐으면 만료돼 있다. 넘어가기 전에 한 번 확인해서
+   만료됐으면 먼저 로그인시키고 편집 화면으로 되돌려 보낸다. */
+async function goEdit(){
+  var dest = '/notary/edit.html?o=' + encodeURIComponent(ORDER_NUMBER);
+  try {
+    var tk = (typeof Kakao!=='undefined' && Kakao.Auth && Kakao.Auth.getAccessToken)
+      ? Kakao.Auth.getAccessToken() : null;
+    if (tk) {
+      var r = await fetch(API + '/api/notary/my/orders', { headers: { 'Authorization': 'Bearer ' + tk } });
+      if (r.status === 401) { location.href = '/?next=' + encodeURIComponent(dest); return; }
+    }
+  } catch(e){ /* 확인 실패해도 그냥 넘어간다 — 편집 화면이 다시 걸러낸다 */ }
+  location.href = dest;
 }
 
 /** 영사인증 추가 문의 — 저장 + 담당자 알림 (기존 /consular-request 그대로) */

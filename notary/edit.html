@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=12">
+<link rel="stylesheet" href="/notary/notary.css?v=13">
 <!-- ★메인·주문 페이지와 같은 v1 SDK. 편집토큰이 없을 때는 카카오 토큰으로 인증하는데,
      버전이 다르면 같은 로그인 상태인데도 토큰을 읽지 못한다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -260,19 +260,59 @@ function setStatus(title, desc, extra){
   $('st-extra').innerHTML = extra || '';
 }
 
+/* ══════════════════════════════════════════════════════════════
+   인증 만료 복구
+   ══════════════════════════════════════════════════════════════
+   결제 직후에는 편집토큰(&t=)이 아직 없다 — 토큰은 OCR 이 끝나야 생긴다.
+   그래서 이 화면은 카카오 access token 으로 인증하는데, 카카오 JS SDK 는
+   토큰을 자동 갱신하지 않는다. 세션이 오래됐으면 만료된 토큰을 그대로
+   보내 서버가 401 을 준다("유효하지 않은 카카오 토큰").
+   → 다시 로그인시키고 이 화면으로 되돌려 보낸다. 한 번만 시도한다
+     (로그인해도 계속 401 이면 무한 루프가 되므로). */
+function reloginAndReturn(){
+  var here = location.pathname + location.search;
+  var key  = 'ntr_relogin_' + ORDER;
+  var tried = false;
+  try { tried = sessionStorage.getItem(key) === '1'; } catch(e){}
+  if (tried) return false;               // 이미 한 번 돌아왔는데 또 실패 → 수동 안내
+  try { sessionStorage.setItem(key, '1'); } catch(e){}
+  location.href = '/?next=' + encodeURIComponent(here);
+  return true;
+}
+function clearReloginFlag(){
+  try { sessionStorage.removeItem('ntr_relogin_' + ORDER); } catch(e){}
+}
+/** 자동 복구가 안 될 때 보여줄 안내 — CS 를 줄이려고 해결 방법을 직접 적는다 */
+function authHelp(){
+  return '<div class="ntr-note warn" style="margin-top:14px">'
+    + '<strong>로그인 정보가 만료되었습니다.</strong><br>'
+    + '로그아웃 후 다시 로그인하시면 확인하실 수 있습니다. '
+    + '작업 내용은 그대로 저장되어 있으니 안심하셔도 됩니다.'
+    + '</div>'
+    + '<button class="ntr-btn" onclick="location.href=\'/?next=\'+encodeURIComponent(location.pathname+location.search)">다시 로그인하기</button> '
+    + '<button class="ntr-btn ghost" onclick="location.href=\'/mypage\'">마이페이지로</button>';
+}
+
 // ─── 상태 폴링 ───────────────────────────────────────────
 async function poll(){
   try {
     STATE = await api('/api/notary/order/' + encodeURIComponent(ORDER));
+    clearReloginFlag();          // 정상 조회됨 → 다음 만료 때 다시 자동 복구할 수 있게
   } catch(e){
-    if (e.message === 'NO_AUTH') {
-      setStatus('로그인이 필요합니다', '카카오 로그인 후 마이페이지에서 다시 열어주세요.',
-        '<button class="ntr-btn" onclick="location.href=\'/mypage\'">마이페이지로</button>');
+    // 카카오 토큰이 없거나(401) 만료됐다 → 재로그인 후 이 화면으로 복귀
+    if (e.message === 'NO_AUTH' || e.status === 401) {
+      if (reloginAndReturn()) return;
+      setStatus('로그인이 필요합니다', '', authHelp());
       return;
     }
     if (e.status === 410 && e.data && e.data.expired) {
       setStatus('링크가 만료되었습니다', '로그인 후 마이페이지에서 다시 열면 새 링크가 발급됩니다.',
         '<button class="ntr-btn" onclick="location.href=\'/mypage\'">마이페이지로</button>');
+      return;
+    }
+    // 편집토큰이 틀렸다 → 링크 없이 로그인 기반으로 다시 열어 본다
+    if (e.status === 403 && TOKEN) {
+      location.replace('/notary/edit.html?o=' + encodeURIComponent(ORDER));
       return;
     }
     setStatus('불러오지 못했습니다', e.message,
