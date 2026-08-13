@@ -42,9 +42,27 @@
 
   <div id="form-area" style="display:none">
 
-    <!-- ── 1. 서류 ────────────────────────────────────── -->
-    <div class="ntr-card">
-      <h2><span class="ntr-step">1</span>서류 선택</h2>
+    <!-- ── 진행바 ─────────────────────────────────────── -->
+    <!-- 총 단계 수는 고른 상품에 따라 달라진다 (T1 4 / T2 5 / T3 6) -->
+    <div class="ntr-prog" id="prog">
+      <div class="ntr-prog-head">
+        <span class="ntr-prog-title" id="prog-title">상품 선택</span>
+        <span class="ntr-prog-count" id="prog-count">1 / 4</span>
+      </div>
+      <div class="ntr-prog-bar"><div class="ntr-prog-fill" id="prog-fill"></div></div>
+    </div>
+
+    <!-- ── STEP: 상품 ─────────────────────────────────── -->
+    <section class="ntr-card ntr-panel" data-step="tier">
+      <h2>어떤 서비스를 원하시나요?</h2>
+      <p class="hint">먼저 상품을 고르시면, 그 상품에 필요한 단계만 순서대로 안내해 드립니다.</p>
+      <div class="ntr-tiers" id="tiers"></div>
+      <div id="tier-note"></div>
+    </section>
+
+    <!-- ── STEP: 서류·언어 ────────────────────────────── -->
+    <section class="ntr-card ntr-panel" data-step="lang">
+      <h2>어떤 서류를 어떤 언어로 번역할까요?</h2>
       <p class="hint">현재 가족관계증명서 한→영만 지원합니다.</p>
       <div class="ntr-field">
         <label class="ntr-lbl" for="docType">서류 종류</label>
@@ -54,12 +72,12 @@
         <label class="ntr-lbl" for="lang">번역 언어</label>
         <select class="ntr-inp" id="lang"></select>
       </div>
-    </div>
+    </section>
 
-    <!-- ── 2. 제출 국가 ───────────────────────────────── -->
-    <div class="ntr-card">
-      <h2><span class="ntr-step">2</span>제출 국가</h2>
-      <p class="hint">모든 국가에서 상품을 선택할 수 있습니다. 아포스티유 적용 여부에 따라 안내만 달라집니다.</p>
+    <!-- ── STEP: 제출 국가 (T3 전용) ──────────────────── -->
+    <section class="ntr-card ntr-panel" data-step="country">
+      <h2>서류를 어느 나라에 제출하시나요?</h2>
+      <p class="hint">아포스티유 적용 여부에 따라 안내가 달라집니다. 검색창에 국가명을 입력해 보세요.</p>
 
       <!-- 검색 가능한 그룹형 국가 선택 -->
       <div class="ntr-field">
@@ -87,31 +105,11 @@
       </div>
 
       <div id="country-note"></div>
-    </div>
+    </section>
 
-    <!-- ── 3. 상품 ────────────────────────────────────── -->
-    <div class="ntr-card">
-      <h2><span class="ntr-step">3</span>상품 선택</h2>
-      <div class="ntr-tiers" id="tiers"></div>
-      <div id="tier-note"></div>
-
-      <!-- 아포스티유 협약 미적용국에서 T3를 고른 경우 -->
-      <div id="consular-inline" style="display:none;margin-top:16px">
-        <div class="ntr-note warn" id="consular-text"></div>
-        <label class="ntr-check" style="margin-top:12px">
-          <input type="checkbox" id="consular-bundle" onchange="refresh()">
-          <span>대사관 영사확인 일괄처리 원함 <em style="color:var(--text-muted);font-style:normal">(추가 비용 발생 · 담당자 견적)</em></span>
-        </label>
-        <div class="ntr-field" id="consular-contact-field" style="display:none">
-          <label class="ntr-lbl" for="consular-contact">연락처 (전화 또는 이메일)</label>
-          <input class="ntr-inp" id="consular-contact" type="text" placeholder="담당자가 견적과 절차를 안내드립니다">
-        </div>
-      </div>
-    </div>
-
-    <!-- ── 4. 서류 업로드 ─────────────────────────────── -->
-    <div class="ntr-card">
-      <h2><span class="ntr-step">4</span>서류 업로드</h2>
+    <!-- ── STEP: 서류 업로드 ──────────────────────────── -->
+    <section class="ntr-card ntr-panel" data-step="upload">
+      <h2>번역할 서류를 올려주세요</h2>
       <p class="hint">
         한글 원본을 올려주세요. 최대 10장.
         <span id="upload-req"></span>
@@ -124,11 +122,11 @@
         공증(등기 발송) 상품은 <strong>정부 발급 영문 증명서로는 진행할 수 없습니다.</strong>
         반드시 한글 원본 PDF를 올려주세요.
       </div>
-    </div>
+    </section>
 
-    <!-- ── 5. 배송지 (T2/T3) ──────────────────────────── -->
-    <div class="ntr-card" id="card-ship" style="display:none">
-      <h2><span class="ntr-step">5</span>등기 수령 정보</h2>
+    <!-- ── STEP: 배송지 (T2·T3) ───────────────────────── -->
+    <section class="ntr-card ntr-panel" data-step="ship">
+      <h2>공증 원본을 어디로 보내드릴까요?</h2>
       <p class="hint">공증 원본을 등기로 보내드립니다.</p>
       <div class="ntr-row">
         <div class="ntr-field">
@@ -144,11 +142,12 @@
         <label class="ntr-lbl" for="address">주소 (우편번호 포함)</label>
         <textarea class="ntr-inp" id="address" autocomplete="street-address"></textarea>
       </div>
-    </div>
+    </section>
 
-    <!-- ── 6. 동의 ────────────────────────────────────── -->
-    <div class="ntr-card">
-      <h2><span class="ntr-step">6</span>결제 전 확인</h2>
+    <!-- ── STEP: 동의·결제 (마지막) ───────────────────── -->
+    <section class="ntr-card ntr-panel" data-step="confirm">
+      <h2>확인하고 결제해 주세요</h2>
+      <div class="ntr-summary" id="pay-summary"></div>
       <div class="ntr-note danger">
         <strong>반드시 확인해 주세요</strong>
         <ul>
@@ -163,36 +162,54 @@
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag2"><span>결제 후 환불이 불가함을 확인했습니다</span></label>
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
       </div>
-    </div>
-
-    <!-- ── 결제 ───────────────────────────────────────── -->
-    <div class="ntr-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <span style="font-size:13px;color:var(--text-muted)">결제 금액</span>
-        <strong id="amount" style="font-size:24px;color:var(--gold)">—</strong>
+      <div class="ntr-payline">
+        <span>결제 금액</span>
+        <strong id="amount">—</strong>
       </div>
-      <button class="ntr-btn wide" id="payBtn" onclick="pay()" disabled>결제하고 시작하기</button>
       <div id="pay-msg" class="ntr-msg"></div>
+    </section>
+
+    <!-- ── 이전 / 다음 ────────────────────────────────── -->
+    <div class="ntr-navbtns" id="wiz-nav">
+      <button type="button" class="ntr-btn ghost" id="btn-prev" onclick="prevStep()">← 이전</button>
+      <button type="button" class="ntr-btn" id="btn-next" onclick="nextStep()">다음 →</button>
+      <button type="button" class="ntr-btn wide" id="payBtn" onclick="pay()" disabled
+              style="display:none">결제하고 시작하기</button>
     </div>
+    <div id="step-msg" class="ntr-msg"></div>
 
   </div><!-- /form-area -->
 
-  <!-- ── 비협약국 영사확인 요청 ──────────────────────── -->
-  <div class="ntr-card" id="card-consular" style="display:none">
-    <h2>대사관 영사확인 문의</h2>
-    <p class="hint">주문과 별개로 영사확인만 문의하시는 경우입니다.
-      (풀패키지 T3를 결제하시면 결제 화면에서 바로 일괄처리를 요청할 수 있습니다.)
-      영사확인은 시스템 자동 결제가 되지 않아 담당자가 견적과 절차를 안내드립니다.</p>
-    <div class="ntr-field">
-      <label class="ntr-lbl" for="cr-contact">연락처 (전화 또는 이메일)</label>
-      <input class="ntr-inp" id="cr-contact" type="text">
+  <!-- ── 결제 완료 (T4 영사인증 문의는 여기서만) ─────────── -->
+  <!-- T3 + 비협약국으로 결제한 경우에만 영사인증 추가 문의를 띄운다.
+       영사인증은 시스템 결제가 없어 담당자가 견적·협의한다. -->
+  <div id="done-area" style="display:none">
+    <div class="ntr-card">
+      <h2>결제가 완료되었습니다</h2>
+      <p class="hint" id="done-sub">서류 인식·번역이 시작됐습니다. 확인·수정 화면으로 이동해 주세요.</p>
+
+      <div id="t4-block" style="display:none">
+        <div class="ntr-note warn">
+          <strong id="t4-head">이 국가는 아포스티유 후 영사인증이 추가로 필요합니다</strong><br>
+          아포스티유까지는 결제하신 상품에 포함됩니다. 대사관 영사인증까지 한 번에 맡기시려면
+          연락처를 남겨주세요. <strong style="color:var(--warn)">담당자가 견적을 안내드립니다.</strong><br>
+          <em style="font-style:normal;color:var(--text-muted)">영사인증은 시스템 자동 결제가 되지 않습니다.</em>
+        </div>
+        <div class="ntr-field" style="margin-top:14px">
+          <label class="ntr-lbl" for="cr-contact">연락처 (전화 또는 이메일)</label>
+          <input class="ntr-inp" id="cr-contact" type="text" placeholder="010-0000-0000 또는 이메일">
+        </div>
+        <div class="ntr-field">
+          <label class="ntr-lbl" for="cr-content">남기실 말씀 (선택)</label>
+          <textarea class="ntr-inp" id="cr-content" placeholder="희망 일정, 제출처 등"></textarea>
+        </div>
+        <button class="ntr-btn ghost" id="t4-btn" onclick="sendConsular()">영사인증 추가 문의</button>
+        <div id="cr-msg" class="ntr-msg"></div>
+      </div>
+
+      <button class="ntr-btn wide" style="margin-top:18px" id="go-edit"
+              onclick="goEdit()">번역 확인·수정하러 가기 →</button>
     </div>
-    <div class="ntr-field">
-      <label class="ntr-lbl" for="cr-content">요청 내용</label>
-      <textarea class="ntr-inp" id="cr-content" placeholder="서류 종류, 제출처, 희망 일정 등"></textarea>
-    </div>
-    <button class="ntr-btn ghost" onclick="sendConsular()">요청 보내기</button>
-    <div id="cr-msg" class="ntr-msg"></div>
   </div>
 
 </div>
@@ -205,6 +222,7 @@ var PORTONE_CHANNEL = 'channel-key-6a333887-dfcd-490a-a661-aec79ee11974';
 
 var CFG = null, TIER = null, COUNTRY = null, PRECHECK_OK = false, PAYING = false;
 var ME = { kakaoId:'', name:'', email:'', phone:'' };
+var ORDER_NUMBER = '';   // 결제 완료 후 편집 화면으로 넘길 주문번호
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -279,17 +297,108 @@ async function loadConfig(){
 
   renderTiers();
   msg('pay-msg','');   // 초기 로드 실패 메시지가 남아 있으면 지운다
+  renderStep();        // 첫 화면 = 상품 선택만
+}
+
+// ═══════════════════════════════════════════════════════════
+// 위저드 — 한 화면에 한 단계
+// ═══════════════════════════════════════════════════════════
+// 단계 구성은 고른 상품에 따라 달라진다. 필요 없는 단계는 아예 만들지 않는다.
+//   T1 상품→언어→업로드→결제                (4)
+//   T2 상품→언어→업로드→배송지→결제          (5)
+//   T3 상품→국가→언어→업로드→배송지→결제     (6)
+var STEP_TITLE = {
+  tier:    '상품 선택',
+  country: '제출 국가',
+  lang:    '서류·언어',
+  upload:  '서류 업로드',
+  ship:    '등기 수령 정보',
+  confirm: '확인·결제'
+};
+var STEPS = ['tier'], STEP_I = 0;
+
+function stepsFor(tier){
+  if (!tier) return ['tier'];
+  var s = ['tier'];
+  if (tier.apostille)   s.push('country');  // 아포스티유 상품에서만 국가를 묻는다
+  s.push('lang', 'upload');
+  if (tier.needsAddress) s.push('ship');    // 등기 발송이 있는 상품만
+  s.push('confirm');
+  return s;
+}
+
+/** 상품이 바뀌면 단계 목록을 다시 만든다. 이미 입력한 값은 건드리지 않는다. */
+function rebuildSteps(){
+  var cur = STEPS[STEP_I];
+  STEPS = stepsFor(TIER);
+  var i = STEPS.indexOf(cur);
+  STEP_I = i >= 0 ? i : 0;
+}
+
+function currentStep(){ return STEPS[STEP_I]; }
+
+function renderStep(){
+  var step = currentStep();
+  document.querySelectorAll('#form-area .ntr-panel').forEach(function(p){
+    p.style.display = (p.getAttribute('data-step') === step) ? '' : 'none';
+  });
+
+  // 상품을 아직 안 골랐으면 총 단계 수를 확정할 수 없다 → 최소 구성(T1, 4단계) 기준으로
+  // 미리 보여주고, 상품을 고르면 그 상품의 실제 단계 수로 바뀐다.
+  var total = TIER ? STEPS.length : 4;
+  $('prog-title').textContent = STEP_TITLE[step] || '';
+  $('prog-count').textContent = (STEP_I + 1) + ' / ' + total;
+  $('prog-fill').style.width  = Math.round((STEP_I + 1) / total * 100) + '%';
+
+  var last = (step === 'confirm');
+  $('btn-prev').style.display = STEP_I === 0 ? 'none' : '';
+  $('btn-next').style.display = last ? 'none' : '';
+  $('payBtn').style.display   = last ? '' : 'none';
+  if (last) buildSummary();
+
+  msg('step-msg','');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   refresh();
 }
 
-/** 배송지 카드가 숨겨지면 단계 번호에 구멍이 생긴다 → 보이는 카드만 1..N 으로 다시 매긴다 */
-function renumber(){
-  var n = 0;
-  document.querySelectorAll('#form-area .ntr-card').forEach(function(card){
-    var step = card.querySelector('.ntr-step');
-    if (!step || card.style.display === 'none') return;
-    step.textContent = String(++n);
-  });
+/** 다음으로 넘어가도 되는지. 안 되면 이유를 돌려준다(문자열). */
+function stepBlockReason(){
+  switch (currentStep()) {
+    case 'tier':    return TIER ? '' : '상품을 선택해 주세요.';
+    case 'country': return COUNTRY ? '' : '제출 국가를 선택해 주세요.';
+    case 'lang':    return ($('docType').value && $('lang').value) ? '' : '서류와 언어를 선택해 주세요.';
+    case 'upload':
+      if (!$('files').files.length) return '번역할 서류를 올려주세요.';
+      if (!PRECHECK_OK) return '파일 확인이 끝나지 않았습니다. 잠시 후 다시 시도해 주세요.';
+      return '';
+    case 'ship':    return shipOk() ? '' : '수령인·연락처·주소를 모두 입력해 주세요.';
+    default:        return '';
+  }
+}
+
+function nextStep(){
+  var why = stepBlockReason();
+  if (why) { msg('step-msg', esc(why), 'err'); return; }
+  if (STEP_I < STEPS.length - 1) { STEP_I++; renderStep(); }
+}
+/** ★뒤로 가도 입력값은 그대로 둔다 (DOM 을 지우지 않으므로 자동으로 유지된다) */
+function prevStep(){
+  if (STEP_I > 0) { STEP_I--; renderStep(); }
+}
+
+/** 마지막 화면에서 고른 내용을 한눈에 보여준다 */
+function buildSummary(){
+  var rows = [];
+  if (TIER)    rows.push(['상품', tierName(TIER) + ' (' + TIER.code + ')']);
+  if (COUNTRY) rows.push(['제출 국가', COUNTRY.nameKo + (COUNTRY.effectiveNow ? '' : ' · 영사인증 별도')]);
+  var d = $('docType').selectedOptions[0], l = $('lang').selectedOptions[0];
+  if (d) rows.push(['서류', d.textContent]);
+  if (l) rows.push(['언어', l.textContent]);
+  rows.push(['파일', $('files').files.length + '개']);
+  if (TIER && TIER.needsAddress) rows.push(['등기 수령', $('recipient').value.trim() || '-']);
+  $('pay-summary').innerHTML = rows.map(function(r){
+    return '<div class="ntr-sum-row"><span>' + esc(r[0]) + '</span><strong>' + esc(r[1]) + '</strong></div>';
+  }).join('');
 }
 
 function renderTiers(){
@@ -298,46 +407,40 @@ function renderTiers(){
   $('tiers').innerHTML = CFG.tiers.map(function(t){
     var extra = (t.apostille && COUNTRY && !COUNTRY.effectiveNow)
       ? '<br><span style="color:var(--warn)">' +
-        (COUNTRY.unknown ? '담당자 확인 후 안내' : '영사확인 별도 필요') + '</span>'
+        (COUNTRY.unknown ? '담당자 확인 후 안내' : '영사인증 별도 필요') + '</span>'
       : '';
     return '<div class="ntr-tier'+(TIER&&TIER.code===t.code?' sel':'')+
       '" data-code="'+t.code+'" onclick="selectTier(\''+t.code+'\')">'+
       '<div class="code">'+esc(t.code)+'</div>'+
+      '<div class="label">'+esc(tierName(t))+'</div>'+
       '<div class="price">'+t.amount.toLocaleString()+'원</div>'+
       '<div class="desc">'+esc(t.desc)+extra+'</div>'+
       '</div>';
   }).join('');
 }
 
-/** T3 + 협약 미적용국일 때만 영사확인 안내·일괄처리 옵션을 띄운다 */
-function updateConsularInline(){
-  var show = !!(TIER && TIER.apostille && COUNTRY && !COUNTRY.effectiveNow);
-  $('consular-inline').style.display = show ? '' : 'none';
-  if (!show) {
-    $('consular-bundle').checked = false;
-    $('consular-contact-field').style.display = 'none';
-    return;
+// 화면에 쓰는 상품 이름. 서버가 주는 label 은 내부 표기라 그대로 두고 표시만 바꾼다.
+var TIER_NAME = {
+  T1: '번역만',
+  T2: '번역 공증 대행 + 우편발송 패키지',
+  T3: '번역 공증 + 아포스티유 + 우편'
+};
+function tierName(t){
+  return (t && (TIER_NAME[t.code] || t.label)) || '';
+}
+
+/** 결제 완료 화면(T4)의 영사인증 안내 문구. 국가 상태별로 표현을 달리한다. */
+function t4HeadText(){
+  if (!COUNTRY) return '이 국가는 아포스티유 후 영사인증이 추가로 필요합니다';
+  var n = COUNTRY.nameKo, j = josa(n);
+  if (COUNTRY.unknown) {
+    return n + j + ' 목록에 없는 국가입니다 — 담당자가 확인 후 안내드립니다';
   }
-  var n = esc(COUNTRY.nameKo), j = josa(COUNTRY.nameKo);
   // 가입은 했으나 발효 전인 나라를 "미가입국"이라 쓰면 사실과 다르다 (예: 베트남)
-  var head = COUNTRY.unknown
-    ? '<strong>' + n + j + ' 목록에 없는 국가입니다.</strong> ' +
-      '담당자가 아포스티유 협약 적용 여부를 확인한 뒤 안내드립니다.'
-    : (COUNTRY.isMember && COUNTRY.effectiveDate)
-      ? '<strong>' + n + j + ' 아포스티유 협약에 가입했으나 ' + esc(COUNTRY.effectiveDate) +
-        ' 부터 발효됩니다.</strong> 현재는 아포스티유가 적용되지 않습니다.'
-      : '<strong>' + n + j + ' 아포스티유 협약 미가입국입니다.</strong>';
-  // 미등록 국가는 영사확인이 필요한지조차 아직 모른다 — 단정하지 않는다
-  var body = COUNTRY.unknown
-    ? '영사확인이 필요한 국가라면 절차와 비용을 함께 안내드립니다.<br>' +
-      '연락처를 남겨주시면 확인 후 담당자가 연락드립니다. '
-    : '아포스티유 후 대사관 영사확인이 추가로 필요합니다. ' +
-      '아포스티유까지만 받고 영사확인은 직접 하실 수 있습니다.<br>' +
-      '일괄 처리를 원하시면 연락처를 남겨주세요. 담당자가 안내합니다. ';
-  $('consular-text').innerHTML =
-    head + '<br>' + body +
-    '<strong style="color:var(--warn)">(추가 비용 발생)</strong>';
-  $('consular-contact-field').style.display = $('consular-bundle').checked ? '' : 'none';
+  if (COUNTRY.isMember && COUNTRY.effectiveDate) {
+    return n + j + ' ' + COUNTRY.effectiveDate + ' 발효 예정이라, 지금은 아포스티유 후 영사인증이 추가로 필요합니다';
+  }
+  return n + j + ' 아포스티유 협약 미가입국이라, 아포스티유 후 영사인증이 추가로 필요합니다';
 }
 
 /** 받침 유무에 따른 은/는 — '베트남는' 같은 어색한 문구 방지 */
@@ -351,7 +454,10 @@ function josa(word){
 function selectTier(code){
   TIER = CFG.tiers.filter(function(t){ return t.code===code; })[0] || null;
   renderTiers();
-  $('card-ship').style.display = (TIER && TIER.needsAddress) ? '' : 'none';
+  // 상품이 바뀌면 필요한 단계 구성과 총 단계 수가 바뀐다
+  rebuildSteps();
+  // 아포스티유가 없는 상품으로 바꾸면 국가 선택은 의미가 없다 → 같이 비운다
+  if (TIER && !TIER.apostille) { COUNTRY = null; $('country-note').innerHTML = ''; }
   $('upload-req').innerHTML = (TIER && TIER.needsPdfOriginal)
     ? '<strong style="color:var(--warn)">이 상품은 원본 한글 PDF만 가능합니다.</strong>'
     : '이미지(JPG/PNG) 또는 PDF 모두 가능합니다.';
@@ -362,10 +468,9 @@ function selectTier(code){
       '· 공증이 필요하시면 별도 서비스를 이용해 주세요 (변호사 공증 후 우편 발송).<br>' +
       '· 개인정보 관련 서류는 발급하지 않습니다.' +
       '</div>' : '';
-  updateConsularInline();
   PRECHECK_OK = false;
   if ($('files').files.length) onFiles();
-  refresh();
+  renderStep();
 }
 
 // ─── 국가 선택 (검색 + 대륙 그룹 헤더) ───────────────────
@@ -514,13 +619,8 @@ function onOtherCountry(){
   applyCountry();
 }
 
-function consularLink(text){
-  return '<a href="#" onclick="document.getElementById(\'card-consular\').style.display=\'\';' +
-         'document.getElementById(\'card-consular\').scrollIntoView({behavior:\'smooth\'});return false;">'+
-         text+'</a>';
-}
-
 function applyCountry(){
+  // 영사인증(T4) 문의는 결제 후 완료 화면에서만 받는다 → 여기서는 안내만 한다
   var note = '';
   if (!COUNTRY) {
     note = '';
@@ -528,32 +628,28 @@ function applyCountry(){
     note = '<div class="ntr-note warn">' +
       '<strong>목록에 없는 국가입니다 — 담당자가 확인 후 안내드립니다</strong><br>' +
       '· 아포스티유 협약 적용 여부를 확인해 진행 방법을 알려드립니다.<br>' +
-      '· 번역·공증(T1·T2)은 그대로 진행됩니다. 풀패키지(T3)는 결제 후 담당자가 먼저 연락드립니다.<br>' +
-      '· 미리 상담을 원하시면 ' + consularLink('여기로 문의') + '해 주세요.' +
+      '· 결제 후 담당자가 먼저 연락드립니다.' +
       '</div>';
   } else if (COUNTRY.isMember && !COUNTRY.effectiveNow) {
     // 가입은 했으나 발효 전 (예: 베트남 2026-09-11) — "미가입국"이라 쓰면 사실과 다르다
     note = '<div class="ntr-note warn">' +
       '<strong>' + esc(COUNTRY.nameKo) + josa(COUNTRY.nameKo) + ' ' +
       esc(COUNTRY.effectiveDate) + '부터 아포스티유 협약이 발효됩니다</strong><br>' +
-      '· 그 전까지는 아포스티유 후 <strong>대사관 영사확인이 추가로 필요</strong>합니다.<br>' +
+      '· 그 전까지는 아포스티유 후 <strong>대사관 영사인증이 추가로 필요</strong>합니다.<br>' +
       '· 발효일 이후 주문부터는 자동으로 아포스티유만으로 처리됩니다.<br>' +
-      '· 영사확인만 따로 문의하시려면 ' + consularLink('여기로 요청') + '하세요.' +
+      '· 영사인증 일괄처리는 결제 후 안내드립니다.' +
       '</div>';
   } else if (!COUNTRY.effectiveNow) {
     note = '<div class="ntr-note warn">' +
       '<strong>아포스티유 협약 미가입국입니다</strong><br>' +
-      '· 풀패키지(T3)는 선택할 수 있으나, 아포스티유 후 <strong>대사관 영사확인이 추가로 필요</strong>합니다.<br>' +
-      '· 영사확인만 따로 문의하시려면 ' + consularLink('여기로 요청') + '하세요.' +
+      '· 이 상품으로 아포스티유까지 진행되며, 이후 <strong>대사관 영사인증이 추가로 필요</strong>합니다.<br>' +
+      '· 영사인증 일괄처리를 원하시면 결제 후 화면에서 문의해 주세요.' +
       '</div>';
   } else {
     note = '<div class="ntr-note">아포스티유 협약이 발효 중인 국가입니다. ' +
-           '풀패키지(T3)로 아포스티유까지 처리됩니다.</div>';
+           '이 상품으로 아포스티유까지 처리됩니다.</div>';
   }
   $('country-note').innerHTML = note;
-
-  renderTiers();
-  updateConsularInline();
   refresh();
 }
 
@@ -600,20 +696,15 @@ function shipOk(){
   if (!TIER || !TIER.needsAddress) return true;
   return $('recipient').value.trim() && $('recipientPhone').value.trim() && $('address').value.trim();
 }
-/** 영사확인 일괄처리를 체크했으면 연락처가 있어야 한다 (미체크면 제약 없음) */
-function consularOk(){
-  var box = $('consular-bundle');
-  if ($('consular-inline').style.display === 'none' || !box.checked) return true;
-  return !!$('consular-contact').value.trim();
+/** 국가는 아포스티유 상품(T3)에서만 필수다 — 나머지 상품엔 국가 화면 자체가 없다 */
+function countryOk(){
+  if (!TIER || !TIER.apostille) return true;
+  return !!COUNTRY;
 }
 function refresh(){
-  renumber();
-  var box = $('consular-bundle');
-  if ($('consular-inline').style.display !== 'none') {
-    $('consular-contact-field').style.display = box.checked ? '' : 'none';
-  }
   $('amount').textContent = TIER ? TIER.amount.toLocaleString()+'원' : '—';
-  var ok = !!(ME.kakaoId && TIER && COUNTRY && PRECHECK_OK && agreedAll() && shipOk() && consularOk() && !PAYING);
+  var ok = !!(ME.kakaoId && TIER && countryOk() && PRECHECK_OK &&
+              agreedAll() && shipOk() && !PAYING);
   $('payBtn').disabled = !ok;
 }
 document.addEventListener('input', refresh);
@@ -629,6 +720,7 @@ async function pay(){
   msg('pay-msg','<span class="ntr-spinner"></span> 결제창을 여는 중…');
 
   var orderNumber = 'NTR-' + Date.now();
+  ORDER_NUMBER = orderNumber;
   var paymentId   = 'iumm_ntr_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
   var orderName   = 'IUMM 공증 서류 번역 (' + ($('docType').selectedOptions[0].textContent) + ')';
 
@@ -683,7 +775,8 @@ async function pay(){
   fd.append('tier', TIER.code);
   fd.append('docType', $('docType').value);
   fd.append('lang', $('lang').value);
-  fd.append('country', COUNTRY.nameKo);
+  // 국가는 T3 에서만 받는다. T1·T2 는 빈 값 (서버도 아포스티유 상품에서만 필수로 본다)
+  fd.append('country', COUNTRY ? COUNTRY.nameKo : '');
   fd.append('kakaoId', ME.kakaoId);
   fd.append('email', ME.email || '');
   fd.append('name', ME.name || '');
@@ -694,17 +787,14 @@ async function pay(){
     fd.append('recipientPhone', $('recipientPhone').value.trim());
     fd.append('address', $('address').value.trim());
   }
-  if ($('consular-inline').style.display !== 'none' && $('consular-bundle').checked) {
-    fd.append('consularBundle', '1');
-    fd.append('consularContact', $('consular-contact').value.trim());
-  }
+  // 영사인증(T4)은 결제 후 완료 화면에서 별도 문의로 받는다 → 주문에는 싣지 않는다
   Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
 
   try {
     var r2 = await fetch(API + '/api/notary/order/create', { method:'POST', body: fd });
     var d2 = await r2.json();
     if (!d2.ok) throw new Error(d2.error || '주문 접수 실패');
-    location.href = '/notary/edit.html?o=' + encodeURIComponent(orderNumber);
+    showDone();
   } catch(e){
     PAYING = false; refresh();
     msg('pay-msg','주문 접수 실패: '+esc(e.message)+
@@ -713,22 +803,52 @@ async function pay(){
   }
 }
 
-// ─── 영사확인 요청 ───────────────────────────────────────
+// ─── 결제 완료 화면 ──────────────────────────────────────
+// T3 로 결제했는데 아포스티유가 아직 적용되지 않는 국가면(비협약·발효 전·미등록)
+// 여기서만 영사인증(T4) 추가 문의를 받는다. 영사인증은 시스템 결제가 없다.
+function showDone(){
+  $('form-area').style.display = 'none';
+  $('done-area').style.display = '';
+  var needT4 = !!(TIER && TIER.apostille && COUNTRY && !COUNTRY.effectiveNow);
+  $('t4-block').style.display = needT4 ? '' : 'none';
+  if (needT4) {
+    $('t4-head').textContent = t4HeadText();
+    $('done-sub').textContent =
+      '서류 인식·번역이 시작됐습니다. 아래 영사인증 안내를 확인하신 뒤 확인·수정 화면으로 이동해 주세요.';
+    // 연락처를 알고 있으면 미리 채워 준다
+    if (!$('cr-contact').value) $('cr-contact').value = ME.phone || ME.email || '';
+  } else {
+    $('done-sub').textContent =
+      '서류 인식·번역이 시작됐습니다. 확인·수정 화면으로 이동해 주세요.';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goEdit(){
+  location.href = '/notary/edit.html?o=' + encodeURIComponent(ORDER_NUMBER);
+}
+
+/** 영사인증 추가 문의 — 저장 + 담당자 알림 (기존 /consular-request 그대로) */
 async function sendConsular(){
   var contact = $('cr-contact').value.trim();
-  if (!COUNTRY) { msg('cr-msg','국가를 먼저 선택해 주세요.','err'); return; }
+  if (!COUNTRY) { msg('cr-msg','국가 정보가 없습니다.','err'); return; }
   if (!contact) { msg('cr-msg','연락처를 입력해 주세요.','err'); return; }
+  $('t4-btn').disabled = true;
   msg('cr-msg','<span class="ntr-spinner"></span> 보내는 중…');
   try {
+    var extra = ORDER_NUMBER ? '[공증주문 ' + ORDER_NUMBER + '] ' : '';
     var r = await fetch(API + '/api/notary/consular-request', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ country: COUNTRY.nameKo, contact: contact,
-                             content: $('cr-content').value.trim(), kakaoId: ME.kakaoId })
+                             content: extra + $('cr-content').value.trim(), kakaoId: ME.kakaoId })
     });
     var d = await r.json();
     if (!d.ok) throw new Error(d.error||'접수 실패');
-    msg('cr-msg','✓ 요청이 접수되었습니다. 담당자가 연락드립니다. (접수번호 '+esc(d.orderNumber)+')','ok');
-  } catch(e){ msg('cr-msg','접수 실패: '+esc(e.message),'err'); }
+    msg('cr-msg','✓ 문의가 접수되었습니다. <strong>담당자가 견적을 안내드립니다.</strong> (접수번호 '+esc(d.orderNumber)+')','ok');
+  } catch(e){
+    $('t4-btn').disabled = false;
+    msg('cr-msg','접수 실패: '+esc(e.message),'err');
+  }
 }
 
 // ─── 시작 ────────────────────────────────────────────────
