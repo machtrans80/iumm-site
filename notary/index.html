@@ -10,8 +10,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/notary/notary.css?v=1">
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-        integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+<!-- ★메인(index.html)과 같은 v1 SDK. 버전이 다르면 토큰 저장 형식이 달라
+     같은 브라우저에서도 로그인 세션을 공유하지 못해 재로그인을 요구하게 된다. -->
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
 <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 </head>
 <body>
@@ -32,10 +33,11 @@
 
   <!-- ── 로그인 ─────────────────────────────────────────── -->
   <div class="ntr-card" id="card-login" style="display:none">
-    <h2><span class="ntr-step">!</span>카카오 로그인이 필요합니다</h2>
+    <h2><span class="ntr-step">!</span>IUMM 로그인이 필요합니다</h2>
     <p class="hint">공증 서류에는 주민등록번호 등 민감정보가 포함되어 본인 확인이 필수입니다.
-      로그인하면 창을 닫아도 마이페이지에서 이어서 진행할 수 있습니다.</p>
-    <button class="ntr-btn" onclick="doKakaoLogin()">카카오로 로그인</button>
+      IUMM 계정 하나로 이용하며, 로그인 후 이 화면으로 자동으로 돌아옵니다.
+      로그인해 두면 창을 닫아도 마이페이지에서 이어서 진행할 수 있습니다.</p>
+    <button class="ntr-btn" onclick="goLogin()">IUMM 로그인하기</button>
   </div>
 
   <div id="form-area" style="display:none">
@@ -218,34 +220,34 @@ function initKakao(){
   if (!Kakao.isInitialized()) { try { Kakao.init(KAKAO_KEY); } catch(e){ return false; } }
   return true;
 }
-function doKakaoLogin(){
-  if (!initKakao()) { alert('카카오 SDK를 불러오지 못했습니다. 새로고침해 주세요.'); return; }
-  Kakao.Auth.login({
-    scope:'profile_nickname,account_email',
-    success: function(){ Kakao.API.request({ url:'/v2/user/me', success: function(res){
-      var acc = res.kakao_account||{}, pf = acc.profile||{};
-      ME.kakaoId = String(res.id); ME.name = pf.nickname||''; ME.email = acc.email||'';
-      try { localStorage.setItem('iumm_user', JSON.stringify({
-        kakaoId:ME.kakaoId, name:ME.name, email:ME.email, loginTime:Date.now() })); } catch(e){}
-      showLoggedIn();
-    }, fail: function(){ alert('카카오 정보를 가져오지 못했습니다.'); }});},
-    fail: function(){ alert('로그인이 취소되었습니다.'); }
-  });
+/** ★공증 전용 로그인은 두지 않는다. 기존 IUMM 로그인 화면으로 보내고 여기로 되돌아온다. */
+function goLogin(){
+  location.href = '/?next=' + encodeURIComponent('/notary/');
 }
 function showLoggedIn(){
   $('who').textContent = ME.name ? (ME.name + ' 님') : '로그인됨';
   $('card-login').style.display = 'none';
   $('form-area').style.display  = '';
 }
+/** ★기존 IUMM과 같은 세션을 읽는다 — 저장 위치(localStorage 'iumm_user')도,
+ *  7일 만료 규칙도 메인의 restoreLogin() 과 동일하게 맞춘다. */
 function checkLogin(){
   initKakao();
   try {
     var saved = JSON.parse(localStorage.getItem('iumm_user')||'null');
-    if (saved && saved.kakaoId) { ME.kakaoId=String(saved.kakaoId); ME.name=saved.name||''; ME.email=saved.email||''; }
+    if (saved && saved.kakaoId) {
+      // 메인과 같은 7일 만료. 지났으면 세션을 지우고 로그인부터 다시 받는다.
+      if (saved.loginTime && Date.now() - saved.loginTime > 7*24*60*60*1000) {
+        try { localStorage.removeItem('iumm_user'); } catch(e2){}
+      } else {
+        ME.kakaoId=String(saved.kakaoId); ME.name=saved.name||''; ME.email=saved.email||'';
+      }
+    }
     var info = JSON.parse(localStorage.getItem('iumm_userinfo_'+ME.kakaoId)||'null');
     if (info) { if(info.name) ME.name=info.name; if(info.phone) ME.phone=info.phone; }
   } catch(e){}
-  // 실제 API 호출에는 카카오 access_token 이 필요하다
+  // 서버가 카카오 access_token 을 직접 검증하므로 토큰까지 살아 있어야 진행할 수 있다.
+  // 메인과 같은 v1 SDK 를 쓰므로 로그인돼 있으면 여기서도 그대로 읽힌다.
   if (ME.kakaoId && kakaoToken()) { showLoggedIn(); }
   else { $('card-login').style.display=''; $('form-area').style.display='none'; }
 }

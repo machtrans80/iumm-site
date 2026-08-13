@@ -4168,9 +4168,44 @@ function openPrivacyAtAnchor(anchorId){
   });
 }
 
+// ─── 로그인 후 복귀 경로 (/notary/ 등 별도 페이지에서 넘어온 경우) ──────────
+// /?next=/notary/ 로 들어오면 로그인 화면을 띄우고, 로그인이 끝나면 그 경로로 돌려보낸다.
+// 별도 페이지가 자체 로그인을 갖지 않고 이 로그인 하나만 쓰게 하기 위한 장치다.
+// ★오픈 리다이렉트 방지: 같은 사이트 절대경로("/…")만 허용하고 "//other.com" 은 거른다.
+function safeNext(v){
+  if (!v || v.charAt(0) !== '/' || v.charAt(1) === '/' || v.charAt(1) === '\\') return '';
+  return v;
+}
+function stashLoginNext(){
+  try{
+    var m = window.location.search.match(/[?&]next=([^&]*)/);
+    var n = m ? safeNext(decodeURIComponent(m[1])) : '';
+    if (n) sessionStorage.setItem('iumm_login_next', n);
+    return n;
+  }catch(e){ return ''; }
+}
+function consumeLoginNext(){
+  try{
+    var n = safeNext(sessionStorage.getItem('iumm_login_next'));
+    if (n) sessionStorage.removeItem('iumm_login_next');
+    return n;
+  }catch(e){ return ''; }
+}
+
 // 페이지 진입 시 URL hash 확인 → 약관 앵커면 자동 처리
 function handleInitialRoute(){
   var path = window.location.pathname;
+
+  // next 로 들어온 경우: 이미 로그인돼 있으면 바로 돌려보내고, 아니면 로그인 화면을 띄운다.
+  // (restoreLogin() 이 먼저 돌아 isLoggedIn 이 확정된 뒤 호출된다)
+  var next = stashLoginNext();
+  if (next) {
+    if (isLoggedIn) { consumeLoginNext(); location.replace(next); return; }
+    history.replaceState({}, '', '/');
+    showPage('login');
+    return;
+  }
+
   // 마이페이지 로그인 가드 — 미로그인 시 URL 정리 + 홈
   if (path === '/mypage' && !isLoggedIn) {
     history.replaceState({}, '', '/');
@@ -4272,6 +4307,9 @@ function kakaoLogin(){
             }
           }catch(e){}
           if(hasUserInfo){
+            // 공증 등 별도 페이지에서 넘어왔으면 그쪽으로 돌려보낸다
+            var nextUrl=consumeLoginNext();
+            if(nextUrl){ location.replace(nextUrl); return; }
             // 기존 회원: 메인 페이지로
             showPage('main');
             updateNavAfterLogin();
@@ -5172,6 +5210,9 @@ function completeUserInfo(){
     }
     // 사용자 이름도 카카오 닉네임 → 입력한 실명으로 업데이트
     currentUserName=nameVal;
+    // 신규 회원이 공증 등 별도 페이지에서 넘어온 경우 — 정보 입력까지 끝났으니 복귀
+    var nextUrl=consumeLoginNext();
+    if(nextUrl){ location.replace(nextUrl); return; }
     showPage('main');
     updateNavAfterLogin();
     showToast(nameVal+'님 환영합니다! 정보 입력 완료 ✓');
