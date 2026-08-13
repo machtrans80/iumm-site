@@ -234,6 +234,11 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc .ntr-persons{table-layout:fixed}
 .ntr-doc th,.ntr-doc td{border:1px solid #333;padding:6px 8px;font-size:12px;vertical-align:middle;
   overflow-wrap:break-word}
+/* 헤더는 단어 중간에서 자르지 않는다 ('Classificatio/n' 방지).
+   좁은 열에 영문 헤더가 들어가야 하므로 글자·여백을 조금 줄인다. */
+.ntr-doc .ntr-persons th{
+  font-size:11px;padding:6px 4px;overflow-wrap:normal;word-break:keep-all;line-height:1.35;
+}
 .ntr-doc th{background:#f2f2f2;font-weight:700;text-align:center}
 .ntr-doc .ntr-head th{width:22%;text-align:center}
 .ntr-doc .ntr-head td{text-align:left}
@@ -326,6 +331,7 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   .ntr-doc{padding:15mm 14mm;min-width:0;font-size:11.5pt}
   .ntr-doc .ntr-title{font-size:17pt}
   .ntr-doc th,.ntr-doc td{font-size:9.5pt;padding:4px 6px}
+  .ntr-doc .ntr-persons th{font-size:8.6pt;padding:4px 3px}
   /* 편집 하이라이트는 인쇄되면 안 된다 */
   .ntr-doc .ntr-f{background:none !important;box-shadow:none !important}
   .ntr-doc .ntr-f:empty::before{content:'' !important}
