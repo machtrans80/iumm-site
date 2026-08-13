@@ -807,6 +807,42 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 @media(max-width:1024px){.collapsed-grid{grid-template-columns:repeat(2,1fr);gap:16px}}
 @media(max-width:768px){.collapsed-grid-section{padding:0 12px;margin:24px auto 40px auto}.collapsed-grid{grid-template-columns:repeat(2,1fr);gap:10px}.collapsed-card{min-height:130px;padding:18px 14px 32px;border-radius:12px}.collapsed-card-category{font-size:9px;letter-spacing:1.3px;margin-bottom:10px;line-height:1.3;word-break:keep-all}.collapsed-card-title{font-size:14px;margin-bottom:0;line-height:1.5;font-weight:700;word-break:keep-all;overflow-wrap:break-word}.collapsed-card-title br{display:none}.collapsed-card-title .kw{white-space:nowrap}.collapsed-card-preview{display:none}.collapsed-card-arrow{bottom:12px;right:12px;font-size:16px}}
 @media(max-width:375px){.collapsed-card{min-height:120px;padding:16px 12px 30px}.collapsed-card-title{font-size:13px}.collapsed-card-category{font-size:8px;letter-spacing:1px}.collapsible-toggle{right:12px;width:36px;height:36px}.collapsible-header{padding-right:52px}}@media(max-width:340px){.collapsed-card-title{font-size:12px}.collapsed-card{padding:14px 10px 28px}}
+/* ── 우측 하단 플로팅 문의 버튼 (전문번역 / 번역공증대행) ──────────────
+   z-index 150 = 본문·nav(100) 위, 전체화면 서브페이지(200)·모달(300) 아래.
+   덕분에 로그인·약관·마이페이지·주문모달이 열리면 따로 숨기지 않아도 가려진다. */
+.iumm-fab{position:fixed;right:22px;bottom:26px;z-index:150;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.iumm-fab>a,.iumm-fab>button{
+  display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;font-family:inherit;
+  padding:13px 20px;border-radius:999px;font-size:14px;font-weight:700;letter-spacing:-0.01em;
+  text-decoration:none;white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease;
+}
+.iumm-fab .fab-ico{font-size:13px;line-height:1;opacity:.9}
+/* 전문번역 = 기존 IUMM 민트 */
+.iumm-fab-trans{background:#16B894;color:#fff;box-shadow:0 6px 18px rgba(22,184,148,0.34)}
+.iumm-fab-trans:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(22,184,148,0.5)}
+/* 공증 = 황금색. 프리미엄 상품이라 더 눈에 띄게 */
+.iumm-fab-notary{
+  background:linear-gradient(135deg,#EBD285 0%,#D4AF37 52%,#B8912A 100%);
+  color:#231A03;border:1px solid rgba(255,255,255,0.38);
+  box-shadow:0 6px 20px rgba(212,175,55,0.42);
+  animation:fabGlow 2.8s ease-in-out infinite;
+}
+.iumm-fab-notary:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(212,175,55,0.62);animation:none}
+@keyframes fabGlow{
+  0%,100%{box-shadow:0 6px 20px rgba(212,175,55,0.40)}
+  50%    {box-shadow:0 6px 26px rgba(212,175,55,0.70)}
+}
+@media(prefers-reduced-motion:reduce){.iumm-fab-notary{animation:none}}
+/* 모바일: 콘텐츠를 가리지 않게 작게 */
+@media(max-width:640px){
+  .iumm-fab{right:12px;bottom:14px;gap:7px}
+  .iumm-fab>a,.iumm-fab>button{padding:10px 15px;font-size:12.5px;gap:6px}
+  .iumm-fab .fab-ico{font-size:11.5px}
+}
+@media(max-width:360px){
+  .iumm-fab>a,.iumm-fab>button{padding:9px 13px;font-size:11.5px}
+}
+
 /* ── IUMM 모달 ──────────────────────────────────────────── */
 .iumm-modal{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s ease}
 .iumm-modal.active{opacity:1;visibility:visible}
@@ -852,7 +888,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <a href="#process">프로세스</a>
       <a href="#pricing">요금제</a>
       <a href="#" id="nav-expert-link" onclick="handleExpertNav();return false">전문가 소개 ✦</a>
-      <a href="/notary/">공증 서류 번역</a>
+      <!-- 공증 진입은 우측 하단 플로팅 버튼으로 옮겼다 (.iumm-fab) -->
       <a href="#" id="nav-login-link" onclick="showPage('login');return false">로그인 / 가입</a>
     </div>
     <button class="nav-cta" id="nav-order-btn" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=false;showModal('order');updateOrderModal();switchOrderPlan('ai');}else{showPage('login');}">이용하기</button>
@@ -864,7 +900,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <a href="#process" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">프로세스</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">요금제</a>
   <a href="#" onclick="handleExpertNav();document.getElementById('nav-mobile-menu').classList.remove('open');return false">전문가 소개 ✦</a>
-  <a href="/notary/" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">공증 서류 번역</a>
+  <!-- 공증 진입은 우측 하단 플로팅 버튼으로 옮겼다 (.iumm-fab) -->
   <a href="#" id="nav-login-link-mobile" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
   <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=false;showModal('order');updateOrderModal();switchOrderPlan('ai');}else{showPage('login');}document.getElementById('nav-mobile-menu').classList.remove('open')">이용하기</button>
 </div>
@@ -6713,6 +6749,33 @@ function closeCardModal() {
 function escCloseModal(e) {
   if (e.key === 'Escape') closeCardModal();
 }
+
+// ─── 플로팅 "전문번역 문의" ──────────────────────────────────
+// 상단 '이용하기' 버튼과 똑같은 기존 주문 경로를 탄다 (AI 플랜 주문 모달).
+// 기존 핸들러를 건드리지 않으려고 같은 동작을 함수로만 따로 뺐다.
+function openTranslationOrder(){
+  if(isLoggedIn){
+    currentPlan='ai';
+    isFreeTrialOrder=false;
+    showModal('order');
+    updateOrderModal();
+    switchOrderPlan('ai');
+  } else {
+    showPage('login');
+  }
+}
 </script>
+
+<!-- ── 우측 하단 고정 플로팅 문의 버튼 ──────────────────────────
+     상단 메뉴에 있던 "공증 서류 번역" 링크를 대체한다. -->
+<div class="iumm-fab" id="iumm-fab">
+  <button type="button" class="iumm-fab-trans" onclick="openTranslationOrder()"
+          aria-label="전문번역 문의하기">
+    <span class="fab-ico" aria-hidden="true">✎</span>전문번역 문의
+  </button>
+  <a class="iumm-fab-notary" href="/notary/" aria-label="번역공증대행 문의하기">
+    <span class="fab-ico" aria-hidden="true">◆</span>번역공증대행 문의
+  </a>
+</div>
 </body>
 </html>
