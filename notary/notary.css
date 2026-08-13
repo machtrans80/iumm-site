@@ -234,8 +234,11 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc td.ntr-na{background:repeating-linear-gradient(135deg,#fafafa,#fafafa 4px,#f0f0f0 4px,#f0f0f0 8px)}
 @media print{ .ntr-doc td.ntr-na{background:#fff} }
 .ntr-doc .ntr-section-label{font-weight:700;font-size:13px;margin:16px 0 6px;color:#111}
-.ntr-doc .ntr-attest{margin:20px 0 6px;font-size:12.5px}
-.ntr-doc .ntr-legal{margin:0 0 22px;font-size:11.5px;color:#333}
+/* 하단은 원본(대법원 양식) 배치를 따른다:
+   증명문구(좌) → 발급일(가운데) → 발급기관+직인(가운데) → ※법률근거(좌)
+   → 발급시각·신청인·발행번호(우) → 진위확인·수입증지(좌) */
+.ntr-doc .ntr-attest{margin:20px 0 18px;font-size:12.5px}
+.ntr-doc .ntr-legal{margin:0 0 14px;font-size:11.5px;color:#333}
 .ntr-doc .ntr-issue{text-align:center;margin:18px 0 20px}
 .ntr-doc .ntr-issue-date{font-size:13px;margin:0 0 8px}
 .ntr-doc .ntr-issue-office{font-size:15px;font-weight:700;margin:0}
@@ -243,7 +246,10 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
   display:inline-block;margin-left:14px;font-size:11px;color:#777;
   border:1px dashed #aaa;border-radius:50%;padding:9px 7px;
 }
-.ntr-doc .ntr-issue-meta th{width:15%}
+/* 발급시각·신청인·발행번호 — 원본처럼 우측 정렬 (표 아님) */
+.ntr-doc .ntr-issue-info{text-align:right;margin:0 0 16px}
+.ntr-doc .ntr-issue-info p{margin:0 0 3px;font-size:11.5px;color:#222}
+.ntr-doc .ntr-ii-label{color:#444}
 .ntr-doc .ntr-verify{font-size:10.5px;color:#333;margin:16px 0 4px}
 .ntr-doc .ntr-stamp{font-size:10.5px;color:#333;margin:0}
 .ntr-doc .ntr-block{margin:18px 0}
