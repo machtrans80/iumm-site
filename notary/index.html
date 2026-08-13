@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=16">
+<link rel="stylesheet" href="/notary/notary.css?v=17">
 <!-- ★메인(index.html)과 같은 v1 SDK. 버전이 다르면 토큰 저장 형식이 달라
      같은 브라우저에서도 로그인 세션을 공유하지 못해 재로그인을 요구하게 된다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -561,10 +561,13 @@ function renderTiers(){
       '" data-code="'+t.code+'" onclick="selectTier(\''+t.code+'\')">'+
       '<div class="code">'+esc(t.code)+'</div>'+
       '<div class="label">'+esc(tierName(t))+'</div>'+
+      (tierSub(t) ? '<div class="sub">'+esc(tierSub(t))+'</div>' : '')+
       // ★상품 화면에는 공급가만 깔끔하게 보여준다.
       //   부가세는 결제 화면에서만 분해한다 — 여기서 "부가세 별도"까지 붙이면
       //   고를 때부터 금액이 두 개로 보여 지저분하다.
-      '<div class="price">'+won(t.supply != null ? t.supply : t.amount)+'</div>'+
+      //   숫자만 골드로 강조하고 '원'은 흰색으로 둔다.
+      '<div class="price"><b>'+Number(t.supply != null ? t.supply : t.amount).toLocaleString()+
+      '</b>원</div>'+
       '<div class="desc">'+esc(t.desc)+extra+'</div>'+
       '</div>';
   }).join('');
@@ -572,12 +575,20 @@ function renderTiers(){
 
 // 화면에 쓰는 상품 이름. 서버가 주는 label 은 내부 표기라 그대로 두고 표시만 바꾼다.
 var TIER_NAME = {
-  T1: '번역만',
-  T2: '번역 + 공증 + 우편 + 스캔',
-  T3: '번역 + 공증 + 아포스티유 + 우편 + 스캔'
+  T1: '번역만 의뢰',
+  T2: '번역공증 대행 풀패키지',
+  T3: '아포스티유 대행 풀패키지'
+};
+/** 상품명 아래 괄호 부제 — 무엇이 포함되는지 한눈에 보이게 */
+var TIER_SUB = {
+  T2: '(번역+공증+우편+스캔)',
+  T3: '(번역+공증+아포스티유+우편+스캔)'
 };
 function tierName(t){
   return (t && (TIER_NAME[t.code] || t.label)) || '';
+}
+function tierSub(t){
+  return (t && TIER_SUB[t.code]) || '';
 }
 
 /** 결제 완료 화면(T4)의 영사인증 안내 문구. 국가 상태별로 표현을 달리한다. */
