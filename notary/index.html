@@ -147,6 +147,11 @@
     <!-- ── STEP: 동의·결제 (마지막) ───────────────────── -->
     <section class="ntr-card ntr-panel" data-step="confirm">
       <h2>확인하고 결제해 주세요</h2>
+      <!-- 서버가 테스트 요금 모드일 때만 뜬다 (config.priceTestMode). 원가로 되돌리면 사라진다 -->
+      <div class="ntr-note warn" id="test-price-note" style="display:none">
+        <strong>지금은 결제 테스트 요금이 적용 중입니다</strong><br>
+        실제 상품 금액이 아닙니다. 정식 요금으로 전환된 뒤 다시 주문해 주세요.
+      </div>
       <div class="ntr-summary" id="pay-summary"></div>
       <div class="ntr-note danger">
         <strong>반드시 확인해 주세요</strong>
@@ -351,6 +356,8 @@ function renderStep(){
   $('prog-fill').style.width  = Math.round((STEP_I + 1) / total * 100) + '%';
 
   var last = (step === 'confirm');
+  // 테스트 요금 안내는 서버 설정만 따른다 (원가로 되돌리면 저절로 사라진다)
+  $('test-price-note').style.display = (CFG && CFG.priceTestMode) ? '' : 'none';
   $('btn-prev').style.display = STEP_I === 0 ? 'none' : '';
   $('btn-next').style.display = last ? 'none' : '';
   $('payBtn').style.display   = last ? '' : 'none';
