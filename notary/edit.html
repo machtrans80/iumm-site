@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=14">
+<link rel="stylesheet" href="/notary/notary.css?v=15">
 <!-- ★메인·주문 페이지와 같은 v1 SDK. 편집토큰이 없을 때는 카카오 토큰으로 인증하는데,
      버전이 다르면 같은 로그인 상태인데도 토큰을 읽지 못한다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -508,8 +508,9 @@ function renderUpsell(){
       '대리 접수를 위해 신청인 신분증 사본이 필요합니다.';
   $('upsell-head').textContent = head;
   $('upsell-desc').textContent = body;
+  // 제안 버튼도 공급가만 — 부가세는 아래 결제 분해(renderUpBreak)에서만 보인다
   $('upsell-btn').innerHTML =
-    esc(UP.label) + ' (+' + won(UP.supply) + ', 부가세 별도)';
+    esc(UP.label) + ' (+' + won(UP.supply) + ')';
 
   /* ★아포스티유는 발송 전까지만 추가할 수 있다 — 고객이 시점을 알아야 한다 */
   if (UP.to === 'T3') {
