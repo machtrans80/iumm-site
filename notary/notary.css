@@ -228,7 +228,12 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
   color:#111;margin:0 0 18px;
 }
 .ntr-doc table{border-collapse:collapse;width:100%;margin:0 0 6px}
-.ntr-doc th,.ntr-doc td{border:1px solid #333;padding:6px 8px;font-size:12px;vertical-align:middle}
+/* ★인물 표는 열 너비를 고정한다. colgroup(render.js COL_WIDTH)과 함께 써야
+   위 '본인' 표와 아래 '가족사항' 표의 같은 열이 픽셀까지 일치한다.
+   fixed 가 아니면 브라우저가 내용 길이에 맞춰 표마다 다르게 잡는다. */
+.ntr-doc .ntr-persons{table-layout:fixed}
+.ntr-doc th,.ntr-doc td{border:1px solid #333;padding:6px 8px;font-size:12px;vertical-align:middle;
+  overflow-wrap:break-word}
 .ntr-doc th{background:#f2f2f2;font-weight:700;text-align:center}
 .ntr-doc .ntr-head th{width:22%;text-align:center}
 .ntr-doc .ntr-head td{text-align:left}
@@ -307,13 +312,18 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
    ★브라우저 머리글/바닥글(URL·날짜)은 CSS로 끌 수 없다.
      인쇄 대화상자에서 사용자가 직접 해제해야 한다 → 화면에 안내를 띄운다.
    ════════════════════════════════════════════════════════════ */
-@page{ size:A4 portrait; margin:18mm 15mm; }
+/* ★인쇄 머리글·바닥글(날짜·문서제목·URL) 억제.
+   크롬은 CSS 로 머리글/바닥글을 끌 수 없지만, @page 여백이 0이면 그것들을 그릴
+   자리가 없어 표시되지 않는다. 실제 문서 여백은 .ntr-doc 의 padding 으로 준다.
+   그래도 남는 브라우저가 있어 편집·발행 화면에 끄는 방법을 함께 안내한다. */
+@page{ size:A4 portrait; margin:0; }
 
 @media print{
   html,body{background:#fff !important;color:#000 !important;margin:0;padding:0}
   .no-print{display:none !important}
   .ntr-paper{box-shadow:none;border-radius:0;overflow:visible}
-  .ntr-doc{padding:0;min-width:0;font-size:11.5pt}
+  /* @page margin:0 이라 문서 여백은 여기서 준다 */
+  .ntr-doc{padding:15mm 14mm;min-width:0;font-size:11.5pt}
   .ntr-doc .ntr-title{font-size:17pt}
   .ntr-doc th,.ntr-doc td{font-size:9.5pt;padding:4px 6px}
   /* 편집 하이라이트는 인쇄되면 안 된다 */
