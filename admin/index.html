@@ -333,7 +333,7 @@ body.admin-focus .focus-exit-hint{display:inline}
          기존 화면이 그대로 열린다. -->
     <div class="mode-bar">
       <button class="mode-btn active" id="mode-tx"  onclick="setAdminMode('tx')">전문 번역 업무<span class="mode-sub">주문 · 검수 · 정산 · 회원</span></button>
-      <button class="mode-btn"        id="mode-ntr" onclick="setAdminMode('ntr')">번역공증 업무<span class="mode-sub">공증 배송</span></button>
+      <button class="mode-btn"        id="mode-ntr" onclick="setAdminMode('ntr')">번역공증 업무<span class="mode-sub">공증 배송 · 직접 번역</span></button>
     </div>
     <div class="tabs">
       <button class="tab-btn" data-mode="tx" id="tab-bp" onclick="switchTab('bank_pending')" style="color:#f59e0b"><i class="ti ti-wallet" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>입금대기<span id="bp-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#d97706;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
@@ -349,6 +349,7 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
       <button data-mode="tx" class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
       <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')" style="color:#D4AF37"><i class="ti ti-package" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>공증 배송 관리<span id="ntr-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#b8860b;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
+      <button data-mode="ntr" class="tab-btn" id="tab-ntrd" onclick="switchTab('notary_direct')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>직접 번역 (결제 없이)</button>
     </div>
 
     <!-- ── 공증 배송 관리 ────────────────────────────────────
@@ -370,6 +371,83 @@ body.admin-focus .focus-exit-hint{display:inline}
       </div>
       <div id="ntr-list"></div>
     </div>
+
+    <!-- ── 직접 번역 (결제 없이) ─────────────────────────────
+         오프라인 손님이 들고 온 서류를 대표가 그 자리에서 번역·출력한다.
+         고객용 공증 번역 시스템을 그대로 쓰고 결제만 건너뛴다.
+         · 번역만 (T1) — 공증·우편·아포스티유 단계 없음
+         · 서류 목록은 서버(/api/notary/config)에서 받는다 →
+           새 서류가 열리면 여기 드롭다운에 저절로 나타난다
+         · 편집·출력 화면은 고객과 같은 /notary/edit.html -->
+    <div id="ntrd-wrap" style="display:none;padding:4px 0 32px">
+      <div class="bp-section">
+        <div class="bp-section-title">
+          <i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>
+          직접 번역 — 결제 없이 (관리자 전용)
+        </div>
+        <div style="background:rgba(201,168,76,0.06);border-left:3px solid var(--gold);padding:12px 16px;border-radius:4px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8;margin-bottom:18px">
+          오프라인 손님 서류를 <strong style="color:var(--gold)">번역만</strong> 처리합니다
+          (공증 · 우편 · 아포스티유 없음).<br>
+          생성된 건은 <strong>NTR-ADM-</strong> 주문번호로 구분되어
+          매출 집계 · 정산 · 통계에 잡히지 않습니다.
+        </div>
+
+        <div class="bp-row">
+          <div class="bp-col">
+            <label class="bp-label" for="ntrd-doc">서류 종류</label>
+            <select class="bp-inp" id="ntrd-doc"><option value="">불러오는 중…</option></select>
+          </div>
+          <div class="bp-col">
+            <label class="bp-label" for="ntrd-lang">번역 언어</label>
+            <select class="bp-inp" id="ntrd-lang"><option value="">불러오는 중…</option></select>
+          </div>
+        </div>
+
+        <div class="bp-row single">
+          <div class="bp-col">
+            <label class="bp-label">서류 파일 (이미지 · PDF, 최대 10개 / 개당 50MB)</label>
+            <div class="ocr-zone" id="ntrd-zone">
+              <div class="ocr-zone-label" id="ntrd-zone-label">파일을 끌어다 놓거나 클릭해 선택하세요</div>
+              <div class="ocr-zone-sub">손님이 들고 온 서류를 촬영한 사진도 그대로 올릴 수 있습니다</div>
+              <input type="file" id="ntrd-files" multiple accept="image/*,application/pdf" onchange="ntrdShowFiles()">
+            </div>
+          </div>
+        </div>
+
+        <div class="bp-row single">
+          <div class="bp-col">
+            <label class="bp-label" for="ntrd-memo">메모 (선택 — 손님 이름·연락처 등, 관리자만 봅니다)</label>
+            <input class="bp-inp" id="ntrd-memo" type="text" maxlength="200" placeholder="예: 홍길동님 방문 접수">
+          </div>
+        </div>
+
+        <button class="btn-bp-submit" id="ntrd-submit" onclick="ntrdSubmit()">
+          <i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>번역 시작 (결제 없이)
+        </button>
+        <div id="ntrd-msg" class="bp-ocr-status"></div>
+
+        <!-- 진행 결과 -->
+        <div class="bp-result" id="ntrd-result">
+          <div class="bp-result-order" id="ntrd-result-order"></div>
+          <div class="bp-result-info" id="ntrd-result-info"></div>
+          <button class="btn-ocr" id="ntrd-open" style="display:none" onclick="ntrdOpenCurrent()">
+            번역본 편집 · 출력 화면 열기
+          </button>
+        </div>
+      </div>
+
+      <!-- 최근 우회 건 -->
+      <div class="bp-section">
+        <div class="bp-section-title" style="display:flex;align-items:center">
+          <i class="ti ti-history" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>
+          최근 직접 번역
+          <span style="flex:1"></span>
+          <button class="tab-btn" onclick="loadNotaryDirect()" style="text-transform:none;letter-spacing:0">새로고침</button>
+        </div>
+        <div id="ntrd-list"><p style="color:rgba(255,255,255,0.35);font-size:13px">탭 클릭 시 로드됩니다</p></div>
+      </div>
+    </div>
+
     <!-- [E-2] 회원 관리 탭 -->
     <div id="members-wrap" style="display:none;padding:4px 0 32px">
       <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
@@ -1100,6 +1178,7 @@ function switchTab(tab) {
   document.getElementById('tab-gpt').className = 'tab-btn' + (tab==='gpt_review' ? ' active' : '');
   document.getElementById('tab-members').className = 'tab-btn' + (tab==='members' ? ' active' : '');
   document.getElementById('tab-ntr').className = 'tab-btn' + (tab==='notary_ship' ? ' active' : '');
+  document.getElementById('tab-ntrd').className = 'tab-btn' + (tab==='notary_direct' ? ' active' : '');
   var isBypass = tab === 'bypass';
   var isSettlement = tab === 'settlement';
   var isUnassigned = tab === 'unassigned';
@@ -1107,9 +1186,11 @@ function switchTab(tab) {
   var isGptReview = tab === 'gpt_review';
   var isMembers = tab === 'members';
   var isNtr = tab === 'notary_ship';
+  var isNtrd = tab === 'notary_direct';
   document.getElementById('members-wrap').style.display = isMembers ? 'block' : 'none';
   document.getElementById('ntr-wrap').style.display = isNtr ? 'block' : 'none';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr) ? 'none' : 'block';
+  document.getElementById('ntrd-wrap').style.display = isNtrd ? 'block' : 'none';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isNtrd) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
@@ -1134,6 +1215,8 @@ function switchTab(tab) {
     loadFailedOrders();
   } else if (tab === 'notary_ship') {
     loadNotaryShipping();
+  } else if (tab === 'notary_direct') {
+    ntrdInit();
   } else if (tab === 'members') {
     loadMembers('');
   } else {
@@ -3473,6 +3556,190 @@ async function ntrShip(orderNumber) {
     else _ntrMsg(orderNumber, '발송완료 처리됨 — 단, 고객 안내 문자가 발송되지 않았습니다(연락처 확인 필요). 직접 안내해 주세요.', false);
     await loadNotaryShipping();
   } catch (e) { _ntrMsg(orderNumber, '실패: ' + e.message, false); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   직접 번역 (결제 없이) — 관리자 무료 우회
+   ══════════════════════════════════════════════════════════════
+   오프라인 손님 서류를 대표가 그 자리에서 번역·출력하는 실무 도구다.
+   고객용 공증 번역 시스템을 그대로 쓰고 결제만 건너뛴다.
+
+   ★서류·언어 목록은 서버 /api/notary/config 에서 받는다 — 여기 하드코딩하지 않는다.
+     서버에서 새 서류를 ready 로 열면 이 드롭다운에 저절로 나타난다.
+   ★편집·출력은 고객과 같은 화면(/notary/edit.html)을 편집토큰으로 연다.
+     화면을 복제하지 않으므로 번역 화면이 개선되면 여기도 같이 좋아진다. */
+var NTRD_CFG = null;        // /api/notary/config 캐시
+var NTRD_CUR = null;        // 방금 접수한 건 { orderNumber, editUrl }
+var NTRD_TIMER = null;      // 진행 상태 폴링
+
+function _ntrdMsg(text, ok) {
+  var el = document.getElementById('ntrd-msg');
+  el.textContent = text || '';
+  el.style.color = ok === false ? '#f87171' : (ok === true ? '#22c55e' : 'rgba(255,255,255,0.5)');
+}
+
+async function ntrdInit() {
+  if (!NTRD_CFG) {
+    try {
+      var r = await fetch(API_BASE + '/api/notary/config');
+      var j = await r.json();
+      if (!j.ok) throw new Error(j.error || '설정 조회 실패');
+      NTRD_CFG = j;
+    } catch (e) {
+      _ntrdMsg('서류 목록을 불러오지 못했습니다: ' + e.message, false);
+      return;
+    }
+    /* 준비된(ready) 서류·언어만 고를 수 있다 — 서버도 같은 기준으로 막는다 */
+    var docSel = document.getElementById('ntrd-doc');
+    var docs = (NTRD_CFG.documents || []).filter(function(d){ return d.ready; });
+    docSel.innerHTML = docs.length
+      ? docs.map(function(d){
+          return '<option value="' + _ne(d.code) + '">' + _ne(d.label) +
+                 ' (' + _ne(d.issuer) + ')</option>'; }).join('')
+      : '<option value="">자동 처리 가능한 서류가 없습니다</option>';
+
+    var langSel = document.getElementById('ntrd-lang');
+    var langs = (NTRD_CFG.langs || []).filter(function(l){ return l.ready; });
+    langSel.innerHTML = langs.length
+      ? langs.map(function(l){
+          return '<option value="' + _ne(l.code) + '">' + _ne(l.label) + '</option>'; }).join('')
+      : '<option value="">준비된 언어가 없습니다</option>';
+  }
+  loadNotaryDirect();
+}
+
+function ntrdShowFiles() {
+  var inp = document.getElementById('ntrd-files');
+  var n = inp.files.length;
+  document.getElementById('ntrd-zone-label').textContent = n
+    ? n + '개 선택됨 — ' + [].map.call(inp.files, function(f){ return f.name; }).join(', ')
+    : '파일을 끌어다 놓거나 클릭해 선택하세요';
+}
+
+async function ntrdSubmit() {
+  var docCode = document.getElementById('ntrd-doc').value;
+  var lang    = document.getElementById('ntrd-lang').value;
+  var inp     = document.getElementById('ntrd-files');
+  if (!docCode) { _ntrdMsg('서류 종류를 선택해 주세요', false); return; }
+  if (!inp.files.length) { _ntrdMsg('서류 파일을 선택해 주세요', false); return; }
+
+  var btn = document.getElementById('ntrd-submit');
+  btn.disabled = true;
+  _ntrdMsg('접수 중…');
+  document.getElementById('ntrd-result').style.display = 'none';
+  document.getElementById('ntrd-open').style.display = 'none';
+
+  var fd = new FormData();
+  fd.append('docType', docCode);
+  fd.append('lang', lang || 'en');
+  fd.append('memo', document.getElementById('ntrd-memo').value || '');
+  for (var i = 0; i < inp.files.length; i++) fd.append('files', inp.files[i]);
+
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/direct', {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd
+    });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '접수 실패');
+
+    NTRD_CUR = { orderNumber: j.orderNumber, editUrl: '' };
+    document.getElementById('ntrd-result').style.display = 'block';
+    document.getElementById('ntrd-result-order').textContent = j.orderNumber;
+    document.getElementById('ntrd-result-info').textContent =
+      j.docType + ' · 결제 없음 — 서류를 인식하는 중입니다 (보통 1~3분)';
+    _ntrdMsg('');
+    ntrdPoll(0);
+  } catch (e) {
+    _ntrdMsg('접수 실패: ' + e.message, false);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/** 접수 → OCR → 편집대기 까지 상태를 따라간다 (고객 화면과 같은 파이프라인) */
+async function ntrdPoll(n) {
+  if (!NTRD_CUR) return;
+  if (NTRD_TIMER) { clearTimeout(NTRD_TIMER); NTRD_TIMER = null; }
+  var no = NTRD_CUR.orderNumber;
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/direct/' + encodeURIComponent(no),
+      { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '상태 조회 실패');
+
+    var info = document.getElementById('ntrd-result-info');
+    if (j.statusKey === 'failed') {
+      info.innerHTML = '<span style="color:#f87171">인식 실패 — ' + _ne(j.failReason || '사유 확인 중') +
+        '</span><br>해상도·방향을 확인해 다시 올려 주세요.';
+      loadNotaryDirect();
+      return;
+    }
+    if (j.editUrl) {
+      NTRD_CUR.editUrl = j.editUrl;
+      info.innerHTML = '번역 완료 — 아래 버튼으로 확인·수정 후 출력하세요.' +
+        (j.hangulWarning ? '<br><span style="color:#D4AF37">⚠ 번역되지 않은 한글이 남아 있습니다 — 편집 화면에서 확인해 주세요</span>' : '');
+      document.getElementById('ntrd-open').style.display = 'inline-block';
+      loadNotaryDirect();
+      return;
+    }
+    info.textContent = j.statusLabel + ' — 잠시만 기다려 주세요';
+    /* 5초 간격 × 100회 = 약 8분. 그 뒤로는 목록의 "열기"로 이어서 처리한다 */
+    if (n < 100) NTRD_TIMER = setTimeout(function(){ ntrdPoll(n + 1); }, 5000);
+    else info.textContent = '처리가 지연되고 있습니다 — 아래 목록에서 새로고침해 확인해 주세요';
+  } catch (e) {
+    document.getElementById('ntrd-result-info').innerHTML =
+      '<span style="color:#f87171">상태 조회 실패: ' + _ne(e.message) + '</span>';
+  }
+}
+
+function ntrdOpenCurrent() {
+  if (NTRD_CUR && NTRD_CUR.editUrl) window.open(NTRD_CUR.editUrl, '_blank');
+}
+
+/** 목록에서 열기 — 토큰이 만료됐어도 열리도록 항상 새로 발급받는다 */
+async function ntrdReopen(orderNumber) {
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/direct/' + encodeURIComponent(orderNumber) + '/reopen',
+      { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '열기 실패');
+    window.open(j.editUrl, '_blank');
+  } catch (e) { showToast('열지 못했습니다: ' + e.message, ''); }
+}
+
+async function loadNotaryDirect() {
+  var box = document.getElementById('ntrd-list');
+  box.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">불러오는 중…</p>';
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/direct',
+      { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '조회 실패');
+    var rows = j.orders || [];
+    if (!rows.length) {
+      box.innerHTML = '<p style="color:rgba(255,255,255,0.35);font-size:13px">아직 직접 번역한 건이 없습니다.</p>';
+      return;
+    }
+    box.innerHTML = rows.map(function(o){
+      var col = o.statusKey === 'done' ? '#22c55e'
+              : (o.statusKey === 'failed' ? '#f87171'
+              : (o.statusKey === 'editing' ? '#D4AF37' : 'rgba(255,255,255,0.45)'));
+      return ''
+      + '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05)">'
+      +   '<strong style="color:#fafaf8;font-size:13px;min-width:170px">' + _ne(o.orderNumber) + '</strong>'
+      +   '<span style="font-size:12px;color:rgba(255,255,255,0.55);min-width:130px">' + _ne(o.docType || '-') + '</span>'
+      +   '<span style="font-size:12px;color:' + col + ';min-width:110px">' + _ne(o.statusLabel) + '</span>'
+      +   (o.hangulWarning ? '<span style="font-size:11px;color:#D4AF37">⚠ 한글 잔류</span>' : '')
+      +   '<span style="font-size:11px;color:rgba(255,255,255,0.3)">' + _nd(o.receivedAt) + '</span>'
+      +   '<span style="flex:1"></span>'
+      +   (o.statusKey === 'failed'
+            ? '<span style="font-size:11px;color:#f87171;max-width:320px">' + _ne(o.failReason || '') + '</span>'
+            : '<button class="tab-btn" onclick="ntrdReopen(\'' + _ne(o.orderNumber) + '\')" style="text-transform:none;letter-spacing:0">열기</button>')
+      + '</div>';
+    }).join('');
+  } catch (e) {
+    box.innerHTML = '<p style="color:#f87171;font-size:13px">불러오지 못했습니다: ' + _ne(e.message) + '</p>';
+  }
 }
 </script>
 </body>
