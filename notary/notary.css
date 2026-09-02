@@ -332,7 +332,7 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc .ntr-ii-label{color:#444}
 /* 발행번호 — 원본이 페이지마다 찍는다 (기본증명서 2번, 가족관계 1번).
    ★페이지 번호(1 / 2)는 넣지 않는다 — 번역본은 한 장이라 오해를 산다. */
-.ntr-doc .ntr-issue-no{margin:12px 0 4px;font-size:9pt;color:#222}
+.ntr-doc .ntr-issue-no{margin:10px 0 0;font-size:9pt;color:#222}
 /* ── 하단 서명란 (오프라인 발급본) ──────────────────────────
    원본은 발급기관장 직위(이름 없이)가 서명·직인 자리에 한 번 더 찍히고,
    바로 아래 수입증지 안내가 온다. 온라인 발급본에는 이 줄이 없다. */
@@ -342,7 +342,9 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 }
 .ntr-doc .ntr-sign-office .ntr-f{display:inline;white-space:normal}
 .ntr-doc .ntr-signature .ntr-stamp{text-align:center}
-.ntr-doc .ntr-verify{font-size:9pt;color:#333;margin:16px 0 4px}
+/* ★발행번호 바로 아래 줄이다 — 간격을 최소로 두어 마지막 줄이 다음 장으로
+   넘어가지 않게 한다 (원본도 두 줄이 붙어 있다). */
+.ntr-doc .ntr-verify{font-size:9pt;color:#333;margin:2px 0 0}
 .ntr-doc .ntr-stamp{font-size:9pt;color:#333;margin:0}
 .ntr-doc .ntr-block{margin:18px 0}
 .ntr-doc .ntr-block-title{font-size:13px;font-weight:700;margin:0 0 6px}
@@ -377,8 +379,14 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
      정확히 297mm(A4 한 장)라 여유가 0이었다. 반올림 한 번에 다음 장으로 밀린다.
      → 여유를 두어 기본증명서는 딱 2장, 가족관계는 딱 1장에 들어가게 낮춘다.
    ★값을 더 조정할 일이 있으면 이 두 변수만 만지면 된다. */
-.ntr-doc{ --ntr-page-h:250mm; }                      /* 기본증명서 기준 */
-.ntr-doc[data-doc="family_relation"]{ --ntr-page-h:228mm; }   /* 1장짜리라 더 낮춘다 */
+/* ★값의 근거 (브라우저 실측, 인쇄 규칙 적용):
+     한 장이 차지하는 높이 = --ntr-page-h + .ntr-doc 상하 패딩(15mm)
+     인쇄 여백이 1인치(상하 25.4mm)면 쓸 수 있는 높이가 246.2mm 뿐이다.
+     → 한 장 240mm 로 맞춰 최악 조건에서도 6mm 여유를 남긴다.
+     실제 콘텐츠는 가족관계 163mm · 기본증명서 1p 162mm / 2p 80mm 라
+     이 높이로도 하단 블록은 충분히 아래에 붙는다. */
+.ntr-doc{ --ntr-page-h:225mm; }                      /* 기본증명서: 225 + 15 = 240mm */
+.ntr-doc[data-doc="family_relation"]{ --ntr-page-h:210mm; }   /* 가족관계: 210 + 30 = 240mm */
 
 .ntr-doc .ntr-page{
   display:flex;flex-direction:column;
