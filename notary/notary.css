@@ -292,6 +292,12 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc td.ntr-na{background:repeating-linear-gradient(135deg,#fafafa,#fafafa 4px,#f0f0f0 4px,#f0f0f0 8px)}
 @media print{ .ntr-doc td.ntr-na{background:#fff} }
 .ntr-doc .ntr-section-label{font-weight:700;font-size:13px;margin:16px 0 6px;color:#111}
+/* ★'General Registration Details' · 'Family Details' 는 원본에서 테두리 칸 안에 들어간다.
+   표 머리글과 같은 톤으로 맞춘다(회색 배경 + 테두리). */
+.ntr-doc .ntr-section-label.ntr-boxed{
+  border:1px solid #333;background:#f2f2f2;
+  padding:4px 8px;margin:10px 0 0;font-weight:700;
+}
 /* 하단은 원본(대법원 양식) 배치를 따른다:
    증명문구(좌) → 발급일(가운데) → 발급기관+직인(가운데) → ※법률근거(좌)
    → 발급시각·신청인·발행번호(우) → 진위확인·수입증지(좌) */
@@ -341,7 +347,11 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 
 /* ── 기본증명서 ─────────────────────────────────────────────
    제목 옆 [Closed] — 폐쇄된 가족관계등록부일 때만 나온다(비면 자리도 안 차지). */
-.ntr-doc .ntr-closed:not(:empty){margin-left:8px;font-size:11pt;vertical-align:middle;letter-spacing:0}
+/* ★[Closed] — 원본은 제목(가운데) 아래 오른쪽 끝에 [폐쇄] 가 찍힌다.
+   제목 옆이 아니라 별도 줄·우측정렬이다. 폐쇄 등록부가 아니면 서버가 줄을 안 만든다. */
+.ntr-doc .ntr-closed-line{
+  margin:0 0 10px;text-align:right;font-size:11pt;font-weight:700;letter-spacing:0;
+}
 
 /* 가변 섹션 표 — 원본과 같은 '구분 | 상세내용' 2열.
    상세내용은 문장이 길어 좌측 정렬하고, 항목([라벨] 값)마다 줄을 바꾼다. */
@@ -351,6 +361,13 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc .ntr-item{display:block}
 .ntr-doc .ntr-item + .ntr-item{margin-top:2px}
 .ntr-doc .ntr-item-label{font-weight:700;margin-right:3px;white-space:nowrap}
+
+/* ★원본이 2장 이상이면 번역본도 같은 자리에서 끊는다.
+   화면에서는 종이 경계를 옅은 선으로 보여 주고, 인쇄에서 실제로 페이지를 넘긴다. */
+.ntr-doc .ntr-pagebreak{
+  height:0;margin:26px 0;border-top:1px dashed #bbb;
+  break-after:page;page-break-after:always;
+}
 
 /* 편집 가능한 값 */
 .ntr-doc .ntr-f{
@@ -402,9 +419,14 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   /* ★대표 확정 서식 — 화면과 같은 값 */
   .ntr-doc{padding:15mm 14mm;min-width:0;font-size:9pt}
   .ntr-doc .ntr-title{font-size:20pt}
-  .ntr-doc .ntr-closed:not(:empty){font-size:11pt}
+  .ntr-doc .ntr-closed-line{font-size:11pt}
   .ntr-doc th,.ntr-doc td{font-size:9pt;padding:4px 6px}
   .ntr-doc .ntr-persons th{font-size:9pt;padding:4px 3px}
+  /* 원본 장수대로 끊는다. 화면용 점선은 인쇄에서 지운다. */
+  .ntr-doc .ntr-pagebreak{border-top:none;margin:0;break-after:page;page-break-after:always}
+  .ntr-doc .ntr-section-label.ntr-boxed{
+    border:1px solid #000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   .ntr-doc .ntr-issue-office,.ntr-doc .ntr-sign-office{font-size:10.5pt;font-weight:700}
   /* 기본증명서 섹션 표 — 항목이 많아 본문보다 한 단계 작게 */
   .ntr-doc .ntr-entries td{font-size:8.8pt;padding:4px 6px}
