@@ -369,21 +369,19 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
    → 큰 여백 → 하단 붙임(서명란·수입증지·발행번호·진위확인).
    ★.ntr-page 를 종이 높이만큼 세우고 .ntr-page-bottom 을 margin-top:auto 로
      밀어 내려, 여백을 손으로 넣지 않고도 페이지 맨 아래에 붙게 한다.
-   ★1장짜리 원본(data-pages="1")에는 이 골격을 끈다 — 안 그러면 한 장짜리
-     서류에 빈 공간만 크게 생긴다. */
+   ★몇 장인지는 구조가 정한다 — 서버가 원본 장수만큼 .ntr-page 를 만든다.
+     1장짜리 서류(가족관계·1페이지 기본증명서)는 .ntr-page 가 하나뿐이라
+     페이지 나눔 규칙에 걸리지 않고, 하단 블록만 그 한 장의 맨 아래에 붙는다. */
 .ntr-doc .ntr-page{
   display:flex;flex-direction:column;
   min-height:253mm;               /* A4 297mm − 화면 여백(22mm×2) */
 }
 .ntr-doc .ntr-page-bottom{margin-top:auto}
-.ntr-doc .ntr-page + .ntr-page{break-before:page;page-break-before:always}
-/* 화면에서만 종이 경계를 옅게 보여 준다 (인쇄에는 안 나온다) */
-.ntr-doc .ntr-page + .ntr-page{border-top:1px dashed #ccc;padding-top:16px;margin-top:20px}
-
-.ntr-doc[data-pages="1"] .ntr-page{display:block;min-height:0}
-.ntr-doc[data-pages="1"] .ntr-page-bottom{margin-top:0}
-.ntr-doc[data-pages="1"] .ntr-page + .ntr-page{
-  break-before:auto;page-break-before:auto;border-top:none;padding-top:0;margin-top:0;
+/* 종이가 둘 이상일 때만 나눈다. 1장짜리 서류는 .ntr-page 가 하나뿐이라
+   이 규칙에 걸리지 않는다(서버가 쪼개지 않는다). */
+.ntr-doc .ntr-page + .ntr-page{
+  break-before:page;page-break-before:always;
+  border-top:1px dashed #ccc;padding-top:16px;margin-top:20px;   /* 화면 전용 경계 */
 }
 
 /* 편집 가능한 값 */
@@ -442,7 +440,6 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   /* 원본 장수대로 끊는다. 화면용 점선은 인쇄에서 지운다. */
   .ntr-doc .ntr-page{min-height:267mm}          /* A4 297mm − 인쇄 여백(15mm×2) */
   .ntr-doc .ntr-page + .ntr-page{border-top:none;padding-top:0;margin-top:0}
-  .ntr-doc[data-pages="1"] .ntr-page{min-height:0}
   .ntr-doc .ntr-section-label.ntr-boxed{
     border:1px solid #000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
