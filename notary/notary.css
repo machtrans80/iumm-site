@@ -329,6 +329,19 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc .ntr-block{margin:18px 0}
 .ntr-doc .ntr-block-title{font-size:13px;font-weight:700;margin:0 0 6px}
 
+/* ── 기본증명서 ─────────────────────────────────────────────
+   제목 옆 [Closed] — 폐쇄된 가족관계등록부일 때만 나온다(비면 자리도 안 차지). */
+.ntr-doc .ntr-closed:not(:empty){margin-left:8px;font-size:.62em;vertical-align:middle;letter-spacing:0}
+
+/* 가변 섹션 표 — 원본과 같은 '구분 | 상세내용' 2열.
+   상세내용은 문장이 길어 좌측 정렬하고, 항목([라벨] 값)마다 줄을 바꾼다. */
+.ntr-doc .ntr-entries{table-layout:fixed;margin-top:10px}
+.ntr-doc .ntr-entries td.ntr-entry-kind{text-align:center;font-weight:700;white-space:nowrap}
+.ntr-doc .ntr-entries td.ntr-entry-detail{text-align:left;line-height:1.6}
+.ntr-doc .ntr-item{display:block}
+.ntr-doc .ntr-item + .ntr-item{margin-top:2px}
+.ntr-doc .ntr-item-label{font-weight:700;margin-right:3px;white-space:nowrap}
+
 /* 편집 가능한 값 */
 .ntr-doc .ntr-f{
   display:inline-block;min-width:38px;padding:1px 3px;border-radius:3px;
@@ -380,6 +393,9 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   .ntr-doc .ntr-title{font-size:17pt}
   .ntr-doc th,.ntr-doc td{font-size:9.5pt;padding:4px 6px}
   .ntr-doc .ntr-persons th{font-size:8.6pt;padding:4px 3px}
+  /* 기본증명서 섹션 표 — 항목이 많아 본문보다 한 단계 작게 */
+  .ntr-doc .ntr-entries td{font-size:8.8pt;padding:4px 6px}
+  .ntr-doc .ntr-entries td.ntr-entry-detail{line-height:1.5}
   /* 상태 표기 박스 — 테두리가 인쇄에서 사라지지 않게 못 박는다.
      (편집용 하이라이트와 달리 이 테두리는 서류의 일부다) */
   .ntr-doc .ntr-status{
