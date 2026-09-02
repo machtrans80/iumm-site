@@ -324,6 +324,15 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
   margin:14px 0 4px;font-size:10.5px;color:#222;
 }
 .ntr-doc .ntr-if-page{white-space:nowrap;color:#333}
+/* ── 하단 서명란 (오프라인 발급본) ──────────────────────────
+   원본은 발급기관장 직위(이름 없이)가 서명·직인 자리에 한 번 더 찍히고,
+   바로 아래 수입증지 안내가 온다. 온라인 발급본에는 이 줄이 없다. */
+.ntr-doc .ntr-signature{margin:18px 0 4px}
+.ntr-doc .ntr-sign-office{
+  margin:0 0 6px;text-align:center;font-weight:700;font-size:13px;letter-spacing:.2px;
+}
+.ntr-doc .ntr-sign-office .ntr-f{display:inline;white-space:normal}
+.ntr-doc .ntr-signature .ntr-stamp{text-align:center}
 .ntr-doc .ntr-verify{font-size:10.5px;color:#333;margin:16px 0 4px}
 .ntr-doc .ntr-stamp{font-size:10.5px;color:#333;margin:0}
 .ntr-doc .ntr-block{margin:18px 0}
