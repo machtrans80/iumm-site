@@ -272,6 +272,20 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc .ntr-head th{width:22%;text-align:center}
 .ntr-doc .ntr-head td{text-align:left}
 .ntr-doc .ntr-persons td{text-align:center}
+/* ── 성명란 상태 표기 (사망·국적상실·실종선고·부재선고) ──────────
+   원본은 이름 아래에 테두리 친 작은 칸으로 찍힌다. 그 배치를 그대로 재현한다.
+   ★세로로 쌓이므로 좁은 이름 칸에서도 옆으로 밀려 잘리지 않는다.
+     긴 문구(Judicial Declaration of Disappearance)는 칸 안에서 줄바꿈된다. */
+.ntr-doc .ntr-name-cell{line-height:1.45}
+.ntr-doc .ntr-status{
+  display:block;width:fit-content;max-width:100%;
+  margin:3px auto 0;padding:0 3px;
+  border:1px solid #333;border-radius:2px;
+  font-size:.82em;line-height:1.35;
+  white-space:normal;overflow-wrap:anywhere;
+}
+/* 박스 안의 편집 span 은 이름 칸 기본 최소폭을 따르지 않는다 (빈 박스가 넓어 보이지 않게) */
+.ntr-doc .ntr-status .ntr-f{min-width:0;padding:0 1px}
 /* 해당 없는 칸 (내국인 행의 국적, 외국인 행의 본) — 편집 대상이 아니다 */
 .ntr-doc td.ntr-na{background:repeating-linear-gradient(135deg,#fafafa,#fafafa 4px,#f0f0f0 4px,#f0f0f0 8px)}
 @media print{ .ntr-doc td.ntr-na{background:#fff} }
@@ -366,6 +380,14 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   .ntr-doc .ntr-title{font-size:17pt}
   .ntr-doc th,.ntr-doc td{font-size:9.5pt;padding:4px 6px}
   .ntr-doc .ntr-persons th{font-size:8.6pt;padding:4px 3px}
+  /* 상태 표기 박스 — 테두리가 인쇄에서 사라지지 않게 못 박는다.
+     (편집용 하이라이트와 달리 이 테두리는 서류의 일부다) */
+  .ntr-doc .ntr-status{
+    border:1px solid #000 !important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    font-size:8.2pt;
+  }
+  .ntr-doc .ntr-persons tr{page-break-inside:avoid}
   /* 편집 하이라이트는 인쇄되면 안 된다 */
   /* ★확정 전에 Ctrl+P 를 눌러도 확인용 색이 출력물에 남지 않게 한다.
      (색 표시는 화면에서 확인하라는 표시일 뿐, 공증 서류의 일부가 아니다) */
