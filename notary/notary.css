@@ -249,13 +249,13 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc{
   background:#fff;color:#111;padding:22mm 18mm;min-width:720px;
   font-family:'Times New Roman',Times,'Nanum Myeongjo','Malgun Gothic',serif;
-  /* ★대표 확정 서식 — 제목 16pt / [Closed] 11pt / 발급기관장·서명란 10.5pt(굵게)
+  /* ★대표 확정 서식 — 제목 20pt / [Closed] 11pt / 발급기관장·서명란 10.5pt(굵게)
      / 본문·표 9pt / 성명란 상태박스 7pt. 화면·인쇄·DOCX 가 같은 값을 쓴다. */
   font-size:9pt;line-height:1.65;
 }
 .ntr-doc *{font-family:inherit}
 .ntr-doc .ntr-title{
-  text-align:center;font-size:16pt;font-weight:700;letter-spacing:.04em;
+  text-align:center;font-size:20pt;font-weight:700;letter-spacing:.04em;
   color:#111;margin:0 0 18px;
 }
 .ntr-doc table{border-collapse:collapse;width:100%;margin:0 0 6px}
@@ -295,7 +295,9 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 /* 하단은 원본(대법원 양식) 배치를 따른다:
    증명문구(좌) → 발급일(가운데) → 발급기관+직인(가운데) → ※법률근거(좌)
    → 발급시각·신청인·발행번호(우) → 진위확인·수입증지(좌) */
-.ntr-doc .ntr-attest{margin:20px 0 18px;font-size:9pt}
+/* ★증명 문구는 원본이 가운데 정렬이다 (두 서류 공통). 길어서 여러 줄이 되므로
+   가운데 정렬만 하고 폭은 건드리지 않는다. */
+.ntr-doc .ntr-attest{margin:20px 0 18px;font-size:9pt;text-align:center}
 .ntr-doc .ntr-legal{margin:0 0 14px;font-size:9pt;color:#333}
 .ntr-doc .ntr-issue{text-align:center;margin:18px 0 20px}
 .ntr-doc .ntr-issue-date{font-size:9pt;margin:0 0 8px}
@@ -399,7 +401,7 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   /* @page margin:0 이라 문서 여백은 여기서 준다 */
   /* ★대표 확정 서식 — 화면과 같은 값 */
   .ntr-doc{padding:15mm 14mm;min-width:0;font-size:9pt}
-  .ntr-doc .ntr-title{font-size:16pt}
+  .ntr-doc .ntr-title{font-size:20pt}
   .ntr-doc .ntr-closed:not(:empty){font-size:11pt}
   .ntr-doc th,.ntr-doc td{font-size:9pt;padding:4px 6px}
   .ntr-doc .ntr-persons th{font-size:9pt;padding:4px 3px}
