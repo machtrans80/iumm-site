@@ -387,7 +387,6 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
     font-size:8.2pt;
   }
-  .ntr-doc .ntr-persons tr{page-break-inside:avoid}
   /* 편집 하이라이트는 인쇄되면 안 된다 */
   /* ★확정 전에 Ctrl+P 를 눌러도 확인용 색이 출력물에 남지 않게 한다.
      (색 표시는 화면에서 확인하라는 표시일 뿐, 공증 서류의 일부가 아니다) */
