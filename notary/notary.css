@@ -298,7 +298,7 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
    inline-block 이라 글자 길이만큼만 차지하고 왼쪽에 붙는다. */
 .ntr-doc .ntr-section-label.ntr-boxed{
   display:inline-block;border:1px solid #333;background:#f2f2f2;
-  padding:3px 10px;margin:10px 0 0;font-weight:700;
+  padding:1px 4px;margin:10px 0 0;font-weight:700;line-height:1.3;
 }
 /* 하단은 원본(대법원 양식) 배치를 따른다:
    증명문구(좌) → 발급일(가운데) → 발급기관+직인(가운데) → ※법률근거(좌)
@@ -372,16 +372,27 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
    ★몇 장인지는 구조가 정한다 — 서버가 원본 장수만큼 .ntr-page 를 만든다.
      1장짜리 서류(가족관계·1페이지 기본증명서)는 .ntr-page 가 하나뿐이라
      페이지 나눔 규칙에 걸리지 않고, 하단 블록만 그 한 장의 맨 아래에 붙는다. */
+/* ★종이 높이 — 여기 한 곳만 고치면 하단 블록 위치가 통째로 움직인다.
+   ★넘침의 원인: 전에는 267mm 였는데 .ntr-doc 상하 패딩 30mm 를 더하면
+     정확히 297mm(A4 한 장)라 여유가 0이었다. 반올림 한 번에 다음 장으로 밀린다.
+     → 여유를 두어 기본증명서는 딱 2장, 가족관계는 딱 1장에 들어가게 낮춘다.
+   ★값을 더 조정할 일이 있으면 이 두 변수만 만지면 된다. */
+.ntr-doc{ --ntr-page-h:250mm; }                      /* 기본증명서 기준 */
+.ntr-doc[data-doc="family_relation"]{ --ntr-page-h:228mm; }   /* 1장짜리라 더 낮춘다 */
+
 .ntr-doc .ntr-page{
   display:flex;flex-direction:column;
-  min-height:253mm;               /* A4 297mm − 화면 여백(22mm×2) */
+  min-height:var(--ntr-page-h);
 }
 .ntr-doc .ntr-page-bottom{margin-top:auto}
 /* 종이가 둘 이상일 때만 나눈다. 1장짜리 서류는 .ntr-page 가 하나뿐이라
    이 규칙에 걸리지 않는다(서버가 쪼개지 않는다). */
+/* ★2페이지는 맨 위에 붙지 않게 위 여백을 준다 (원본이 그렇다).
+   box-sizing:border-box 라 padding 이 min-height 안에 포함된다 → 넘침이 늘지 않는다. */
 .ntr-doc .ntr-page + .ntr-page{
   break-before:page;page-break-before:always;
-  border-top:1px dashed #ccc;padding-top:16px;margin-top:20px;   /* 화면 전용 경계 */
+  padding-top:15mm;
+  border-top:1px dashed #ccc;margin-top:20px;   /* 화면 전용 경계 */
 }
 
 /* 편집 가능한 값 */
@@ -438,8 +449,11 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   .ntr-doc th,.ntr-doc td{font-size:9pt;padding:4px 6px}
   .ntr-doc .ntr-persons th{font-size:9pt;padding:4px 3px}
   /* 원본 장수대로 끊는다. 화면용 점선은 인쇄에서 지운다. */
-  .ntr-doc .ntr-page{min-height:267mm}          /* A4 297mm − 인쇄 여백(15mm×2) */
-  .ntr-doc .ntr-page + .ntr-page{border-top:none;padding-top:0;margin-top:0}
+  /* 종이 높이는 위 변수를 그대로 쓴다 (화면·인쇄 동일) —
+     A4 297 − .ntr-doc 상하 패딩 30 = 267 이 한계이고, 그보다 낮춰 여유를 둔다. */
+  .ntr-doc .ntr-page + .ntr-page{
+    border-top:none;margin-top:0;padding-top:15mm;   /* 2페이지 위 여백은 인쇄에도 */
+  }
   .ntr-doc .ntr-section-label.ntr-boxed{
     border:1px solid #000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
