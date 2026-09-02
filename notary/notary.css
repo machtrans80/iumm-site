@@ -249,11 +249,13 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc{
   background:#fff;color:#111;padding:22mm 18mm;min-width:720px;
   font-family:'Times New Roman',Times,'Nanum Myeongjo','Malgun Gothic',serif;
-  font-size:13px;line-height:1.65;
+  /* ★대표 확정 서식 — 제목 16pt / [Closed] 11pt / 발급기관장·서명란 10.5pt(굵게)
+     / 본문·표 9pt / 성명란 상태박스 7pt. 화면·인쇄·DOCX 가 같은 값을 쓴다. */
+  font-size:9pt;line-height:1.65;
 }
 .ntr-doc *{font-family:inherit}
 .ntr-doc .ntr-title{
-  text-align:center;font-size:22px;font-weight:700;letter-spacing:.04em;
+  text-align:center;font-size:16pt;font-weight:700;letter-spacing:.04em;
   color:#111;margin:0 0 18px;
 }
 .ntr-doc table{border-collapse:collapse;width:100%;margin:0 0 6px}
@@ -281,7 +283,7 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
   display:block;width:fit-content;max-width:100%;
   margin:3px auto 0;padding:0 3px;
   border:1px solid #333;border-radius:2px;
-  font-size:.82em;line-height:1.35;
+  font-size:7pt;line-height:1.35;
   white-space:normal;overflow-wrap:anywhere;
 }
 /* 박스 안의 편집 span 은 이름 칸 기본 최소폭을 따르지 않는다 (빈 박스가 넓어 보이지 않게) */
@@ -293,16 +295,16 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 /* 하단은 원본(대법원 양식) 배치를 따른다:
    증명문구(좌) → 발급일(가운데) → 발급기관+직인(가운데) → ※법률근거(좌)
    → 발급시각·신청인·발행번호(우) → 진위확인·수입증지(좌) */
-.ntr-doc .ntr-attest{margin:20px 0 18px;font-size:12.5px}
-.ntr-doc .ntr-legal{margin:0 0 14px;font-size:11.5px;color:#333}
+.ntr-doc .ntr-attest{margin:20px 0 18px;font-size:9pt}
+.ntr-doc .ntr-legal{margin:0 0 14px;font-size:9pt;color:#333}
 .ntr-doc .ntr-issue{text-align:center;margin:18px 0 20px}
-.ntr-doc .ntr-issue-date{font-size:13px;margin:0 0 8px}
+.ntr-doc .ntr-issue-date{font-size:9pt;margin:0 0 8px}
 /* 기관명이 길면(대법원 온라인 발급본) 콤마 뒤에서 두 줄로 접힌다.
    ★(Seal)은 기관장 이름과 같은 줄에 붙어야 한다 — 혼자 다음 줄로 떨어지지 않게
      마지막 낱말과 (Seal)을 한 덩어리로 묶는다(.ntr-seal 의 margin 을 줄이고
      줄바꿈이 일어날 여지를 폭으로 확보). */
 .ntr-doc .ntr-issue-office{
-  font-size:15px;font-weight:700;margin:0;
+  font-size:10.5pt;font-weight:700;margin:0;
   max-width:86%;margin-left:auto;margin-right:auto;line-height:1.55;
   text-wrap:balance;
 }
@@ -316,31 +318,28 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 }
 /* 발급시각·신청인 — 원본처럼 우측 정렬 (표 아님) */
 .ntr-doc .ntr-issue-info{text-align:right;margin:0 0 6px}
-.ntr-doc .ntr-issue-info p{margin:0 0 3px;font-size:11.5px;color:#222}
+.ntr-doc .ntr-issue-info p{margin:0 0 3px;font-size:9pt;color:#222}
 .ntr-doc .ntr-ii-label{color:#444}
-/* 최하단 한 줄 — 발행번호(왼쪽) + 페이지 번호(오른쪽) */
-.ntr-doc .ntr-issue-footer{
-  display:flex;justify-content:space-between;align-items:baseline;gap:16px;
-  margin:14px 0 4px;font-size:10.5px;color:#222;
-}
-.ntr-doc .ntr-if-page{white-space:nowrap;color:#333}
+/* 발행번호 — 원본이 페이지마다 찍는다 (기본증명서 2번, 가족관계 1번).
+   ★페이지 번호(1 / 2)는 넣지 않는다 — 번역본은 한 장이라 오해를 산다. */
+.ntr-doc .ntr-issue-no{margin:12px 0 4px;font-size:9pt;color:#222}
 /* ── 하단 서명란 (오프라인 발급본) ──────────────────────────
    원본은 발급기관장 직위(이름 없이)가 서명·직인 자리에 한 번 더 찍히고,
    바로 아래 수입증지 안내가 온다. 온라인 발급본에는 이 줄이 없다. */
 .ntr-doc .ntr-signature{margin:18px 0 4px}
 .ntr-doc .ntr-sign-office{
-  margin:0 0 6px;text-align:center;font-weight:700;font-size:13px;letter-spacing:.2px;
+  margin:0 0 6px;text-align:center;font-weight:700;font-size:10.5pt;letter-spacing:.2px;
 }
 .ntr-doc .ntr-sign-office .ntr-f{display:inline;white-space:normal}
 .ntr-doc .ntr-signature .ntr-stamp{text-align:center}
-.ntr-doc .ntr-verify{font-size:10.5px;color:#333;margin:16px 0 4px}
-.ntr-doc .ntr-stamp{font-size:10.5px;color:#333;margin:0}
+.ntr-doc .ntr-verify{font-size:9pt;color:#333;margin:16px 0 4px}
+.ntr-doc .ntr-stamp{font-size:9pt;color:#333;margin:0}
 .ntr-doc .ntr-block{margin:18px 0}
 .ntr-doc .ntr-block-title{font-size:13px;font-weight:700;margin:0 0 6px}
 
 /* ── 기본증명서 ─────────────────────────────────────────────
    제목 옆 [Closed] — 폐쇄된 가족관계등록부일 때만 나온다(비면 자리도 안 차지). */
-.ntr-doc .ntr-closed:not(:empty){margin-left:8px;font-size:.62em;vertical-align:middle;letter-spacing:0}
+.ntr-doc .ntr-closed:not(:empty){margin-left:8px;font-size:11pt;vertical-align:middle;letter-spacing:0}
 
 /* 가변 섹션 표 — 원본과 같은 '구분 | 상세내용' 2열.
    상세내용은 문장이 길어 좌측 정렬하고, 항목([라벨] 값)마다 줄을 바꾼다. */
@@ -398,10 +397,13 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   .no-print{display:none !important}
   .ntr-paper{box-shadow:none;border-radius:0;overflow:visible}
   /* @page margin:0 이라 문서 여백은 여기서 준다 */
-  .ntr-doc{padding:15mm 14mm;min-width:0;font-size:11.5pt}
-  .ntr-doc .ntr-title{font-size:17pt}
-  .ntr-doc th,.ntr-doc td{font-size:9.5pt;padding:4px 6px}
-  .ntr-doc .ntr-persons th{font-size:8.6pt;padding:4px 3px}
+  /* ★대표 확정 서식 — 화면과 같은 값 */
+  .ntr-doc{padding:15mm 14mm;min-width:0;font-size:9pt}
+  .ntr-doc .ntr-title{font-size:16pt}
+  .ntr-doc .ntr-closed:not(:empty){font-size:11pt}
+  .ntr-doc th,.ntr-doc td{font-size:9pt;padding:4px 6px}
+  .ntr-doc .ntr-persons th{font-size:9pt;padding:4px 3px}
+  .ntr-doc .ntr-issue-office,.ntr-doc .ntr-sign-office{font-size:10.5pt;font-weight:700}
   /* 기본증명서 섹션 표 — 항목이 많아 본문보다 한 단계 작게 */
   .ntr-doc .ntr-entries td{font-size:8.8pt;padding:4px 6px}
   .ntr-doc .ntr-entries td.ntr-entry-detail{line-height:1.5}
@@ -410,7 +412,7 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   .ntr-doc .ntr-status{
     border:1px solid #000 !important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    font-size:8.2pt;
+    font-size:7pt;
   }
   /* 편집 하이라이트는 인쇄되면 안 된다 */
   /* ★확정 전에 Ctrl+P 를 눌러도 확인용 색이 출력물에 남지 않게 한다.
