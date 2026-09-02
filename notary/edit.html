@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=17">
+<link rel="stylesheet" href="/notary/notary.css?v=18">
 <!-- ★메인·주문 페이지와 같은 v1 SDK. 편집토큰이 없을 때는 카카오 토큰으로 인증하는데,
      버전이 다르면 같은 로그인 상태인데도 토큰을 읽지 못한다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -47,6 +47,9 @@
       <span><i class="y"></i>표기 확인 권장 (이름·지명 자동 음역)</span>
       <span><i class="r"></i>반드시 확인 (사전에 없거나 인식되지 않음)</span>
     </div>
+    <!-- 빨간 항목이 있을 때만 채워진다(loadDoc). 한자는 OCR 오독이 잦아
+         원본 대조가 꼭 필요하다 — 慶州를 慶卅로 읽은 실측 사례가 있다. -->
+    <div id="hanja-notice"></div>
     <div id="warn-box"></div>
   </div>
 
@@ -357,6 +360,24 @@ async function loadDoc(finalized){
   document.body.classList.add('editing');
   $('edit-guide').style.display = '';
   $('actions').style.display = '';
+
+  /* ── 빨간 항목 안내 ──────────────────────────────────────
+     빨강 = 사전에 없거나 인식되지 않은 값. 한자(본관·이름)는 OCR 오독이
+     특히 잦아 원본 대조가 필수다. 색만 칠해 두면 왜 빨간지 알기 어려워
+     그냥 넘어가게 되므로, 개수와 함께 무엇을 하라고 적어 준다.
+     ★색은 편집 화면에서만 보인다 — 인쇄·PDF 출력물에는 반영되지 않는다
+       (notary.css 의 body.editing 스코프 + @media print 에서 제거). */
+  var redEls = document.querySelectorAll(
+    '#doc [data-warn="dict"], #doc [data-warn="hangul"], #doc [data-warn="missing"]');
+  $('hanja-notice').innerHTML = redEls.length
+    ? '<div class="ntr-note danger">' +
+      '<strong>한자본은 OCR 오독이 있을 수 있습니다.</strong><br>' +
+      '<span style="color:#e05555;font-weight:600">빨간색 항목</span>은 ' +
+      '원본과 대조하여 확인·수정해 주세요. (현재 ' + redEls.length + '곳)<br>' +
+      '<span style="font-size:12px;color:var(--text-muted)">' +
+      '※ 이 색 표시는 확인용입니다. 인쇄·PDF 출력물에는 나타나지 않습니다.</span>' +
+      '</div>'
+    : '';
 
   var warns = (d.warnings || []);
   $('warn-box').innerHTML = warns.length
