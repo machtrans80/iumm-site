@@ -3669,8 +3669,10 @@ async function ntrdPoll(n) {
 
     var info = document.getElementById('ntrd-result-info');
     if (j.statusKey === 'failed') {
-      info.innerHTML = '<span style="color:#f87171">인식 실패 — ' + _ne(j.failReason || '사유 확인 중') +
-        '</span><br>해상도·방향을 확인해 다시 올려 주세요.';
+      /* ★대응 방법은 서버가 원인별로 갈라서 넣어 준다(해상도 문제 / 서식 문제).
+         여기서 "해상도를 확인하세요" 를 덧붙이면 서식 문제일 때 엉뚱한 안내가 된다. */
+      info.innerHTML = '<span style="color:#f87171">인식 실패 — ' +
+        _ne(j.failReason || '사유 확인 중').replace(/\n/g, '<br>') + '</span>';
       loadNotaryDirect();
       return;
     }
@@ -3733,7 +3735,8 @@ async function loadNotaryDirect() {
       +   '<span style="font-size:11px;color:rgba(255,255,255,0.3)">' + _nd(o.receivedAt) + '</span>'
       +   '<span style="flex:1"></span>'
       +   (o.statusKey === 'failed'
-            ? '<span style="font-size:11px;color:#f87171;max-width:320px">' + _ne(o.failReason || '') + '</span>'
+            ? '<span style="font-size:11px;color:#f87171;max-width:380px" title="' + _ne(o.failReason || '') + '">' +
+              _ne(String(o.failReason || '').split('\n')[0]) + '</span>'
             : '<button class="tab-btn" onclick="ntrdReopen(\'' + _ne(o.orderNumber) + '\')" style="text-transform:none;letter-spacing:0">열기</button>')
       + '</div>';
     }).join('');
