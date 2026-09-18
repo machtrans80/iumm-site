@@ -226,15 +226,14 @@
           <li>발행 후 <strong>30일이 지나면</strong> 원본·번역본·개인정보가 서버에서 완전히 삭제됩니다.</li>
         </ul>
       </div>
+      <!-- ★동의 체크박스는 이 블록 하나뿐이다. id 를 중복시키지 말 것 —
+           agreedAll() 은 $('ag1')·$('ag2')·$('ag3') 로 읽어 첫 번째만 본다.
+           ag3-label 은 아포스티유 단독 상품일 때 JS 가 문구를 갈아끼우므로,
+           복사본을 두면 체크해도 반응 없는 칸이 생기고 문구도 엇갈린다. -->
       <div style="margin-top:16px">
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag1"><span>위 안내사항을 확인했습니다</span></label>
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag2"><span>결제 후 환불이 불가함을 확인했습니다</span></label>
         <label class="ntr-check" id="ag3-label"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
-      </div>
-      <div style="margin-top:16px">
-        <label class="ntr-check"><input type="checkbox" class="agree" id="ag1"><span>위 안내사항을 확인했습니다</span></label>
-        <label class="ntr-check"><input type="checkbox" class="agree" id="ag2"><span>결제 후 환불이 불가함을 확인했습니다</span></label>
-        <label class="ntr-check"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
       </div>
       <!-- ★결제 화면에서만 부가세를 분해해 보여준다 (앞 단계는 공급가만 표시) -->
       <div class="ntr-paybreak" id="pay-break"></div>
