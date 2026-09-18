@@ -276,6 +276,22 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-guide-other p{margin:0;font-size:14px;line-height:1.8;color:var(--gray)}
 .ntr-guide-other a{font-weight:700;border-bottom:1px solid rgba(22,184,148,0.4)}
 
+/* ── 카카오톡 문의 (결제 직전) ──────────────────────
+   카카오 채널 버튼 가이드: 배경 #FEE500 / 라벨 검정.
+   ★결제 버튼(.ntr-btn.wide)보다 작게 둔다 — 이탈을 유도하는
+   자리가 아니라 "물어볼 데가 있다"는 안심을 주는 자리다. */
+.ntr-kakao-ask{margin-top:16px;text-align:center}
+.ntr-kakao-ask p{margin:0 0 9px;font-size:12.5px;color:var(--text-muted);line-height:1.6}
+.ntr-kakao-ask a{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 15px;border-radius:8px;
+  background:#FEE500;color:rgba(0,0,0,0.85);
+  font-size:13px;font-weight:700;line-height:1;
+  text-decoration:none;border-bottom:none;
+}
+.ntr-kakao-ask a:hover{background:#F5DC00;color:rgba(0,0,0,0.85)}
+.ntr-kakao-ask svg{width:16px;height:16px;flex:0 0 auto}
+
 @media(max-width:560px){
   .ntr-guide{padding:17px 15px}
   .ntr-guide h3{font-size:15.5px}
