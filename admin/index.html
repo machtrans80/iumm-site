@@ -362,9 +362,10 @@ body.admin-focus .focus-exit-hint{display:inline}
         <button class="tab-btn ntr-f"        data-f="ready"    onclick="ntrFilter('ready')">발송대기</button>
         <button class="tab-btn ntr-f"        data-f="shipped"  onclick="ntrFilter('shipped')">발송완료</button>
         <span style="width:14px"></span>
-        <button class="tab-btn ntr-t active" data-t="all" onclick="ntrTier('all')">T2+T3</button>
+        <button class="tab-btn ntr-t active" data-t="all" onclick="ntrTier('all')">전체</button>
         <button class="tab-btn ntr-t"        data-t="T2"  onclick="ntrTier('T2')">T2 공증</button>
         <button class="tab-btn ntr-t"        data-t="T3"  onclick="ntrTier('T3')">T3 아포스티유</button>
+        <button class="tab-btn ntr-t"        data-t="APO" onclick="ntrTier('APO')">APO 단독</button>
         <span style="flex:1"></span>
         <span id="ntr-count" style="font-size:12px;color:rgba(255,255,255,0.35)"></span>
         <button class="tab-btn" onclick="loadNotaryShipping()">새로고침</button>
@@ -3429,8 +3430,10 @@ async function deleteRef(id) {
    공증 배송 관리
    ══════════════════════════════════════════════════════════════
    대표 행동이 곧 상태다.
-     스캔본 업로드 → T2 "공증완료" / T3 "공증 및 아포스티유 완료"
+     스캔본 업로드 → T2 "공증완료" / T3 "공증 및 아포스티유 완료" / APO "아포스티유 완료"
      발송번호 입력 → "발송완료" + 고객 문자 + 마이페이지 노출
+   ★APO(아포스티유 단독)는 번역·공증 단계가 없다. 접수되는 순간 목록에 뜨므로
+     원본파일을 그대로 대행업체에 위탁하면 된다 — 편집·확정을 기다리지 말 것.
    ★협력 처리 관련 내용은 관리자메모에만. 고객 화면엔 나가지 않는다. */
 var NTR_ORDERS = [], NTR_F = 'all', NTR_T = 'all';
 
@@ -3476,7 +3479,10 @@ function renderNotaryShipping() {
 
   box.innerHTML = rows.map(function(o){
     var col = o.stageKey === 'shipped' ? '#22c55e' : (o.stageKey === 'ready' ? '#D4AF37' : 'rgba(255,255,255,0.45)');
-    var tierLabel = o.tier === 'T3' ? 'T3 아포스티유' : 'T2 공증';
+    // ★APO(아포스티유 단독)는 번역도 공증도 없다 — "T2 공증"으로 뭉뚱그리면
+    //   대표가 있지도 않은 번역본을 찾게 된다.
+    var TIER_LABEL = { T3: 'T3 아포스티유', T2: 'T2 공증', APO: 'APO 아포스티유 단독' };
+    var tierLabel = TIER_LABEL[o.tier] || (o.tier || '-');
     return ''
     + '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:16px;margin-bottom:12px;background:#141414">'
     +   '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'
