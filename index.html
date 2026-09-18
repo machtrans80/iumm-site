@@ -5518,7 +5518,11 @@ async function loadMyNotaryOrders(){
       }
       // ★아포스티유 추가는 공증 완료 전까지만. 스캔본이 등록되면 서버가 false 로 내려 자동으로 사라진다.
       if(o.canAddApostille){
-        btns+='<button onclick="openNotaryOrder(\''+enc+'\',\'upsell\')" style="padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--gold);color:#06202f;font-family:inherit">아포스티유 추가 (+22,000원)</button>';
+        // ★금액은 서버가 내려주는 업셀 정보(pricing.js 단일 출처)만 쓴다 — 하드코딩 금지.
+        //   표기는 상품 카드·과정 화면과 같이 공급가 기준이다 — 부가세는 결제 화면에서만 분해한다.
+        //   서버가 upgrade 를 안 내려주면 금액 없이 버튼만 띄운다 — 틀린 금액을 보이는 것보다 낫다.
+        var upWon=(o.upgrade&&typeof o.upgrade.supply==='number')?' (+'+o.upgrade.supply.toLocaleString()+'원)':'';
+        btns+='<button onclick="openNotaryOrder(\''+enc+'\',\'upsell\')" style="padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--gold);color:#06202f;font-family:inherit">아포스티유 추가'+upWon+'</button>';
       }
       var apoNote = o.canAddApostille
         ? '<div style="margin-top:10px;padding:9px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.78);line-height:1.7">아포스티유가 필요하시면 <strong>발송 전에</strong> 추가하세요. 서류 발송 후에는 추가할 수 없습니다.</div>'
