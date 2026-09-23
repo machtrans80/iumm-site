@@ -227,13 +227,35 @@
         </ul>
       </div>
       <!-- ★동의 체크박스는 이 블록 하나뿐이다. id 를 중복시키지 말 것 —
-           agreedAll() 은 $('ag1')·$('ag2')·$('ag3') 로 읽어 첫 번째만 본다.
+           agreedAll() 은 $('ag1')…$('ag5') 로 읽어 첫 번째만 본다.
            ag3-label 은 아포스티유 단독 상품일 때 JS 가 문구를 갈아끼우므로,
-           복사본을 두면 체크해도 반응 없는 칸이 생기고 문구도 엇갈린다. -->
+           복사본을 두면 체크해도 반응 없는 칸이 생기고 문구도 엇갈린다.
+           ★ag4·ag5 는 개인정보 동의라 상품에 따라 바뀌지 않는다 —
+             ag3-label 안에 넣지 말 것(innerHTML 교체에 같이 날아간다). -->
       <div style="margin-top:16px">
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag1"><span>위 안내사항을 확인했습니다</span></label>
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag2"><span>결제 후 환불이 불가함을 확인했습니다</span></label>
         <label class="ntr-check" id="ag3-label"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
+      </div>
+
+      <!-- ── 개인정보 필수 동의 ─────────────────────────────
+           ★공증 서류는 주민등록번호가 전부 공개된 발급본이어야 한다.
+             민감정보를 받으면서 동의 절차가 환불 안내보다 얇으면 안 된다.
+             처리방침은 /privacy 경로가 Pages 에 없어 404 가 나므로
+             반드시 /index.html#privacy 로 링크한다. -->
+      <div class="ntr-note" style="margin-top:14px">
+        <strong>개인정보 수집·이용 동의 (필수)</strong>
+        <p style="margin:6px 0 0;font-size:13px;line-height:1.7;color:rgba(255,255,255,0.72)">
+          올려주신 증명서에는 <strong>성명·생년월일·주민등록번호·등록기준지</strong> 등이
+          그대로 기재되어 있습니다. 원본과 동일한 번역·공증을 위해 해당 정보를 수집하며,
+          서류 인식(OCR)을 위해 이미지가 <strong>Google LLC(미국)</strong> 및
+          <strong>네이버클라우드(국내)</strong> 로 전송됩니다.
+          자세한 내용은 <a href="/index.html#privacy" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">개인정보처리방침</a> 을 확인해 주세요.
+        </p>
+      </div>
+      <div style="margin-top:10px">
+        <label class="ntr-check"><input type="checkbox" class="agree" id="ag4"><span><strong>[필수]</strong> 개인정보 수집·이용 및 <a href="/index.html#privacy" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--gold);text-decoration:underline">개인정보처리방침</a>에 동의합니다</span></label>
+        <label class="ntr-check"><input type="checkbox" class="agree" id="ag5"><span><strong>[필수]</strong> 주민등록번호 등 민감정보가 포함된 증명서의 처리와, OCR 문자인식 위탁(Google·네이버클라우드) 및 국외 이전에 동의합니다</span></label>
       </div>
       <!-- ★결제 화면에서만 부가세를 분해해 보여준다 (앞 단계는 공급가만 표시) -->
       <div class="ntr-paybreak" id="pay-break"></div>
@@ -1175,7 +1197,11 @@ async function precheck(){
 
 // ─── 유효성 ──────────────────────────────────────────────
 function agreedAll(){
-  return $('ag1').checked && $('ag2').checked && $('ag3').checked;
+  /* ★ag4·ag5 는 개인정보·민감정보 필수 동의다. 여기서 빠지면 주민등록번호를
+     동의 없이 받게 된다 — 환불 동의(ag2)보다 먼저 지켜야 하는 항목이다.
+     관리자 무료우회(NTR-ADM-)는 이 화면을 쓰지 않는다(어드민 패널 별도 경로). */
+  return $('ag1').checked && $('ag2').checked && $('ag3').checked &&
+         $('ag4').checked && $('ag5').checked;
 }
 /* ★서버(notary/index.js validateShipping)와 같은 기준이다.
    한쪽만 고치면 프론트는 통과했는데 서버가 400을 주는 상황이 생긴다. 같이 고칠 것. */

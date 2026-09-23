@@ -1896,7 +1896,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div class="legal-page">
     <button class="legal-back-btn" onclick="showPage('main')">← 홈으로</button>
     <h1>개인정보처리방침</h1>
-    <p class="legal-date">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 최종 수정: 2026년 5월</p>
+    <p class="legal-date">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 최종 수정: 2026년 9월</p>
 
     <p>IUMM(이하 "회사")은 「개인정보 보호법」 및 「정보통신망 이용촉진 및 정보보호 등에 관한 법률」에 따라 이용자의 개인정보를 보호하고, 관련 고충을 신속·원활하게 처리하기 위해 다음과 같이 개인정보처리방침을 수립·공개합니다.</p>
 
@@ -1916,9 +1916,17 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <p><strong style="color:rgba(255,255,255,0.8)">③ 번역 서비스 이용 시 수집 항목</strong></p>
     <ul>
       <li>번역 의뢰 문서 및 텍스트 (번역 처리 목적에 한함, 21일 이내 삭제)</li>
+      <li>이미지·스캔본·PDF 등 문서 파일 및 해당 파일에서 자동 추출된 텍스트(OCR 문자인식 결과)</li>
       <li>용어집 정보 (번역 품질 향상 목적)</li>
     </ul>
-    <p><strong style="color:rgba(255,255,255,0.8)">④ 수집 방법</strong>: 서비스 가입·이용 과정에서 이용자 직접 입력, 소셜 로그인 연동, 서비스 이용 자동 수집</p>
+    <p><strong style="color:rgba(255,255,255,0.8)">④ 공증서류 번역 서비스 이용 시 수집 항목 (민감정보 포함)</strong></p>
+    <ul>
+      <li><span class="highlight">증명서에 기재된 정보 — 성명(한글·한자), 생년월일, 주민등록번호, 등록기준지(본적), 본관, 가족관계, 혼인관계, 국적 등</span></li>
+      <li>수집 근거 및 목적: 가족관계증명서·기본증명서·혼인관계증명서 등 공문서를 <strong>원본과 동일한 내용으로</strong> 번역·공증하기 위함. 해당 서류는 주민등록번호가 전부 공개된 발급본이어야 공증이 가능하므로, 기재 사항을 가리거나 생략할 수 없습니다.</li>
+      <li>아포스티유·등기 발송 진행 시: 수령인 성명·연락처·배송주소, 동의서 및 신분증 사본</li>
+      <li>이용자는 위 민감정보 수집·이용에 동의하지 않을 수 있으나, 동의하지 않는 경우 공증서류 번역 서비스 이용이 제한됩니다.</li>
+    </ul>
+    <p><strong style="color:rgba(255,255,255,0.8)">⑤ 수집 방법</strong>: 서비스 가입·이용 과정에서 이용자 직접 입력, 파일 업로드, 소셜 로그인 연동, 서비스 이용 자동 수집</p>
 
     <h2>제2조 (개인정보 수집·이용 목적)</h2>
     <ul>
@@ -1934,6 +1942,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li>회원 정보: 회원 탈퇴 시까지 (탈퇴 후 즉시 파기)</li>
       <li><span class="highlight">번역 의뢰 문서·텍스트: 납품 완료 후 21일 이내 완전 삭제</span></li>
+      <li><span class="highlight">공증 관련 문서 및 OCR 원문(주민등록번호 등 기재 정보 포함): 발행 완료 후 30일 이내 삭제</span></li>
+      <li>위 두 항목 모두, <strong>납품·발행까지 이르지 못하고 중단된 건도</strong> 접수일로부터 일정 기간이 지나면 문서·OCR 원문·첨부파일이 자동으로 삭제됩니다. 즉 어떤 상태로 종료되든 해당 자료는 서버에 무기한 보관되지 않습니다.</li>
       <li>결제 정보: 「전자상거래 등에서의 소비자보호에 관한 법률」에 따라 5년 보관</li>
       <li>서비스 이용 기록: 「통신비밀보호법」에 따라 3개월 보관</li>
       <li>분쟁·민원 기록: 처리 완료 후 3년 보관</li>
@@ -1952,6 +1962,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li><strong>결제 처리</strong>: 주식회사 코리아포트원(PortOne), 토스페이먼츠(주) — 결제 연동 및 승인·취소 처리</li>
       <li><strong>데이터 보관</strong>: Airtable, Inc. — 회원·주문 정보 및 번역 의뢰 문서 보관</li>
       <li><strong>AI 번역·검수 처리</strong>: OpenAI, L.L.C., Anthropic PBC — 번역 및 품질 검증 자동 처리</li>
+      <li><strong>문서 OCR(문자인식)</strong>: Google LLC (Google Cloud Vision), 네이버클라우드 주식회사 (CLOVA OCR) — 이미지·스캔본·PDF에서 텍스트 자동 추출. <span class="highlight">공증서류의 경우 주민등록번호 등 증명서 기재 정보가 포함된 이미지가 전송됩니다.</span></li>
       <li><strong>메시지 발송</strong>: (주)솔라피 — 카카오 알림톡·SMS 발송</li>
       <li><strong>서버 운영</strong>: Railway Corp — 서비스 인프라 운영</li>
       <li><strong>소셜 로그인</strong>: 카카오(주) — 소셜 로그인 인증</li>
@@ -1964,11 +1975,12 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li>이전 국가: 미국</li>
       <li>이전 받는 자: Airtable, Inc. / OpenAI, L.L.C. / Anthropic PBC / Railway Corp / Google LLC</li>
-      <li>이전 항목: 이메일 주소, 연락처, 주문 정보, <span class="highlight">번역 의뢰 문서·텍스트</span>, 서비스 이용 기록</li>
-      <li>이전 목적: 번역·검수 자동 처리, 데이터 보관, 서비스 인프라 운영, 문의 접수</li>
+      <li>이전 항목: 이메일 주소, 연락처, 주문 정보, <span class="highlight">번역 의뢰 문서·텍스트, 이미지·스캔본·PDF 등 문서 파일 및 OCR 문자인식 결과</span>, 서비스 이용 기록<br><span style="color:rgba(255,255,255,0.55)">— 공증서류 번역의 경우 위 문서 파일에 성명·생년월일·주민등록번호·등록기준지 등 증명서 기재 정보가 포함됩니다.</span></li>
+      <li>이전 목적: 번역·검수 자동 처리, <span class="highlight">문서 OCR 문자인식</span>, 데이터 보관, 서비스 인프라 운영, 문의 접수</li>
       <li>이전 시기: 서비스 이용 시 실시간 (네트워크를 통한 전송)</li>
-      <li>보유·이용 기간: 제3조에 따르며, <span class="highlight">번역 의뢰 문서·텍스트는 납품 완료 후 21일 이내 삭제</span>됩니다.</li>
+      <li>보유·이용 기간: 제3조에 따르며, <span class="highlight">번역 의뢰 문서·텍스트는 납품 완료 후 21일 이내, 공증 관련 문서·OCR 원문은 발행 완료 후 30일 이내 삭제</span>됩니다.</li>
     </ul>
+    <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px">※ 네이버클라우드 주식회사(CLOVA OCR)는 국내 사업자로 국외 이전 대상이 아니며, 제5조의 처리 위탁에 해당합니다.</p>
     <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px">※ 이용자는 개인정보의 국외 이전을 거부할 수 있으나, 번역 서비스 제공에 필수적인 처리이므로 거부 시 서비스 이용이 제한될 수 있습니다.</p>
 
     <h2>제7조 (이용자의 권리 및 행사 방법)</h2>
@@ -1984,7 +1996,9 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <h2>제8조 (개인정보 보호를 위한 기술적·관리적 조치)</h2>
     <ul>
       <li>모든 데이터 전송 HTTPS(TLS) 암호화</li>
-      <li>번역 의뢰 문서는 AI 학습에 사용되지 않으며, 외부 AI 서비스에 직접 노출되지 않는 독자적 프로세스 운영</li>
+      <li>번역 의뢰 문서는 <strong>AI 학습에 사용되지 않는 기업용 API를 통해서만 처리</strong>되며, 처리 후 위탁처에 저장·보관되지 않습니다. 일반 소비자용 AI 채팅 서비스에는 업로드되지 않습니다.</li>
+      <li>업로드된 파일은 서버 디스크에 저장하지 않고 메모리에서만 처리하며, 처리 종료와 함께 소멸합니다.</li>
+      <li>공증서류 처리 로그에는 주민등록번호를 마스킹하여 기록하며, OCR로 추출한 문서 본문은 로그에 남기지 않습니다.</li>
       <li>개인정보 접근 권한 최소화 및 접근 기록 보관</li>
       <li>정기적 보안 점검 실시</li>
     </ul>
@@ -2879,7 +2893,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 </section>
 
 <!-- SECURITY -->
-<section id="section-security" data-collapsible data-category="SECURITY" data-preview="✓ AI 학습 차단  ✓ 21일 후 자동 삭제  ✓ NDA 보안  ✓ 즉시 폐기" style="padding:48px 60px;background:rgba(22,184,148,0.04);border-top:1px solid rgba(22,184,148,0.08);border-bottom:1px solid rgba(22,184,148,0.08)">
+<section id="section-security" data-collapsible data-category="SECURITY" data-preview="✓ AI 학습 차단  ✓ 21일 후 자동 삭제  ✓ NDA 보안  ✓ 기업용 API" style="padding:48px 60px;background:rgba(22,184,148,0.04);border-top:1px solid rgba(22,184,148,0.08);border-bottom:1px solid rgba(22,184,148,0.08)">
   <div style="max-width:860px;margin:0 auto">
     <p class="section-label">Security</p>
     <h2 class="section-title">당신의 문서,<br><span class="mint">철저하게 보호됩니다</span></h2>
@@ -2892,10 +2906,10 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <h3>IUMM은 이 문제를 해결하기 위해 설계된 번역 서비스입니다</h3>
       <ul>
         <li>✓ AI 학습 차단 — 고객 문서가 AI 학습에 절대 사용되지 않습니다</li>
-        <li>✓ 21일 후 자동 삭제 — 번역 완료 후 21일 이내 문서 완전 삭제</li>
-        <li>✓ 즉시 완전 폐기 — 번역 완료 즉시 원문과 번역문 완전 폐기</li>
+        <li>✓ 21일 후 자동 삭제 — 번역 완료 후 21일 이내 문서 완전 삭제 (공증서류는 발행 후 30일)</li>
+        <li>✓ 중단된 건도 자동 삭제 — 납품까지 가지 못한 주문도 일정 기간 후 원문·첨부 자동 폐기</li>
         <li>✓ NDA 보안 계약 — 모든 검수자 NDA 체결 · 기업 고객 별도 체결 가능</li>
-        <li>✓ 외부 노출 차단 — 번역 처리 중 제3자 공유 없음</li>
+        <li>✓ 기업용 API만 사용 — 학습에 쓰이지 않는 기업용 API로만 처리, 소비자용 AI 채팅에 업로드하지 않습니다 (<a href="#" onclick="showPage('privacy');return false" style="color:inherit;text-decoration:underline">위탁·국외이전 내역</a>)</li>
         <li>✓ 독립된 처리 환경 — 보안 전송 및 분리된 인프라에서 운영</li>
         <li>✓ 데이터 판매 금지 — 마케팅 활용 완전 금지</li>
         <li>✓ 기업 문서 안심 — 계약서·특허·법률·재무 모두 안심하고 의뢰 가능</li>
@@ -4293,7 +4307,13 @@ function handleInitialHash(){
   var anchorId = hash.replace(/^#/, '');
   if (anchorId === 'article-8-2' || anchorId.indexOf('article-8-2-section-') === 0) {
     openTermsAtAnchor(anchorId);
+    return;
   }
+  /* ★/privacy·/terms 경로는 Pages 에 라우팅이 없어 404 가 난다(_redirects 없음).
+     하위 페이지(/notary/ 등)에서 약관·처리방침으로 보낼 때는
+     반드시 실제 파일인 /index.html#privacy 형태로 링크할 것. */
+  if (anchorId === 'privacy') { showPage('privacy'); return; }
+  if (anchorId === 'terms')   { showPage('terms');   return; }
 }
 
 function handleExpertNav(){
