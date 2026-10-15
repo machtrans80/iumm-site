@@ -620,6 +620,10 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
   .ntr-tiers{grid-template-columns:1fr}
   .ntr-row{grid-template-columns:1fr}
   .ntr-nav{padding:12px 16px}
+  /* 로고가 넓어져 오른쪽 메뉴가 줄바꿈되며 붙던 문제 — 링크는 한 줄, 이름·주문번호는 말줄임 */
+  .ntr-nav .right{gap:10px;font-size:13px;min-width:0;margin-left:12px}
+  .ntr-nav .right a{white-space:nowrap}
+  .ntr-nav .right #who,.ntr-nav .right #ordno{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
 
 /* ─── 2026-10 서류 선택 (카테고리 탭 + 서류 버튼) ─────────────── */
