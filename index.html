@@ -1901,6 +1901,23 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-note{font-size:15px;margin-top:14px;line-height:1.7}
 .lp-note a{color:var(--mint-light)}
 .lp-seo{padding:24px 0 28px;border-top:1px solid rgba(255,255,255,0.08);font-size:14px;color:rgba(255,255,255,0.68);line-height:1.7;word-break:keep-all}
+/* 전문 번역 과정 — 첫 화면 전문 번역 카드와 같은 하늘색 계열(#6FB8F0 / #9ACDF5) */
+.lp-sec.pro-sec .lp-label{color:#9ACDF5}
+.lp-steps.four{grid-template-columns:repeat(4,1fr)}
+.pro-sec .lp-step{border-color:rgba(111,184,240,0.28);background:rgba(111,184,240,0.05)}
+.pro-sec .lp-step .no{color:#9ACDF5}
+.lp-plans{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+.lp-plan{padding:20px 22px;border-radius:12px;border:1.5px solid rgba(111,184,240,0.45);background:rgba(111,184,240,0.06)}
+.lp-plan .nm{margin:0;font-size:17px;font-weight:700;color:#fff}
+.lp-plan .nm span{font-weight:500;color:rgba(255,255,255,0.75)}
+.lp-plan .pr{margin:8px 0 0;font-size:17px;color:rgba(255,255,255,0.82)}
+.lp-plan .pr b{font-size:clamp(24px,3vw,30px);font-weight:800;color:#9ACDF5;margin:0 2px}
+.lp-pro-note{margin:14px 0 0;font-size:15px;color:rgba(255,255,255,0.75);line-height:1.7;word-break:keep-all}
+.lp-pro-act{margin-top:22px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.lp-pro-act .lp-trust{margin:0;font-size:15px;color:rgba(255,255,255,0.82);word-break:keep-all}
+@media(max-width:1024px){
+  .lp-steps.four{grid-template-columns:repeat(2,1fr)}
+}
 @media(max-width:860px){
   .lp-cards{grid-template-columns:1fr}
   .lp-steps{grid-template-columns:1fr}
@@ -1911,6 +1928,9 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp-card{padding:24px 20px}
   .lp-bigs{grid-template-columns:1fr;gap:12px}
   .lp-btn{width:100%}
+  .lp-steps.four{grid-template-columns:1fr}
+  .lp-plans{grid-template-columns:1fr}
+  .lp-pro-act{align-items:stretch}
 }
 /* ★전역 모바일 규칙(section{padding:… !important})이 랜딩 여백을 덮어 제목이 고정 내비 뒤로 숨는다 — 랜딩 구역만 되돌린다 */
 @media(max-width:768px){
@@ -1957,12 +1977,37 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 <section class="lp-sec" id="process">
   <div class="lp">
-    <p class="lp-label">HOW IT WORKS</p>
+    <p class="lp-label">번역공증 · 아포스티유</p>
     <h2 class="lp-h2">3단계면 끝납니다</h2>
     <div class="lp-steps">
       <div class="lp-step"><div class="no">STEP 1</div><div class="t">올리기</div><div class="d">서류를 고르고 정부 사이트에서 받은 PDF를 올려주세요. 발급 방법도 함께 안내합니다.</div></div>
       <div class="lp-step"><div class="no">STEP 2</div><div class="t">결제</div><div class="d">받으실 날짜를 고르시면 일정과 금액을 바로 보여 드립니다. 확인 후 결제해 주세요.</div></div>
       <div class="lp-step"><div class="no">STEP 3</div><div class="t">집에서 받기</div><div class="d">스캔본을 먼저 마이페이지로 드리고, 실물은 등기로 보내드립니다.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 전문 번역 과정 ─────────────────────────────────────────
+     ★금액은 PLAN_PRICE 에서 읽는다(data-plan) — 하드코딩 금지.
+     ★내부 공정(단계 수·처리 방식·도구·용어집 내용·검수자 구조)은 쓰지 않는다. -->
+<section class="lp-sec pro-sec" id="process-pro">
+  <div class="lp">
+    <p class="lp-label">전문 번역</p>
+    <h2 class="lp-h2">용어는 끝까지 같게, 숫자는 하나도 틀리지 않게</h2>
+    <div class="lp-steps four">
+      <div class="lp-step"><div class="no">STEP 1</div><div class="t">올리기</div><div class="d">파일을 올리거나 붙여 넣으면 글자 수와 금액이 바로 나옵니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 2</div><div class="t">분야별 번역</div><div class="d">문서 분야에 맞는 전용 용어집을 기준으로 번역합니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 3</div><div class="t">점검</div><div class="d">용어가 문서 전체에서 같은지, 숫자·날짜·이름이 정확한지, 빠진 문장은 없는지 확인합니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 4</div><div class="t">휴먼터치 · 납품</div><div class="d">최종 휴먼터치로 자연스럽게 다듬어 마이페이지로 납품하고, 알림톡으로 알려 드립니다.</div></div>
+    </div>
+    <div class="lp-plans">
+      <div class="lp-plan"><p class="nm">스탠다드 <span>(일반 검수)</span></p><p class="pr">글자당 <b><span data-plan="ai"></span>원</b></p></div>
+      <div class="lp-plan"><p class="nm">프리미엄 플러스 <span>(전문가 검수)</span></p><p class="pr">글자당 <b><span data-plan="standard"></span>원</b></p></div>
+    </div>
+    <p class="lp-pro-note">제출·계약용 문서는 프리미엄 플러스를 권합니다. · 부가세 별도</p>
+    <div class="lp-pro-act">
+      <p class="lp-trust">명백한 오역은 납품 후 5일 이내 무료로 다시 번역해 드립니다.</p>
+      <button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>
     </div>
   </div>
 </section>
@@ -2000,6 +2045,11 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
   };
   var pp = document.getElementById('lp-plan-price');
   if (pp) pp.textContent = PLAN_PRICE.ai + '원부터';
+  // 전문 번역 과정 섹션 — 플랜 단가 (PLAN_PRICE 단일 출처)
+  Array.prototype.forEach.call(document.querySelectorAll ? document.querySelectorAll('[data-plan]') : [], function(el){
+    var k = el.getAttribute('data-plan');
+    if (PLAN_PRICE[k] != null) el.textContent = PLAN_PRICE[k];
+  });
 })();
 </script>
 

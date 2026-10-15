@@ -94,6 +94,41 @@ console.log('\n[5] 전문 번역 주문 창');
     'FAQ "영문으로 발급되는 서류" 2곳 교체 · 자동 안내 문장 삭제');
 }
 
+// ── 7. 전문 번역 과정 섹션 ──
+console.log('\n[7] 전문 번역 과정 섹션');
+{
+  const pa = land.indexOf('id="process"'), pb = land.indexOf('id="process-pro"'), pc = land.indexOf('id="faq-summary"');
+  check(pa > 0 && pb > pa && pc > pb, '위치 — 공증 3단계(#process) 바로 아래, FAQ 위');
+  check(/id="process">\s*<div class="lp">\s*<p class="lp-label">번역공증 · 아포스티유<\/p>\s*<h2 class="lp-h2">3단계면 끝납니다<\/h2>/.test(land) && !land.includes('HOW IT WORKS'),
+    '공증 3단계 라벨 "번역공증 · 아포스티유" (HOW IT WORKS 없음)');
+  const sec = land.slice(pb, pc);
+  check(sec.includes('<p class="lp-label">전문 번역</p>') && sec.includes('용어는 끝까지 같게, 숫자는 하나도 틀리지 않게'), '라벨·제목');
+  check(['<div class="t">올리기</div><div class="d">파일을 올리거나 붙여 넣으면 글자 수와 금액이 바로 나옵니다.',
+         '<div class="t">분야별 번역</div><div class="d">문서 분야에 맞는 전용 용어집을 기준으로 번역합니다.',
+         '<div class="t">점검</div><div class="d">용어가 문서 전체에서 같은지, 숫자·날짜·이름이 정확한지, 빠진 문장은 없는지 확인합니다.',
+         '<div class="t">휴먼터치 · 납품</div><div class="d">최종 휴먼터치로 자연스럽게 다듬어 마이페이지로 납품하고, 알림톡으로 알려 드립니다.'].every(x => sec.includes(x)) &&
+        (sec.match(/class="lp-step"/g) || []).length === 4, 'STEP 1~4 문구');
+  check(sec.includes('class="lp-steps four"') && land.includes('.lp-steps.four{grid-template-columns:repeat(4,1fr)}') &&
+        /max-width:1024px\)\{\s*\.lp-steps\.four\{grid-template-columns:repeat\(2,1fr\)\}/.test(land) && /\.lp-steps\.four\{grid-template-columns:1fr\}/.test(land),
+    '그리드 PC 4열 / 태블릿 2열 / 모바일 1열');
+  // 금액 — PLAN_PRICE 에서 채운다 (하드코딩 금지)
+  check(!/글자당\s*<b>\s*\d/.test(sec) && sec.includes('data-plan="ai"') && sec.includes('data-plan="standard"'), '플랜 금액 하드코딩 없음 (data-plan)');
+  const plans = ['ai', 'standard'].map(k => ({ k, t: '', getAttribute(){ return this.k; }, set textContent(v){ this.t = v; } }));
+  const sb2 = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }, showPage(){}, location: {},
+    document: { getElementById: () => null, querySelectorAll: (q) => q === '[data-plan]' ? plans : [] } };
+  vm.createContext(sb2); vm.runInContext(script, sb2);
+  check(plans[0].t === sb2.PLAN_PRICE.ai && plans[1].t === sb2.PLAN_PRICE.standard, `플랜 금액 = PLAN_PRICE (${plans[0].t} / ${plans[1].t})`);
+  check(sec.includes('스탠다드 <span>(일반 검수)</span>') && sec.includes('프리미엄 플러스 <span>(전문가 검수)</span>') &&
+        sec.includes('제출·계약용 문서는 프리미엄 플러스를 권합니다.') && sec.includes('부가세 별도'), '플랜 이름·권장 문구·부가세 별도');
+  check(sec.includes('명백한 오역은 납품 후 5일 이내 무료로 다시 번역해 드립니다.') &&
+        /무료 재번역 또는 A\/S\(품질수정\)/.test(html) && /납품일로부터 <span class="highlight">5일 이내<\/span>/.test(html),
+    '신뢰 문구 — 약관 제7조(5일 이내 무료 재번역)와 일치');
+  check(sec.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>'), '버튼 → handleAI() · 첫 화면 전문 번역 버튼과 같은 스타일');
+  check(land.includes('.lp-sec.pro-sec .lp-label{color:#9ACDF5}') && land.includes('.pro-sec .lp-step .no{color:#9ACDF5}'), '하늘색 계열 — 라벨·STEP 번호');
+  const vis = sec.replace(/<!--[\s\S]*?-->/g, '');
+  check(!/\bAI\b|자동\s?번역|엔진|모델|인공지능|최고|최저|유일|협력|검수자|단계 수/.test(vis), '금지 표현 없음 (AI·자동번역·엔진·모델·최상급·협력·내부 공정)');
+}
+
 // ── 6. 로고 — 메인·푸터·공증 화면 같은 모양 ──
 console.log('\n[6] 로고');
 {
