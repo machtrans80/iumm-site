@@ -531,7 +531,7 @@ function renderUpsell(){
   $('upsell-desc').textContent = body;
   // 제안 버튼도 공급가만 — 부가세는 아래 결제 분해(renderUpBreak)에서만 보인다
   $('upsell-btn').innerHTML =
-    esc(UP.label) + ' (+' + won(UP.supply) + ')';
+    esc(UP.label) + ' (+' + won(UP.supply) + ' 부가세 별도)';
 
   /* ★아포스티유는 발송 전까지만 추가할 수 있다 — 고객이 시점을 알아야 한다 */
   if (UP.to === 'T3') {
@@ -562,7 +562,7 @@ function startUpsell(){
 
 function renderUpBreak(){
   $('up-break').innerHTML =
-    '<div class="ntr-pb-row"><span>상품금액 (공급가)</span><span>'+won(UP.supply)+'</span></div>' +
+    '<div class="ntr-pb-row"><span>상품금액 (공급가 · 부가세 별도)</span><span>'+won(UP.supply)+'</span></div>' +
     (UP.vat ? '<div class="ntr-pb-row"><span>부가세</span><span>'+won(UP.vat)+'</span></div>' : '');
   $('up-amount').textContent = won(UP.amount);
 }

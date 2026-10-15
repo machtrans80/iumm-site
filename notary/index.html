@@ -395,17 +395,15 @@ function renderQuoteLine(){
   box.innerHTML = '예상 금액 <b>' + won(QUOTE.supply) + '</b> (부가세 별도 · ' + esc(basis) + ')';
 }
 
-/** 결제 화면 금액 분해 — 서버 견적의 줄별 공급가 + 부가세 그대로 */
+/** 결제 화면 금액 — 공급가 합계 + 부가세 (서버 견적값 그대로).
+ *  ★번역·공증·자격인증·아포스티유·등기 분해와 쪽당 단가는 보이지 않는다 (서류명·장수는 요약 줄에) */
 function renderPayBreak(){
   var box = $('pay-break');
   if (!box) return;
   if (!QUOTE) { box.innerHTML = ''; return; }
   var pct = Math.round(((CFG && CFG.vatRate) || 0) * 100);
-  var lines = (QUOTE.lines || []).map(function(l){
-    return '<div class="ntr-pb-row"><span>' + esc(l.item) + '</span><span>' + won(l.supply) + '</span></div>';
-  }).join('');
-  box.innerHTML = lines +
-    '<div class="ntr-pb-row"><span>공급가 합계</span><span>' + won(QUOTE.supply) + '</span></div>' +
+  box.innerHTML =
+    '<div class="ntr-pb-row"><span>공급가 합계 (부가세 별도)</span><span>' + won(QUOTE.supply) + '</span></div>' +
     (QUOTE.vat ? '<div class="ntr-pb-row"><span>부가세 (' + pct + '%)</span><span>' + won(QUOTE.vat) + '</span></div>' : '');
 }
 
@@ -631,7 +629,7 @@ function renderApoNote(d){
     '<div class="ntr-note" style="margin-top:14px">' +
     '<strong>영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다.</strong><br>' +
     '<strong>아포스티유 단독</strong>' +
-    (apo ? ' (<strong>' + Number(apo.supply).toLocaleString() + '원</strong> · 등기 포함)' : '') +
+    (apo ? ' (<strong>' + Number(apo.supply).toLocaleString() + '원</strong> 부가세 별도 · 등기 포함)' : '') +
     '으로 진행합니다. 발급받으신 영문 PDF를 그대로 올려주세요. 발급 방법은 업로드 화면에서 안내해 드립니다.' +
     '</div>';
 }
