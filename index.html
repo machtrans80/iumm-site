@@ -1858,6 +1858,14 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-card:hover{border-color:rgba(93,224,188,0.6)}
 .lp-card.main{border:2px solid var(--mint);background:rgba(22,184,148,0.07)}
 .lp-card.main:hover{background:rgba(22,184,148,0.11);border-color:var(--mint-light)}
+/* 전문 번역 카드 — 공증 카드와 같은 무게(2px 테두리·채운 버튼), 색만 하늘색 계열 */
+.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}
+.lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}
+.lp-card.pro .k .no{border-color:#9ACDF5;color:#9ACDF5}
+.lp-card.pro li::before{background:#9ACDF5}
+.lp-card.pro .lp-big .n{color:#9ACDF5}
+.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}
+.lp-btn.pro-btn:hover{background:#9ACDF5;border-color:#9ACDF5}
 .lp-card .k{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;color:#fff;margin:0}
 .lp-card .k .no{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--mint-light);color:var(--mint-light);font-size:14px;font-weight:800}
 .lp-card h3{margin:0;font-size:clamp(20px,2.2vw,24px);font-weight:700;color:#fff;line-height:1.4;word-break:keep-all}
@@ -1934,13 +1942,13 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
           <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 시작</button>
         </div>
       </div>
-      <div class="lp-card">
+      <div class="lp-card pro">
         <p class="k"><span class="no">2</span>전문 번역 의뢰</p>
         <h3>번역의 기준이 바뀌었습니다</h3>
         <p class="d">분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성도를 높여 납품합니다.</p>
         <p class="lp-big"><span class="s">글자당</span><span class="n" id="lp-plan-price">25원부터</span><span class="v">(부가세 별도)</span></p>
         <div class="act">
-          <button type="button" class="lp-btn line" onclick="handleAI()">전문 번역 시작</button>
+          <button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>
         </div>
       </div>
     </div>

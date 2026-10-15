@@ -40,7 +40,11 @@ check(land.includes('공증 받으러<br>멀리 가지 마세요') && !html.incl
 check(land.includes('서류만 올리시면 번역부터 공증·아포스티유까지 마치고 집으로 보내드립니다.'), '부제');
 check((land.match(/class="lp-card[ "]/g) || []).length === 2 && land.includes('lp-card main'), '카드 2개 · 1번 강조');
 check(land.includes("onclick=\"lpGo('notary')\">번역공증 · 아포스티유 시작<"), '1번 버튼 → 위저드');
-check(land.includes('onclick="handleAI()">전문 번역 시작<') && land.includes('lp-btn line'), '2번 버튼 → 전문 번역 모달 (외곽선)');
+check(land.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>') && land.includes('<div class="lp-card pro">'), '2번 카드 pro · 버튼 → 전문 번역 모달 (채운 버튼)');
+check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}', '.lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}',
+       '.lp-card.pro .k .no{border-color:#9ACDF5;color:#9ACDF5}', '.lp-card.pro li::before{background:#9ACDF5}', '.lp-card.pro .lp-big .n{color:#9ACDF5}',
+       '.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}', '.lp-btn.pro-btn:hover{background:#9ACDF5'].every(x => land.includes(x)),
+  '전문 번역 카드 색 (#6FB8F0 / #9ACDF5) · 번호 원·점·가격·채운 버튼');
 check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
 check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 쪽당</span><span class="n">9,000원', '그 외 서류 쪽당 9,000원 · 부가세 별도', '급행이면 다음 영업일 수령 (영업일 기준 예정)',
        '신분증·여권 사본공증 + 아포스티유도 가능'].every(t => land.includes(t)), '1번 카드 문구');
