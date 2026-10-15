@@ -129,6 +129,14 @@ console.log('\n[7] 전문 번역 과정 섹션');
   check(!/\bAI\b|자동\s?번역|엔진|모델|인공지능|최고|최저|유일|협력|검수자|단계 수/.test(vis), '금지 표현 없음 (AI·자동번역·엔진·모델·최상급·협력·내부 공정)');
 }
 
+// ── 9. 공증 3단계 시작 버튼 ──
+console.log('\n[9] 공증 3단계 — 시작 버튼');
+{
+  const ps = land.slice(land.indexOf('id="process"'), land.indexOf('id="process-pro"'));
+  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust">급행이면 다음 영업일에 받으실 수 있습니다 \(영업일 기준 예정\)\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 시작<\/button>\s*<\/div>/.test(ps),
+    '.lp-steps 아래 안내 한 줄 + [번역공증 · 아포스티유 시작] → lpGo(notary), 민트 채운 버튼');
+}
+
 // ── 8. FAQ 낡은 문구 ──
 console.log('\n[8] FAQ 문구 정리');
 {
