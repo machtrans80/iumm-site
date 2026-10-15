@@ -373,6 +373,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <button class="tab-btn" onclick="loadNotaryShipping()">새로고침</button>
       </div>
       <!-- ★수동 번역 대기 = 대표 1인 병목. 건수·가장 오래된 경과일을 항상 맨 위에 띄운다 -->
+      <div id="ntr-express" style="display:none;margin-bottom:10px;padding:11px 14px;border-left:3px solid #e5484d;background:rgba(229,72,77,0.1);font-size:13px;color:#fafaf8"></div>
       <div id="ntr-manual" style="display:none;margin-bottom:14px;padding:11px 14px;border-left:3px solid #fb923c;background:rgba(251,146,60,0.08);font-size:13px;color:#fafaf8"></div>
       <div id="ntr-list"></div>
     </div>
@@ -3443,6 +3444,13 @@ var NTR_ORDERS = [], NTR_F = 'all', NTR_T = 'all';
 
 function _ne(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+/* "YYYY-MM-DD" → "10월 16일(금)" (KST 날짜 문자열 그대로) */
+function _ntrDay(d){
+  if(!d) return '-';
+  var W=['일','월','화','수','목','금','토'];
+  var t=new Date(String(d).slice(0,10)+'T00:00:00Z');
+  return (t.getUTCMonth()+1)+'월 '+t.getUTCDate()+'일('+W[t.getUTCDay()]+')';
+}
 function _nd(s){ if(!s) return '-'; try{ return new Date(s).toLocaleString('ko-KR',{dateStyle:'short',timeStyle:'short'}); }catch(e){ return s; } }
 
 async function loadNotaryShipping() {
@@ -3457,6 +3465,16 @@ async function loadNotaryShipping() {
     // 탭 배지 = 대표가 할 일 — 발송대기(스캔본 등록됨, 미발송) + 수동 번역 대기
     var manualWaiting = j.manualWaiting || 0;
     var waiting = NTR_ORDERS.filter(function(o){ return o.stageKey === 'ready'; }).length + manualWaiting;
+    // 급행·희망일 미달 — 맨 위 안내 줄 (목록은 서버가 오늘 할 일 순으로 정렬해 내려준다)
+    var expressDue = NTR_ORDERS.filter(function(o){ return o.express && o.taskDue; }).length;
+    var missed = NTR_ORDERS.filter(function(o){ return o.missedWish && o.stageKey !== 'shipped'; }).length;
+    var eb = document.getElementById('ntr-express');
+    if (eb) {
+      eb.innerHTML = (expressDue ? '🔴 오늘 처리할 급행 <strong>' + expressDue + '건</strong>' : '') +
+                     (expressDue && missed ? ' · ' : '') +
+                     (missed ? '⚠ 희망수령일 미달 <strong>' + missed + '건</strong>' : '');
+      eb.style.display = (expressDue || missed) ? '' : 'none';
+    }
     var badge = document.getElementById('ntr-badge');
     badge.textContent = waiting; badge.style.display = waiting ? 'inline-block' : 'none';
     var mb = document.getElementById('ntr-manual');
@@ -3512,6 +3530,20 @@ function renderNotaryShipping() {
         + ' · 원본은 Airtable「공증주문」원본파일'
         + '</div>'
       : '';
+    // ── 처리 일정 — 급행 빨간 배지 · 오늘 할 일 · 예정수령일 (서버 처리일정JSON 기준, 정렬도 서버가 한다) ──
+    var expressBadge = o.express
+      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#e5484d;color:#fff;font-weight:700">급행</span>' : '';
+    var taskChip = o.task
+      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;' +
+        (o.task.overdue ? 'background:rgba(248,113,113,0.18);color:#f87171' : (o.taskDue ? 'background:rgba(34,197,94,0.15);color:#4ade80' : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6)')) +
+        '">' + _ne(o.task.label) + '</span>' : '';
+    var schedRow = o.expectedDay
+      ? '<div>예정수령일 <span style="color:#fafaf8">' + _ne(_ntrDay(o.expectedDay)) + '</span>'
+        + (o.wishDay ? ' · 희망 ' + _ne(_ntrDay(o.wishDay)) : '') + '</div>' : '';
+    var missedWarn = o.missedWish
+      ? '<div style="grid-column:1/-1;padding:8px 10px;background:rgba(229,72,77,0.12);border-left:3px solid #e5484d;border-radius:0 4px 4px 0;color:#ffb4a8">'
+        + '⚠ 희망수령일(' + _ne(_ntrDay(o.wishDay)) + ')을 못 맞춤 — 결제 직후 마감이 지나 예정일이 ' + _ne(_ntrDay(o.expectedDay)) + '(으)로 밀렸습니다. 환불·연락 여부를 판단해 주세요.</div>'
+      : '';
     var translationRow = o.manual
       ? '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)">'
         + '<input type="file" id="ntr-tr-' + _ne(o.orderNumber) + '" multiple accept=".pdf,.docx,.doc,.hwp,.hwpx,.jpg,.jpeg,.png" style="font-size:12px;color:rgba(255,255,255,0.6);max-width:260px">'
@@ -3526,6 +3558,8 @@ function renderNotaryShipping() {
     +     '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(212,175,55,0.15);color:#D4AF37">' + tierLabel + '</span>'
     +     '<span style="font-size:12px;color:rgba(255,255,255,0.55)">' + _ne(o.docType || '-') + (o.country ? ' · ' + _ne(o.country) : '') + '</span>'
     +     routeBadge
+    +     expressBadge
+    +     taskChip
     +     '<span style="flex:1"></span>'
     +     '<span style="font-size:12px;font-weight:600;color:' + col + '">' + _ne(o.stageLabel) + '</span>'
     +   '</div>'
@@ -3536,6 +3570,8 @@ function renderNotaryShipping() {
     +     '<div style="grid-column:1/-1">주소 <span style="color:#fafaf8">' + _ne(o.address || '-') + '</span></div>'
     +     '<div>발행 ' + _nd(o.issuedAt) + '</div>'
     +     '<div>스캔본 <span style="color:' + (o.scanCount ? '#22c55e' : '#f87171') + '">' + o.scanCount + '건</span></div>'
+    +     schedRow
+    +     missedWarn
     +     (o.shippedAt ? '<div>발송 ' + _nd(o.shippedAt) + '</div>' : '')
     +     manualInfo
     +   '</div>'
