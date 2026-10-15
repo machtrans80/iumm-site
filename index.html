@@ -82,18 +82,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:fl
 #order-modal-box strong{color:#fff}
 #order-modal-box .lbl{color:rgba(255,255,255,0.95)}
 /* 플랜별 모달 — overlay 방식 (원래 배경 유지, 색상 hint만) */
-#order-modal-box{transition:border-color 0.5s,box-shadow 0.5s}
-#order-modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:260px;pointer-events:none;border-radius:inherit;background:transparent;transition:background 0.5s;z-index:0}
-#order-modal-box>*{position:relative;z-index:1}
-#order-modal-box.plan-free{border-color:rgba(200,200,200,0.50)!important;box-shadow:0 4px 28px rgba(160,160,160,0.18)}
-#order-modal-box.plan-free::before{background:linear-gradient(180deg,rgba(200,200,200,0.13) 0%,rgba(180,180,180,0.06) 35%,transparent 100%)}
-#order-modal-box.plan-ai{border-color:#16B894!important;box-shadow:0 4px 28px rgba(22,184,148,0.22)}
-#order-modal-box.plan-ai::before{background:linear-gradient(180deg,rgba(22,184,148,0.14) 0%,rgba(22,184,148,0.07) 35%,rgba(22,184,148,0.02) 70%,transparent 100%)}
-#order-modal-box.plan-standard{border-color:#d97706!important;box-shadow:0 4px 28px rgba(217,119,6,0.22)}
-#order-modal-box.plan-standard::before{background:linear-gradient(180deg,rgba(217,119,6,0.14) 0%,rgba(201,168,76,0.10) 18%,rgba(217,119,6,0.03) 45%,transparent 100%)}
-#order-modal-box.plan-free .btn-primary{background:linear-gradient(135deg,#8a8a8a,#6a6a6a)!important;box-shadow:0 4px 14px rgba(120,120,120,0.35)!important}
-#order-modal-box.plan-ai .btn-primary{background:linear-gradient(135deg,#16B894,#0e9d7e)!important;box-shadow:0 4px 14px rgba(22,184,148,0.40)!important}
-#order-modal-box.plan-standard .btn-primary{background:linear-gradient(135deg,#d97706,#b45309)!important;box-shadow:0 4px 14px rgba(217,119,6,0.40)!important}
+/* 전문 번역 주문 창 — 메인·공증 위저드와 같은 민트/네이비 (2026-10-15). 플랜별 색 구분 없음 */
+#order-modal-box{background:var(--black-deeper)!important;border:1px solid rgba(22,184,148,0.45)!important;border-radius:12px}
+#order-modal-box .btn-primary{background:var(--mint)!important;color:#06202f!important;box-shadow:none!important;border-radius:8px}
+#order-modal-box .btn-primary:hover{background:var(--mint-light)!important}
+.ord-tabs{display:flex;margin-bottom:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.ord-tabs button{flex:1;min-height:44px;padding:8px 4px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;border:none;font-family:inherit;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);transition:background .15s}
+.ord-tabs button+button{border-left:1px solid var(--border)}
+.ord-tabs button.on{background:var(--mint);color:#06202f}
+#order-modal-box #plan-desc{margin:0 0 16px;font-size:13px;color:rgba(255,255,255,0.75);text-align:center}
 .btn-primary:hover{background:#5DE0BC;color:#0F2540;transform:translateY(-2px)}
 .btn-secondary{background:transparent;color:#C9D2DC;padding:14px 36px;border:1px solid rgba(255,255,255,0.22);border-radius:9px;font-size:15px;font-weight:400;cursor:pointer;transition:all 0.2s}
 .btn-secondary:hover{border-color:#16B894;color:#5DE0BC}
@@ -553,7 +550,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   #modal-payment [style*="grid-template-columns:1fr 1fr;gap:10px"]{grid-template-columns:1fr !important}
 
   /* 주문 모달 - 탭 작게 */
-  #tab-free,#tab-ai,#tab-standard{font-size:10px !important;padding:8px 2px !important}
+  #tab-free,#tab-ai,#tab-standard{font-size:13px !important;padding:8px 2px !important}  /* 이름만 남겨 390px 한 줄 */
 
   /* 검수자 패널 모바일 */
   #reviewer-panel > div{margin:20px 12px !important;padding:28px 18px !important}
@@ -2016,17 +2013,18 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
 
 <!-- 스탠다드 주문 모달 -->
 <div id="modal-order" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;overflow-y:auto">
-  <div id="order-modal-box" style="max-width:720px;margin:40px auto;background:#111;border:1px solid rgba(22,184,148,0.2);padding:48px 44px;position:relative">
+  <div id="order-modal-box" style="max-width:720px;margin:40px auto;padding:48px 44px;position:relative">
     <button onclick="closeModal('order')" style="position:absolute;top:20px;right:24px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <div id="order-step1">
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:700;margin-bottom:12px;color:var(--gold)">번역 주문</h3>
+      <h3 style="font-size:22px;font-weight:700;margin-bottom:12px;color:#fff">번역 주문</h3>
 
       <!-- 플랜 전환 탭 -->
-      <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">
-        <button id="tab-free" onclick="switchOrderPlan('free')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">무료체험</button>
-        <button id="tab-ai" onclick="switchOrderPlan('ai')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:var(--gold);color:var(--black)">스탠다드 (일반 검수)</button>
-        <button id="tab-standard" onclick="switchOrderPlan('standard')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">프리미엄 플러스 (전문가 검수)</button>
+      <div class="ord-tabs">
+        <button id="tab-free" onclick="switchOrderPlan('free')">무료체험</button>
+        <button id="tab-ai" class="on" onclick="switchOrderPlan('ai')">스탠다드</button>
+        <button id="tab-standard" onclick="switchOrderPlan('standard')">프리미엄 플러스</button>
       </div>
+      <p id="plan-desc">스탠다드 · 일반 검수</p>
 
       <!-- 첫 주문 혜택 배너 -->
       <div id="free-trial-banner" style="display:none;background:rgba(22,184,148,0.1);border:1px solid rgba(22,184,148,0.35);padding:10px 16px;margin-bottom:16px;display:none">
@@ -2035,7 +2033,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
             <p style="font-size:13px;color:var(--gold);font-weight:600"><i class="ti ti-gift icon-g" style="margin-right:3px"></i>첫 주문 혜택 적용 중 · 1회 한정</p>
             <p style="font-size:11px;color:rgba(22,184,148,0.7);font-weight:300;margin-top:3px">300글자 무료 · 스탠다드 (일반 검수) 플랜</p>
           </div>
-          <p style="font-size:18px;color:#97c459;font-weight:700">- 7,500원</p>
+          <p style="font-size:18px;color:var(--mint-light);font-weight:700">- 7,500원</p>
         </div>
       </div>
       <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px;text-align:center">번역할 파일을 올려주시거나 직접 복사 후 붙여주시면 글자수와 견적이 자동 산출됩니다</p>
@@ -2043,7 +2041,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       <!-- 통합 파일 추출 — 순서: 한자 체크박스 → 파일 선택 버튼 -->
       <div id="unified-extract-section" style="margin-bottom:18px">
         <!-- 한자 체크박스 — 2줄 문구, 전체 박스 클릭 -->
-        <label style="display:flex;align-items:flex-start;gap:14px;margin:0 0 18px 0;padding:18px 20px;background:linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06));border:2.5px solid rgba(22,184,148,0.55);border-radius:10px;box-shadow:0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08);cursor:pointer;transition:all 0.25s;user-select:none" onmouseover="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.26),rgba(22,184,148,0.10))';this.style.borderColor='rgba(22,184,148,0.75)';this.style.boxShadow='0 6px 24px rgba(22,184,148,0.30),inset 0 1px 0 rgba(255,255,255,0.12)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(22,184,148,0.18),rgba(22,184,148,0.06))';this.style.borderColor='rgba(22,184,148,0.55)';this.style.boxShadow='0 4px 20px rgba(22,184,148,0.20),inset 0 1px 0 rgba(255,255,255,0.08)'">
+        <label style="display:flex;align-items:flex-start;gap:14px;margin:0 0 18px 0;padding:18px 20px;background:rgba(22,184,148,0.08);border:1.5px solid rgba(22,184,148,0.55);border-radius:10px;cursor:pointer;user-select:none">
           <input type="checkbox" id="extract-hanja-mode" name="hanjaMode" style="margin-top:3px;width:24px;height:24px;accent-color:#16B894;cursor:pointer;flex-shrink:0">
           <span style="flex:1;line-height:1.6">
             <strong style="color:#16B894;font-size:15px;font-weight:700;display:block;margin-bottom:5px">한자어가 섞여 있는 문서일 경우, 먼저 체크 표시를 해주세요.</strong>
@@ -2052,12 +2050,12 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
         </label>
         <!-- ★ 파일 선택 버튼 (크게) -->
         <input type="file" id="extractFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="handleExtractFileChange(this)">
-        <button type="button" onclick="document.getElementById('extractFileInput').click()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:20px 24px;background:linear-gradient(135deg,#16B894,#0e9d7e);border:none;border-radius:10px;color:#fff;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 5px 18px rgba(22,184,148,0.38);transition:all 0.2s;margin-bottom:10px" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(22,184,148,0.50)'" onmouseout="this.style.transform='';this.style.boxShadow='0 5px 18px rgba(22,184,148,0.38)'">
-          📁 파일 선택하기
-          <span style="font-size:13px;opacity:0.88;font-weight:normal">(클릭 또는 드래그)</span>
+        <button type="button" onclick="document.getElementById('extractFileInput').click()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:20px 24px;background:var(--mint);border:none;border-radius:10px;color:#06202f;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px">
+          <i class="ti ti-upload" style="font-size:18px"></i>파일 선택하기
+          <span style="font-size:13px;font-weight:normal;color:#06202f">(클릭 또는 드래그)</span>
         </button>
         <span id="extract-file-name" style="display:block;font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:4px"></span>
-        <button type="button" id="btn-clear-extract" style="display:none;padding:4px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;margin-bottom:6px" onclick="clearExtractFile()">✕ 파일 삭제</button>
+        <button type="button" id="btn-clear-extract" style="display:none;padding:4px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;margin-bottom:6px" onclick="clearExtractFile()">파일 삭제</button>
         <div id="extract-status" style="font-size:12px;min-height:16px;margin-bottom:6px"></div>
       </div>
 
@@ -2066,13 +2064,13 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       <!-- 직접 입력 영역 -->
       <div id="input-section-text">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <label class="lbl" style="margin:0">✏️ 직접 입력 또는 추출된 텍스트 확인·수정</label>
-          <button type="button" class="btn-clear-source" onclick="clearPasteText()">✕ 내용 지우기</button>
+          <label class="lbl" style="margin:0">직접 입력 또는 추출된 텍스트 확인·수정</label>
+          <button type="button" class="btn-clear-source" onclick="clearPasteText()">내용 지우기</button>
         </div>
         <div style="position:relative">
           <textarea id="pasteText" data-source="manual" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="onPasteTextInput(this)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
           <div id="extracted-notice" style="display:none;position:absolute;top:6px;right:8px;display:none;align-items:center;gap:8px">
-            <span style="font-size:10px;color:rgba(201,168,76,0.7)"><i class="ti ti-lock" style="vertical-align:-1px;margin-right:2px"></i>자동 추출됨</span>
+            <span style="font-size:10px;color:var(--mint-light)"><i class="ti ti-lock" style="vertical-align:-1px;margin-right:2px"></i>자동 추출됨</span>
             <button onclick="unlockExtracted()" style="font-size:10px;color:rgba(255,255,255,0.4);background:none;border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:2px 7px;cursor:pointer">수정하기</button>
           </div>
         </div>
@@ -2081,11 +2079,11 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       <input type="number" id="manual-chars" style="display:none">
 
       <!-- 박스 1: 메인 안내 (민트) -->
-      <div style="margin:10px 0 10px 0;padding:13px 15px;background:linear-gradient(135deg,rgba(22,184,148,0.08),rgba(22,184,148,0.03));border:1px solid rgba(22,184,148,0.28);border-radius:8px;word-break:keep-all;overflow-wrap:break-word">
-        <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:13px;color:#16B894;font-weight:600"><span>📂</span><span>원문 파일 추출</span></div>
+      <div style="margin:10px 0 10px 0;padding:13px 15px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.28);border-radius:8px;word-break:keep-all;overflow-wrap:break-word">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:13px;color:#16B894;font-weight:600"><i class="ti ti-file-text" style="font-size:15px"></i><span>원문 파일 추출</span></div>
         <p style="margin:0 0 9px 0;font-size:12px;line-height:1.6;color:rgba(255,255,255,0.82)">Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT (50MB 이하)<br>텍스트/스캔 PDF·이미지를 자동 판별해 처리합니다. 파일 1개씩 업로드.</p>
-        <div style="padding:9px 12px;background:rgba(217,119,6,0.10);border-left:3px solid #d97706;border-radius:4px;font-size:12px;line-height:1.7;color:rgba(255,255,255,0.88)">
-          <strong style="color:#d97706;display:block;margin-bottom:3px">⚠ 반드시 확인하고 수정해주세요</strong>
+        <div style="padding:9px 12px;background:rgba(224,167,58,0.10);border-left:3px solid #E0A73A;border-radius:4px;font-size:12px;line-height:1.7;color:rgba(255,255,255,0.88)">
+          <strong style="color:#E0A73A;display:block;margin-bottom:3px">반드시 확인하고 수정해주세요</strong>
           추출된 본문에 오류가 있을 수 있습니다. 주문 착수 후 수정이 불가하며,<br>
           <strong style="color:rgba(255,255,255,0.96);font-weight:600">OCR 오류로 인한 번역 결과 차이는 고객님의 귀책사유</strong>이니 확인 부탁드립니다.
         </div>
@@ -2098,16 +2096,16 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
         <div style="display:flex;gap:8px"><span style="color:rgba(255,255,255,0.50);min-width:58px;font-weight:500">대량 문의</span><span><a href="mailto:iumm.master@gmail.com" style="color:#16B894;text-decoration:none">iumm.master@gmail.com</a></span></div>
       </div>
 
-      <!-- 박스 3: 결제 한도 (골드) -->
-      <div style="margin:0 0 16px 0;padding:9px 13px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.22);border-radius:6px;font-size:11px;color:rgba(201,168,76,0.88);text-align:center;font-weight:500;word-break:keep-all;overflow-wrap:break-word">
-        💳 1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내
+      <!-- 박스 3: 결제 한도 -->
+      <div style="margin:0 0 16px 0;padding:9px 13px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:11px;color:rgba(255,255,255,0.75);text-align:center;font-weight:500;word-break:keep-all;overflow-wrap:break-word">
+        1회 결제 한도: 최대 200만원 (부가세 포함) · 초과 시 법인계좌 입금 안내
       </div>
 
       <!-- 자동 견적 -->
       <div id="estimate-result" style="display:none;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);padding:18px 24px;margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">글자수</p><p id="char-count" style="font-size:20px;font-weight:600">-</p></div>
-          <div style="text-align:right"><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">자동 견적</p><p id="estimate-amount" style="font-family:'Nanum Myeongjo',serif;font-size:32px;font-weight:700;color:var(--gold)">-</p></div>
+          <div style="text-align:right"><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">자동 견적</p><p id="estimate-amount" style="font-size:32px;font-weight:700;color:var(--gold)">-</p></div>
         </div>
         <!-- 첫 주문 할인 -->
         <div id="free-discount-row" style="display:none;background:rgba(22,184,148,0.08);border:1px solid rgba(22,184,148,0.25);padding:10px 14px;margin-bottom:10px;display:none">
@@ -2121,7 +2119,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
         <div id="final-amount-row" style="display:none;border-top:1px solid rgba(22,184,148,0.2);padding-top:10px;margin-bottom:10px;display:none">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <p style="font-size:12px;color:rgba(255,255,255,0.5)">할인 적용 후 결제 금액</p>
-            <p id="final-amount" style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:700;color:var(--white)">-</p>
+            <p id="final-amount" style="font-size:22px;font-weight:700;color:var(--white)">-</p>
           </div>
         </div>
         <div style="border-top:1px solid rgba(22,184,148,0.15);padding-top:12px;display:flex;align-items:center;justify-content:space-between">
@@ -2250,7 +2248,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       <details class="optional-collapsible">
         <summary>
           <div style="display:flex;align-items:center;gap:10px">
-            <span style="padding:2px 8px;background:rgba(201,168,76,0.18);border:1px solid rgba(201,168,76,0.38);border-radius:4px;font-size:10px;color:#c9a84c;font-weight:700;letter-spacing:0.8px">OPTIONAL</span>
+            <span style="padding:2px 8px;background:rgba(22,184,148,0.14);border:1px solid rgba(22,184,148,0.4);border-radius:4px;font-size:10px;color:var(--mint-light);font-weight:700;letter-spacing:0.8px">선택</span>
             <span style="font-size:13px;color:rgba(255,255,255,0.82);font-weight:500">용어집 + 참고자료 <span style="color:rgba(255,255,255,0.45);font-size:12px;font-weight:400">— 번역 퀄리티 향상용 · 선택</span></span>
           </div>
           <span class="optional-arrow">▶</span>
@@ -2272,7 +2270,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
             <div class="ref-title"><i class="ti ti-paperclip" style="font-size:15px"></i>참고 자료 첨부 <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,0.4)">(선택)</span></div>
             <span class="ref-subtitle">회사 자료를 첨부하시면 표현과 용어를 맞춰 번역합니다</span>
             <input type="file" id="referenceFile" accept=".pdf,.docx,.doc,.xlsx,.xls,.txt" multiple style="display:none" onchange="handleRefFileSelect(this)">
-            <label for="referenceFile" class="ref-file-btn" style="padding:13px 24px;font-size:14px;font-weight:500;border-radius:8px;display:inline-flex;align-items:center;gap:8px"><i class="ti ti-upload" style="font-size:15px"></i>📁 파일 선택 <span style="font-size:11px;color:rgba(22,184,148,0.65);font-weight:normal">(PDF · Word · Excel · TXT, 최대 10MB)</span></label>
+            <label for="referenceFile" class="ref-file-btn" style="padding:13px 24px;font-size:14px;font-weight:500;border-radius:8px;display:inline-flex;align-items:center;gap:8px"><i class="ti ti-upload" style="font-size:15px"></i>파일 선택 <span style="font-size:11px;color:rgba(22,184,148,0.65);font-weight:normal">(PDF · Word · Excel · TXT, 최대 10MB)</span></label>
             <div id="refFileList" style="margin-top:10px"></div>
             <div class="ref-notice">
               <div class="ref-notice-title"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>참고자료 안내</div>
@@ -2296,12 +2294,12 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
 
       <!-- 번역 소요시간 (결제 버튼 아래, 보조 정보, 소형) -->
       <div style="margin-top:16px;padding:10px 14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:6px;font-size:11px;color:rgba(255,255,255,0.60)">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:7px;font-size:12px;color:rgba(255,255,255,0.72);font-weight:500">⏱ 번역 소요시간 안내</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:7px;font-size:12px;color:rgba(255,255,255,0.72);font-weight:500"><i class="ti ti-clock" style="font-size:14px"></i>번역 소요시간 안내</div>
         <table style="width:100%;border-collapse:collapse;font-size:11px">
           <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.09)">
             <th style="padding:3px 5px;text-align:left;font-weight:500;color:rgba(255,255,255,0.60)">글자수</th>
             <th style="padding:3px 5px;text-align:center;font-weight:500;color:#16B894">스탠다드</th>
-            <th style="padding:3px 5px;text-align:center;font-weight:500;color:#d97706">프리미엄 플러스</th>
+            <th style="padding:3px 5px;text-align:center;font-weight:500;color:rgba(255,255,255,0.85)">프리미엄 플러스</th>
           </tr></thead>
           <tbody style="color:rgba(255,255,255,0.68)">
             <tr><td style="padding:3px 5px">1,000~5,000자</td><td style="padding:3px 5px;text-align:center">24시간 이내</td><td style="padding:3px 5px;text-align:center">2일 이내</td></tr>
@@ -2315,13 +2313,13 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       </div>
 
       <div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);font-size:12px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.6">
-        💌 어떻게 주문할지 막막하신가요?<br>
+        어떻게 주문할지 막막하신가요?<br>
         파일만 <a href="mailto:iumm.master@gmail.com" style="color:rgba(255,255,255,0.6);text-decoration:underline">iumm.master@gmail.com</a> 로 보내주세요. 담당자가 직접 도와드립니다.
       </div>
     </div>
     <div id="order-step2" style="display:none;text-align:center;padding:48px 0">
-      <div style="font-size:52px;margin-bottom:20px">✓</div>
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:26px;font-weight:700;color:var(--gold);margin-bottom:14px">작업에 착수되었습니다</h3>
+      <i class="ti ti-circle-check" style="display:block;font-size:52px;color:var(--mint);margin-bottom:20px"></i>
+      <h3 style="font-size:26px;font-weight:700;color:#fff;margin-bottom:14px">작업에 착수되었습니다</h3>
       <p style="font-size:15px;color:rgba(255,255,255,0.55);line-height:1.9;font-weight:300">번역 프로세스가 시작되었습니다.<br>완료 시 알림톡으로 안내드립니다.<br>마이페이지에서 다운로드하실 수 있습니다.</p>
       <button onclick="closeModal('order')" class="btn-secondary" style="margin-top:32px;padding:14px 40px">확인</button>
     </div>
@@ -2400,7 +2398,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       </div>
       <!-- 환불 불가 강조 안내 박스 (NEW) -->
       <div style="background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.3);border-radius:4px;padding:14px 16px;margin-bottom:16px">
-        <p style="font-size:12px;font-weight:700;color:#ff6b6b;letter-spacing:1px;margin-bottom:8px">⚠ 환불 불가 정책 안내</p>
+        <p style="font-size:12px;font-weight:700;color:#ff6b6b;letter-spacing:1px;margin-bottom:8px">환불 불가 정책 안내</p>
         <p style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7;font-weight:300;margin-bottom:6px">결제 즉시 번역이 자동 착수되어 <strong style="color:#fff">결제 후 환불이 불가합니다</strong>. (전자상거래법 제17조 2항)</p>
         <p style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">품질 확인을 원하시면 먼저 <a href="#" onclick="event.stopPropagation();closeModal('payment');document.getElementById('order-textarea')?.focus();return false" style="color:var(--gold);text-decoration:underline">무료체험(300자)</a>을 이용해 주세요.</p>
       </div>
@@ -2436,8 +2434,8 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
 
     </div>
     <div id="payment-complete" style="display:none;text-align:center;padding:32px 0">
-      <div style="font-size:52px;margin-bottom:20px">✓</div>
-      <h3 id="payment-complete-title" style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;color:var(--gold);margin-bottom:12px">작업에 착수되었습니다</h3>
+      <i class="ti ti-circle-check" style="display:block;font-size:52px;color:var(--mint);margin-bottom:20px"></i>
+      <h3 id="payment-complete-title" style="font-size:24px;font-weight:700;color:var(--gold);margin-bottom:12px">작업에 착수되었습니다</h3>
       <p id="payment-complete-desc" style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.9;font-weight:300">번역 프로세스가 시작되었습니다.<br>완료 시 알림톡으로 안내드립니다.<br>마이페이지에서 다운로드하실 수 있습니다.</p>
       <button onclick="closeAllAndReset()" class="btn-secondary" style="margin-top:28px;padding:14px 40px">확인</button>
     </div>
@@ -3497,8 +3495,7 @@ function updateOrderModal(){
     var btn=document.getElementById('tab-'+t);
     if(!btn) return;
     var active=t===planKey;
-    btn.style.background=active?(t==='standard'?'rgba(99,153,34,0.85)':(t==='free'?'rgba(255,255,255,0.12)':'var(--gold)')):'rgba(255,255,255,0.04)';
-    btn.style.color=active?(t==='free'?'var(--white)':'var(--black)'):'rgba(255,255,255,0.5)';
+    btn.classList.toggle('on',active);
   });
   // 업그레이드 버튼 표시/숨김
   var upgradeBtn=document.getElementById('upgrade-to-plus-btn');
@@ -4605,13 +4602,7 @@ function switchOrderPlan(plan){
   tabs.forEach(function(t){
     var btn=document.getElementById('tab-'+t);
     if(!btn) return;
-    if(t===plan){
-      btn.style.background=t==='standard'?'rgba(99,153,34,0.9)':(t==='free'?'rgba(255,255,255,0.15)':'var(--gold)');
-      btn.style.color=t==='free'?'var(--white)':'var(--black)';
-    } else {
-      btn.style.background='rgba(255,255,255,0.04)';
-      btn.style.color='rgba(255,255,255,0.5)';
-    }
+    btn.classList.toggle('on',t===plan);
   });
   // 플랜 변경
   if(plan==='free'){
@@ -4655,6 +4646,9 @@ function applyOrderPlanTheme(planKey){
   if(planKey==='free') box.classList.add('plan-free');
   else if(planKey==='ai') box.classList.add('plan-ai');
   else if(planKey==='standard') box.classList.add('plan-standard');
+  var desc=document.getElementById('plan-desc');
+  if(desc) desc.textContent=planKey==='free'?'무료체험 · 첫 주문 300글자 무료 (스탠다드 · 일반 검수)'
+    :planKey==='standard'?'프리미엄 플러스 · 전문가 검수':'스탠다드 · 일반 검수';
 }
 function switchToPremiumPlus(){
   if(!premiumPlusEnabled){
@@ -4692,8 +4686,8 @@ function showPaymentConfirmModal(amountNum){
     modal.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\'Noto Sans KR\',sans-serif';
     modal.innerHTML=''
       +'<div data-act="cancel" style="position:absolute;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)"></div>'
-      +'<div style="position:relative;background:linear-gradient(135deg,#0a1a2e,#0d2540);border:1px solid rgba(201,168,76,0.4);border-radius:14px;padding:28px;max-width:520px;width:92%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">'
-        +'<h3 style="color:var(--gold);font-size:20px;font-weight:700;margin:0 0 18px;text-align:center;font-family:\'Nanum Myeongjo\',serif">⚠ 결제 전 최종 확인</h3>'
+      +'<div style="position:relative;background:var(--black-deeper);border:1px solid rgba(22,184,148,0.45);border-radius:12px;padding:28px;max-width:520px;width:92%;max-height:90vh;overflow-y:auto">'
+        +'<h3 style="color:#fff;font-size:20px;font-weight:700;margin:0 0 18px;text-align:center">결제 전 최종 확인</h3>'
         +'<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 18px;margin-bottom:14px">'
           +'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:rgba(255,255,255,0.55);font-size:13px">번역 방향</span><strong style="color:#fff;font-size:13px">'+esc(direction)+'</strong></div>'
           +'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:rgba(255,255,255,0.55);font-size:13px">전문 분야</span><strong style="color:#fff;font-size:13px">'+esc(field)+'</strong></div>'
@@ -4705,11 +4699,11 @@ function showPaymentConfirmModal(amountNum){
           +'<p style="margin:0;color:rgba(255,255,255,0.6);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+(esc(preview)||'<span style="color:rgba(255,255,255,0.3)">(원문 없음)</span>')+'</p>'
         +'</div>'
         +'<div style="background:rgba(224,85,85,0.08);border-left:3px solid #e05555;padding:12px 14px;border-radius:4px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.85);margin-bottom:20px">'
-          +'⚠ <strong>중요 안내</strong><br>• <strong style="color:#ffb84d">결제 즉시 번역이 시작됩니다</strong><br>• 착수 후에는 <strong style="color:#ff8888">원문 수정 / 환불 불가</strong>합니다<br>• 번역 방향·분야·원문에 오류가 없는지 다시 확인해 주세요'
+          +'<strong>중요 안내</strong><br>• <strong style="color:#fff">결제 즉시 번역이 시작됩니다</strong><br>• 착수 후에는 <strong style="color:#ff8888">원문 수정 / 환불 불가</strong>합니다<br>• 번역 방향·분야·원문에 오류가 없는지 다시 확인해 주세요'
         +'</div>'
         +'<div style="display:flex;gap:10px">'
-          +'<button data-act="cancel" style="flex:1;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);font-family:inherit">✗ 취소 (수정)</button>'
-          +'<button data-act="confirm" style="flex:1;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:var(--gold);color:#0a1a2e;font-family:inherit">✓ 확인 · 결제 진행</button>'
+          +'<button data-act="cancel" style="flex:1;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);font-family:inherit">취소 (수정)</button>'
+          +'<button data-act="confirm" style="flex:1;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:var(--gold);color:#0a1a2e;font-family:inherit">확인 · 결제 진행</button>'
         +'</div>'
       +'</div>';
     document.body.appendChild(modal);
