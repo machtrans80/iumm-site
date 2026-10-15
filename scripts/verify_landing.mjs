@@ -50,7 +50,7 @@ check(land.includes('onclick="handleAI()">전문 번역 시작<') && land.includ
 check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
 check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 쪽당</span><span class="n">9,000원', '그 외 서류 쪽당 9,000원 · 부가세 별도', '급행이면 다음 영업일 수령 (영업일 기준 예정)',
        '신분증·여권 사본공증 + 아포스티유도 가능'].every(t => land.includes(t)), '1번 카드 문구');
-check(['번역의 기준이 바뀌었습니다', '분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 전문 번역사가 마지막 문장까지 직접 검수합니다.',
+check(['번역의 기준이 바뀌었습니다', '분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성도를 높여 납품합니다.',
        '(부가세 별도)'].every(t => land.includes(t)), '2번 카드 문구');
 check((land.match(/<details>/g) || []).length === 5 && land.includes("showPage('faq')"), 'FAQ 5개 + 전체 보기');
 check(land.includes('3단계면 끝납니다'), '3단계 안내');
@@ -65,6 +65,9 @@ check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible), '그라�
 check(!/✦|[\u{1F300}-\u{1FAFF}]|[☀-➿]/u.test(visible), '✦·이모지 없음');
 check(!html.includes('✦'), 'index.html 전체 ✦ 없음');
 check(!/최고|최저|최초|유일|1위|완벽/.test(visible), '최상급 표현 없음');
+check(!/마지막 문장까지|직접 검수|직접 대조|원문과 대조/.test(html), '전문 번역 — 마지막 문장까지·직접 검수·직접 대조 표현 없음 (index.html 전체)');
+check(html.includes('최종 휴먼터치로 번역의 완성도를 높이는 IUMM 전문 번역사입니다') &&
+      html.includes('번역이 끝나면 최종 휴먼터치로 완성도를 높여 납품합니다.'), '전문 번역사 부제·검수 안내 = 최종 휴먼터치');
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);
