@@ -366,6 +366,8 @@ var PORTONE_STORE   = 'store-3676558e-d1ec-4955-b5ea-b12e121fc491';
 var PORTONE_CHANNEL = 'channel-key-6a333887-dfcd-490a-a661-aec79ee11974';
 
 var CFG = null, TIER = null, COUNTRY = null, PRECHECK_OK = false, PAYING = false;
+// 메인 "아포스티유" 입구 — 협약국을 고르면 아포스티유 체크를 미리 켠다 (applyCountry 에서 한 번 소비)
+var WANT_APO_PRESET = (function(){ try { return new URLSearchParams(location.search).get('apostille') === '1'; } catch(e){ return false; } })();
 var ME = { kakaoId:'', name:'', email:'', phone:'' };
 var ORDER_NUMBER = '';   // 결제 완료 후 편집 화면으로 넘길 주문번호
 var DOC_CAT = '';        // 서류 선택 화면의 현재 탭
@@ -857,7 +859,8 @@ function initKakao(){
 }
 /** ★공증 전용 로그인은 두지 않는다. 기존 IUMM 로그인 화면으로 보내고 여기로 되돌아온다. */
 function goLogin(){
-  location.href = '/?next=' + encodeURIComponent('/notary/');
+  // ?apostille=1 · ?doc= 같은 진입 조건을 로그인 뒤에도 그대로 살린다
+  location.href = '/?next=' + encodeURIComponent('/notary/' + (location.search || ''));
 }
 function showLoggedIn(){
   $('who').textContent = ME.name ? (ME.name + ' 님') : '로그인됨';
@@ -1390,6 +1393,8 @@ function applyCountry(){
   var showApo = !apoOnly && apostilleAvailable();
   $('apostille-field').style.display = showApo ? '' : 'none';
   if (!showApo) $('wantApostille').checked = false;
+  // 메인 "아포스티유" 입구(/notary/?apostille=1)로 들어왔으면 체크를 미리 켠다 — 한 번만(이후는 고객 선택)
+  else if (WANT_APO_PRESET) { $('wantApostille').checked = true; WANT_APO_PRESET = false; }
   syncTier();
 }
 

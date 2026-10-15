@@ -258,6 +258,24 @@ console.log('\n[11] 받으실 날짜 — 급행 판정 안내 · 동의 · 요�
   pick('crime_record');
   check(!steps().includes('date'), 'APO → 날짜 단계 없음');
 }
+// ── 12. 메인 "아포스티유" 입구 (/notary/?apostille=1) ──
+console.log('\n[12] 아포스티유 입구 — 협약국을 고르면 체크가 미리 켜진다 (한 번만)');
+{
+  $id('wantApostille').checked = false;
+  sandbox.WANT_APO_PRESET = true;
+  pick('family_relation');
+  sandbox.COUNTRY = effective; sandbox.applyCountry();
+  check(sandbox.TIER.code === 'T3' && $id('wantApostille').checked, '협약국 선택 → T3 (아포스티유 체크됨)');
+  $id('wantApostille').checked = false; sandbox.onScopeChange();
+  sandbox.applyCountry();
+  check(sandbox.TIER.code === 'T2' && !$id('wantApostille').checked, '고객이 끄면 다시 켜지 않는다');
+  sandbox.WANT_APO_PRESET = true;
+  sandbox.COUNTRY = consular; sandbox.applyCountry();
+  check(sandbox.TIER.code === 'T2' && sandbox.WANT_APO_PRESET === true, '비협약국에서는 켜지 않고 다음 협약국 선택까지 유지');
+  pick('crime_record');
+  check(sandbox.TIER.code === 'APO', '영문 발급 서류는 그대로 아포스티유 단독');
+  sandbox.WANT_APO_PRESET = false;
+}
 const visible2 = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
 
