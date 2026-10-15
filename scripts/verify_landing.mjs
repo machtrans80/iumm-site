@@ -48,7 +48,7 @@ check((land.match(/class="lp-card[ "]/g) || []).length === 2 && land.includes('l
 check(land.includes("onclick=\"lpGo('notary')\">번역공증 · 아포스티유 시작<"), '1번 버튼 → 위저드');
 check(land.includes('onclick="handleAI()">전문 번역 시작<') && land.includes('lp-btn line'), '2번 버튼 → 전문 번역 모달 (외곽선)');
 check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
-check(['가족관계·기본·혼인 번역', '5,000원', '그 외 서류 쪽당 9,000원 · 부가세 별도', '급행이면 다음 영업일 수령 (영업일 기준 예정)',
+check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 쪽당</span><span class="n">9,000원', '그 외 서류 쪽당 9,000원 · 부가세 별도', '급행이면 다음 영업일 수령 (영업일 기준 예정)',
        '신분증·여권 사본공증 + 아포스티유도 가능'].every(t => land.includes(t)), '1번 카드 문구');
 check(['번역의 기준이 바뀌었습니다', '분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 전문 번역사가 마지막 문장까지 직접 검수합니다.',
        '(부가세 별도)'].every(t => land.includes(t)), '2번 카드 문구');

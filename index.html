@@ -1875,6 +1875,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-big{margin:0;color:#fff;line-height:1.2;word-break:keep-all}
 .lp-big .s{display:block;font-size:clamp(17px,1.8vw,19px);font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:6px}
 .lp-big .n{display:inline-block;font-size:clamp(28px,4.2vw,46px);font-weight:800;letter-spacing:-1px}
+/* 1번 카드 큰 숫자 두 개 — 같은 크기로 나란히, 모바일은 위아래 */
+.lp-bigs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .lp-big .v{font-size:17px;font-weight:500;color:rgba(255,255,255,0.75);margin-left:6px}
 .lp-card ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .lp-card li,.lp-card p.d{font-size:17px;color:rgba(255,255,255,0.82);line-height:1.65;word-break:keep-all;margin:0}
@@ -1910,6 +1912,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp{padding:0 16px}
   .lp-hero h1{font-size:36px}
   .lp-card{padding:24px 20px}
+  .lp-bigs{grid-template-columns:1fr;gap:12px}
   .lp-btn{width:100%}
 }
 /* ★전역 모바일 규칙(section{padding:… !important})이 랜딩 여백을 덮어 제목이 고정 내비 뒤로 숨는다 — 랜딩 구역만 되돌린다 */
@@ -1929,7 +1932,10 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <div class="lp-cards" id="lp-entry">
       <div class="lp-card main">
         <p class="k"><span class="no">1</span>번역공증 · 아포스티유 의뢰</p>
-        <p class="lp-big"><span class="s">가족관계·기본·혼인 번역</span><span class="n">5,000원</span></p>
+        <div class="lp-bigs">
+          <p class="lp-big"><span class="s">가족관계·기본·혼인 번역</span><span class="n">5,000원</span></p>
+          <p class="lp-big"><span class="s">생활기록부 번역 · 쪽당</span><span class="n">9,000원</span></p>
+        </div>
         <ul>
           <li>그 외 서류 쪽당 9,000원 · 부가세 별도</li>
           <li>급행이면 다음 영업일 수령 (영업일 기준 예정)</li>
