@@ -2363,7 +2363,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <!-- 오른쪽: 숫자카드 -->
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:480px;margin-left:auto;margin-right:auto;animation:fadeUp 0.8s 0.5s ease both">
       <div class="stat-card">
-        <div class="stat-num">30</div>
+        <div class="stat-num">31</div>
         <div class="stat-label">개 언어</div>
         <div class="detail">영어·일본어·중국어·스페인어·아랍어 등 31개 언어 양방향 번역</div>
       </div>
@@ -2992,7 +2992,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
           <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">원문 1:1 대조 + 21가지 전문 체크리스트</span>
           <span style="font-size:12px;color:#97c459;font-weight:400">전문 번역사가 직접 최종 완성</span>
         </li>
-      </ul>
         <li style="margin-top:4px">
           <span>✓</span>
           <span style="font-size:12px;color:rgba(255,255,255,0.6)">업계 최고 속도 납기<br><span style="color:rgba(255,255,255,0.35)">(5페이지 기준 24~48시간)</span></span>
@@ -4206,9 +4205,8 @@ function showPage(p){
     if(el) el.style.display='none';
   });
   if(p==='userinfo'){document.getElementById('page-userinfo').style.display='block';window.scrollTo(0,0);}
-  else if(p==='signup'){document.getElementById('page-signup').style.display='block';window.scrollTo(0,0);}
-  else if(p==='login'){document.getElementById('page-login').style.display='block';window.scrollTo(0,0);}
-  else if(p==='verify'){document.getElementById('page-verify').style.display='block';window.scrollTo(0,0);}
+  // 가입은 카카오 로그인 화면에서 함께 처리한다 — page-signup·page-verify 요소는 없다
+  else if(p==='signup'||p==='verify'||p==='login'){document.getElementById('page-login').style.display='block';window.scrollTo(0,0);}
   else if(p==='mypage'){document.getElementById('page-mypage').style.display='block';window.scrollTo(0,0);loadMyInfo();}
   else if(p==='experts'){
     document.getElementById('page-experts').style.display='block';window.scrollTo(0,0);
