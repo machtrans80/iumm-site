@@ -333,6 +333,38 @@ console.log('\n[14] 수사·법률 서류 — 견적 요청 양식 (결제 없�
   $id('qt-contact').value = ''; await sandbox.sendQuote();
   check(/연락처/.test($id('qt-msg').innerHTML), '연락처 없으면 안내');
 }
+// ── 15. 아포스티유 준비 서류 ──
+console.log('\n[15] 아포스티유 준비 서류 — 당사자 구분 · 준비 서류 목록 · 결제 직후 업로드');
+{
+  pick('family_relation');
+  sandbox.COUNTRY = effective; sandbox.applyCountry();
+  $id('wantApostille').checked = true; sandbox.onScopeChange();
+  sandbox.renderPartyBox();
+  check(sandbox.TIER.code === 'T3' && $id('party-box').style.display === '', 'T3 → 당사자 구분 표시');
+  sandbox.STEPS = ['doc','country','confirm']; sandbox.STEP_I = 1;
+  $id('party').value = '';
+  check(/서류 당사자 구분/.test(sandbox.stepBlockReason()), '당사자 구분 없으면 국가 단계 통과 못 함');
+  const docsOf = (p) => { $id('party').value = p; sandbox.renderPartyBox(); return $id('party-docs').innerHTML; };
+  check(docsOf('개인').includes('신청인 신분증 사본') && docsOf('개인').includes('외교부 개인정보이용동의서'), '개인: 신분증 + 외교부 동의서');
+  check(docsOf('미성년자').includes('부모 신분증 사본') && docsOf('미성년자').includes('가족관계증명서') && docsOf('미성년자').includes('부모가 서명한'), '미성년자: 부모 신분증 + 가족관계증명서 + 부모 서명 동의서');
+  check(docsOf('법인').includes('사업자등록증 사본') && docsOf('법인').includes('명판 + 인감 날인'), '법인: 사업자등록증 + 명판·인감 동의서');
+  check(docsOf('법인(명판없음)').includes('담당자가 확인 후 안내') && docsOf('법인(명판없음)').includes('iumm.master@gmail.com'), '법인(명판없음): 담당자 확인 안내');
+  $id('party').value = '개인';
+  check(sandbox.stepBlockReason() === '', '당사자 고르면 통과');
+  sandbox.showDone({ ok: true });
+  check($id('docs-box').style.display === '' && $id('dc-party').value === '개인', '결제 완료 화면에 준비 서류 양식 (당사자 미리 선택)');
+  $id('dc-party').value = '법인(명판없음)'; sandbox.renderDocsBox();
+  check($id('dc-btn').disabled === true, '명판 없는 법인 → 제출 버튼 비활성 (담당자 안내)');
+  pick('crime_record');
+  sandbox.renderPartyBox();
+  check(sandbox.TIER.code === 'APO' && $id('party-box').style.display === '', 'APO 도 당사자 구분 표시');
+  sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'T3');
+  sandbox.QUOTE = { express: true, normalPrice: { supply: 75000 }, expressPrice: { supply: 120000 }, wish: { mode: 'express' },
+    schedule: { expressLabel: '10월 20일(화)', normalLabel: '10월 22일(목)', cutoff: '11:00', intakeToday: true, needsConfirm: true, selectable: [] } };
+  sandbox.WISH = '2026-10-20'; sandbox.WISH_KEY = 'T3|' + $id('docType').value + '||' + sandbox.PAGES;
+  sandbox.renderDateStep();
+  check($id('date-mode').innerHTML.includes('준비 서류(동의서·신분증) 업로드'), '급행 마감 안내에 준비 서류 업로드 포함');
+}
 const visible2 = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
 
