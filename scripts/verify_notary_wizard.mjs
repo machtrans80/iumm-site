@@ -332,19 +332,42 @@ console.log('\n[13] 업로드 규칙 — 온라인 발급 PDF · 종이로만 �
   check(/PDF 원본을 올렸습니다/.test(sandbox.stepBlockReason()), '체크 안 하면 다음 단계 막힘');
   $id('onlinePdfOk').checked = true;
   check(sandbox.stepBlockReason() === '', '체크하면 통과');
+  // ★2026-10-16 — "종이로만 받았어요"는 원본 우편 주문으로 바꾸지 않고 카카오톡 문의 안내만
   sandbox.paperOnly();
-  check(sandbox.currentRule() === 'mailOriginal' && !sandbox.hasWishDate(sandbox.TIER), '종이로만 → 원본 우편 · 받으실 날짜 단계 없음');
-  check($id('upload-rule-box').innerHTML.includes('원본 우편 접수') && $id('upload-rule-box').innerHTML.includes('테헤란로'),
-    '원본 우편 안내 + 보낼 주소');
-  check($id('issuer-box').innerHTML.includes('원본을 빠른등기로 보내 주세요'), '서류 단계 안내도 원본 우편으로');
+  check(sandbox.currentRule() === 'onlinePdf' && sandbox.PAPER_ONLY === false, '종이로만 → 주문 방식 그대로 (원본 우편 경로 없음)');
+  const pbox = $id('upload-rule-box').innerHTML;
+  check(pbox.includes('종이로만 받으신 서류는 원본 확인이 필요합니다. 오른쪽 카카오톡 문의로 서류 사진과 함께 문의해 주세요.') &&
+        pbox.includes('pf.kakao.com/_BlpKX/chat') && pbox.includes('mailto:iumm.master@gmail.com') && pbox.includes('카카오톡 문의</a>'),
+    '종이로만 → 카카오톡 문의 안내 · [카카오톡 문의] 버튼 · 이메일');
   sandbox.paperOnly(false);
-  check(sandbox.currentRule() === 'onlinePdf', '되돌리기 → 온라인 발급');
-  pick('contract');
-  check(sandbox.currentRule() === 'mailOriginal' && $id('issuer-box').innerHTML.includes('온라인 발급이 없는 서류는 원본을 빠른등기로'),
-    '계약서 → 원본 우편 안내 (MAIL_NOTE 문구)');
-  sandbox.QUOTE = { route: 'manual', pages: 3, supply: 75000, schedule: { awaitingOriginal: true, expressAvailable: false } };
+  check(!$id('upload-rule-box').innerHTML.includes('종이로만 받으신 서류는'), '접기');
+  // 온라인 발급본이 없는 서류 9종 — 결제 흐름 없이 카카오 안내만
+  const KAKAO = ['bank_balance', 'articles', 'shareholders', 'employment', 'career', 'board_minutes', 'power_of_attorney', 'contract', 'financial_stmt'];
+  check(KAKAO.every(c => (sandbox.docByCode(c) || {}).kakaoOnly === true), '설정 kakaoOnly 9종 (목록에는 유지)');
+  for (const c of KAKAO) {
+    pick(c);
+    if (!(sandbox.TIER === null && $id('kakao-doc-box').style.display === '' && /카카오톡 문의로 접수/.test(sandbox.stepBlockReason())))
+      check(false, `${c} → 카카오 안내 · 결제 단계 없음`);
+  }
+  pick('articles');
+  const kbox = $id('kakao-doc-box').innerHTML;
+  check(kbox.includes('이 서류는 온라인 발급본이 없어 원본 확인이 필요합니다. 오른쪽 카카오톡 문의로 서류 사진과 함께 문의해 주세요. 확인 후 금액과 진행 방법을 안내해 드립니다.') &&
+        kbox.includes('카카오톡 문의</a>') && kbox.includes('mailto:iumm.master@gmail.com'),
+    '정관 → 카카오 안내 문구 + [카카오톡 문의] + 이메일');
+  check($id('issuer-box').innerHTML === '', '정관 → 원본 우편 안내 없음 (발급 안내 상자 비움)');
+  check(/#form-area.other-mode #btn-next{display:none !important}/.test(fs.readFileSync(path.resolve(HERE, '../notary/notary.css'), 'utf8')), '결제 흐름 없는 서류 — 다음 버튼 숨김');
+  check(sandbox.TIER === null && $id('scope-field').style.display === 'none' && /카카오톡 문의로 접수해 주세요/.test(sandbox.stepBlockReason()),
+    `카카오 대상 ${KAKAO.length}종 — 상품 없음 · 다음 단계 막힘`);
+  pick('family_relation');
+  check($id('kakao-doc-box').style.display === 'none', '다른 서류로 바꾸면 카카오 안내 닫힘');
+  check(!/"종이로만 받았어요"를 눌러/.test(html), '발급 안내에 "종이로만 받았어요를 눌러" 문구 없음');
+  check(html.includes('재학생과 2003년 1월 이후 졸업자는 정부24에서 본인이 직접 온라인 발급할 수 있습니다(교육청에 따라 2004년 기준).') &&
+        html.includes('2002년 이전 졸업자는 온라인 발급이 되지 않습니다 — 카카오톡으로 문의해 주세요.'), '생활기록부 발급 안내 문구 교체');
+  // 원본 우편은 사본공증(CPA)만 — 요약·주소 안내는 그대로
+  pick('id_card_copy');
+  sandbox.QUOTE = { route: 'copy', pages: 1, supply: 65000, schedule: { awaitingOriginal: true, expressAvailable: false } };
   sandbox.buildSummary();
-  check($id('pay-summary').innerHTML.includes('원본 도착 후 계산'), '요약: 받으실 날짜 = 원본 도착 후 계산');
+  check($id('pay-summary').innerHTML.includes('원본 도착 후 계산'), 'CPA 요약: 받으실 날짜 = 원본 도착 후 계산');
   sandbox.CFG.mailAddress = '';
   sandbox.renderIssuerBox();
   check($id('issuer-box').innerHTML.includes('결제 후 카카오 알림으로 안내드립니다'), '주소 미설정 → 카카오 알림 안내 문구');
@@ -453,7 +476,7 @@ console.log('\n[16] 신분증·여권 사본 → 사본공증 + 아포스티유 
 console.log('\n[17] 여러 파일 업로드 — 누적 · 순서 · 삭제 · 10개 상한 · 사전검증 1회');
 {
   const wait = (ms) => new Promise(r => setTimeout(r, ms));
-  pick('contract');                                  // 원본 우편 서류 — PDF·사진 섞어 받는다
+  pick('school_record');                             // 쪽당 서류 (파일 목록·쪽수 확인용)
   sandbox.FILES.main = []; sandbox.FILES.other = [];
   let calls = 0, lastFiles = [];
   sandbox.FormData = class { constructor(){ this.f = []; } append(k, v){ if (k === 'files') this.f.push(v.name); } };

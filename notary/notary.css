@@ -89,6 +89,8 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-navbtns{display:flex;gap:10px;align-items:center;margin-top:4px}
 .ntr-navbtns .ntr-btn{flex:0 0 auto}
 .ntr-navbtns #btn-next{margin-left:auto}
+/* 결제 흐름이 없는 서류(목록에 없는 서류·카카오 문의 대상)는 다음 버튼을 감춘다 */
+#form-area.other-mode #btn-next{display:none !important}
 .ntr-navbtns #payBtn{flex:1 1 auto;margin-left:auto}
 
 /* 마지막 화면 요약 */
