@@ -47,14 +47,14 @@ check(land.includes('서류만 올리시면 번역부터 공증·아포스티유
 check((land.match(/class="lp-card[ "]/g) || []).length === 2 && land.includes('lp-card main'), '카드 2개 · 1번 강조');
 check(land.includes("onclick=\"lpGo('notary')\">번역공증 · 아포스티유 시작<"), '1번 버튼 → 위저드');
 check(land.includes('onclick="handleAI()">전문 번역 시작<') && land.includes('lp-btn line'), '2번 버튼 → 전문 번역 모달 (외곽선)');
-check(land.includes("lpGo('quote')") && land.includes('수사·법률 서류 견적'), '수사·법률 견적 링크');
+check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
 check(['가족관계·기본·혼인 번역', '5,000원', '그 외 서류 쪽당 9,000원 · 부가세 별도', '급행이면 다음 영업일 수령 (영업일 기준 예정)',
        '신분증·여권 사본공증 + 아포스티유도 가능'].every(t => land.includes(t)), '1번 카드 문구');
 check(['번역의 기준이 바뀌었습니다', '분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 전문 번역사가 마지막 문장까지 직접 검수합니다.',
        '(부가세 별도)'].every(t => land.includes(t)), '2번 카드 문구');
 check((land.match(/<details>/g) || []).length === 5 && land.includes("showPage('faq')"), 'FAQ 5개 + 전체 보기');
 check(land.includes('3단계면 끝납니다'), '3단계 안내');
-check(land.includes('신분증·여권 사본, 사법공조요청서, 진술조서 등'), '맡길 수 있는 서류 한 줄');
+check(land.includes('맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등<'), '맡길 수 있는 서류 한 줄');
 check(!/lp-in|lpApplyLogin|lp-member|lp-join|카카오로 시작하기/.test(land), '회원 전용·가입 유도 블록 없음');
 
 // ── 4. 금지 표현 ──

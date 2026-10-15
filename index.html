@@ -1946,7 +1946,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         <p class="lp-big"><span class="s">글자당</span><span class="n" id="lp-plan-price">25원부터</span><span class="v">(부가세 별도)</span></p>
         <div class="act">
           <button type="button" class="lp-btn line" onclick="handleAI()">전문 번역 시작</button>
-          <a href="#" class="lp-more" onclick="lpGo('quote');return false">사법공조요청서·진술조서 등 수사·법률 서류 견적 →</a>
         </div>
       </div>
     </div>
@@ -1979,7 +1978,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 </section>
 
 <!-- ── 검색 노출용 한 줄 ───────────────────────────────────── -->
-<div class="lp"><p class="lp-seo">맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본, 사법공조요청서, 진술조서 등</p></div>
+<div class="lp"><p class="lp-seo">맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등</p></div>
 
 <script>
 /* 전문 번역 글자당 단가 — 화면 표시·주문 모달·견적이 모두 이 값을 쓴다 (부가세 별도)
@@ -1988,7 +1987,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
 
 /* 메인 랜딩 — 입구 · 업력 */
 (function(){
-  var DEST = { notary: '/notary/', apostille: '/notary/?apostille=1', quote: '/notary/?doc=judicial_request' };
+  var DEST = { notary: '/notary/', apostille: '/notary/?apostille=1' };
   /** 입구 — 로그인돼 있으면 위저드로, 아니면 기존 로그인 복귀 장치에 경로를 넣고 로그인 화면 */
   window.lpGo = function(kind){
     var dest = DEST[kind] || DEST.notary;

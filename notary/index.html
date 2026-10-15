@@ -113,46 +113,6 @@
         <div id="other-msg" class="ntr-msg"></div>
       </div>
 
-      <!-- 수사·법률 서류(사법공조요청서·진술조서) → 결제 없이 견적 요청 -->
-      <div id="quote-box" style="display:none;margin-top:16px">
-        <div class="ntr-note">
-          <strong>쪽당 9,000원부터, 파일 확인 후 견적을 보내드립니다(부가세 별도).</strong><br>
-          기관 결제(계좌이체·세금계산서) 가능합니다.
-          <em style="font-style:normal;color:var(--text-muted)"> (이 단계에서는 결제하지 않습니다)</em>
-        </div>
-        <div class="ntr-field" style="margin-top:14px">
-          <label class="ntr-lbl">번역 언어 (여러 개 선택 가능)</label>
-          <div class="ntr-radios" id="qt-langs"></div>
-        </div>
-        <div class="ntr-field">
-          <label class="ntr-lbl" for="qt-org">기관·회사명 (선택)</label>
-          <input class="ntr-inp" id="qt-org" type="text" maxlength="80" placeholder="예: ○○지방검찰청, ○○법무법인">
-        </div>
-        <div class="ntr-field">
-          <label class="ntr-lbl" for="qt-contact">담당자 연락처 (전화 또는 이메일)</label>
-          <input class="ntr-inp" id="qt-contact" type="text" placeholder="견적을 보내드릴 연락처">
-        </div>
-        <div class="ntr-field">
-          <label class="ntr-lbl" for="qt-wish">희망 완료일 (선택)</label>
-          <input class="ntr-inp" id="qt-wish" type="date">
-        </div>
-        <div class="ntr-field">
-          <label class="ntr-lbl" for="qt-name">인명 영문 표기 요청 (선택, 여권 철자가 있으면 적어 주세요)</label>
-          <textarea class="ntr-inp" id="qt-name" placeholder="예) 홍길동 HONG GILDONG"></textarea>
-        </div>
-        <div class="ntr-field">
-          <label class="ntr-lbl" for="qt-content">요청 사항 (선택)</label>
-          <textarea class="ntr-inp" id="qt-content" placeholder="제출처, 분량, 공증 필요 여부 등"></textarea>
-        </div>
-        <div class="ntr-field">
-          <label class="ntr-lbl" for="qt-files">서류 파일 (PDF·HWP·HWPX·DOCX·JPG·PNG)</label>
-          <input class="ntr-inp" type="file" id="qt-files" multiple
-                 accept=".pdf,.hwp,.hwpx,.doc,.docx,.jpg,.jpeg,.png">
-          <p class="hint" id="qt-limit"></p>
-        </div>
-        <button class="ntr-btn" id="qt-btn" onclick="sendQuote()">견적 요청하기</button>
-        <div id="qt-msg" class="ntr-msg"></div>
-      </div>
     </section>
 
     <!-- ── STEP: 제출 국가 ────────────────────────────── -->
@@ -1044,12 +1004,10 @@ function renderSchool(){
 function onDocType(){
   var code = $('docType').value;
   var d = docByCode(code);
-  var quote = !!(d && d.uploadRule === 'quote');
+  var quote = !!(d && d.uploadRule === 'quote');   // 견적 전용 서류 — 공개 설정에는 내려오지 않는다
   var other = (code === '__other__') || quote;
 
   $('other-doc-box').style.display = (code === '__other__') ? '' : 'none';
-  $('quote-box').style.display = quote ? '' : 'none';
-  if (quote) renderQuoteForm();
   $('form-area').classList.toggle('other-mode', other);
   $('submit-use-note').style.display = (d && d.submitUse) ? '' : 'none';
 
@@ -1152,58 +1110,6 @@ async function sendApostilleDocs(){
   } catch(e){
     $('dc-btn').disabled = false;
     msg('dc-msg','업로드 실패: ' + esc(e.message),'err');
-  }
-}
-
-// ─── 수사·법률 서류 견적 요청 (결제 없음) ─────────────────────
-var QT_LANGS = {};
-function renderQuoteForm(){
-  var langs = ((CFG && CFG.langs) || []).filter(function(l){ return l.ready; });
-  if (!Object.keys(QT_LANGS).length && langs.length) QT_LANGS[langs[0].code] = true;   // 기본 = 첫 언어(영어)
-  $('qt-langs').innerHTML = langs.map(function(l){
-    return '<span class="ntr-radio' + (QT_LANGS[l.code] ? ' sel' : '') + '" onclick="toggleQtLang(\'' + esc(l.code) + '\')">' +
-           esc(l.label) + '</span>';
-  }).join('');
-  var lim = (CFG && CFG.quoteLimits) || { maxFiles: 20, maxTotalMB: 100, maxFileMB: 50 };
-  $('qt-limit').textContent = '최대 ' + lim.maxFiles + '개 · 합계 ' + lim.maxTotalMB + 'MB (파일 1개당 ' + lim.maxFileMB +
-    'MB). 더 많으면 iumm.master@gmail.com 으로 보내 주세요.';
-  if (!$('qt-contact').value) $('qt-contact').value = ME.phone || ME.email || '';
-}
-function toggleQtLang(c){ QT_LANGS[c] = !QT_LANGS[c]; renderQuoteForm(); }
-async function sendQuote(){
-  var contact = $('qt-contact').value.trim();
-  var files = $('qt-files').files;
-  var langs = Object.keys(QT_LANGS).filter(function(k){ return QT_LANGS[k]; });
-  var lim = (CFG && CFG.quoteLimits) || { maxFiles: 20, maxTotalMB: 100 };
-  if (!langs.length) { msg('qt-msg','번역 언어를 하나 이상 골라 주세요.','err'); return; }
-  if (!contact) { msg('qt-msg','담당자 연락처를 입력해 주세요.','err'); return; }
-  if (!files.length) { msg('qt-msg','서류 파일을 올려 주세요.','err'); return; }
-  var total = Array.prototype.reduce.call(files, function(s, f){ return s + f.size; }, 0);
-  if (files.length > lim.maxFiles || total > lim.maxTotalMB * 1024 * 1024) {
-    msg('qt-msg','파일은 최대 ' + lim.maxFiles + '개, 합계 ' + lim.maxTotalMB + 'MB까지 올릴 수 있습니다. 나머지는 iumm.master@gmail.com 으로 보내 주세요.','err');
-    return;
-  }
-  $('qt-btn').disabled = true;
-  msg('qt-msg','<span class="ntr-spinner"></span> 접수 중…');
-  var fd = new FormData();
-  fd.append('docType', $('docType').value);
-  fd.append('langs', langs.join(','));
-  fd.append('org', $('qt-org').value.trim());
-  fd.append('contact', contact);
-  fd.append('wishDate', $('qt-wish').value || '');
-  fd.append('nameNote', $('qt-name').value.trim());
-  fd.append('content', $('qt-content').value.trim());
-  fd.append('kakaoId', ME.kakaoId || '');
-  fd.append('email', ME.email || '');
-  Array.prototype.forEach.call(files, function(f){ fd.append('files', f); });
-  try {
-    var r = await fetch(API + '/api/notary/other-inquiry', { method:'POST', body: fd });
-    var d = await r.json();
-    if (!d.ok) throw new Error(d.error || '접수 실패');
-    msg('qt-msg','✓ 견적 요청이 접수되었습니다. <strong>파일을 확인한 뒤 견적을 보내드립니다.</strong> (접수번호 ' + esc(d.orderNumber) + ')','ok');
-  } catch(e){
-    $('qt-btn').disabled = false;
-    msg('qt-msg','접수 실패: ' + esc(e.message),'err');
   }
 }
 
@@ -1407,8 +1313,6 @@ function stepBlockReason(){
       if (!code) return '서류를 선택해 주세요.';
       if (code === '__other__')
         return '목록에 없는 서류는 위 문의 폼으로 접수해 주세요 (결제 단계로 진행하지 않습니다).';
-      if (docByCode(code) && docByCode(code).uploadRule === 'quote')
-        return '견적 요청은 위 양식으로 접수해 주세요 (결제 단계로 진행하지 않습니다).';
       var d = docByCode(code);
       if (d && d.schoolSplit && !SCHOOL) return '학교 구분(국립/사립)을 선택해 주세요.';
       return TIER ? '' : '서류를 다시 선택해 주세요.';
