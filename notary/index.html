@@ -546,7 +546,7 @@ function renderIssuerBox(){
   }
   var g = GUIDES[guideKeyOf(d)];
   var link = (g && g.site)
-    ? '<a class="ntr-guide-btn" style="margin-top:10px" href="' + esc(g.site.url) + '" target="_blank" rel="noopener noreferrer">발급처 바로가기 — ' +
+    ? '<a class="ntr-guide-btn" style="display:flex;width:fit-content;margin-top:10px" href="' + esc(g.site.url) + '" target="_blank" rel="noopener noreferrer">발급처 바로가기 — ' +
       esc(g.site.name) + ' ↗</a>' : '';
   box.innerHTML = '<div class="ntr-note" style="margin-top:14px"><strong>온라인으로 발급받아 \'PDF로 저장\'한 파일을 그대로 올려 주세요.</strong><br>' +
     '종이로 발급받아 스캔하거나 촬영한 파일은 공증이 거절될 수 있습니다.' + link + '</div>';
@@ -579,6 +579,7 @@ function paperOnly(on){
   PAPER_ONLY = on !== false;
   PRECHECK_OK = false;
   rebuildSteps();
+  applyTierCopy();
   renderIssuerBox();
   renderUploadRule();
   if ($('files').files.length) onFiles(); else refreshQuote();
@@ -1043,7 +1044,7 @@ function onDocType(){
 
   // 번역만 옵션 — 번역이 있는 서류에서만 (학교 구분을 아직 안 골랐으면 감춘다)
   var apoOnly = isApoOnlyDoc(d);
-  var canTranslateOnly = !!(d && d.ready && !apoOnly && (!school || SCHOOL));
+  var canTranslateOnly = !!(d && d.ready && !apoOnly && !quote && (!school || SCHOOL));   // 견적 요청 서류는 결제 상품이 없다
   $('scope-field').style.display = canTranslateOnly ? '' : 'none';
   if (!canTranslateOnly) $('translateOnly').checked = false;
 
@@ -1557,7 +1558,9 @@ function applyTierCopy(){
   var d = docByCode($('docType').value);
   // 3종 + 영어 + 공증 상품만 "한글 원본 PDF" 를 요구한다 (수동 경로는 사진·스캔도 받는다)
   var autoDoc = !!(d && d.autoTranslate && ($('lang').value || 'en') === 'en');
-  var pdfOnly = !!(TIER && TIER.needsPdfOriginal && (apoOnly || autoDoc));
+  // ★서류별 업로드 규칙이 우선 — 온라인 발급 서류(공증 상품)는 PDF 만, 원본 우편이면 사진도 받는다
+  var pdfOnly = mailOriginalOrder() ? false
+              : (onlinePdfOnly() || !!(TIER && TIER.needsPdfOriginal && (apoOnly || autoDoc)));
 
   $('upload-head').textContent = apoOnly
     ? '아포스티유 받을 서류를 올려주세요'
@@ -1570,11 +1573,12 @@ function applyTierCopy(){
   $('upload-req').innerHTML = pdfOnly
     ? (apoOnly
         ? '<strong style="color:var(--warn)">인쇄물을 다시 찍은 사진은 접수되지 않습니다.</strong>'
-        : '<strong style="color:var(--warn)">이 서류는 원본 한글 PDF만 가능합니다.</strong>')
+        : autoDoc ? '<strong style="color:var(--warn)">이 서류는 원본 한글 PDF만 가능합니다.</strong>'
+                  : '<strong style="color:var(--warn)">이 서류는 온라인으로 발급받은 PDF만 가능합니다.</strong>')
     : 'PDF·JPG·PNG 모두 가능합니다. <strong>HWP·Word 파일은 PDF로 저장해 올려 주세요.</strong>';
 
   // 이 경고는 3종 번역공증 전용이다
-  $('korean-only-note').style.display = (pdfOnly && !apoOnly) ? '' : 'none';
+  $('korean-only-note').style.display = (pdfOnly && !apoOnly && autoDoc) ? '' : 'none';
 
   $('tier-note').innerHTML = (TIER && TIER.code === 'T1')
     ? '<div class="ntr-note">' +
