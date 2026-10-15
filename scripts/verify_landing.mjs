@@ -137,6 +137,11 @@ console.log('\n[9] 공증 3단계 — 시작 버튼');
     '.lp-steps 아래 안내 한 줄 + [번역공증 · 아포스티유 시작] → lpGo(notary), 민트 채운 버튼');
 }
 
+// ── 10. 금색 '번역공증 신청' 떠 있는 버튼 삭제 ──
+console.log('\n[10] 떠 있는 버튼 — 카카오톡 문의만');
+check(!/iumm-fab|fabGlow|fab-ico|fab-txt|◆ ?<\/span><span class="fab-txt">번역공증 신청/.test(html), '금색 번역공증 신청 버튼·CSS(iumm-fab·fabGlow) 없음');
+check(html.includes('<script src="/assets/kakao-fab.js?v=2" defer></script>'), '카카오톡 문의 버튼(공통 조각)은 그대로');
+
 // ── 8. FAQ 낡은 문구 ──
 console.log('\n[8] FAQ 문구 정리');
 {
