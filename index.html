@@ -448,7 +448,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   /* 요금제 */
   .pricing-cards{grid-template-columns:1fr !important;max-width:100% !important;gap:16px !important}
 
-  /* AI 9.5단계 */
+  /* 번역 점검 단계 */
   .ai-steps-grid{grid-template-columns:1fr !important;gap:1px}
 
   /* 전문가 카드 */
@@ -613,7 +613,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .brand-signature-block + section{padding-top:12px !important}
   /* 경고박스 위 섹션 padding 줄임 */
   section[style*="padding:20px 44px"]{padding:10px 18px 20px !important}
-  /* 9.5단계 grid 접힘 기본 + 토글 */
+  /* 점검 단계 grid 접힘 기본 + 토글 */
   .ai-steps-grid{display:none !important}
   .ai-steps-grid.mob-open{display:grid !important}
   .mob-steps-trigger{display:flex !important}
@@ -637,7 +637,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   .why-box:hover{transform:none!important}
   /* 분야 섹션 설명 p 숨김 */
   #fields > div > p[style*="text-align:center"]{display:none !important}
-  /* 9.5단계 섹션 긴 부제 숨김 */
+  /* 점검 단계 섹션 긴 부제 숨김 */
   .mob-hide{display:none !important}
   /* 터치 영역 & 클릭 UX */
   summary,button,.faq-q,.why-box,.mob-compare-toggle button,.mob-plan-toggle,.mob-steps-trigger button,.mob-field-trigger button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -654,7 +654,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   section{padding-top:36px !important;padding-bottom:36px !important}
 }
 
-/* ── 호버/탭 펼침 — 비교카드·9.5단계카드 공통 ── */
+/* ── 호버/탭 펼침 — 비교카드·점검 단계 카드 공통 ── */
 .expandable-card{cursor:pointer;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease}
 .expandable-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
 .expandable-card.warning-card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(226,75,74,0.12)}
@@ -914,7 +914,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <div>
         <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:26px;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:8px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
         <h2 style="font-family:'Nanum Myeongjo',serif;font-size:28px;font-weight:400;letter-spacing:-0.5px">전문 번역사 소개</h2>
-        <p id="experts-subtitle" style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;margin-top:6px">AI 9.5단계 교차검증 완료 후 원문을 직접 대조 검수하는 IUMM 전문가들입니다</p>
+        <p id="experts-subtitle" style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;margin-top:6px">용어·숫자·누락 점검을 마친 번역을 원문과 직접 대조해 마무리하는 IUMM 전문 번역사입니다</p>
       </div>
       <button onclick="showPage('main')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">← 홈으로</button>
     </div>
@@ -975,7 +975,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div class="legal-page">
     <button class="legal-back-btn" onclick="showPage('main')">← 홈으로</button>
     <h1>이용약관</h1>
-    <p class="legal-date">시행일: 2026년 1월 1일 &nbsp;|&nbsp; 최종 수정: 2026년 5월</p>
+    <p class="legal-date">공고일: 2026년 10월 15일 &nbsp;|&nbsp; 시행일: 2026년 10월 22일 &nbsp;|&nbsp; 최초 시행: 2026년 1월 1일</p>
 
     <h2>제1조 (목적)</h2>
     <p>본 약관은 IUMM(이하 "회사")이 운영하는 AI 기반 전문 번역 플랫폼 IUMM(iumm.kr, 이하 "서비스")의 이용에 관한 조건 및 절차, 회사와 이용자의 권리·의무·책임 사항을 규정함을 목적으로 합니다.</p>
@@ -1101,9 +1101,9 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       </li>
     </ul>
 
-    <h2>제8조 (프리미엄 플러스 검수자 배정)</h2>
+    <h2>제8조 (프리미엄 플러스(전문가 검수) 검수자 배정)</h2>
     <ul>
-      <li>프리미엄 플러스 서비스 이용 시 이용자가 선택한 검수자 배정을 원칙으로 합니다.</li>
+      <li>프리미엄 플러스(전문가 검수) 서비스 이용 시 이용자가 선택한 검수자 배정을 원칙으로 합니다.</li>
       <li><span class="highlight">지정 검수자의 개인 사정, 건강 문제, 업무 불가 등 불가피한 사유 발생 시, 회사는 동급 또는 유사 전문 분야의 검수자를 내부 기준에 따라 배정하며, 이용자는 이에 전적으로 동의한 것으로 간주합니다.</span></li>
       <li>대체 검수자 배정으로 인한 환불은 불가하며, 번역 품질은 동일 수준으로 보장합니다.</li>
     </ul>
@@ -2019,8 +2019,8 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       <!-- 플랜 전환 탭 -->
       <div style="display:flex;gap:0;margin-bottom:16px;border:1px solid rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">
         <button id="tab-free" onclick="switchOrderPlan('free')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">무료체험</button>
-        <button id="tab-ai" onclick="switchOrderPlan('ai')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:var(--gold);color:var(--black)">AI 프리미엄</button>
-        <button id="tab-standard" onclick="switchOrderPlan('standard')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">프리미엄 플러스</button>
+        <button id="tab-ai" onclick="switchOrderPlan('ai')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:var(--gold);color:var(--black)">스탠다드 (일반 검수)</button>
+        <button id="tab-standard" onclick="switchOrderPlan('standard')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:600;letter-spacing:0.3px;cursor:pointer;border:none;border-left:1px solid rgba(255,255,255,0.08);font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5)">프리미엄 플러스 (전문가 검수)</button>
       </div>
 
       <!-- 첫 주문 혜택 배너 -->
@@ -2028,7 +2028,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
             <p style="font-size:13px;color:var(--gold);font-weight:600"><i class="ti ti-gift icon-g" style="margin-right:3px"></i>첫 주문 혜택 적용 중 · 1회 한정</p>
-            <p style="font-size:11px;color:rgba(22,184,148,0.7);font-weight:300;margin-top:3px">300글자 무료 · AI 프리미엄 플랜</p>
+            <p style="font-size:11px;color:rgba(22,184,148,0.7);font-weight:300;margin-top:3px">300글자 무료 · 스탠다드 (일반 검수) 플랜</p>
           </div>
           <p style="font-size:18px;color:#97c459;font-weight:700">- 7,500원</p>
         </div>
@@ -2110,7 +2110,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
             <p style="font-size:12px;color:var(--gold);font-weight:500"><i class="ti ti-gift icon-g" style="margin-right:3px"></i>첫 주문 혜택 (300글자 무료 · 1회 한정)</p>
             <p style="font-size:14px;color:var(--gold);font-weight:700">- 7,500원</p>
           </div>
-          <p style="font-size:11px;color:rgba(22,184,148,0.6);margin-top:4px;font-weight:300">AI 프리미엄 플랜 적용 · 발급일로부터 1회만 사용 가능</p>
+          <p style="font-size:11px;color:rgba(22,184,148,0.6);margin-top:4px;font-weight:300">스탠다드 (일반 검수) 플랜 적용 · 발급일로부터 1회만 사용 가능</p>
         </div>
         <!-- 최종 결제 금액 (할인 적용 시) -->
         <div id="final-amount-row" style="display:none;border-top:1px solid rgba(22,184,148,0.2);padding-top:10px;margin-bottom:10px;display:none">
@@ -2233,7 +2233,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
         <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;font-weight:300;line-height:1.7">분야별 전문 번역사처럼 톤·용어·스타일을 맞춰 번역합니다.</p>
       </div>
 
-      <!-- 검수자 선택 (프리미엄 플러스만) -->
+      <!-- 검수자 선택 — 2026-10-15 고객 화면에서 숨김 (프리미엄 플러스는 '맡기기' 고정). 백엔드 필드는 그대로 -->
       <div style="margin-bottom:18px" id="reviewer-row">
         <label class="lbl">전문 번역 검수자 선택</label>
         <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
@@ -2295,7 +2295,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
         <table style="width:100%;border-collapse:collapse;font-size:11px">
           <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.09)">
             <th style="padding:3px 5px;text-align:left;font-weight:500;color:rgba(255,255,255,0.60)">글자수</th>
-            <th style="padding:3px 5px;text-align:center;font-weight:500;color:#16B894">AI 프리미엄</th>
+            <th style="padding:3px 5px;text-align:center;font-weight:500;color:#16B894">스탠다드</th>
             <th style="padding:3px 5px;text-align:center;font-weight:500;color:#d97706">프리미엄 플러스</th>
           </tr></thead>
           <tbody style="color:rgba(255,255,255,0.68)">
@@ -2328,7 +2328,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
   <div style="max-width:640px;margin:40px auto;background:#111;border:1px solid rgba(22,184,148,0.2);padding:40px 36px;position:relative">
     <button onclick="document.getElementById('reviewer-panel').style.display='none'" style="position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <h3 style="font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:6px">전문 번역 검수자 선택</h3>
-    <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:20px;font-weight:300;line-height:1.8">AI 9.5단계 교차검증 완료 후 최종 검수자를 선택합니다.<br>21가지 철저한 기준으로 원문과 번역문을 직접 대조 검수합니다.</p>
+    <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:20px;font-weight:300;line-height:1.8">번역이 끝나면 원문과 대조해 마무리합니다.<br>21가지 기준으로 원문과 번역문을 직접 대조 검수합니다.</p>
     <!-- 언어 필터 -->
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">
       <button onclick="filterReviewers('전체')" class="rlang-btn active" data-lang="전체" style="padding:5px 12px;background:var(--gold);color:var(--black);border:1px solid var(--gold);border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">전체</button>
@@ -3392,7 +3392,7 @@ function updateNavAfterLogin(){
       return false;
     };
   }
-  // AI 프리미엄 카드 활성화
+  // 스탠다드 카드 활성화
   var ba=document.getElementById('badge-ai');
   if(ba){ba.textContent='추천';ba.style.background='#1a3580';ba.style.color='#fff';}
   var btnA=document.getElementById('btn-ai');
@@ -3503,11 +3503,10 @@ function updateOrderModal(){
   var pp=document.getElementById('file-page-price');
   if(wp) wp.textContent=PLAN_PRICE[currentPlan==='ai'?'ai':'standard']+'원';
   if(pp) pp.textContent=currentPlan==='ai'?'30,000원':'40,000원';
-  if(currentPlan==='ai'){
-    reviewerRow.style.display='none';
-  } else {
-    reviewerRow.style.display='block';
-  }
+  // ★검수자 선택은 고객 화면에서 숨긴다 (2026-10-15). 프리미엄 플러스는 담당자 배정('맡기기')으로 고정 —
+  //   자격사 프리미엄(+20원)은 선택 경로가 없어 붙지 않는다. 배정방식·자격사프리미엄 필드는 그대로 보낸다.
+  if(reviewerRow) reviewerRow.style.display='none';
+  if(currentPlan!=='ai') selectedOrderMode='맡기기';
 }
 function handleLangChange(val){
   var customRow=document.getElementById('lang-custom-row');
@@ -3706,7 +3705,7 @@ function updatePagePrice(){
   var price=basePrice+expertExtra;
   var totalNum=price*pages;
   var total=totalNum.toLocaleString();
-  var planName=currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스';
+  var planName=currentPlan==='ai'?'스탠다드':'프리미엄 플러스';
   display.textContent=planName+' '+total+'원'+(expertExtra>0?' (전문 자격사 +10,000원/페이지)':'');
   // 결제 금액 업데이트
   var amountEl=document.getElementById('payment-amount');
@@ -4630,8 +4629,8 @@ function switchOrderPlan(plan){
     applyOrderPlanTheme('ai');
   } else if(plan==='standard'){
     if(!premiumPlusEnabled){
-      // 전문가 검수(프리미엄 플러스) 준비중 — 주문 차단 후 AI 프리미엄으로 안내
-      alert('현재는 AI 프리미엄만 이용 가능합니다.\n\n전문가 검수(프리미엄 플러스)는 준비 중이며, 곧 만나보실 수 있습니다.');
+      // 전문가 검수(프리미엄 플러스) 준비중 — 주문 차단 후 스탠다드로 안내
+      alert('현재는 스탠다드(일반 검수)만 이용 가능합니다.\n\n프리미엄 플러스(전문가 검수)는 준비 중이며, 곧 만나보실 수 있습니다.');
       switchOrderPlan('ai');
       return;
     }
@@ -4654,7 +4653,7 @@ function applyOrderPlanTheme(planKey){
 }
 function switchToPremiumPlus(){
   if(!premiumPlusEnabled){
-    alert('현재는 AI 프리미엄만 이용 가능합니다.\n\n전문가 검수(프리미엄 플러스)는 준비 중이며, 곧 만나보실 수 있습니다.');
+    alert('현재는 스탠다드(일반 검수)만 이용 가능합니다.\n\n프리미엄 플러스(전문가 검수)는 준비 중이며, 곧 만나보실 수 있습니다.');
     return;
   }
   currentPlan='standard';
@@ -4801,7 +4800,7 @@ async function completePayment(){
     var pageCountEl=document.getElementById('page-count-input');
     var pageCountValue=pageCountEl?parseInt(pageCountEl.value)||0:0;
     var isExpertOption=(typeof selectedReviewerIsExpert!=='undefined'&&selectedReviewerIsExpert===true);
-    var planName=currentPlan==='ai'?'AI 프리미엄':'프리미엄 플러스';
+    var planName=currentPlan==='ai'?'스탠다드':'프리미엄 플러스';
     var orderName='IUMM '+planName+' 번역 의뢰';
     var savedInfoForPortone={};
     if(currentUserKakaoId){
