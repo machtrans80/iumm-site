@@ -1964,7 +1964,9 @@ body.lp-in #lp-join{display:none}
       <button type="button" class="lp-btn" onclick="showPage('login')">카카오로 시작하기</button>
     </div>
 
-    <p class="lp-pro">전문번역을 원하시는 분 — 새롭게 바뀐 번역 품질, 마지막은 전문 번역사가 직접 검수합니다
+    <p class="lp-pro">수사·법률 서류(사법공조요청서·진술조서) 번역 견적
+      <a href="#" onclick="lpGo('quote');return false">견적 요청 →</a></p>
+    <p class="lp-pro" style="margin-top:8px">전문번역을 원하시는 분 — 새롭게 바뀐 번역 품질, 마지막은 전문 번역사가 직접 검수합니다
       <a href="#" onclick="handleAI();return false">전문번역 의뢰 →</a></p>
   </div>
 </section>
@@ -2002,7 +2004,7 @@ body.lp-in #lp-join{display:none}
 <script>
 /* 메인 랜딩 — 입구 카드 · 로그인 상태 표시 */
 (function(){
-  var DEST = { notary: '/notary/', apostille: '/notary/?apostille=1' };
+  var DEST = { notary: '/notary/', apostille: '/notary/?apostille=1', quote: '/notary/?doc=judicial_request' };
   /** 입구 카드 — 로그인돼 있으면 위저드로, 아니면 기존 로그인 복귀 장치에 경로를 넣고 로그인 화면 */
   window.lpGo = function(kind){
     var dest = DEST[kind] || DEST.notary;

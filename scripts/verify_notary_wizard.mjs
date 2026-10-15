@@ -315,6 +315,24 @@ console.log('\n[13] 업로드 규칙 — 온라인 발급 PDF · 종이로만 �
   sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'T1');
   check(!sandbox.onlinePdfOnly(), '번역만(T1)은 PDF 강제 없음');
 }
+// ── 14. 수사·법률 서류 견적 요청 ──
+console.log('\n[14] 수사·법률 서류 — 견적 요청 양식 (결제 없음)');
+{
+  sandbox.pickCat('수사·법률');
+  const list = $id('doc-list').innerHTML;
+  check(list.includes('사법공조요청서') && list.includes('진술조서') && list.includes('견적 요청'), '수사·법률 탭 — 두 서류 · "견적 요청" 태그');
+  pick('judicial_request');
+  check($id('quote-box').style.display === '' && $id('other-doc-box').style.display === 'none' && sandbox.TIER === null,
+    '견적 요청 양식 표시 · 결제 상품 없음');
+  check($id('qt-langs').innerHTML.includes('영어') && /합계 100MB/.test($id('qt-limit').textContent), '언어 여러 개 선택 · 업로드 한도 안내');
+  check(html.includes('인명 영문 표기 요청 (선택, 여권 철자가 있으면 적어 주세요)'), '인명 영문 표기 요청 칸 (영문 이름 필수 대신)');
+  check(html.includes('쪽당 9,000원부터, 파일 확인 후 견적을 보내드립니다(부가세 별도).') && html.includes('기관 결제(계좌이체·세금계산서) 가능'),
+    '견적 안내 문구');
+  sandbox.STEPS = ['doc']; sandbox.STEP_I = 0;
+  check(/견적 요청은 위 양식으로/.test(sandbox.stepBlockReason()), '결제 단계로 넘어가지 않는다');
+  $id('qt-contact').value = ''; await sandbox.sendQuote();
+  check(/연락처/.test($id('qt-msg').innerHTML), '연락처 없으면 안내');
+}
 const visible2 = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
 
