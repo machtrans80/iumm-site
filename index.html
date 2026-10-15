@@ -2270,7 +2270,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
           <!-- 참고자료 첨부 [C-3] -->
           <div class="ref-section">
             <div class="ref-title"><i class="ti ti-paperclip" style="font-size:15px"></i>참고 자료 첨부 <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,0.4)">(선택)</span></div>
-            <span class="ref-subtitle">회사 자료를 첨부하면 AI가 표현·용어를 학습해 번역 품질이 향상됩니다</span>
+            <span class="ref-subtitle">회사 자료를 첨부하시면 표현과 용어를 맞춰 번역합니다</span>
             <input type="file" id="referenceFile" accept=".pdf,.docx,.doc,.xlsx,.xls,.txt" multiple style="display:none" onchange="handleRefFileSelect(this)">
             <label for="referenceFile" class="ref-file-btn" style="padding:13px 24px;font-size:14px;font-weight:500;border-radius:8px;display:inline-flex;align-items:center;gap:8px"><i class="ti ti-upload" style="font-size:15px"></i>📁 파일 선택 <span style="font-size:11px;color:rgba(22,184,148,0.65);font-weight:normal">(PDF · Word · Excel · TXT, 최대 10MB)</span></label>
             <div id="refFileList" style="margin-top:10px"></div>
@@ -4705,7 +4705,7 @@ function showPaymentConfirmModal(amountNum){
           +'<p style="margin:0;color:rgba(255,255,255,0.6);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all">'+(esc(preview)||'<span style="color:rgba(255,255,255,0.3)">(원문 없음)</span>')+'</p>'
         +'</div>'
         +'<div style="background:rgba(224,85,85,0.08);border-left:3px solid #e05555;padding:12px 14px;border-radius:4px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.85);margin-bottom:20px">'
-          +'⚠ <strong>중요 안내</strong><br>• 결제 완료 후 <strong style="color:#ffb84d">AI 번역이 즉시 자동 착수</strong>됩니다<br>• 착수 후에는 <strong style="color:#ff8888">원문 수정 / 환불 불가</strong>합니다<br>• 번역 방향·분야·원문에 오류가 없는지 다시 확인해 주세요'
+          +'⚠ <strong>중요 안내</strong><br>• <strong style="color:#ffb84d">결제 즉시 번역이 시작됩니다</strong><br>• 착수 후에는 <strong style="color:#ff8888">원문 수정 / 환불 불가</strong>합니다<br>• 번역 방향·분야·원문에 오류가 없는지 다시 확인해 주세요'
         +'</div>'
         +'<div style="display:flex;gap:10px">'
           +'<button data-act="cancel" style="flex:1;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);font-family:inherit">✗ 취소 (수정)</button>'

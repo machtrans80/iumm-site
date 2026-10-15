@@ -65,6 +65,13 @@ check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible), '그라�
 check(!/✦|[\u{1F300}-\u{1FAFF}]|[☀-➿]/u.test(visible), '✦·이모지 없음');
 check(!html.includes('✦'), 'index.html 전체 ✦ 없음');
 check(!/최고|최저|최초|유일|1위|완벽/.test(visible), '최상급 표현 없음');
+{
+  // 고객 화면 "AI" — 약관·처리방침(법정 고지)과 결제 payload 의 내부 플랜값('AI 프리미엄')은 제외
+  const noLegal = html.replace(/<div id="page-(terms|privacy|biz-terms)"[\s\S]*?<\/div>\s*<\/div>\s*(?=<)/g, '');
+  const lines = noLegal.split('\n').map(l => l.replace(/\/\/.*$/, '').replace(/<!--.*?-->/g, '').replace(/\/\*.*?\*\//g, ''))
+    .filter(l => /\bAI\b|인공지능/.test(l) && !/플랜:\s*currentPlan/.test(l) && !/AI 기반 전문 번역 플랫폼|AI 번역·검수 처리/.test(l));
+  check(lines.length === 0, `고객 화면 "AI" 0건${lines.length ? ' — ' + lines.map(l => l.trim().slice(0, 60)).join(' | ') : ''}`);
+}
 check(!/마지막 문장까지|직접 검수|직접 대조|원문과 대조/.test(html), '전문 번역 — 마지막 문장까지·직접 검수·직접 대조 표현 없음 (index.html 전체)');
 check(html.includes('최종 휴먼터치로 번역의 완성도를 높이는 IUMM 전문 번역사입니다') &&
       html.includes('번역이 끝나면 최종 휴먼터치로 완성도를 높여 납품합니다.'), '전문 번역사 부제·검수 안내 = 최종 휴먼터치');
