@@ -466,7 +466,7 @@ console.log('\n[16] 신분증·여권 사본 → 사본공증 + 아포스티유 
   check(sandbox.TIER.code === 'APO' && !/쪽 기준/.test($id('quote-line').innerHTML), 'APO 예상 금액 — "1쪽 기준" 없음');
   pick('school_record'); sandbox.QUOTE = { supply: 60000, pages: 1 }; sandbox.renderQuoteLine();
   check(/1쪽 기준 · 업로드 후 확정/.test($id('quote-line').innerHTML), '쪽당 상품은 "1쪽 기준" 유지');
-  check(html.includes('<a href="/" class="logo">IUMM 아이움</a>'), '위저드 로고 = IUMM 아이움');
+  check(html.includes('<a href="/" class="logo"><span class="lg-en">IUMM</span><span class="lg-ko">아이움</span></a>'), '위저드 로고 = IUMM(lg-en) + 아이움(lg-ko)');
   check($id('mail-box').innerHTML.includes('출국 일정'), '완료 화면 — 여권 출국 일정 안내');
   check($id('docs-box').style.display === '', '완료 화면 — 아포스티유 준비 서류');
   $id('wantApostille').checked = false; pick('family_relation');

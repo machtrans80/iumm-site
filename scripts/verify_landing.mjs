@@ -90,5 +90,24 @@ console.log('\n[5] 전문 번역 주문 창');
     'FAQ "영문으로 발급되는 서류" 2곳 교체 · 자동 안내 문장 삭제');
 }
 
+// ── 6. 로고 — 메인·푸터·공증 화면 같은 모양 ──
+console.log('\n[6] 로고');
+{
+  const LOGO = '<span class="lg-en">IUMM</span><span class="lg-ko">아이움</span>';
+  const css = fs.readFileSync(path.resolve(HERE, '../notary/notary.css'), 'utf8');
+  const wz = fs.readFileSync(path.resolve(HERE, '../notary/index.html'), 'utf8') + fs.readFileSync(path.resolve(HERE, '../notary/edit.html'), 'utf8');
+  check(/class="nav-logo"[^>]*>\s*<span class="lg-en">IUMM<\/span><span class="lg-ko">아이움<\/span>/.test(html) &&
+        html.includes('<div class="footer-logo" style="margin-bottom:8px">' + LOGO), '메인 내비·푸터 로고 마크업');
+  check(wz.split('class="logo">' + LOGO).length - 1 === 2, '공증 신청·서류 보완(edit) 로고 마크업');
+  check(/\.lg-en\{color:var\(--mint-light\);font-weight:800;letter-spacing:0\.14em\}/.test(html) &&
+        /\.lg-ko\{color:rgba\(255,255,255,0\.9\);font-weight:500;font-size:calc\(1em - 2px\);letter-spacing:0;margin-left:8px\}/.test(html),
+    '메인 로고 스타일 (#5DE0BC 800 0.14em / 흰 90% 500 -2px 8px)');
+  check(/\.ntr-nav \.logo \.lg-en\{color:var\(--gold-light\);font-weight:800;letter-spacing:0\.14em\}/.test(css) &&
+        /\.ntr-nav \.logo \.lg-ko\{color:rgba\(255,255,255,0\.9\);font-weight:500;font-size:calc\(1em - 2px\)/.test(css),
+    '공증 로고 스타일 (--gold-light = #5DE0BC)');
+  check(!/gradient|animation/.test((html.match(/\.nav-logo[^{]*\{[^}]*\}/g) || []).join('') + (css.match(/\.ntr-nav \.logo[^{]*\{[^}]*\}/g) || []).join('')),
+    '로고 그라데이션·애니메이션 없음');
+}
+
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);

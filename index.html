@@ -51,7 +51,10 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 *{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 h1,h2,h3,h4,h5,h6{color:#ffffff;font-weight:500;letter-spacing:-0.02em}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,37,64,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.08)}
-.nav-logo{font-size:23px;font-weight:700;color:#16B894;letter-spacing:0.5px;text-decoration:none;flex-shrink:0}
+.nav-logo{font-size:23px;font-weight:700;color:#16B894;letter-spacing:0.5px;text-decoration:none;flex-shrink:0;white-space:nowrap}
+/* 로고 — IUMM(민트 밝게·굵게·자간) + 아이움(흰색 90%·2px 작게). 메인·푸터·공증 화면 모두 같은 모양 */
+.nav-logo .lg-en,.footer-logo .lg-en{color:var(--mint-light);font-weight:800;letter-spacing:0.14em}
+.nav-logo .lg-ko,.footer-logo .lg-ko{color:rgba(255,255,255,0.9);font-weight:500;font-size:calc(1em - 2px);letter-spacing:0;margin-left:8px}
 .nav-links{display:flex;gap:32px;align-items:center}
 .nav-links a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:15px;font-weight:400;letter-spacing:0px;transition:color 0.2s}
 .nav-links a:hover{color:#5DE0BC}
@@ -266,7 +269,7 @@ footer{padding:36px 44px;background:#0A1628;border-top:1px solid rgba(255,255,25
 .field-card.open{border-color:rgba(22,184,148,0.6) !important;background:rgba(22,184,148,0.10) !important;box-shadow:0 4px 20px rgba(22,184,148,0.12)}
 .field-detail{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s ease,opacity 0.3s ease,margin-top 0.3s ease;margin-top:0 !important;padding-top:0 !important;border-top:none !important}
 .field-card.open .field-detail{max-height:200px;opacity:1;margin-top:14px !important;padding-top:14px !important;border-top:1px solid rgba(22,184,148,0.2) !important}
-.footer-logo{font-size:22px;font-weight:700;color:#16B894;letter-spacing:1px}
+.footer-logo{font-size:22px;font-weight:700;color:#16B894;letter-spacing:1px;white-space:nowrap}
 .footer-copy{font-size:13px;color:#9AA8B6;font-weight:400}
 .footer-links{display:flex;gap:22px}
 .footer-links a{font-size:13px;color:#9AA8B6;text-decoration:none;font-weight:400;transition:color 0.3s}
@@ -870,7 +873,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 <!-- NAV -->
 <nav>
-  <a class="nav-logo" href="/" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})">IUMM 아이움</a>
+  <a class="nav-logo" href="/" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})"><span class="lg-en">IUMM</span><span class="lg-ko">아이움</span></a>
   <div style="display:flex;align-items:center;gap:32px">
     <div class="nav-links" id="nav-links-desktop">
       <a href="#" onclick="lpGo('notary');return false">번역공증</a>
@@ -2765,7 +2768,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
   <!-- 상단: 로고 + 브랜드 + 메뉴 -->
   <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;margin-bottom:32px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.05)">
     <div>
-      <div class="footer-logo" style="margin-bottom:8px">IUMM 아이움</div>
+      <div class="footer-logo" style="margin-bottom:8px"><span class="lg-en">IUMM</span><span class="lg-ko">아이움</span></div>
       <p style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:300;letter-spacing:0.5px;margin:0">온라인 번역공증 · 아포스티유</p>
     </div>
     <div class="footer-links">

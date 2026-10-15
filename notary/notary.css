@@ -34,7 +34,10 @@ h1,h2,h3{color:#fff;font-weight:600;letter-spacing:-0.02em;margin:0}
   padding:14px 28px;background:rgba(15,37,64,0.97);backdrop-filter:blur(20px);
   border-bottom:1px solid rgba(255,255,255,0.08);
 }
-.ntr-nav .logo{font-size:21px;font-weight:700;color:var(--gold);letter-spacing:0.5px}
+.ntr-nav .logo{font-size:21px;font-weight:700;color:var(--gold);letter-spacing:0.5px;white-space:nowrap}
+/* 로고 — 메인과 같은 모양: IUMM(민트 밝게·굵게·자간) + 아이움(흰색 90%·2px 작게) */
+.ntr-nav .logo .lg-en{color:var(--gold-light);font-weight:800;letter-spacing:0.14em}
+.ntr-nav .logo .lg-ko{color:rgba(255,255,255,0.9);font-weight:500;font-size:calc(1em - 2px);letter-spacing:0;margin-left:8px}
 .ntr-nav .right{display:flex;gap:16px;align-items:center;font-size:14px}
 .ntr-wrap{max-width:960px;margin:0 auto;padding:40px 20px 100px}
 .ntr-page-title{font-size:26px;margin-bottom:8px}
