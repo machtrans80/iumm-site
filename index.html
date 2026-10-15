@@ -924,7 +924,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
          이 배너가 숨겨지고 아래 #experts-content 가 그대로 노출된다.
          프로필 데이터·필터·렌더 로직은 손대지 않았으므로 즉시 복구된다. -->
     <div id="experts-coming-soon" style="display:none;text-align:center;padding:72px 32px;border:1px solid rgba(201,168,76,0.28);background:linear-gradient(180deg,rgba(201,168,76,0.06) 0%,rgba(10,22,40,0.4) 100%);border-radius:4px">
-      <div style="font-size:34px;color:#c9a84c;margin-bottom:22px;letter-spacing:6px">✦</div>
       <h3 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;color:#c9a84c;margin-bottom:20px;letter-spacing:-0.3px">전문 검수자를 모시고 있습니다</h3>
       <p style="font-size:14px;color:rgba(255,255,255,0.62);font-weight:300;line-height:2;max-width:520px;margin:0 auto">
         변호사 · 의사 · 변리사 · 회계사 등 분야별 전문 자격사와<br>
@@ -1804,7 +1803,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         </div>
         <!-- 번역 거부 콘텐츠 안내 -->
         <p style="font-size:11px;color:rgba(255,150,150,0.7);margin:0;line-height:1.6"><i class="ti ti-ban icon-g" style="margin-right:2px"></i>아동 성착취·음란물·무기·마약·테러·혐오 등 번역 거부 콘텐츠는 의뢰가 제한됩니다.</p>
-        <p style="font-size:11px;color:rgba(22,184,148,0.6);margin:0">✦ 가입 즉시 300글자 무료 번역이 제공됩니다 (1회 한정)</p>
+        <p style="font-size:11px;color:rgba(22,184,148,0.6);margin:0">가입 즉시 300글자 무료 번역이 제공됩니다 (1회 한정)</p>
       </div>
       <button class="btn-primary" style="width:100%;margin-top:8px;padding:16px" onclick="completeUserInfo()">입력 완료 → IUMM 시작하기</button>
       <button onclick="kakaoLogout()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;text-decoration:underline;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif">취소하고 로그아웃</button>
@@ -1819,7 +1818,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <div style="text-align:center;margin-bottom:48px">
       <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:400;color:var(--gold);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#c9a84c">IU</span><span style="color:#ffffff">MM</span></a>
       <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:10px">시작하기</h2>
-      <p style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.9">카카오 계정으로 1초 만에 시작하세요<br><span style="color:var(--gold);font-size:13px">✦ 가입 즉시 300글자 무료 번역 제공 ✦</span></p>
+      <p style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.9">카카오 계정으로 1초 만에 시작하세요<br><span style="color:var(--gold);font-size:13px">가입 즉시 300글자 무료 번역 제공</span></p>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <button onclick="kakaoLogin()" style="width:100%;padding:18px;background:#FEE500;color:#191919;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(254,229,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
@@ -1849,190 +1848,163 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 <!-- HERO -->
 <!-- ════════════════════════════════════════════════════════════════
-     메인 랜딩 (2026-10-15 개편 2차) — 입구 2개(번역공증 / 아포스티유) + 회원 전용 안내
-     ★비로그인: 첫 화면 · 입구 카드 2개 · 가입 유도 · 전문번역 한 줄 · 서류 한 줄 · 법정 고지(푸터)
-       로그인  : 위에 더해 마이페이지 바로가기 · 3단계 안내 · 자주 묻는 질문 5개 (가입 유도는 숨김)
-     ★로그인 판별은 기존 isLoggedIn(카카오 로그인 상태) 그대로 — updateNavAfterLogin() 이 lpApplyLogin() 을 부른다.
-     ★입구 카드는 기존 위저드(/notary/)로만 보낸다. 아포스티유 = /notary/?apostille=1 (위저드가 체크를 미리 켠다).
-       비로그인이면 기존 로그인 복귀 장치(iumm_login_next)에 경로를 넣고 로그인 화면을 띄운다.
+     메인 랜딩 (2026-10-15 개편 3차) — 누구에게나 같은 화면
+     ★입구 카드 2개: [1] 번역공증 · 아포스티유 의뢰(강조) / [2] 전문 번역 의뢰
+       [1] → 기존 위저드(/notary/) · [2] → 기존 전문 번역 주문 모달(handleAI)
+     ★회원 전용 블록·가입 유도 블록 없음 — 로그인은 입구에서 필요할 때만 받는다(lpGo).
+     ★"N년째"는 2009년 기준으로 KST 연도에서 계산한다 — 숫자를 하드코딩하지 말 것.
+     ★전문 번역 단가는 PLAN_PRICE 한 곳에서만 읽는다 (주문 모달·견적과 같은 값).
      ★표기 원칙: 숫자만, 최상급 표현 금지(표시광고법). 공증·아포스티유 포함 금액은 위저드에서만 보인다.
      ════════════════════════════════════════════════════════════════ -->
 <style>
 .lp{max-width:1080px;margin:0 auto;padding:0 20px}
-.lp-sec{padding:56px 0;border-top:1px solid rgba(255,255,255,0.06)}
-.lp-label{font-size:11px;letter-spacing:3px;color:var(--mint);font-weight:700;margin:0 0 10px}
-.lp-h2{font-size:clamp(22px,3.6vw,30px);font-weight:700;color:#fff;letter-spacing:-0.5px;margin:0 0 18px;line-height:1.35}
-.lp-hero{padding:120px 0 40px;background:radial-gradient(ellipse at 70% 0%,rgba(22,184,148,0.16),transparent 60%),var(--black)}
-.lp-hero h1{font-size:clamp(30px,5.6vw,52px);font-weight:800;color:#fff;letter-spacing:-1px;line-height:1.25;margin:0 0 22px;word-break:keep-all}
-.lp-hooks{list-style:none;margin:0 0 34px;padding:0;display:grid;gap:10px}
-.lp-hooks li{position:relative;padding-left:22px;font-size:clamp(15px,2.1vw,18px);color:rgba(255,255,255,0.82);line-height:1.6;word-break:keep-all}
-.lp-hooks li::before{content:'';position:absolute;left:0;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--mint)}
-.lp-hooks b{color:#fff}
-.lp-entry{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.lp-entry button{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;padding:28px 26px;border-radius:16px;border:1px solid rgba(22,184,148,0.35);background:rgba(22,184,148,0.07);color:#fff;font-family:inherit;cursor:pointer;min-height:168px;transition:border-color .15s,background .15s}
-.lp-entry button:hover{border-color:var(--mint);background:rgba(22,184,148,0.13)}
-.lp-entry .k{font-size:13px;font-weight:800;letter-spacing:1px;color:var(--mint)}
-.lp-entry .t{font-size:clamp(19px,2.4vw,23px);font-weight:700;line-height:1.45;word-break:keep-all}
-.lp-entry .go{margin-top:auto;font-size:14px;font-weight:700;color:var(--mint)}
-.lp-join{margin-top:16px;padding:22px 24px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03)}
-.lp-join h3{margin:0 0 12px;font-size:17px;color:#fff;font-weight:700}
-.lp-join ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.lp-join li{font-size:14px;color:rgba(255,255,255,0.75);line-height:1.55;padding-left:20px;position:relative;word-break:keep-all}
-.lp-join li::before{content:'✓';position:absolute;left:0;color:var(--mint);font-weight:800}
-.lp-join .lp-btn{margin-top:16px}
-.lp-btn{display:inline-block;padding:14px 26px;border-radius:10px;background:var(--mint);color:#06202f;font-weight:800;font-size:15px;text-decoration:none;border:none;cursor:pointer;font-family:inherit}
-.lp-pro{margin:22px 0 0;font-size:13.5px;color:rgba(255,255,255,0.55);line-height:1.7;word-break:keep-all}
-.lp-pro a{color:rgba(255,255,255,0.75);text-decoration:underline;text-underline-offset:3px}
-.lp-pro a:hover{color:var(--mint)}
-.lp-my{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 22px;border-radius:14px;border:1px solid rgba(22,184,148,0.35);background:rgba(22,184,148,0.07)}
-.lp-my p{margin:0;font-size:15px;color:#fff;font-weight:600}
-.lp-my .cnt{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:12px;background:var(--mint);color:#06202f;font-size:12.5px;font-weight:800;vertical-align:1px}
-.lp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.lp-step{padding:22px 18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)}
-.lp-step .no{font-size:12px;color:var(--mint);font-weight:800;letter-spacing:1px}
-.lp-step .t{font-size:17px;color:#fff;font-weight:700;margin:6px 0}
-.lp-step .d{font-size:13px;color:rgba(255,255,255,0.58);line-height:1.65;word-break:keep-all}
-.lp-faq details{border-bottom:1px solid rgba(255,255,255,0.08);padding:14px 2px}
-.lp-faq summary{cursor:pointer;color:#fff;font-size:15px;font-weight:600;list-style:none}
-.lp-faq summary::before{content:'Q. ';color:var(--mint)}
+.lp-sec{padding:64px 0;border-top:1px solid rgba(255,255,255,0.08)}
+.lp-label{font-size:13px;letter-spacing:3px;color:var(--mint-light);font-weight:700;margin:0 0 10px}
+.lp-h2{font-size:clamp(26px,3.6vw,34px);font-weight:700;color:#fff;letter-spacing:-0.5px;margin:0 0 22px;line-height:1.35}
+.lp-hero{padding:132px 0 56px;background:var(--black)}
+.lp-hero h1{font-size:clamp(34px,6vw,64px);font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.2;margin:0 0 22px;word-break:keep-all}
+.lp-lead{margin:0 0 6px;font-size:clamp(17px,2vw,20px);color:rgba(255,255,255,0.85);line-height:1.65;word-break:keep-all}
+.lp-cards{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+.lp-card{display:flex;flex-direction:column;gap:16px;padding:32px 30px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);transition:border-color .15s,background .15s}
+.lp-card:hover{border-color:rgba(93,224,188,0.6)}
+.lp-card.main{border:2px solid var(--mint);background:rgba(22,184,148,0.07)}
+.lp-card.main:hover{background:rgba(22,184,148,0.11);border-color:var(--mint-light)}
+.lp-card .k{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;color:#fff;margin:0}
+.lp-card .k .no{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--mint-light);color:var(--mint-light);font-size:14px;font-weight:800}
+.lp-card h3{margin:0;font-size:clamp(20px,2.2vw,24px);font-weight:700;color:#fff;line-height:1.4;word-break:keep-all}
+.lp-big{margin:0;color:#fff;line-height:1.2;word-break:keep-all}
+.lp-big .s{display:block;font-size:clamp(17px,1.8vw,19px);font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:6px}
+.lp-big .n{display:inline-block;font-size:clamp(28px,4.2vw,46px);font-weight:800;letter-spacing:-1px}
+.lp-big .v{font-size:17px;font-weight:500;color:rgba(255,255,255,0.75);margin-left:6px}
+.lp-card ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.lp-card li,.lp-card p.d{font-size:17px;color:rgba(255,255,255,0.82);line-height:1.65;word-break:keep-all;margin:0}
+.lp-card li{position:relative;padding-left:16px}
+.lp-card li::before{content:'';position:absolute;left:0;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--mint-light)}
+.lp-card .act{margin-top:auto;padding-top:8px;display:flex;flex-direction:column;gap:12px}
+.lp-btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:14px 26px;border-radius:8px;background:var(--mint);color:#06202f;font-weight:800;font-size:17px;text-decoration:none;border:1.5px solid var(--mint);cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}
+.lp-btn:hover{background:var(--mint-light);border-color:var(--mint-light)}
+.lp-btn.line{background:transparent;color:var(--mint-light);border-color:var(--mint-light)}
+.lp-btn.line:hover{background:rgba(93,224,188,0.1)}
+.lp-more{display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:rgba(255,255,255,0.8);text-decoration:underline;text-underline-offset:3px}
+.lp-more:hover{color:var(--mint-light)}
+.lp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.lp-step{padding:24px 22px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1)}
+.lp-step .no{font-size:13px;color:var(--mint-light);font-weight:800;letter-spacing:1px}
+.lp-step .t{font-size:19px;color:#fff;font-weight:700;margin:6px 0}
+.lp-step .d{font-size:17px;color:rgba(255,255,255,0.75);line-height:1.65;word-break:keep-all}
+.lp-faq details{border-bottom:1px solid rgba(255,255,255,0.1);padding:16px 2px}
+.lp-faq summary{cursor:pointer;color:#fff;font-size:17px;font-weight:600;list-style:none;min-height:44px;display:flex;align-items:center}
+.lp-faq summary::before{content:'Q. ';color:var(--mint-light);white-space:pre}
 /* 전역 모바일 details 규칙(flex·space-between)에서도 질문은 왼쪽 정렬, +/− 만 오른쪽 */
 .lp-faq summary{justify-content:flex-start !important;gap:4px;text-align:left}
 .lp-faq summary::after{margin-left:auto;padding-left:10px}
-.lp-faq details p{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.8;margin:10px 0 0;word-break:keep-all}
-.lp-note{font-size:12px;color:rgba(255,255,255,0.42);margin-top:12px;line-height:1.7}
-.lp-seo{padding:22px 0 26px;border-top:1px solid rgba(255,255,255,0.06);font-size:12px;color:rgba(255,255,255,0.4);line-height:1.7;word-break:keep-all}
-#lp-member,.lp-in-only{display:none}
-body.lp-in #lp-member{display:block}
-body.lp-in .lp-in-only{display:flex}
-.lp-my.lp-in-only{margin:0 0 26px}
-body.lp-in #lp-join{display:none}
-@media(max-width:760px){
-  .lp-entry{grid-template-columns:1fr}
-  .lp-join ul{grid-template-columns:1fr}
+.lp-faq details p{font-size:17px;color:rgba(255,255,255,0.78);line-height:1.8;margin:10px 0 0;word-break:keep-all}
+.lp-note{font-size:15px;margin-top:14px;line-height:1.7}
+.lp-note a{color:var(--mint-light)}
+.lp-seo{padding:24px 0 28px;border-top:1px solid rgba(255,255,255,0.08);font-size:14px;color:rgba(255,255,255,0.68);line-height:1.7;word-break:keep-all}
+@media(max-width:860px){
+  .lp-cards{grid-template-columns:1fr}
   .lp-steps{grid-template-columns:1fr}
 }
 @media(max-width:640px){
   .lp{padding:0 16px}
-  .lp-sec{padding:40px 0}
-  .lp-hero{padding:96px 0 32px}
-  .lp-entry button{min-height:0;padding:22px 20px}
-  .lp-btn{width:100%;text-align:center}
+  .lp-hero h1{font-size:36px}
+  .lp-card{padding:24px 20px}
+  .lp-btn{width:100%}
 }
 /* ★전역 모바일 규칙(section{padding:… !important})이 랜딩 여백을 덮어 제목이 고정 내비 뒤로 숨는다 — 랜딩 구역만 되돌린다 */
 @media(max-width:768px){
-  section.lp-hero{padding:100px 0 32px !important}
-  section.lp-sec{padding:40px 0 !important}
+  section.lp-hero{padding:100px 0 40px !important}
+  section.lp-sec{padding:44px 0 !important}
 }
 </style>
 
 <!-- ── 첫 화면 + 입구 2개 ──────────────────────────────────── -->
 <section class="lp-hero" id="top">
   <div class="lp">
-    <!-- 회원 — 맨 위 마이페이지 바로가기 (진행 중 주문 수) -->
-    <div class="lp-my lp-in-only">
-      <p>내 주문<span class="cnt" id="lp-my-cnt" style="display:none"></span></p>
-      <button type="button" class="lp-btn" onclick="showPage('mypage')">마이페이지 바로가기</button>
-    </div>
-    <h1>직접 가지 않아도,<br>빠르고 정확하게</h1>
-    <ul class="lp-hooks">
-      <li>가족관계·기본·혼인증명서 번역 각 <b>5,000원</b> · 그 외 서류 쪽당 <b>9,000원</b> (부가세 별도)</li>
-      <li>급행이면 <b>다음 영업일</b>에 받아보실 수 있습니다 (영업일 기준 예정)</li>
-      <li>서류만 올리시면 공증·아포스티유까지 마치고 집으로 보내드립니다</li>
-    </ul>
+    <h1>공증 받으러<br>서울까지 가지 마세요</h1>
+    <p class="lp-lead" id="lp-since">2009년부터 이어 온 번역·공증 실무입니다.</p>
+    <p class="lp-lead">서류만 올리시면 번역부터 공증·아포스티유까지 마치고 집으로 보내드립니다.</p>
 
-    <div class="lp-entry" id="lp-entry">
-      <button type="button" onclick="lpGo('notary')">
-        <span class="k">번역공증</span>
-        <span class="t">번역부터 공증까지,<br>집으로 받아보세요</span>
-        <span class="go">시작하기 →</span>
-      </button>
-      <button type="button" onclick="lpGo('apostille')">
-        <span class="k">아포스티유</span>
-        <span class="t">영문 발급 서류는 아포스티유만, 한글 서류는 번역공증 후 아포스티유까지</span>
-        <span class="go">시작하기 →</span>
-      </button>
+    <div class="lp-cards" id="lp-entry">
+      <div class="lp-card main">
+        <p class="k"><span class="no">1</span>번역공증 · 아포스티유 의뢰</p>
+        <p class="lp-big"><span class="s">가족관계·기본·혼인 번역</span><span class="n">5,000원</span></p>
+        <ul>
+          <li>그 외 서류 쪽당 9,000원 · 부가세 별도</li>
+          <li>급행이면 다음 영업일 수령 (영업일 기준 예정)</li>
+          <li>신분증·여권 사본공증 + 아포스티유도 가능</li>
+        </ul>
+        <div class="act">
+          <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 시작</button>
+        </div>
+      </div>
+      <div class="lp-card">
+        <p class="k"><span class="no">2</span>전문 번역 의뢰</p>
+        <h3>번역의 기준이 바뀌었습니다</h3>
+        <p class="d">분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 전문 번역사가 마지막 문장까지 직접 검수합니다.</p>
+        <p class="lp-big"><span class="s">글자당</span><span class="n" id="lp-plan-price">25원부터</span><span class="v">(부가세 별도)</span></p>
+        <div class="act">
+          <button type="button" class="lp-btn line" onclick="handleAI()">전문 번역 시작</button>
+          <a href="#" class="lp-more" onclick="lpGo('quote');return false">사법공조요청서·진술조서 등 수사·법률 서류 견적 →</a>
+        </div>
+      </div>
     </div>
-
-    <!-- 회원 가입 유도 — 로그인하면 숨긴다 -->
-    <div class="lp-join" id="lp-join">
-      <h3>카카오로 바로 가입하시면</h3>
-      <ul>
-        <li>서류별 발급 방법 안내</li>
-        <li>받을 날짜와 금액 바로 계산</li>
-        <li>진행 상황과 스캔본을 마이페이지에서 확인</li>
-      </ul>
-      <button type="button" class="lp-btn" onclick="showPage('login')">카카오로 시작하기</button>
-    </div>
-
-    <p class="lp-pro">수사·법률 서류(사법공조요청서·진술조서) 번역 견적
-      <a href="#" onclick="lpGo('quote');return false">견적 요청 →</a></p>
-    <p class="lp-pro" style="margin-top:8px">전문번역을 원하시는 분 — 새롭게 바뀐 번역 품질, 마지막은 전문 번역사가 직접 검수합니다
-      <a href="#" onclick="handleAI();return false">전문번역 의뢰 →</a></p>
   </div>
 </section>
 
-<!-- ── 회원 전용 (로그인 시에만) ───────────────────────────── -->
-<div id="lp-member">
-  <section class="lp-sec" id="process">
-    <div class="lp">
-      <p class="lp-label">HOW IT WORKS</p>
-      <h2 class="lp-h2">3단계면 끝납니다</h2>
-      <div class="lp-steps">
-        <div class="lp-step"><div class="no">STEP 1</div><div class="t">올리기</div><div class="d">서류를 고르고 정부 사이트에서 받은 PDF를 올려주세요. 발급 방법도 함께 안내합니다.</div></div>
-        <div class="lp-step"><div class="no">STEP 2</div><div class="t">결제</div><div class="d">받으실 날짜를 고르시면 일정과 금액을 바로 보여 드립니다. 확인 후 결제해 주세요.</div></div>
-        <div class="lp-step"><div class="no">STEP 3</div><div class="t">집에서 받기</div><div class="d">스캔본을 먼저 마이페이지로 드리고, 실물은 등기로 보내드립니다.</div></div>
-      </div>
+<section class="lp-sec" id="process">
+  <div class="lp">
+    <p class="lp-label">HOW IT WORKS</p>
+    <h2 class="lp-h2">3단계면 끝납니다</h2>
+    <div class="lp-steps">
+      <div class="lp-step"><div class="no">STEP 1</div><div class="t">올리기</div><div class="d">서류를 고르고 정부 사이트에서 받은 PDF를 올려주세요. 발급 방법도 함께 안내합니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 2</div><div class="t">결제</div><div class="d">받으실 날짜를 고르시면 일정과 금액을 바로 보여 드립니다. 확인 후 결제해 주세요.</div></div>
+      <div class="lp-step"><div class="no">STEP 3</div><div class="t">집에서 받기</div><div class="d">스캔본을 먼저 마이페이지로 드리고, 실물은 등기로 보내드립니다.</div></div>
     </div>
-  </section>
-  <section class="lp-sec lp-faq" id="faq-summary">
-    <div class="lp">
-      <p class="lp-label">FAQ</p>
-      <h2 class="lp-h2">자주 묻는 질문</h2>
-      <details><summary>정말 직접 가지 않아도 되나요?</summary><p>네. 서류를 올리고 결제하시면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 방문하거나 서류를 우편으로 보내실 필요가 없습니다.</p></details>
-      <details><summary>비용은 얼마인가요?</summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 쪽당 9,000원(부가세 별도)입니다. 공증·아포스티유를 포함한 금액은 서류를 올리시면 바로 보여 드립니다.</p></details>
-      <details><summary>얼마나 걸리나요?</summary><p>번역공증은 급행 다음 영업일, 일반 3영업일에 받으실 수 있고, 번역공증 + 아포스티유는 급행 3영업일, 일반 5영업일입니다(영업일 기준 예정). 신청 화면에서 받으실 날짜를 고르시면 일정과 금액을 바로 보여 드립니다.</p></details>
-      <details><summary>영문으로 발급되는 서류도 번역해야 하나요?</summary><p>범죄경력회보서·출입국사실증명서처럼 영문으로 발급되는 공문서는 번역·공증 없이 아포스티유만 받으시면 됩니다. 서류를 고르시면 자동으로 안내해 드립니다.</p></details>
-      <details><summary>결제 후 취소할 수 있나요?</summary><p>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가합니다. 결제 전에 서류와 금액을 꼭 확인해 주세요.</p></details>
-      <p class="lp-note"><a href="#" onclick="showPage('faq');return false" style="color:var(--mint)">전체 질문 보기 →</a></p>
-    </div>
-  </section>
-</div>
+  </div>
+</section>
 
-<!-- ── 검색 노출용 한 줄 (항상) ────────────────────────────── -->
-<div class="lp"><p class="lp-seo">맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 사법공조요청서, 진술조서 등</p></div>
+<section class="lp-sec lp-faq" id="faq-summary">
+  <div class="lp">
+    <p class="lp-label">FAQ</p>
+    <h2 class="lp-h2">자주 묻는 질문</h2>
+    <details><summary>정말 직접 가지 않아도 되나요?</summary><p>네. 서류를 올리고 결제하시면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 방문하실 필요가 없습니다. 온라인 발급이 없는 서류와 신분증·여권 사본공증은 원본을 빠른등기로 보내 주셔야 하며, 공증 후 함께 돌려드립니다.</p></details>
+    <details><summary>비용은 얼마인가요?</summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 쪽당 9,000원(부가세 별도)입니다. 공증·아포스티유를 포함한 금액은 서류를 올리시면 바로 보여 드립니다.</p></details>
+    <details><summary>얼마나 걸리나요?</summary><p>번역공증은 급행 다음 영업일, 일반 3영업일에 받으실 수 있고, 번역공증 + 아포스티유는 급행 3영업일, 일반 5영업일입니다(영업일 기준 예정). 신청 화면에서 받으실 날짜를 고르시면 일정과 금액을 바로 보여 드립니다.</p></details>
+    <details><summary>영문으로 발급되는 서류도 번역해야 하나요?</summary><p>범죄경력회보서·출입국사실증명서처럼 영문으로 발급되는 공문서는 번역·공증 없이 아포스티유만 받으시면 됩니다. 서류를 고르시면 자동으로 안내해 드립니다.</p></details>
+    <details><summary>결제 후 취소할 수 있나요?</summary><p>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가합니다. 결제 전에 서류와 금액을 꼭 확인해 주세요.</p></details>
+    <p class="lp-note"><a href="#" onclick="showPage('faq');return false">전체 질문 보기 →</a></p>
+  </div>
+</section>
+
+<!-- ── 검색 노출용 한 줄 ───────────────────────────────────── -->
+<div class="lp"><p class="lp-seo">맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본, 사법공조요청서, 진술조서 등</p></div>
 
 <script>
-/* 메인 랜딩 — 입구 카드 · 로그인 상태 표시 */
+/* 전문 번역 글자당 단가 — 화면 표시·주문 모달·견적이 모두 이 값을 쓴다 (부가세 별도)
+   ai = 스탠다드(일반 검수) / standard = 프리미엄 플러스(전문가 검수). 키는 내부 플랜값 그대로 */
+var PLAN_PRICE = { ai: 25, standard: 40 };
+
+/* 메인 랜딩 — 입구 · 업력 */
 (function(){
   var DEST = { notary: '/notary/', apostille: '/notary/?apostille=1', quote: '/notary/?doc=judicial_request' };
-  /** 입구 카드 — 로그인돼 있으면 위저드로, 아니면 기존 로그인 복귀 장치에 경로를 넣고 로그인 화면 */
+  /** 입구 — 로그인돼 있으면 위저드로, 아니면 기존 로그인 복귀 장치에 경로를 넣고 로그인 화면 */
   window.lpGo = function(kind){
     var dest = DEST[kind] || DEST.notary;
     if (isLoggedIn) { location.href = dest; return; }
     try { sessionStorage.setItem('iumm_login_next', dest); } catch(e){}
     showPage('login');
   };
-  /** 로그인 상태에 맞춰 회원 전용 블록을 켜고 끈다 (updateNavAfterLogin 이 부른다) */
-  window.lpApplyLogin = function(){
-    document.body.classList.toggle('lp-in', !!isLoggedIn);
-    if (isLoggedIn) lpMyCount();
+  /** 2009년 시작 기준 몇 년째인가 — 한국 시간(KST) 연도로 센다. 2009년 = 1년째 */
+  window.lpYears = function(nowMs){
+    var kst = new Date((nowMs == null ? Date.now() : nowMs) + 9 * 3600 * 1000);
+    return kst.getUTCFullYear() - 2009 + 1;
   };
-  /** 진행 중 주문 수 — 마이페이지와 같은 API. 토큰이 없으면 숫자 없이 바로가기만 */
-  function lpMyCount(){
-    var el = document.getElementById('lp-my-cnt');
-    var token = (typeof Kakao !== 'undefined' && Kakao.Auth && Kakao.Auth.getAccessToken) ? Kakao.Auth.getAccessToken() : null;
-    if (!el || !token) return;
-    fetch(MEMBER_API_BASE + '/api/notary/my/orders', { headers: { 'Authorization': 'Bearer ' + token } })
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        var n = ((d && d.ok && d.orders) || []).filter(function(o){
-          return o.stageKey !== 'shipped' && o.statusKey !== 'done';
-        }).length;
-        el.textContent = '진행 중 ' + n + '건';
-        el.style.display = n ? '' : 'none';
-      })
-      .catch(function(){ /* 숫자만 빠진다 */ });
-  }
+  var since = document.getElementById('lp-since');
+  if (since) since.textContent = '2009년부터 이어 온 번역·공증 실무, 올해로 ' + window.lpYears() + '년째입니다.';
+  var pp = document.getElementById('lp-plan-price');
+  if (pp) pp.textContent = PLAN_PRICE.ai + '원부터';
 })();
 </script>
 
@@ -2940,7 +2912,7 @@ function renderExpertCard(e,isReviewer){
   var langBadges=e.langs.map(function(l){
     return '<span style="font-size:10px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);color:var(--gold);padding:2px 8px;border-radius:10px;font-weight:400">'+l+'</span>';
   }).join(' ');
-  var expertBadge=e.isExpert?'<span style="background:linear-gradient(135deg,#c9a84c,#e8c94a);color:#000;font-size:9px;font-weight:800;padding:2px 7px;border-radius:2px;letter-spacing:0.5px;margin-left:6px">✦ 전문 자격사</span>':'';
+  var expertBadge=e.isExpert?'<span style="background:linear-gradient(135deg,#c9a84c,#e8c94a);color:#000;font-size:9px;font-weight:800;padding:2px 7px;border-radius:2px;letter-spacing:0.5px;margin-left:6px">전문 자격사</span>':'';
   var verifiedLabel=e.isExpert?'<span style="font-size:9px;color:#97c459">✓ IUMM 자격 확인 완료</span> <span style="font-size:9px;color:rgba(255,255,255,0.7);font-weight:600">'+(e.licenseLabel||'')+'</span>':'';
   var priceAdd=e.isExpert?'<span style="font-size:10px;color:var(--gold);font-weight:700;margin-left:auto">+20원 → 총 60원/글자</span>':'';
   var specialty2Tag=e.specialty2?'<span style="font-size:10px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:2px;margin-left:4px">'+e.specialty2+'</span>':'';
@@ -3393,7 +3365,7 @@ function doLogin(){
 }
 function updateNavAfterLogin(){
   // 메인 랜딩 — 회원 전용 블록 표시 · 가입 유도 숨김
-  if (typeof lpApplyLogin === 'function') lpApplyLogin();
+
   // 전문가 소개 메뉴 활성화
   var expLink=document.getElementById('nav-expert-link');
   if(expLink){
@@ -3511,7 +3483,7 @@ function clearEstimate(){
 function updateOrderModal(){
   var reviewerRow=document.getElementById('reviewer-row');
   var priceLabel=document.getElementById('price-label');
-  var price=currentPlan==="ai"?25:40;
+  var price=PLAN_PRICE[currentPlan==="ai"?'ai':'standard'];
   if(priceLabel) priceLabel.textContent='글자당 '+price+'원';
   // 탭 활성화 동기화 + 모달 테마
   var planKey=isFreeTrialOrder?'free':(currentPlan==='ai'?'ai':'standard');
@@ -3529,7 +3501,7 @@ function updateOrderModal(){
   // 파일 단가 업데이트
   var wp=document.getElementById('file-word-price');
   var pp=document.getElementById('file-page-price');
-  if(wp) wp.textContent=currentPlan==='ai'?'25원':'40원';
+  if(wp) wp.textContent=PLAN_PRICE[currentPlan==='ai'?'ai':'standard']+'원';
   if(pp) pp.textContent=currentPlan==='ai'?'30,000원':'40,000원';
   if(currentPlan==='ai'){
     reviewerRow.style.display='none';
@@ -3566,8 +3538,8 @@ function calcDelivery(words){
 function showEstimate(w){
   // [E-6] 기업회원 협상 단가 우선, 없으면 표준
   var basePrice=currentPlan==="ai"
-    ? (window._memberRateAi||25)
-    : (window._memberRatePp||40);
+    ? (window._memberRateAi||PLAN_PRICE.ai)
+    : (window._memberRatePp||PLAN_PRICE.standard);
   var expertExtra=(currentPlan==='standard' && selectedReviewerIsExpert)?20:0;
   var price=basePrice+expertExtra;
   var base=w*price;
@@ -3883,7 +3855,7 @@ function selectReviewer(el,name,id){
   var chars=parseInt(charText.replace(/[^0-9]/g,''))||0;
   if(chars>0){ showEstimate(chars); }
   else {
-    var basePrice=(currentPlan==='ai'?25:40)+(selectedReviewerIsExpert?20:0);
+    var basePrice=PLAN_PRICE[currentPlan==='ai'?'ai':'standard']+(selectedReviewerIsExpert?20:0);
     var priceLabel=document.getElementById('price-label');
     if(priceLabel) priceLabel.textContent='글자당 '+basePrice+'원'+(selectedReviewerIsExpert?' (+20원 전문 자격사)':'');
   }
