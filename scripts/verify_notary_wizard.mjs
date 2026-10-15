@@ -398,6 +398,15 @@ console.log('\n[16] 신분증·여권 사본 → 사본공증 + 아포스티유 
   check($id('ag3-label').innerHTML.includes('사본공증과 아포스티유만'), '동의 문구 — CPA');
   sandbox.showDone({ ok: true, mailOriginal: true, mailAddress: '' });
   check($id('done-sub').textContent.includes('원본이 도착하면 사본공증'), '완료 화면 — CPA 문구');
+  // 고정가 — 예상 금액에 "쪽 기준" 문구 없음
+  sandbox.QUOTE = { supply: 65000, pages: 1 }; sandbox.PRECHECK_OK = false; sandbox.renderQuoteLine();
+  check($id('quote-line').innerHTML.includes('65,000') && !/쪽 기준/.test($id('quote-line').innerHTML) &&
+        $id('quote-line').innerHTML.includes('(부가세 별도)'), 'CPA 예상 금액 — "1쪽 기준" 없음');
+  pick('crime_record'); sandbox.QUOTE = { supply: 40000, pages: 1 }; sandbox.renderQuoteLine();
+  check(sandbox.TIER.code === 'APO' && !/쪽 기준/.test($id('quote-line').innerHTML), 'APO 예상 금액 — "1쪽 기준" 없음');
+  pick('school_record'); sandbox.QUOTE = { supply: 60000, pages: 1 }; sandbox.renderQuoteLine();
+  check(/1쪽 기준 · 업로드 후 확정/.test($id('quote-line').innerHTML), '쪽당 상품은 "1쪽 기준" 유지');
+  check(html.includes('<a href="/" class="logo">IUMM 아이움</a>'), '위저드 로고 = IUMM 아이움');
   check($id('mail-box').innerHTML.includes('출국 일정'), '완료 화면 — 여권 출국 일정 안내');
   check($id('docs-box').style.display === '', '완료 화면 — 아포스티유 준비 서류');
   pick('family_relation');

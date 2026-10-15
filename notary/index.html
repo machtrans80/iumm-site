@@ -18,7 +18,7 @@
 <body>
 
 <nav class="ntr-nav">
-  <a href="/" class="logo">IUMM</a>
+  <a href="/" class="logo">IUMM 아이움</a>
   <div class="right">
     <a href="/">← 처음으로</a>
     <span id="who" style="color:var(--text-muted)"></span>
@@ -648,8 +648,10 @@ function renderQuoteLine(){
   var box = $('quote-line');
   if (!box) return;
   if (!QUOTE) { box.innerHTML = ''; return; }
-  var basis = PRECHECK_OK ? (QUOTE.pages + '쪽 기준') : '1쪽 기준 · 업로드 후 확정';
-  box.innerHTML = '예상 금액 <b>' + won(QUOTE.supply) + '</b> (부가세 별도 · ' + esc(basis) + ')';
+  // 고정가 상품(APO·CPA)은 장수와 무관하다 — 쪽 기준 문구를 붙이지 않는다
+  var fixed = !!(TIER && (TIER.code === 'APO' || TIER.code === 'CPA'));
+  var basis = fixed ? '' : PRECHECK_OK ? (QUOTE.pages + '쪽 기준') : '1쪽 기준 · 업로드 후 확정';
+  box.innerHTML = '예상 금액 <b>' + won(QUOTE.supply) + '</b> (부가세 별도' + (basis ? ' · ' + esc(basis) : '') + ')';
 }
 
 /** 결제 화면 금액 — 공급가 합계 + 부가세 (서버 견적값 그대로).
