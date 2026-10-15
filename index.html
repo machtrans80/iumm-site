@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IUMM — AI가 번역하고, 사람이 완성합니다</title>
-<meta name="description" content="AI 9.5단계 교차검증 + 전문가 검수. 31개 언어·17개 분야 전문 번역. 기존 대비 합리적 단가.">
+<title>IUMM — 온라인 번역공증 · 아포스티유</title>
+<meta name="description" content="직접 가지 말고 집에서 신청하세요. 서류를 올리면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 가족관계·기본·혼인증명서 번역 4,000원(부가세 별도).">
 <link rel="canonical" href="https://iumm.kr/">
 
 <!-- Open Graph (카카오톡·페이스북·라인 링크 미리보기) -->
@@ -12,21 +12,21 @@
 <meta property="og:site_name" content="IUMM 아이움">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:url" content="https://iumm.kr/">
-<meta property="og:title" content="IUMM 아이움 — AI 전문 번역 플랫폼">
-<meta property="og:description" content="AI 9.5단계 교차검증 + 전문가 검수. 31개 언어·17개 분야. 기존 대비 합리적 단가.">
+<meta property="og:title" content="IUMM 아이움 — 온라인 번역공증 · 아포스티유">
+<meta property="og:description" content="직접 가지 말고 집에서 신청하세요. 서류를 올리면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 가족관계·기본·혼인증명서 번역 4,000원(부가세 별도).">
 <!-- og:image — 카카오톡·페이스북은 이미지를 장기 캐싱하므로, 교체 시 ?v= 를 올려야 갱신된다. -->
-<meta property="og:image" content="https://iumm.kr/assets/og-image.png?v=2">
-<meta property="og:image:secure_url" content="https://iumm.kr/assets/og-image.png?v=2">
+<meta property="og:image" content="https://iumm.kr/assets/og-image.png?v=3">
+<meta property="og:image:secure_url" content="https://iumm.kr/assets/og-image.png?v=3">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="IUMM 아이움 — AI 전문 번역 플랫폼">
+<meta property="og:image:alt" content="IUMM 아이움 — 온라인 번역공증 · 아포스티유">
 
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="IUMM 아이움 — AI 전문 번역 플랫폼">
-<meta name="twitter:description" content="AI 9.5단계 교차검증 + 전문가 검수. 31개 언어·17개 분야. 기존 대비 합리적 단가.">
-<meta name="twitter:image" content="https://iumm.kr/assets/og-image.png?v=2">
+<meta name="twitter:title" content="IUMM 아이움 — 온라인 번역공증 · 아포스티유">
+<meta name="twitter:description" content="직접 가지 말고 집에서 신청하세요. 서류를 올리면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 가족관계·기본·혼인증명서 번역 4,000원(부가세 별도).">
+<meta name="twitter:image" content="https://iumm.kr/assets/og-image.png?v=3">
 
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -900,25 +900,26 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <a class="nav-logo" href="/" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})">IUMM 아이움</a>
   <div style="display:flex;align-items:center;gap:32px">
     <div class="nav-links" id="nav-links-desktop">
-      <a href="#about">서비스 소개</a>
-      <a href="#process">프로세스</a>
-      <a href="#pricing">요금제</a>
-      <a href="#" id="nav-expert-link" onclick="handleExpertNav();return false">전문가 소개 ✦</a>
-      <!-- 공증 진입은 우측 하단 플로팅 버튼으로 옮겼다 (.iumm-fab) -->
+      <a href="/notary/">번역공증</a>
+      <a href="#apostille">아포스티유</a>
+      <a href="#docs">서류 찾기</a>
+      <a href="#pricing">요금</a>
+      <!-- 번역만(전문번역)은 보조 서비스 — 내비 링크 + 하단 카드 두 곳에서만 진입한다 -->
+      <a href="#translate-only">번역만</a>
       <a href="#" id="nav-login-link" onclick="showPage('login');return false">로그인 / 가입</a>
     </div>
-    <button class="nav-cta" id="nav-order-btn" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=false;showModal('order');updateOrderModal();switchOrderPlan('ai');}else{showPage('login');}">이용하기</button>
+    <button class="nav-cta" id="nav-order-btn" onclick="location.href='/notary/'">번역공증 신청</button>
     <button class="nav-hamburger" id="nav-hamburger-btn" onclick="document.getElementById('nav-mobile-menu').classList.toggle('open')">☰</button>
   </div>
 </nav>
 <div class="nav-mobile-menu" id="nav-mobile-menu">
-  <a href="#about" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">서비스 소개</a>
-  <a href="#process" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">프로세스</a>
-  <a href="#pricing" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">요금제</a>
-  <a href="#" onclick="handleExpertNav();document.getElementById('nav-mobile-menu').classList.remove('open');return false">전문가 소개 ✦</a>
-  <!-- 공증 진입은 우측 하단 플로팅 버튼으로 옮겼다 (.iumm-fab) -->
+  <a href="/notary/">번역공증</a>
+  <a href="#apostille" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">아포스티유</a>
+  <a href="#docs" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">서류 찾기</a>
+  <a href="#pricing" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">요금</a>
+  <a href="#translate-only" onclick="document.getElementById('nav-mobile-menu').classList.remove('open')">번역만</a>
   <a href="#" id="nav-login-link-mobile" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
-  <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=false;showModal('order');updateOrderModal();switchOrderPlan('ai');}else{showPage('login');}document.getElementById('nav-mobile-menu').classList.remove('open')">이용하기</button>
+  <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="location.href='/notary/'">번역공증 신청</button>
 </div>
 
 <!-- 전문가 소개 페이지 -->
@@ -1312,570 +1313,89 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     
     <p style="font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px">FAQ</p>
     <h1 style="font-family:'Nanum Myeongjo',serif;font-size:clamp(32px,5vw,48px);font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:-1px">자주 묻는 질문</h1>
-    <p style="font-size:15px;color:rgba(255,255,255,0.55);font-weight:300;margin-bottom:48px;line-height:1.8">IUMM 이용에 자주 묻는 질문들을 정리했습니다.<br>찾으시는 답변이 없으면 <a href="mailto:iumm.master@gmail.com" style="color:var(--gold);text-decoration:underline">iumm.master@gmail.com</a>으로 문의해주세요.</p>
+    <p style="font-size:15px;color:rgba(255,255,255,0.55);font-weight:300;margin-bottom:48px;line-height:1.8">온라인 번역공증·아포스티유 이용에 자주 묻는 질문들을 정리했습니다.<br>찾으시는 답변이 없으면 <a href="mailto:iumm.master@gmail.com" style="color:var(--gold);text-decoration:underline">iumm.master@gmail.com</a>으로 문의해주세요.</p>
 
-    <!-- 카테고리 탭 -->
+    <!-- 카테고리 탭 (2026-10 개편 — 번역공증·아포스티유 중심) -->
     <div class="faq-tabs" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,0.08)">
       <button onclick="switchFaqTab('all')" class="faq-tab faq-tab-active" data-tab="all" style="padding:10px 18px;background:var(--gold);color:#000;border:none;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">전체</button>
+      <button onclick="switchFaqTab('notary')" class="faq-tab" data-tab="notary" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">번역공증</button>
+      <button onclick="switchFaqTab('apostille')" class="faq-tab" data-tab="apostille" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">아포스티유</button>
       <button onclick="switchFaqTab('payment')" class="faq-tab" data-tab="payment" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">결제·환불</button>
-      <button onclick="switchFaqTab('quality')" class="faq-tab" data-tab="quality" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">번역 품질</button>
-      <button onclick="switchFaqTab('field')" class="faq-tab" data-tab="field" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">분야·언어</button>
-      <button onclick="switchFaqTab('service')" class="faq-tab" data-tab="service" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">서비스 이용</button>
-      <button onclick="switchFaqTab('security')" class="faq-tab" data-tab="security" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">보안·개인정보</button>
+      <button onclick="switchFaqTab('security')" class="faq-tab" data-tab="security" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">개인정보</button>
+      <button onclick="switchFaqTab('translate')" class="faq-tab" data-tab="translate" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">번역만</button>
     </div>
 
     <!-- FAQ 항목들 -->
     <div id="faq-list">
 
-      <!-- === 결제·환불 === -->
-      <div class="faq-item" data-cat="payment">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          결제 후 환불이 가능한가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>IUMM은 디지털 맞춤 번역 서비스로, <strong style="color:var(--gold)">결제 후 환불이 불가능합니다</strong>. 이는 「전자상거래법」 제17조 2항(용역 제공 개시, 디지털콘텐츠 제공, 개별 주문 제작 시 청약철회 제한)에 따른 정당한 정책입니다.</p>
-          <p>결제 즉시 번역이 자동 착수되며, 이미 시작된 작업은 되돌릴 수 없습니다. 가입 시 제공되는 <strong>300자 무료체험</strong>으로 품질을 먼저 확인해 보시기를 권장드립니다.</p>
-          <p><strong style="color:var(--gold)"><i class="ti ti-info-circle icon-g" style="margin-right:4px"></i>단, 객관적 오역의 경우 수령 후 5일 이내에 무료 A/S(품질수정) 또는 재번역</strong>을 제공해 드립니다. iumm.master@gmail.com으로 문의해 주세요.</p>
-        </div>
+      <div class="faq-item" data-cat="notary">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>정말 직접 가지 않아도 되나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>네. 서류를 올리고 결제하시면 번역·번역자격인증·공증, 필요하면 아포스티유까지 진행해 등기로 보내드립니다. 방문하거나 서류를 우편으로 보내실 필요가 없습니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="notary">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>어떤 서류를 맡길 수 있나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>가족관계·기본·혼인관계증명서, 주민등록등본·초본, 출입국사실증명서, 범죄·수사경력회보서(개인), 생활기록부, 졸업·성적·재학증명서, 은행잔고증명서, 예방접종증명서(유학), 사업자등록증명, 법인등기부등본, 정관, 주주명부, 재직·경력증명서, 이사회의사록, 위임장, 계약서, 납세증명서, 재무제표(기업)를 신청 화면에서 바로 접수합니다.</p><p>목록에 없는 서류는 신청 화면의 <strong>기타 서류 문의</strong>로 보내주시면 결제 전에 담당자가 확인해 드립니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="notary">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>서류는 어떻게 발급받아 올리나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>서류를 고르면 업로드 화면에서 발급처와 발급 방법을 안내해 드립니다. 정부 사이트에서 <strong>PDF로 저장</strong>한 파일을 올려주시는 것이 가장 좋습니다. 그 밖의 서류는 JPG·PNG 스캔본도 받습니다. HWP·Word 파일은 PDF로 저장해 올려 주세요.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="notary">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>얼마나 걸리나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>공증은 <strong>주 2회</strong> 일괄 진행합니다(영업일 기준). 아포스티유를 함께 신청하시면 대행 기관 일정에 따라 기간이 추가됩니다. 공증이 끝나면 스캔본을 먼저 마이페이지에 올려드립니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="notary">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>번역본의 영문 이름은 어떻게 쓰나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>신청 화면에서 입력하신 <strong>여권 영문 철자</strong>를 그대로 씁니다. 가족관계증명서는 가족분들의 여권 철자도 입력하실 수 있습니다. 그 밖의 인물은 표준 로마자 표기를 따릅니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="notary">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>어떤 언어로 번역되나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>기본은 영어이며, 제출처가 요구하는 언어로 바꾸실 수 있습니다. 제출 국가와 관계없이 영어로 받는 경우가 많으니 제출처 요구 사항을 먼저 확인해 주세요.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="apostille">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>아포스티유는 언제 필요한가요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>제출 국가가 아포스티유 협약국이면 아포스티유로 대사관 확인을 대신합니다. 신청 화면에서 제출 국가를 고르면 협약 여부를 바로 보여드리고, 협약국일 때만 아포스티유를 함께 신청하실 수 있습니다.</p><p>협약국이 아닌 경우에는 대사관 영사확인이 필요하며, 담당자가 진행 방법을 안내해 드립니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="apostille">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>영문으로 발급되는 서류도 번역해야 하나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>범죄경력회보서·출입국사실증명서·주민등록등본/초본·사업자등록증명·납세증명서, 국립대학교 졸업·성적증명서처럼 영문으로 발급되는 서류는 <strong>번역·공증 없이 아포스티유만</strong> 받으시면 됩니다. 서류를 고르시면 자동으로 아포스티유 단독으로 안내해 드립니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="apostille">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>범죄경력회보서는 어떤 목적으로 발급받아야 하나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>경찰청 발급 시스템에서 <strong>[외국 입국·체류]</strong> 목적, <strong>영문</strong>으로 발급받아 주세요. 본인확인용으로 발급받은 회보서는 해외에 제출할 수 없으며, 목적 외 사용은 처벌 대상입니다. 영문 이름은 여권 철자와 똑같이 입력해 주세요.</p></div>
       </div>
 
       <div class="faq-item" data-cat="payment">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          번역 결과가 마음에 들지 않으면 어떻게 하나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>다음의 경우 <strong style="color:var(--gold)">무료 재번역 또는 A/S(품질수정)</strong>을 제공합니다:</p>
-          <ul>
-            <li>시스템 오류로 번역이 정상 진행되지 않은 경우</li>
-            <li>객관적 오역이 확인된 경우 (<strong>수령 후 5일 이내 신청</strong>)</li>
-            <li>당사 귀책 사유로 서비스가 제공되지 않은 경우</li>
-          </ul>
-          <p>단순 변심, 입력 오류(오타 등), 기대 차이는 재번역 사유에 해당하지 않습니다.</p>
-          <p style="margin-top:12px;padding:12px 14px;background:rgba(22,184,148,0.05);border-left:2px solid var(--gold);font-size:13px"><strong style="color:var(--gold)">신청 방법:</strong> <a href="mailto:iumm.master@gmail.com" style="color:var(--gold);text-decoration:underline">iumm.master@gmail.com</a>으로 <strong>주문번호 + 오역 부분 + 사유</strong>를 함께 보내주시면 검토 후 진행됩니다. 수령 후 5일이 지나면 신청이 불가합니다.</p>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>금액은 어떻게 정해지나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>서류와 쪽수, 아포스티유 여부에 따라 자동으로 계산됩니다. 가족관계·기본·혼인증명서는 정해진 금액이고, 그 밖의 서류는 번역(쪽당)·공증 실비·번역자격인증·등기를 더한 금액입니다. 결제 화면에서 항목별 금액과 부가세를 확인하실 수 있습니다. 스캔본 제공은 기본 포함입니다.</p></div>
       </div>
 
       <div class="faq-item" data-cat="payment">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          어떤 결제 수단을 지원하나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>신용카드/체크카드(국내 모든 카드)와 실시간 계좌이체를 지원합니다. 모든 결제는 PG사를 통해 안전하게 처리됩니다.</p>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>결제 후 취소·환불이 되나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p><strong style="color:var(--gold)">결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가합니다.</strong> 개별 주문 제작 서비스로, 결제 화면에서 이 내용을 확인하고 동의하신 뒤 진행됩니다. 결제 전에 서류와 금액을 꼭 확인해 주세요.</p></div>
       </div>
 
       <div class="faq-item" data-cat="payment">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          세금계산서·현금영수증을 발급받을 수 있나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 발급 가능합니다.</p>
-          <ul>
-            <li><strong>현금영수증:</strong> 현금/계좌이체로 결제하신 경우 발급 가능합니다.</li>
-            <li><strong>세금계산서:</strong> 사업자 고객님께 발급해 드립니다.</li>
-          </ul>
-          <p><strong>📧 신청 방법:</strong> 결제 후 iumm.master@gmail.com으로 <strong>주문번호, 사업자등록번호, 발급받을 이메일 주소</strong>를 보내주시면 발급해 드립니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="payment">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          가격은 어떻게 계산되나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p><strong style="color:var(--gold)">글자 수 기준</strong>으로 계산됩니다.</p>
-          <ul>
-            <li>AI 프리미엄: 25원/글자</li>
-            <li>프리미엄 플러스: 40원/글자</li>
-            <li>자격사 검수 옵션: +20원/글자</li>
-          </ul>
-          <p>주문 화면에서 텍스트 입력 시 실시간으로 금액이 계산됩니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="payment">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          결제가 실패했어요. 어떻게 하나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>다음을 확인해 주세요:</p>
-          <ul>
-            <li>카드 한도가 충분한지</li>
-            <li>해외 결제 차단 설정이 되어 있는지</li>
-            <li>카드 유효기간이 지나지 않았는지</li>
-            <li>다른 결제 수단(카드 ↔ 실시간 계좌이체)으로 시도</li>
-          </ul>
-          <p>계속 문제가 발생하면 iumm.master@gmail.com으로 주문번호와 함께 문의해 주세요.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="payment">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          대량 주문 시 할인이 가능한가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, <strong style="color:var(--gold)">월 500만 원 이상 또는 정기 이용</strong> 시 별도 견적이 가능합니다.</p>
-          <p style="margin-top:8px"><strong style="color:var(--gold)">기업 파트너십 안내:</strong></p>
-          <ul>
-            <li>정기 이용 기업 — <strong>맞춤 할인율</strong> 적용</li>
-            <li>전담 매니저 배정</li>
-            <li>NDA 별도 체결 가능</li>
-            <li>분야별 전용 용어집 구축</li>
-            <li>API 연동 가능 (시스템 통합)</li>
-          </ul>
-          <p style="margin-top:12px;padding:12px 14px;background:rgba(22,184,148,0.05);border-left:2px solid var(--gold);font-size:13px"><strong style="color:var(--gold)">파트너십 문의:</strong> <a href="mailto:iumm.master@gmail.com" style="color:var(--gold);text-decoration:underline">iumm.master@gmail.com</a>으로 <strong>회사명, 예상 월 분량, 주요 분야, 담당자 연락처</strong>를 보내주시면 맞춤 제안을 드립니다.</p>
-        </div>
-      </div>
-
-      <!-- === 번역 품질 === -->
-      <div class="faq-item" data-cat="quality">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          ChatGPT나 DeepL과 무엇이 다른가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>IUMM은 <strong style="color:var(--gold)">17개 전문 분야별 글로벌 표준</strong>을 학습한 AI에 9.5단계 교차검증 시스템을 결합한 프리미엄 번역 서비스입니다.</p>
-          <ul>
-            <li>일반 AI: 범용 번역, 분야별 정형 표현 부재</li>
-            <li>IUMM: 법률은 법률답게, 의료는 의료답게, 분야별 표준 용어 자동 적용</li>
-          </ul>
-          <p>예: 법률 분야는 Black's Law Dictionary, 의료는 WHO ICD-11, 특허는 WIPO 표준을 기반으로 번역합니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="quality">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          AI 프리미엄과 프리미엄 플러스의 차이는?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p><strong style="color:var(--gold)">AI 프리미엄 (25원/글자)</strong></p>
-          <ul>
-            <li>AI 9.5단계 교차검증 시스템</li>
-            <li>분야별 글로벌 표준 용어 적용</li>
-            <li>일반 비즈니스·학술 용도에 적합</li>
-            <li>빠른 당일 납품 (A4 5페이지 이하 기준)</li>
-          </ul>
-          <p style="margin-top:14px"><strong style="color:var(--gold)">프리미엄 플러스 (40원/글자) <i class="ti ti-star-filled" style="color:#c9a84c;font-size:12px;vertical-align:1px"></i></strong></p>
-          <ul>
-            <li>AI 프리미엄의 모든 기능 포함</li>
-            <li style="color:var(--gold);font-weight:600">★ 휴먼 터치: 전문 번역사·검수자의 직접 대조검수</li>
-            <li>AI 결과 → 사람이 원문과 1:1 대조하며 검수</li>
-            <li>분야별 자격사·전문가 매칭 가능</li>
-            <li>법률·의료·특허·금융 등 정밀 분야 강력 권장</li>
-            <li>납품 시간: 6시간 - 24시간 (자격사 검수 옵션 시)</li>
-          </ul>
-          <p style="margin-top:14px;padding:12px 14px;background:rgba(22,184,148,0.05);border-left:2px solid var(--gold);font-size:13px"><strong style="color:var(--gold)">핵심 차이:</strong> 프리미엄 플러스는 단순히 검수 단계가 더 많은 것이 아니라, <strong>실제 사람(전문 번역사·자격사)이 원문과 번역본을 직접 대조하며 검수</strong>한다는 점이 결정적 차이입니다. 중요한 문서에는 반드시 프리미엄 플러스를 권장드립니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="quality">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          자격사 검수란 무엇인가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>변호사, 의사, 회계사, 변리사 등 <strong style="color:var(--gold)">해당 분야 자격증을 보유한 전문가</strong>가 번역 결과를 <strong style="color:var(--gold)">원문과 직접 대조하여 검수</strong>하는 옵션입니다. 사람의 통찰과 전문성이 더해져 최고 수준의 정확성을 보장합니다.</p>
-          <ul>
-            <li>추가 비용: 글자당 +20원</li>
-            <li><strong>원문 ↔ 번역문 1:1 대조 검수</strong></li>
-            <li>법률·의료·특허·회계·범죄·이민 등 정밀 분야 강력 권장</li>
-            <li>모든 자격사는 NDA 체결 후 활동</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="quality">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          번역 결과를 받는 데 얼마나 걸리나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>일반적으로 다음과 같습니다:</p>
-          <p style="margin-top:12px;font-weight:600;color:#e8c94a">[AI 프리미엄] · 9.5단계 AI 교차검증 자동 처리</p>
-          <ul>
-            <li>1,000~5,000자: 24시간 이내</li>
-            <li>5,001~10,000자: 36시간 이내</li>
-            <li>10,001~15,000자: 48시간 이내</li>
-            <li>15,001~20,000자: 60시간 이내</li>
-          </ul>
-          <p style="margin-top:12px;font-weight:600;color:#e8c94a">[프리미엄 플러스] · AI + 전문가 검수</p>
-          <ul>
-            <li>1,000~5,000자: 2일 이내</li>
-            <li>5,001~10,000자: 3~4일 이내</li>
-            <li>10,001~15,000자: 4~5일 이내</li>
-            <li>15,001~20,000자: 5~7일 이내</li>
-          </ul>
-          <p style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.6)">※ 총 결제금액 200만원 초과 시 법인계좌 입금 방식으로 진행</p>
-          <p style="font-size:12px;color:rgba(255,255,255,0.6)">※ 완료 시 카카오 알림톡으로 안내드립니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="quality">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          오역이 있을 경우 어떻게 처리되나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>번역 결과 수령 후 <strong style="color:var(--gold)">5일 이내</strong>에 객관적 오역을 발견하시면 무료 <strong style="color:var(--gold)">재번역 또는 A/S(품질수정)</strong>을 신청하실 수 있습니다.</p>
-          <p style="margin-top:8px"><strong style="color:var(--gold)">신청 방법:</strong> <a href="mailto:iumm.master@gmail.com" style="color:var(--gold);text-decoration:underline">iumm.master@gmail.com</a>으로 다음을 함께 보내주세요:</p>
-          <ul>
-            <li>주문번호</li>
-            <li>오역으로 판단되는 부분 (원문 + 번역 결과)</li>
-            <li>판단 사유 또는 제안</li>
-          </ul>
-          <p>※ 단순 표현 차이, 개인 선호도 차이는 오역에 해당하지 않습니다.<br>※ <strong style="color:rgba(255,107,107,0.9)">수령 후 5일이 경과하면 신청이 불가</strong>합니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="quality">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          긴 문서(보고서, 논문)도 번역 가능한가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 길이 제한 없이 가능합니다. 단, 한 번에 입력 가능한 글자 수는 50,000자이며, 그 이상은 여러 번 나눠서 주문하시거나 별도 문의해 주세요.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="quality">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          용어집을 등록할 수 있나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 주문 시 "고객 요청 용어집" 항목에 자주 사용하는 용어를 등록하시면 번역에 반영됩니다. 예: 회사명, 제품명, 특정 전문용어 등.</p>
-        </div>
-      </div>
-
-      <!-- === 분야·언어 === -->
-      <div class="faq-item" data-cat="field">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          어떤 분야를 지원하나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>총 <strong style="color:var(--gold)">17개 전문 분야</strong>를 지원합니다:</p>
-          <ul>
-            <li><strong>법률·전문:</strong> 법률·계약, 특허·지식재산, 범죄·수사·공문</li>
-            <li><strong>의료·과학:</strong> 의료·제약, 학술·논문, 기술·IT</li>
-            <li><strong>비즈니스·금융:</strong> 비즈니스, 금융·재무, 회계·세무, 마케팅·광고</li>
-            <li><strong>문화·엔터:</strong> 문학·출판, 예술·문화, 게임·엔터테인먼트</li>
-            <li><strong>공공·산업:</strong> 이민·비자·증명서, 건설·엔지니어링, 환경·ESG</li>
-            <li><strong>기타:</strong> 일반 (분야 미선택 시)</li>
-          </ul>
-          <p>각 분야는 <strong style="color:var(--gold)">해당 산업의 글로벌 표준</strong>(Black's Law Dictionary, WHO ICD-11, WIPO, IFRS, GRI 등)을 기반으로 정밀하게 번역합니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="field">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          몇 개 언어를 지원하나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>주요 31개 안정 언어를 지원합니다. 한국어를 기반으로 영어, 일본어, 중국어(간체/번체), 베트남어, 태국어, 인도네시아어, 스페인어, 프랑스어, 독일어, 몽골어 등 31개 언어 간 양방향 번역이 가능합니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="field">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          분야를 선택하지 않으면 어떻게 되나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>"일반" 분야로 자동 처리됩니다. 일반 분야는 원문에 충실한 자연스러운 직역 원칙을 따르며, 어떤 텍스트에도 적용 가능한 균형 잡힌 번역을 제공합니다.</p>
-          <p>단, 법률·의료 등 전문 분야 문서는 해당 분야를 선택하시는 것이 정확도가 훨씬 높습니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="field">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          어떤 분야를 선택해야 할지 모르겠어요.
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>대표 분야 선택 가이드:</p>
-          <ul>
-            <li><strong>계약서·약관·법령</strong> → 법률·계약</li>
-            <li><strong>의학 논문·임상시험·진단서</strong> → 의료·제약</li>
-            <li><strong>특허 명세서·청구항</strong> → 특허·지식재산</li>
-            <li><strong>수사 기록·진술서·외교 공문</strong> → 범죄·수사·공문</li>
-            <li><strong>출생/혼인/학력/재직 증명서·비자</strong> → 이민·비자·증명서</li>
-            <li><strong>재무제표·IR 자료·투자 보고서</strong> → 금융·재무</li>
-            <li><strong>세무 신고서·감사 보고서</strong> → 회계·세무</li>
-            <li><strong>매뉴얼·API 문서·기술 백서</strong> → 기술·IT</li>
-            <li><strong>광고 카피·SNS·보도자료</strong> → 마케팅·광고</li>
-            <li><strong>학술 논문·학위 논문</strong> → 학술·논문</li>
-            <li><strong>이메일·회의록·제안서</strong> → 비즈니스</li>
-            <li><strong>소설·에세이·웹툰</strong> → 문학·출판</li>
-            <li><strong>영화·음악·미술·공연</strong> → 예술·문화</li>
-            <li><strong>게임 텍스트·자막·더빙</strong> → 게임·엔터테인먼트</li>
-            <li><strong>시방서·도면·안전 매뉴얼</strong> → 건설·엔지니어링</li>
-            <li><strong>지속가능경영 보고서·탄소 배출</strong> → 환경·ESG</li>
-            <li><strong>일반적인 텍스트</strong> → 일반</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="field">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          희귀 언어도 번역 가능한가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>31개 안정 언어 외의 희귀 언어는 별도 문의해 주세요. iumm.master@gmail.com으로 언어쌍과 분량을 알려 주시면 가능 여부와 견적을 안내해 드립니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="field">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          영어 → 일본어 같은 외국어 간 번역도 되나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 한국어를 거치지 않고 영어 ↔ 일본어, 영어 ↔ 중국어 등 외국어 간 직접 번역이 가능합니다.</p>
-        </div>
-      </div>
-
-      <!-- === 서비스 이용 === -->
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          가입은 어떻게 하나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>카카오 계정으로 간편하게 가입할 수 있습니다. 사이트 우측 상단 "로그인 / 가입"을 클릭한 뒤 카카오 로그인을 진행해 주세요. 가입 시 <strong style="color:var(--gold)">300자 무료체험</strong>이 자동 제공됩니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          무료체험은 몇 번까지 가능한가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>회원당 <strong style="color:var(--gold)">1회, 최대 300자</strong>까지 제공됩니다. 무료체험은 품질 확인을 위한 것으로, 신용카드 없이 즉시 이용 가능합니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          주문 진행 상황을 확인할 수 있나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 마이페이지에서 모든 주문 내역과 현재 진행 상황을 확인하실 수 있습니다. 주요 단계마다 카카오 알림톡으로 안내드립니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          파일을 업로드해서 번역할 수 있나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 파일 업로드를 지원합니다. <strong>Word(.docx)·Excel(.xlsx)·PDF</strong> 파일은 업로드하시면 본문 텍스트를 자동으로 추출하며, <strong>이미지·스캔 문서는 OCR</strong>로 텍스트를 인식합니다.</p>
-          <p>추출된 텍스트는 주문 전에 화면에서 직접 확인·수정하실 수 있어, 인식 오류가 있어도 결제 전에 바로잡을 수 있습니다.</p>
-          <p><strong>HWP(한글 문서)</strong>는 아직 자동 추출을 지원하지 않습니다. 한글에서 본문을 복사해 붙여넣어 주세요.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          번역 결과는 어떻게 받나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>번역 완료 시 알림톡으로 안내드립니다. 마이페이지 &gt; 주문 목록에서 다운로드하시면 됩니다. 보안을 위해 21일 후 자동 삭제되니 기간 내 받아주세요.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          영업시간이 어떻게 되나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>주문은 <strong style="color:var(--gold)">24시간 365일 가능</strong>합니다. AI 번역은 즉시 진행되며, 자격사 검수는 평일 09:00-18:00 기준으로 처리됩니다(주말·공휴일 제외).</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          영수증은 어디서 받나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>카드 결제 영수증(매출전표)은 결제에 사용하신 카드사 앱·홈페이지에서 확인하실 수 있습니다.</p>
-          <p>세금계산서·현금영수증이 필요하시면 iumm.master@gmail.com으로 <strong>주문번호</strong>와 함께 요청해 주시면 발급해 드립니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          계정을 탈퇴하고 싶어요.
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>마이페이지 > 회원 정보 탭 하단의 [회원 탈퇴] 버튼에서 가능합니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          기업/단체 회원 등록도 가능한가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 기업 회원은 별도 견적과 정기 계약이 가능합니다. iumm.master@gmail.com으로 회사명·담당자·예상 분량을 알려 주시면 맞춤 제안을 드리겠습니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          번역이 거부되는 콘텐츠가 있나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, IUMM은 아래 콘텐츠는 어떠한 경우에도 번역하지 않습니다.</p>
-          <ul>
-            <li><strong style="color:#ff6b6b">아동 성적 착취·학대 콘텐츠</strong> (CSAM 포함)</li>
-            <li><strong style="color:#ff6b6b">명시적 성인 콘텐츠</strong> (음란물)</li>
-            <li><strong style="color:#ff6b6b">무기·마약·테러 관련 콘텐츠</strong></li>
-            <li><strong style="color:#ff6b6b">혐오 발언 및 차별 콘텐츠</strong></li>
-            <li><strong style="color:#ff6b6b">기타 법령 위반 불법 콘텐츠</strong></li>
-          </ul>
-          <p>위 콘텐츠가 의뢰될 경우 <strong style="color:var(--gold)">즉시 작업이 중단되고 메일로 통지</strong>되며, 문서는 내부에서 즉시 폐기됩니다. 결제 금액은 환불되지 않을 수 있습니다(전자상거래법 제17조 2항).</p>
-          <p style="margin-top:12px;padding:12px 14px;background:rgba(22,184,148,0.05);border-left:2px solid var(--gold);font-size:13px"><strong style="color:var(--gold)">예외:</strong> 수사기관·법원·변호사 등 공적 기관의 정당한 업무 수행을 위한 <strong>수사 기록·진술서·증거 자료</strong>는 별도 계약을 통해 처리합니다. <a href="mailto:iumm.master@gmail.com" style="color:var(--gold);text-decoration:underline">iumm.master@gmail.com</a>으로 사전에 문의해 주세요.</p>
-          <p style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.5)">자세한 내용은 <strong>이용약관 제11조</strong>를 참고해 주세요.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="service">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          계약서에 적힌 금액(USD, EUR 등)을 원화로 환산해주나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p><strong style="color:var(--gold)">아니요, IUMM은 통화 환산을 수행하지 않습니다.</strong></p>
-          <p>번역 시 원문에 기재된 통화 단위(USD, EUR, KRW 등 ISO 코드)를 그대로 유지합니다.</p>
-          <p style="margin-top:8px"><strong>이유:</strong></p>
-          <ul>
-            <li>계약·법률 문서의 <strong>법적 효력 보존</strong></li>
-            <li>환율 변동으로 인한 <strong>회계 처리 오류 방지</strong></li>
-            <li>환산 시점·환율 적용 기준에 따른 <strong>분쟁 방지</strong></li>
-          </ul>
-          <p style="margin-top:8px">통화 환산이 필요하신 경우, 별도 회계·재무 전문가의 검토를 받으시기 바랍니다.</p>
-        </div>
-      </div>
-
-      <!-- === 보안·개인정보 === -->
-      <div class="faq-item" data-cat="security">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          제 문서가 AI 학습에 사용되나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p><strong style="color:var(--gold)">절대 아닙니다.</strong> IUMM은 AI 학습에 사용되지 않는 안전한 API만 사용하며, 고객 문서는 학습 데이터로 활용되지 않습니다.</p>
-          <p>일반 ChatGPT나 무료 번역 서비스와 달리, IUMM은 기업 수준의 보안을 적용합니다.</p>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>주소를 잘못 입력했어요.<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>발송 전이라면 바로 카카오톡 채널이나 iumm.master@gmail.com 으로 알려주세요. 잘못된 주소로 발송된 뒤의 재발송 비용은 고객 부담입니다.</p></div>
       </div>
 
       <div class="faq-item" data-cat="security">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          NDA(비밀유지계약)를 체결할 수 있나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 모든 자격사 검수자는 NDA 체결 후 활동합니다. 추가로 기업 고객의 별도 NDA가 필요하시면 iumm.master@gmail.com으로 문의해 주세요.</p>
-        </div>
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>제 서류와 개인정보는 어떻게 보관되나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>공증 서류는 원본과 같아야 해 주민등록번호 등이 그대로 필요합니다. 업무 처리에만 사용하며, 완료 후 <strong>30일이 지나면</strong> 원본·번역본·스캔본과 개인정보를 서버에서 삭제합니다. 자세한 내용은 <a href="#" onclick="showPage('privacy');return false" style="color:var(--gold);text-decoration:underline">개인정보처리방침</a>을 확인해 주세요.</p></div>
       </div>
 
-      <div class="faq-item" data-cat="security">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          번역 데이터는 얼마나 보관되나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>관계 법령에 따라 다음과 같이 보관됩니다:</p>
-          <ul>
-            <li>주문 내역: 5년 (전자상거래법)</li>
-            <li>결제 기록: 5년 (전자상거래법)</li>
-            <li>번역 결과: 1년 (서비스 제공 기간 후)</li>
-            <li>개인정보: 회원 탈퇴 시 즉시 파기</li>
-          </ul>
-          <p>법령상 보관이 필요한 경우 외에는 즉시 파기됩니다.</p>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="security">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          민감한 내용도 안전한가요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>네, 법률·의료·특허 등 민감한 내용도 안심하고 의뢰하실 수 있습니다.</p>
-          <ul>
-            <li>HTTPS 암호화 통신</li>
-            <li>AI 학습 비참여 API 사용</li>
-            <li>모든 자격사 NDA 체결</li>
-            <li>접근 권한 최소화</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="faq-item" data-cat="security">
-        <div class="faq-q" onclick="toggleFaq(this)">
-          <span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>
-          개인정보 처리방침은 어디서 볼 수 있나요?
-          <span class="faq-arrow">▼</span>
-        </div>
-        <div class="faq-a">
-          <p>페이지 하단 "개인정보처리방침" 링크를 클릭하시면 전체 내용을 확인하실 수 있습니다. 수집 항목, 이용 목적, 보관 기간, 제3자 제공 여부 등을 자세히 안내합니다.</p>
-        </div>
+      <div class="faq-item" data-cat="translate">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold);font-weight:700;margin-right:12px">Q.</span>공증 없이 번역만 맡길 수 있나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>네. 공증 서류는 신청 화면에서 <strong>“번역본만 필요합니다”</strong>를 선택하시면 됩니다(번역확인서 등은 제공되지 않습니다). 일반 문서 번역은 메인 화면 아래 <strong>번역만 필요하신가요?</strong>에서 글자 수 기준으로 의뢰하실 수 있습니다.</p></div>
       </div>
 
     </div>
@@ -2343,758 +1863,282 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 
 <!-- HERO -->
-<section class="hero" id="top">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
-  <div style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1200px;margin:0 auto;width:100%;align-items:center">
-    <!-- 왼쪽: 카피 -->
-    <div class="hero-content">
-      <div class="hero-badge"><span class="badge-dot"></span>그냥 AI가 아닙니다</div>
-      <h1 class="hero-title">전문가가 만든<br><span class="mint">슈퍼 번역 AI</span></h1>
-      <p style="font-size:clamp(16px,1.6vw,18px);color:#D5DDE5;line-height:1.7;margin-bottom:0;animation:fadeUp 0.8s 0.35s ease both;word-break:keep-all">
-        독자적인 9.5단계 교차검수 및 철저한 상호 검토로<br>개발된 최고 수준의 전문 번역 플랫폼.<br>원어민 품질로 가장 빠르고 정확하게.
-      </p>
-      <div class="hero-btns">
-        <button class="btn-primary" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false">무료로 이용하기</button>
-        <button class="btn-secondary" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">요금제 보기</button>
-      </div>
-      <p class="hero-free">300자 무료 체험 · 카드 등록 없이</p>
+<!-- ════════════════════════════════════════════════════════════════
+     메인 랜딩 (2026-10 개편) — 온라인 번역공증·아포스티유가 주력, 번역만은 보조
+     ★금액·서류 목록은 /api/notary/config(pricing.js 단일 출처)에서 받아 채운다.
+       HTML 안의 숫자는 설정을 못 받았을 때만 보이는 기본값이다.
+     ★표기 원칙: 숫자만, 최상급 표현 금지(표시광고법), 사람 중심 표현.
+     ════════════════════════════════════════════════════════════════ -->
+<style>
+.lp{max-width:1080px;margin:0 auto;padding:0 20px}
+.lp-sec{padding:64px 0;border-top:1px solid rgba(255,255,255,0.06)}
+.lp-label{font-size:11px;letter-spacing:3px;color:var(--mint);font-weight:700;margin:0 0 10px}
+.lp-h2{font-size:clamp(24px,4vw,34px);font-weight:700;color:#fff;letter-spacing:-0.5px;margin:0 0 12px;line-height:1.35}
+.lp-sub{font-size:15px;color:rgba(255,255,255,0.6);line-height:1.8;margin:0 0 28px}
+.lp-hero{padding:128px 0 64px;background:radial-gradient(ellipse at 70% 0%,rgba(22,184,148,0.16),transparent 60%),var(--black)}
+.lp-hero h1{font-size:clamp(30px,6vw,54px);font-weight:800;color:#fff;letter-spacing:-1px;line-height:1.25;margin:0 0 14px}
+.lp-hero h1 .m{color:var(--mint)}
+.lp-hero .lead{font-size:clamp(16px,2.4vw,20px);color:rgba(255,255,255,0.75);margin:0 0 30px;line-height:1.7}
+.lp-points{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 32px}
+.lp-point{padding:18px 18px;border:1px solid rgba(22,184,148,0.28);border-radius:12px;background:rgba(22,184,148,0.06)}
+.lp-point .n{font-size:12px;color:var(--mint);font-weight:700;margin-bottom:6px}
+.lp-point .t{font-size:16px;color:#fff;font-weight:700;line-height:1.45}
+.lp-point .t b{color:#D4AF37}
+.lp-point .d{font-size:12.5px;color:rgba(255,255,255,0.55);margin-top:6px;line-height:1.6}
+.lp-ctas{display:flex;gap:10px;flex-wrap:wrap}
+.lp-btn{display:inline-block;padding:16px 30px;border-radius:10px;background:var(--mint);color:#06202f;font-weight:800;font-size:15px;text-decoration:none;border:none;cursor:pointer;font-family:inherit}
+.lp-btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.25);font-weight:600}
+.lp-cats{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.lp-cat{padding:9px 18px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.75);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.lp-cat.on{border-color:var(--mint);background:rgba(22,184,148,0.14);color:#fff}
+.lp-docs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.lp-doc{display:block;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.02);color:#fff;font-size:14px;font-weight:600;text-decoration:none;line-height:1.4}
+.lp-doc:hover{border-color:rgba(22,184,148,0.5)}
+.lp-doc span{display:block;margin-top:4px;font-size:11.5px;font-weight:500;color:rgba(255,255,255,0.5)}
+.lp-doc span.apo{color:#5DE0BC}
+.lp-doc.off{opacity:.4;pointer-events:none}
+.lp-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;counter-reset:s}
+.lp-step{padding:22px 18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)}
+.lp-step .no{font-size:12px;color:var(--mint);font-weight:800;letter-spacing:1px}
+.lp-step .t{font-size:17px;color:#fff;font-weight:700;margin:6px 0}
+.lp-step .d{font-size:13px;color:rgba(255,255,255,0.58);line-height:1.65}
+.lp-apo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lp-card{padding:22px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.02)}
+.lp-card h3{font-size:17px;color:#fff;margin:0 0 8px;font-weight:700}
+.lp-card p,.lp-card li{font-size:13.5px;color:rgba(255,255,255,0.65);line-height:1.75;margin:0}
+.lp-card ul{margin:6px 0 0;padding-left:18px}
+.lp-badge{display:inline-block;padding:4px 10px;border-radius:12px;background:rgba(212,175,55,0.14);color:#D4AF37;font-size:12px;font-weight:700;margin-top:10px}
+.lp-price{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.lp-price .lp-card .row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13.5px;color:rgba(255,255,255,0.7)}
+.lp-price .lp-card .row:last-child{border-bottom:none}
+.lp-price .lp-card .row b{color:#fff;white-space:nowrap}
+.lp-note{font-size:12px;color:rgba(255,255,255,0.42);margin-top:12px;line-height:1.7}
+.lp-trust{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.lp-faq details{border-bottom:1px solid rgba(255,255,255,0.08);padding:14px 2px}
+.lp-faq summary{cursor:pointer;color:#fff;font-size:15px;font-weight:600;list-style:none}
+.lp-faq summary::before{content:'Q. ';color:var(--mint)}
+.lp-faq details p{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.8;margin:10px 0 0}
+.lp-tonly{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:22px;border-radius:12px;border:1px dashed rgba(255,255,255,0.18)}
+.lp-tonly p{margin:0;font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7}
+.lp-tonly strong{color:#fff;font-size:16px}
+@media(max-width:900px){
+  .lp-docs{grid-template-columns:repeat(3,1fr)}
+  .lp-steps,.lp-trust{grid-template-columns:repeat(2,1fr)}
+  .lp-price{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .lp{padding:0 16px}
+  .lp-sec{padding:48px 0}
+  .lp-hero{padding:100px 0 44px}
+  .lp-points{grid-template-columns:1fr}
+  .lp-docs{grid-template-columns:repeat(2,1fr)}
+  .lp-apo{grid-template-columns:1fr}
+  .lp-btn{width:100%;text-align:center}
+}
+</style>
+
+<!-- ── 히어로 ──────────────────────────────────────────────── -->
+<section class="lp-hero" id="top">
+  <div class="lp">
+    <p class="lp-label">ONLINE NOTARIZATION · APOSTILLE</p>
+    <h1>온라인 번역공증 · 아포스티유<br><span class="m">직접 가지 말고, 집에서 신청하세요</span></h1>
+    <p class="lead">서류를 고르고 올려주시면 번역부터 공증·아포스티유까지 진행해 집으로 보내드립니다.</p>
+    <div class="lp-points">
+      <div class="lp-point"><div class="n">01</div><div class="t">방문·우편 없이<br>온라인으로 공증까지</div><div class="d">스캔본을 먼저 드리고 실물은 등기로 보내드립니다.</div></div>
+      <div class="lp-point"><div class="n">02</div><div class="t">가족관계·기본·혼인<br>번역 <b data-lp="t1">4,000</b>원</div><div class="d">부가세 별도 · 2쪽부터 쪽당 <span data-lp="pp">2,000</span>원</div></div>
+      <div class="lp-point"><div class="n">03</div><div class="t">올리면 바로<br>번역본 확인 (약 3분)</div><div class="d">가족관계·기본·혼인증명서 기준. 화면에서 확인·수정한 뒤 확정합니다.</div></div>
     </div>
-    <!-- 오른쪽: 숫자카드 -->
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:480px;margin-left:auto;margin-right:auto;animation:fadeUp 0.8s 0.5s ease both">
-      <div class="stat-card">
-        <div class="stat-num">31</div>
-        <div class="stat-label">개 언어</div>
-        <div class="detail">영어·일본어·중국어·스페인어·아랍어 등 31개 언어 양방향 번역</div>
+    <div class="lp-ctas">
+      <a class="lp-btn" href="/notary/">서류 고르고 시작하기</a>
+      <a class="lp-btn ghost" href="#pricing">요금 보기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── 서류 카테고리 ───────────────────────────────────────── -->
+<section class="lp-sec" id="docs">
+  <div class="lp">
+    <p class="lp-label">DOCUMENTS</p>
+    <h2 class="lp-h2">어떤 서류가 필요하신가요?</h2>
+    <p class="lp-sub">서류를 고르시면 필요한 절차와 금액은 저희가 정해 드립니다.</p>
+    <div class="lp-cats" id="lp-cats">
+      <button type="button" class="lp-cat on" data-cat="개인" onclick="lpCat('개인')">개인</button>
+      <button type="button" class="lp-cat" data-cat="유학" onclick="lpCat('유학')">유학</button>
+      <button type="button" class="lp-cat" data-cat="기업" onclick="lpCat('기업')">기업</button>
+    </div>
+    <div class="lp-docs" id="lp-docs">
+      <a class="lp-doc" href="/notary/">가족관계증명서<span>번역공증</span></a>
+      <a class="lp-doc" href="/notary/">기본증명서<span>번역공증</span></a>
+      <a class="lp-doc" href="/notary/">혼인관계증명서<span>번역공증</span></a>
+      <a class="lp-doc" href="/notary/">범죄경력회보서<span class="apo">아포스티유만</span></a>
+    </div>
+    <p class="lp-note">목록에 없는 서류도 가능합니다 — <a href="/notary/?doc=other" style="color:var(--mint)">기타 서류 문의</a> (결제 전 담당자 확인)</p>
+  </div>
+</section>
+
+<!-- ── 처리 흐름 ───────────────────────────────────────────── -->
+<section class="lp-sec" id="process">
+  <div class="lp">
+    <p class="lp-label">HOW IT WORKS</p>
+    <h2 class="lp-h2">4단계면 끝납니다</h2>
+    <div class="lp-steps">
+      <div class="lp-step"><div class="no">STEP 1</div><div class="t">서류 선택</div><div class="d">제출할 서류와 나라를 고르시면 절차와 금액을 바로 안내해 드립니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 2</div><div class="t">업로드</div><div class="d">정부 사이트에서 받은 PDF를 올려주세요. 발급 방법도 함께 안내합니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 3</div><div class="t">결제</div><div class="d">카드 결제 후 바로 번역이 시작됩니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 4</div><div class="t">집에서 수령</div><div class="d">스캔본을 먼저 마이페이지로 드리고, 실물은 등기로 보내드립니다.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 아포스티유 안내 ─────────────────────────────────────── -->
+<section class="lp-sec" id="apostille">
+  <div class="lp">
+    <p class="lp-label">APOSTILLE</p>
+    <h2 class="lp-h2">아포스티유, 어떤 경우에 필요할까요?</h2>
+    <p class="lp-sub">해외 기관에 한국 서류를 낼 때, 제출 국가가 아포스티유 협약국이면 아포스티유 하나로 대사관 확인을 대신합니다.</p>
+    <div class="lp-apo">
+      <div class="lp-card">
+        <h3>협약국에 제출하는 경우</h3>
+        <p>번역공증과 함께 아포스티유를 신청하시면 한 번에 진행해 드립니다. 신청 화면에서 제출 국가를 고르면 협약 여부를 바로 확인할 수 있습니다.</p>
+        <span class="lp-badge" id="lp-vn">베트남 2026-09-11 협약 발효</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-num" style="font-size:clamp(28px,4vw,42px)">9.5</div>
-        <div class="stat-label">단계 검수</div>
-        <div class="detail">분석·번역·교차검증·최종 검토 등 9.5단계 독자 검수 시스템</div>
+      <div class="lp-card">
+        <h3>영문으로 발급되는 서류</h3>
+        <p>범죄경력회보서·출입국사실증명서·주민등록등본/초본·사업자등록증명·납세증명서 등은 영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다.</p>
+        <span class="lp-badge">아포스티유 단독 <span data-lp="apo">30,000</span>원 + 등기 <span data-lp="ship">9,000</span>원</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-num">21</div>
-        <div class="stat-label">일 후 삭제</div>
-        <div class="detail">번역 완료 21일 후 원문·번역문 완전 삭제</div>
+      <div class="lp-card">
+        <h3>협약국이 아닌 경우</h3>
+        <p>아포스티유 대신 대사관 영사확인이 필요합니다. 번역공증까지 진행하신 뒤 담당자가 방법을 안내해 드립니다.</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-num">100<span style="font-size:28px">%</span></div>
-        <div class="stat-label">정보 비학습</div>
-        <div class="detail">AI 학습·수집 완전 차단 안심 보안 구조</div>
+      <div class="lp-card">
+        <h3>잘 모르시겠다면</h3>
+        <p>카카오톡으로 제출처와 서류를 알려주시면 필요한 절차를 확인해 드립니다.</p>
+        <a class="lp-badge" style="text-decoration:none" href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener noreferrer">카카오톡 문의 ↗</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 브랜드 시그니처 -->
-<div class="brand-signature-block" style="text-align:center;padding:24px 0">
-  <div class="signature-brand">IUMM 아이움</div>
-  <div class="signature-tagline">AI와 HUMAN을 연결하다</div>
-  <div class="signature-subtitle">당신의 비즈니스를 세계로 확장하다</div>
-</div>
-
-<!-- 경고박스: 정보 누출 경고 (호버 펼침) -->
-<section style="padding:20px 44px 32px;background:#0F2540">
-  <div class="expandable-card warning-card" style="max-width:740px;margin:0 auto;padding:28px 36px;background:rgba(226,75,74,0.10);border:1px solid rgba(226,75,74,0.35);border-radius:14px">
-    <div style="display:flex;align-items:flex-start;gap:18px">
-      <div style="font-size:26px;flex-shrink:0;margin-top:3px;color:#c9a84c"><i class="ti ti-alert-triangle"></i></div>
-      <div style="flex:1">
-        <p style="font-size:18px;font-weight:500;color:#F09595;line-height:1.5;word-break:keep-all">설마, 중요한 계약서를 AI 채팅창에 넣고 계신가요?</p>
-        <p class="hint">마우스를 올리면 펼쳐집니다 ↓</p>
-        <div class="detail">
-          <p style="font-size:16px;color:#D5DDE5;line-height:1.75;margin-bottom:16px;word-break:keep-all">당신의 중요한 정보가 그대로 <span style="color:#F09595;font-weight:500">AI 학습에 누출되고 저장됩니다.</span><br><span style="color:#5DE0BC;font-weight:500">IUMM 아이움</span>은 이런 AI의 문제점을 철저히 방지하고 독자적인 기술로 번역합니다.</p>
-          <p style="font-size:16px;font-weight:500;color:#ffffff;line-height:1.7;margin-bottom:8px">— 저희에게 안심하고 맡기세요.</p>
-          <p style="font-size:15px;color:#C9D2DC;line-height:1.7;word-break:keep-all">IUMM에서는 AI 학습에 <span style="color:#5DE0BC;font-weight:500">절대 유출되지 않는 견고한 구조</span>로 번역·검수합니다.</p>
-        </div>
+<!-- ── 요금 ────────────────────────────────────────────────── -->
+<section class="lp-sec" id="pricing">
+  <div class="lp">
+    <p class="lp-label">PRICING</p>
+    <h2 class="lp-h2">요금</h2>
+    <p class="lp-sub">서류를 고르고 파일을 올리면 정확한 금액이 바로 계산됩니다. 스캔본 제공은 기본 포함입니다.</p>
+    <div class="lp-price">
+      <div class="lp-card">
+        <h3>가족관계·기본·혼인증명서</h3>
+        <div class="row"><span>번역만</span><b><span data-lp="t1">4,000</span>원</b></div>
+        <div class="row"><span>2쪽부터 쪽당</span><b>+<span data-lp="pp">2,000</span>원</b></div>
+        <div class="row"><span>번역공증 (등기 포함)</span><b><span data-lp="t2">55,000</span>원</b></div>
+        <div class="row"><span>번역공증 + 아포스티유 (등기 포함)</span><b><span data-lp="t3">80,000</span>원</b></div>
       </div>
+      <div class="lp-card">
+        <h3>그 밖의 서류</h3>
+        <div class="row"><span>번역 (쪽당)</span><b><span data-lp="tr">7,000</span>원</b></div>
+        <div class="row"><span>공증 실비 (건당)</span><b><span data-lp="nb">26,500</span>원</b></div>
+        <div class="row"><span>공증 추가 쪽당</span><b>+<span data-lp="ne">1,000</span>원</b></div>
+        <div class="row"><span>번역자격인증 (건당)</span><b><span data-lp="ct">10,000</span>원</b></div>
+        <div class="row"><span>아포스티유 추가 (건당)</span><b><span data-lp="aa">10,000</span>원</b></div>
+        <div class="row"><span>등기 (주문당)</span><b><span data-lp="ship">9,000</span>원</b></div>
+      </div>
+      <div class="lp-card">
+        <h3>아포스티유 단독</h3>
+        <div class="row"><span>영문 발급 서류 (건당)</span><b><span data-lp="apo">30,000</span>원</b></div>
+        <div class="row"><span>등기 (주문당)</span><b><span data-lp="ship">9,000</span>원</b></div>
+        <p class="lp-note" style="margin-top:8px">번역·공증 없이 발급받으신 영문 서류에 아포스티유만 받습니다.</p>
+      </div>
+    </div>
+    <p class="lp-note">모든 금액은 부가세 별도입니다. 결제 화면에서 부가세를 포함한 최종 금액을 확인하실 수 있습니다.</p>
+  </div>
+</section>
+
+<!-- ── 신뢰 ────────────────────────────────────────────────── -->
+<section class="lp-sec">
+  <div class="lp">
+    <div class="lp-trust">
+      <div class="lp-card"><h3>원본 양식 그대로</h3><p>공증을 받을 수 있도록 원본 서류의 배치를 그대로 옮겨 번역합니다.</p></div>
+      <div class="lp-card"><h3>전문 번역사가 책임집니다</h3><p>번역자격인증을 거쳐 공증까지 진행합니다.</p></div>
+      <div class="lp-card"><h3>스캔본 먼저</h3><p>공증이 끝나면 실물 도착 전에 스캔본으로 먼저 제출하실 수 있습니다.</p></div>
+      <div class="lp-card"><h3>30일 후 자동 삭제</h3><p>서류와 개인정보는 완료 후 30일이 지나면 서버에서 삭제됩니다.</p></div>
     </div>
   </div>
 </section>
 
-<!-- 접힌 섹션 박스 그리드 -->
-<div class="collapsed-grid-section">
-  <div class="collapsed-grid">
-    <button class="collapsed-card" onclick="openCardModal('section-20year')" type="button">
-      <div class="collapsed-card-category">WHY WE'RE DIFFERENT</div>
-      <h4 class="collapsed-card-title"><span class="kw">20년</span>의 번역 노하우<br><span class="kw">슈퍼 AI</span>에 담다</h4>
-      <p class="collapsed-card-preview"><strong>20년 노하우</strong> · <strong>9.5단계</strong> · <strong>정부 조달 수준</strong></p>
-      <span class="collapsed-card-arrow">→</span>
-    </button>
-    <button class="collapsed-card" onclick="openCardModal('about')" type="button">
-      <div class="collapsed-card-category">WHY IUMM</div>
-      <h4 class="collapsed-card-title">번역 서비스<br>이제 <span class="kw">다르게</span> 선택하세요</h4>
-      <p class="collapsed-card-preview">전문가 <strong>100~200원</strong> · IUMM <strong>25원~</strong> · 기계 <strong>무료</strong></p>
-      <span class="collapsed-card-arrow">→</span>
-    </button>
-    <button class="collapsed-card" onclick="openCardModal('fields')" type="button">
-      <div class="collapsed-card-category">17 SPECIALIZED FIELDS</div>
-      <h4 class="collapsed-card-title"><span class="kw">분야 선택 하나</span>로<br><span class="kw">전문성</span>의 깊이가 달라집니다</h4>
-      <p class="collapsed-card-preview"><strong>17개 분야</strong> · <strong>31개 언어</strong> · 글로벌 표준</p>
-      <span class="collapsed-card-arrow">→</span>
-    </button>
-    <button class="collapsed-card" onclick="openCardModal('section-security')" type="button">
-      <div class="collapsed-card-category">SECURITY</div>
-      <h4 class="collapsed-card-title">당신의 문서,<br><span class="kw">철저하게 보호</span>됩니다</h4>
-      <p class="collapsed-card-preview"><strong>AI 학습 차단</strong> · <strong>21일 자동 삭제</strong> · <strong>NDA</strong></p>
-      <span class="collapsed-card-arrow">→</span>
-    </button>
-    <button class="collapsed-card" onclick="openCardModal('section-glossary')" type="button">
-      <div class="collapsed-card-category">GLOSSARY</div>
-      <h4 class="collapsed-card-title">용어집,<br><span class="kw">무료</span>로 제작해드립니다</h4>
-      <p class="collapsed-card-preview"><strong>무료 용어집</strong> 자동 생성 · 업계 표준 용어</p>
-      <span class="collapsed-card-arrow">→</span>
-    </button>
-    <button class="collapsed-card" onclick="openCardModal('section-human-touch')" type="button">
-      <div class="collapsed-card-category">HUMAN TOUCH</div>
-      <h4 class="collapsed-card-title">철저한 자체 <span class="kw">21가지</span><br><span class="kw">전문 검수</span> 기준</h4>
-      <p class="collapsed-card-preview"><strong>21가지 검수</strong> · 전문 번역사 <strong>1:1 대조</strong></p>
-      <span class="collapsed-card-arrow">→</span>
-    </button>
-  </div>
-</div>
-
-<!-- COMPARISON -->
-<section class="comparison" id="about" data-collapsible data-category="WHY IUMM" data-preview="전문가 번역(100~200원)  ·  IUMM 아이움(25원~)  ·  기계 번역(무료)">
-  <p class="section-label">Why IUMM</p>
-  <h2 class="section-title">번역 서비스 이제 <span class="mint">다르게</span> 선택하세요</h2>
-  <div class="comp-grid" style="margin-top:52px;padding-top:18px">
-    <div class="comp-card">
-      <p class="comp-tag">기존 번역 회사</p>
-      <h3 class="comp-name">전문가 번역</h3>
-      <p class="comp-price">100~200원</p>
-      <p class="comp-price-sub">글자당 · 검수 별도 추가비용</p>
-      <ul class="comp-features">
-        <li><span>✗</span> 높은 단가</li>
-        <li><span>✗</span> 긴 납기</li>
-        <li><span>✓</span> 전문가 번역</li>
-        <li><span>✗</span> 보안 불확실</li>
-      </ul>
-    </div>
-    <div class="comp-card featured">
-      <div class="comp-best"><i class="ti ti-star-filled" style="font-size:10px;vertical-align:1px;color:#c9a84c"></i> BEST</div>
-      <p class="comp-tag">AI 기반 프리미엄</p>
-      <h3 class="comp-name">IUMM 아이움</h3>
-      <p class="comp-price">25원~</p>
-      <p class="comp-price-sub">글자당 · AI 프리미엄 기준<br><span style="font-size:11px;color:var(--gold)">+전문가 검수 포함 40원~</span></p>
-      <ul class="comp-features">
-        <li><span>✓</span> 합리적인 가격</li>
-        <li><span>✓</span> 빠른 당일 납품 (업계 최고 수준)</li>
-        <li><span>✓</span> <span><strong style="color:var(--gold)">독자적인 9.5단계 정밀 검수</strong><br><span style="font-size:11px">분석·번역·교차검수·최종 검토</span></span></li>
-        <li><span>✓</span> <span style="color:var(--gold);font-weight:600">전문가 직접 대조 검수</span><br><span style="font-size:11px">프리미엄 플러스 옵션</span></li>
-        <li><span>✓</span> AI 학습 차단 보안 환경</li>
-      </ul>
-    </div>
-    <div class="comp-card">
-      <p class="comp-tag">AI 번역 서비스</p>
-      <h3 class="comp-name">기계 번역</h3>
-      <p class="comp-price">무료~</p>
-      <p class="comp-price-sub">글자당 · 검수 없음</p>
-      <ul class="comp-features">
-        <li><span>✓</span> 저렴한 가격</li>
-        <li><span>✓</span> 빠른 속도</li>
-        <li><span>✗</span> 전문가 검수 없어 불안</li>
-        <li><span>✗</span> 뉘앙스 오류 다수</li>
-      </ul>
-    </div>
-  </div>
-  <!-- 모바일 전용: 다른 서비스 비교 토글 -->
-  <div class="mob-compare-toggle" style="display:none;justify-content:center;margin-top:18px">
-    <button style="padding:10px 22px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.6);font-size:12px;cursor:pointer;font-family:inherit" onclick="document.querySelectorAll('.comp-card:not(.featured)').forEach(function(c){c.classList.toggle('mob-expanded')});this.textContent=this.textContent.includes('비교')? '접기 ▲' : '다른 서비스와 비교 ▼'">다른 서비스와 비교 ▼</button>
+<!-- ── 자주 묻는 질문 (요약) ───────────────────────────────── -->
+<section class="lp-sec lp-faq" id="faq-summary">
+  <div class="lp">
+    <p class="lp-label">FAQ</p>
+    <h2 class="lp-h2">자주 묻는 질문</h2>
+    <details><summary>정말 직접 가지 않아도 되나요?</summary><p>네. 서류를 올리고 결제하시면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 방문하거나 서류를 우편으로 보내실 필요가 없습니다.</p></details>
+    <details><summary>얼마나 걸리나요?</summary><p>공증은 주 2회 일괄 진행합니다(영업일 기준). 아포스티유를 함께 신청하시면 대행 기관 일정에 따라 기간이 추가됩니다.</p></details>
+    <details><summary>실물을 받기 전에 제출할 수 있나요?</summary><p>공증이 끝나면 스캔본을 먼저 마이페이지에 올려드립니다. 실물이 도착하기 전에도 스캔본으로 제출하실 수 있습니다.</p></details>
+    <details><summary>영문으로 발급되는 서류도 번역해야 하나요?</summary><p>범죄경력회보서·출입국사실증명서처럼 영문으로 발급되는 공문서는 번역·공증 없이 아포스티유만 받으시면 됩니다. 서류를 고르시면 자동으로 안내해 드립니다.</p></details>
+    <details><summary>결제 후 취소할 수 있나요?</summary><p>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가합니다. 결제 전에 서류와 금액을 꼭 확인해 주세요.</p></details>
+    <p class="lp-note"><a href="#" onclick="showPage('faq');return false" style="color:var(--mint)">전체 질문 보기 →</a></p>
   </div>
 </section>
 
-<!-- 20년 노하우 섹션 -->
-<section id="section-20year" data-collapsible data-category="WHY WE'RE DIFFERENT" data-preview="✓ 20년 노하우  ✓ 9.5단계 정밀 검수  ✓ 정부 조달 수준" style="padding:2.5rem 56px;background:#0F2540;position:relative;text-align:center">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(22,184,148,0.08) 0%,transparent 70%);pointer-events:none"></div>
-  <div style="position:relative;z-index:1;max-width:820px;margin:0 auto">
-    <p style="display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#5DE0BC;letter-spacing:0.06em;margin-bottom:20px;padding:6px 18px;border:1px solid rgba(93,224,188,0.25);border-radius:99px"><i class="ti ti-star-filled" style="color:#c9a84c;font-size:12px"></i> WHY WE'RE DIFFERENT</p>
-    <h2 style="font-size:clamp(24px,3.2vw,42px);font-weight:600;color:#ffffff;line-height:1.2;letter-spacing:-0.03em;margin-bottom:24px;word-break:keep-all"><span style="color:#c9a84c">20년</span>의 번역 노하우<br><span style="color:#16B894">슈퍼 AI</span>에 담다</h2>
-    <p style="font-size:17px;color:rgba(255,255,255,0.88);line-height:1.85;margin-bottom:18px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
-      <strong style="color:#c9a84c;font-weight:600">20년 번역 노하우</strong>를 접목해, 일반 AI가 놓치는 오류를 최소화한<br>
-      <strong style="color:#16B894;font-weight:600">아이움만의 슈퍼 번역 AI</strong>를 직접 개발했습니다.
-    </p>
-    <p style="font-size:17px;color:rgba(255,255,255,0.82);line-height:1.85;margin-bottom:28px;max-width:700px;margin-left:auto;margin-right:auto;word-break:keep-all">
-      AI 프리미엄으로 의뢰하셔도 <strong style="color:#16B894;font-weight:600">9.5단계 분석·검증·검수·검토</strong>를 거쳐<br>
-      충분한 퀄리티의 번역물을 받으실 수 있습니다.
-    </p>
-    <!-- WHY 3박스 -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:820px;margin:0 auto 28px">
-      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:8px;text-align:center">
-        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-bolt"></i></div>
-        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">빠른 처리</div>
-        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">빠른 당일 납품<br><strong style="color:#16B894">업계 최고 수준</strong><br><span style="font-size:13px;color:rgba(255,255,255,0.55)">(A4 5페이지 이하 기준)</span></div>
-      </div>
-      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;text-align:center">
-        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-target"></i></div>
-        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">9.5단계 정밀 검수</div>
-        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">독자 알고리즘 + 최종 검토<br><strong style="color:#16B894">어디에도 없는 기술</strong></div>
-      </div>
-      <div class="why-box" onclick="this.classList.toggle('open')" style="padding:28px 24px;background:rgba(93,224,188,0.05);border:1px solid rgba(93,224,188,0.15);border-radius:8px;text-align:center">
-        <div style="font-size:40px;margin-bottom:12px;color:#c9a84c"><i class="ti ti-user-check"></i></div>
-        <div style="font-size:22px;font-weight:700;color:#ffffff;margin-bottom:10px">전문가 검수 옵션</div>
-        <div class="why-box-desc" style="font-size:16px;color:rgba(255,255,255,0.82);line-height:1.65">자격사 직접 1:1 대조<br><strong style="color:#d97706">프리미엄 플러스 선택 시</strong></div>
-      </div>
+<!-- ── 번역만 (보조) ───────────────────────────────────────── -->
+<section class="lp-sec" id="translate-only">
+  <div class="lp">
+    <div class="lp-tonly">
+      <p><strong>번역만 필요하신가요?</strong><br>공증 없이 문서 번역만 필요하시면 글자 수 기준으로 바로 의뢰하실 수 있습니다.
+        <a href="#" onclick="handleBiz();return false" style="color:var(--mint)">기업 정기·대량 번역 문의</a></p>
+      <button type="button" class="lp-btn ghost" onclick="handleAI()">번역 의뢰하기</button>
     </div>
   </div>
 </section>
 
-<!-- IUMM 번역 프로세스 (3카드 직후, 비교 카드 직전) -->
-<section id="process" data-collapsible data-category="HOW IT WORKS" style="padding:88px 40px;background:#0A1628">
-  <div style="max-width:1100px;margin:0 auto">
-    <div style="text-align:center;margin-bottom:36px">
-      <div style="display:inline-block;padding:4px 14px;background:rgba(22,184,148,0.15);border:1px solid rgba(22,184,148,0.35);border-radius:20px;font-size:11px;color:#16B894;font-weight:600;letter-spacing:1.5px;margin-bottom:14px">HOW IT WORKS</div>
-      <h2 style="font-size:clamp(24px,3.2vw,42px);line-height:1.2;color:#ffffff;margin:0;font-weight:600;letter-spacing:-0.03em">IUMM 번역 프로세스</h2>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px">
-      <!-- 01 고객 -->
-      <div class="process-step" data-step="1" style="position:relative;padding:26px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;min-height:185px;overflow:hidden;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)">
-        <div class="step-collapsed">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:15px;font-weight:700">01</span><span style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:500">고객</span></div>
-          <div style="font-size:20px;font-weight:700;color:rgba(255,255,255,0.98);line-height:1.25">파일<br>업로드</div>
-        </div>
-        <div class="step-expanded" style="position:absolute;left:16px;right:16px;top:18px;bottom:18px;opacity:0;transition:opacity 0.3s ease;pointer-events:none">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:12px;font-weight:700">01</span><span style="font-size:13px;color:#16B894;font-weight:600">파일 업로드</span></div>
-          <p style="font-size:13px;line-height:1.65;color:rgba(255,255,255,0.90);margin:0">주문 모달에서 파일을 업로드하거나 텍스트를 직접 입력해 주세요.</p>
-        </div>
-      </div>
-      <!-- 02 IUMM -->
-      <div class="process-step" data-step="2" style="position:relative;padding:26px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;min-height:185px;overflow:hidden;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)">
-        <div class="step-collapsed">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:15px;font-weight:700">02</span><span style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:500">IUMM</span></div>
-          <div style="font-size:20px;font-weight:700;color:rgba(255,255,255,0.98);line-height:1.25">프로젝트<br>용어집</div>
-        </div>
-        <div class="step-expanded" style="position:absolute;left:16px;right:16px;top:18px;bottom:18px;opacity:0;transition:opacity 0.3s ease;pointer-events:none">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:12px;font-weight:700">02</span><span style="font-size:13px;color:#16B894;font-weight:600">용어집 생성</span></div>
-          <p style="font-size:13px;line-height:1.65;color:rgba(255,255,255,0.90);margin:0">고객님 용어집과 IUMM 자체 생성 용어집을 합쳐 번역에 적용합니다.</p>
-        </div>
-      </div>
-      <!-- 03 ★ 메인 -->
-      <div class="process-step" data-step="3" style="position:relative;padding:26px 18px;background:linear-gradient(135deg,rgba(22,184,148,0.13),rgba(22,184,148,0.04));border:2px solid rgba(22,184,148,0.46);border-radius:10px;box-shadow:0 5px 18px rgba(22,184,148,0.20);min-height:185px;overflow:hidden;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)">
-        <div class="step-collapsed">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:15px;font-weight:700;box-shadow:0 2px 8px rgba(22,184,148,0.45)">03</span><span style="font-size:11px;color:#16B894;font-weight:700">IUMM AI</span></div>
-          <div style="font-size:20px;font-weight:700;color:#16B894;line-height:1.25">9.5단계<br>정밀 처리</div>
-        </div>
-        <div class="step-expanded" style="position:absolute;left:16px;right:16px;top:16px;bottom:16px;opacity:0;transition:opacity 0.3s ease;pointer-events:none">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px"><span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:11px;font-weight:700">03</span><span style="font-size:12px;color:#16B894;font-weight:700">9.5단계 분해</span></div>
-          <div style="font-size:11px;line-height:1.6;color:rgba(255,255,255,0.88)">
-            <div style="display:flex;gap:6px"><span style="color:#c9a84c;font-weight:600;min-width:54px">STEP 1-2</span><span>사전 문서 분석</span></div>
-            <div style="display:flex;gap:6px"><span style="color:#c9a84c;font-weight:600;min-width:54px">STEP 3-4</span><span>정밀 번역</span></div>
-            <div style="display:flex;gap:6px"><span style="color:#c9a84c;font-weight:600;min-width:54px">STEP 5-6</span><span>AI 품질 검수</span></div>
-            <div style="display:flex;gap:6px"><span style="color:#c9a84c;font-weight:600;min-width:54px">STEP 7-8</span><span>AI 교차 검증</span></div>
-            <div style="display:flex;gap:6px"><span style="color:#d97706;font-weight:700;min-width:54px">STEP 9.5</span><span style="color:rgba(255,255,255,0.95)">최종 완성 + 전문가 검수</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- 04 전문 번역사 -->
-      <div class="process-step" data-step="4" style="position:relative;padding:26px 18px;background:linear-gradient(135deg,rgba(217,119,6,0.09),rgba(201,168,76,0.04));border:1px solid rgba(217,119,6,0.38);border-radius:10px;min-height:185px;overflow:hidden;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)">
-        <div class="step-collapsed">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:linear-gradient(135deg,#d97706,#b8943c);border-radius:50%;color:#fff;font-size:15px;font-weight:700">04</span><span style="font-size:11px;color:#d97706;font-weight:700">전문 번역사</span></div>
-          <div style="font-size:20px;font-weight:700;color:rgba(255,255,255,0.98);line-height:1.25">전문가<br>대조 검수</div>
-        </div>
-        <div class="step-expanded" style="position:absolute;left:16px;right:16px;top:18px;bottom:18px;opacity:0;transition:opacity 0.3s ease;pointer-events:none">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:linear-gradient(135deg,#d97706,#b8943c);border-radius:50%;color:#fff;font-size:12px;font-weight:700">04</span><span style="font-size:13px;color:#d97706;font-weight:600">전문가 대조 검수</span></div>
-          <p style="font-size:13px;line-height:1.65;color:rgba(255,255,255,0.90);margin:0 0 7px 0">원문과 번역문 1:1 대조<br>21가지 전문 체크리스트</p>
-          <div style="font-size:11px;color:#d97706;font-weight:600;letter-spacing:0.5px">✦ 프리미엄 플러스 전용</div>
-        </div>
-      </div>
-      <!-- 05 완료 -->
-      <div class="process-step" data-step="5" style="position:relative;padding:26px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;min-height:185px;overflow:hidden;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)">
-        <div class="step-collapsed">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:15px;font-weight:700">05</span><span style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:500">완료</span></div>
-          <div style="font-size:20px;font-weight:700;color:rgba(255,255,255,0.98);line-height:1.25">최종<br>납품</div>
-        </div>
-        <div class="step-expanded" style="position:absolute;left:16px;right:16px;top:18px;bottom:18px;opacity:0;transition:opacity 0.3s ease;pointer-events:none">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:linear-gradient(135deg,#16B894,#0e9d7e);border-radius:50%;color:#fff;font-size:12px;font-weight:700">05</span><span style="font-size:13px;color:#16B894;font-weight:600">최종 납품</span></div>
-          <p style="font-size:13px;line-height:1.65;color:rgba(255,255,255,0.90);margin:0">검증 완료 후 알림톡으로 안내드리며, 마이페이지에서 다운로드하실 수 있습니다.</p>
-        </div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:26px;font-size:11px;color:rgba(201,168,76,0.65);letter-spacing:0.3px">✦ IUMM 검수 시스템의 상세 프로세스는 영업 기밀로 보호됩니다 ✦</div>
-  </div>
-</section>
-
-<!-- BEFORE / AFTER 비교 (NEW - 차별화 포인트) -->
-<section data-collapsible data-category="THE DIFFERENCE" style="padding:56px 60px;background:var(--black)">
-  <p class="section-label">The Difference</p>
-  <h2 class="section-title">같은 원문 다른 결과</h2>
-  <p style="text-align:center;font-size:17px;color:rgba(255,255,255,0.75);font-weight:300;margin-bottom:36px;max-width:680px;margin-left:auto;margin-right:auto;line-height:1.8">
-    분야 선택 하나로<br>전문성의 깊이가 달라집니다
-  </p>
-  
-  <div style="max-width:1000px;margin:0 auto">
-    <!-- 원문 -->
-    <div style="text-align:center;padding:24px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);margin-bottom:24px">
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px">원문 · Korean</div>
-      <p style="font-family:'Nanum Myeongjo',serif;font-size:20px;color:var(--white);line-height:1.7;font-weight:400">
-        "본 계약은 양 당사자 간의 합의에 따라 체결된다."
-      </p>
-    </div>
-    
-    <!-- 비교 그리드 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <!-- 일반 AI -->
-      <div class="expandable-card" style="padding:32px 28px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:12px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <span style="font-size:20px;color:rgba(255,100,100,0.8)">✗</span>
-          <div style="font-size:12px;letter-spacing:2px;color:rgba(255,255,255,0.5);text-transform:uppercase;font-weight:600">일반 AI 번역</div>
-        </div>
-        <p style="font-size:19px;color:rgba(255,255,255,0.75);line-height:1.65;font-style:italic;word-break:break-all">
-          "This contract is concluded by mutual agreement of both parties."
-        </p>
-        <div class="detail">
-          <div style="font-size:15px;color:rgba(255,120,120,0.8);line-height:1.8;padding-top:4px;border-top:1px solid rgba(255,100,100,0.15)">
-            ⚠ contract — 계약서 일반어 (법률 정형어 아님)<br>
-            ⚠ is concluded — 의무 강도 약한 수동태<br>
-            ⚠ 법률 정형 표현 부재, 분쟁 시 해석 여지
-          </div>
-        </div>
-      </div>
-
-      <!-- IUMM 법률 -->
-      <div class="expandable-card iumm-law-card" style="padding:32px 28px;border:1px solid rgba(22,184,148,0.4);background:rgba(22,184,148,0.06);position:relative;border-radius:12px">
-        <div style="position:absolute;top:-13px;left:24px;background:#16B894;color:#fff;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 14px;border-radius:99px;text-transform:uppercase">IUMM</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <span style="font-size:20px;color:#16B894">✓</span>
-          <div style="font-size:12px;letter-spacing:2px;color:#5DE0BC;text-transform:uppercase;font-weight:600">법률 분야 적용</div>
-        </div>
-        <p style="font-size:19px;color:#ffffff;line-height:1.65;font-weight:500;word-break:break-all">
-          "This Agreement shall be entered into by mutual agreement of the Parties."
-        </p>
-        <div class="detail">
-          <div style="font-size:15px;color:rgba(22,184,148,0.9);line-height:1.8;padding-top:4px;border-top:1px solid rgba(22,184,148,0.2)">
-            ✓ Agreement — Black's Law Dict. 법률 정형어<br>
-            ✓ shall — 강한 의무 표현 (계약법 표준)<br>
-            ✓ the Parties — 정관사 일관 사용, 분쟁 방지
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <p style="text-align:center;font-size:13px;color:rgba(22,184,148,0.6);margin-top:16px">↑ 카드를 클릭하면 디테일이 펼쳐집니다</p>
-    <p style="text-align:center;font-size:14px;color:rgba(255,255,255,0.4);margin-top:16px;font-weight:300;line-height:1.8">
-      Black's Law Dictionary 등 법률 분야 글로벌 표준 용어 기반 번역
-    </p>
-  </div>
-</section>
-
-
-<!-- 16개 전문 분야 + 글로벌 표준 (통합형, 클릭 가능) -->
-<section id="fields" data-collapsible data-category="17 SPECIALIZED FIELDS · GLOBAL STANDARDS" data-preview="법률·의료·특허·금융·기술·학술 등 17개 분야 · 31개 언어" style="padding:56px 60px;background:linear-gradient(180deg,rgba(22,184,148,0.025) 0%,var(--black) 100%)">
-  <p class="section-label">17 Specialized Fields · Global Standards</p>
-  <h2 class="section-title">분야 선택 한 번<br><em>전문가급 번역</em>의 시작</h2>
-  <p style="text-align:center;font-size:15px;color:rgba(255,255,255,0.55);font-weight:300;margin-bottom:32px;max-width:680px;margin-left:auto;margin-right:auto;line-height:1.8">
-    각 분야 글로벌 표준을 기반으로<br>최상의 번역을 지향합니다<br>
-    <span style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:8px;display:inline-block">▼ 카드 클릭 시 글로벌 표준 정보가 표시됩니다</span>
-  </p>
-  
-
-
-  <div class="field-bento" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1180px;margin:0 auto">
-    
-    <!-- 법률 -->
-    <div class="field-card" data-field="legal" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer;position:relative">
-      <div style="margin-bottom:14px"><i class="ti ti-scale" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">법률·계약</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">계약서 · 약관<br>법령 · 판례</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">Black's Law Dictionary</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">미국·영국 법률 정형 용어 표준</div>
-      </div>
-    </div>
-    
-    <!-- 의료 -->
-    <div class="field-card" data-field="medical" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-stethoscope" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">의료·제약</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">임상시험 · 논문<br>의약품 · 진단서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">WHO ICD-11 · MedDRA</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">국제 의학 분류 + 의약품 부작용 표준</div>
-      </div>
-    </div>
-    
-    <!-- 특허 -->
-    <div class="field-card" data-field="patent" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-certificate" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">특허·지식재산</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">명세서 · 청구항<br>발명 · 출원서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">WIPO · KIPO · USPTO</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">세계지식재산기구·한국·미국 특허청 표준</div>
-      </div>
-    </div>
-    
-    <!-- 범죄·수사·공문 -->
-    <div class="field-card" data-field="criminal" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-search" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">범죄·수사·공문</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">수사기록 · 진술서<br>공증 · 공문서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">Interpol · ICC · Federal Rules</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">국제경찰·국제형사재판소·미국 형사규칙</div>
-      </div>
-    </div>
-    
-    <!-- 이민·비자 -->
-    <div class="field-card" data-field="immigration" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-passport" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">이민·비자</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">영문 증명서<br>비자 · 이민 서류</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">USCIS · IRCC · MOFA</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">미국·캐나다·한국 외교부 공식 표기</div>
-      </div>
-    </div>
-    
-    <!-- 금융 -->
-    <div class="field-card" data-field="finance" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-coin" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">금융·재무</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">재무제표 · IR<br>투자 · 펀드</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">IFRS · K-IFRS</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">국제·한국 재무보고기준 공식 번역</div>
-      </div>
-    </div>
-    
-    <!-- 회계 -->
-    <div class="field-card" data-field="accounting" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-chart-bar" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">회계·세무</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">감사 · 세무신고<br>회계 보고서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">K-IFRS · OECD</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">한국 회계기준 + OECD 세무 가이드</div>
-      </div>
-    </div>
-    
-    <!-- IT -->
-    <div class="field-card" data-field="tech" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-device-laptop" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">기술·IT</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">매뉴얼 · API<br>기술문서 · 백서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">Microsoft · Apple Style</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">글로벌 빅테크 로컬라이제이션 표준</div>
-      </div>
-    </div>
-    
-    <!-- 마케팅 -->
-    <div class="field-card mob-hidden" data-field="marketing" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-speakerphone" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">마케팅·광고</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">브로셔 · SNS<br>광고 · 보도자료</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">Transcreation · Apple Style</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">감성 보존 + 글로벌 카피라이팅 표준</div>
-      </div>
-    </div>
-    
-    <!-- 학술 -->
-    <div class="field-card mob-hidden" data-field="academic" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-school" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">학술·논문</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">학술지 · 학위논문<br>연구보고서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">APA 7th · MLA · Chicago</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">국제 학술지 인용 및 스타일 표준</div>
-      </div>
-    </div>
-    
-    <!-- 문학 -->
-    <div class="field-card mob-hidden" data-field="literary" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-books" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">문학·출판</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">소설 · 에세이<br>웹소설 · 콘텐츠</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">LTI Korea · PEN International</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">문학 번역 표준 + 국제 PEN 협회</div>
-      </div>
-    </div>
-    
-    <!-- 예술 -->
-    <div class="field-card mob-hidden" data-field="arts" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-palette" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">예술·문화</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">자막 · 음악<br>미술 · 공연</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">Netflix HSI · BBC Style</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">글로벌 자막·미디어 콘텐츠 표준</div>
-      </div>
-    </div>
-    
-    <!-- 비즈니스 -->
-    <div class="field-card mob-hidden" data-field="business" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-briefcase" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">비즈니스</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">이메일 · 회의록<br>보고서 · 제안서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">JTF · Harvard Business Review</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">일본 번역연맹 + 글로벌 비즈니스 톤</div>
-      </div>
-    </div>
-    
-    <!-- 게임·엔터 -->
-    <div class="field-card mob-hidden" data-field="gaming" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-device-gamepad" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">게임·엔터테인먼트</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">시나리오 · UI<br>자막 · 컨텐츠</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">LISA · IGDA · Microsoft Gaming</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">게임 로컬라이제이션 국제 표준</div>
-      </div>
-    </div>
-    
-    <!-- 건설·엔지니어링 -->
-    <div class="field-card mob-hidden" data-field="construction" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-building" style="font-size:26px;color:#5DE0BC"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">건설·엔지니어링</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">도면 주석<br>시방서 · 기술서</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">FIDIC · ISO 9001 · AIA</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">국제건설협회·품질경영·미국건축가협회</div>
-      </div>
-    </div>
-    
-    <!-- 환경·ESG -->
-    <div class="field-card mob-hidden" data-field="esg" onclick="toggleFieldCard(this)" style="padding:28px 22px;border:1px solid rgba(22,184,148,0.18);background:rgba(22,184,148,0.04);transition:all 0.3s;cursor:pointer">
-      <div style="margin-bottom:14px"><i class="ti ti-leaf" style="font-size:26px;color:#7FB7EB"></i></div>
-      <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px">환경·ESG</div>
-      <div class="field-keywords" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">ESG 보고서<br>지속가능성</div>
-      <div class="field-detail">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Global Standard</div>
-        <div style="font-family:'Nanum Myeongjo',serif;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.6">GRI · SASB · TCFD · UN SDGs</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;line-height:1.6">국제 ESG·지속가능성 보고 표준</div>
-      </div>
-    </div>
-    
-    <!-- 더보기 버튼 (모바일 전용, 그리드 안에 full-width) -->
-    <button class="mob-more-fields" style="grid-column:1/-1;display:none" onclick="document.querySelector('.field-bento').classList.add('expanded')">+ 더보기 (8개 분야)</button>
-  </div>
-  <div style="text-align:center;margin-top:32px">
-    <button class="btn-primary" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false" style="padding:16px 44px;font-size:14px">분야 선택하고 시작하기 →</button>
-    <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:16px;letter-spacing:1px">300글자 무료 체험 · 신용카드 불필요</p>
-  </div>
-</section>
-
-<!-- SECURITY -->
-<section id="section-security" data-collapsible data-category="SECURITY" data-preview="✓ AI 학습 차단  ✓ 21일 후 자동 삭제  ✓ NDA 보안  ✓ 기업용 API" style="padding:48px 60px;background:rgba(22,184,148,0.04);border-top:1px solid rgba(22,184,148,0.08);border-bottom:1px solid rgba(22,184,148,0.08)">
-  <div style="max-width:860px;margin:0 auto">
-    <p class="section-label">Security</p>
-    <h2 class="section-title">당신의 문서,<br><span class="mint">철저하게 보호됩니다</span></h2>
-    <div class="security-warning-box">
-      <p style="font-size:18px;font-weight:500;color:#F09595">설마, 중요한 계약서를 AI 채팅창에 넣고 계신가요?</p>
-      <p>많은 분들이 번역을 위해 ChatGPT나 일반 AI 서비스에 문서를 직접 업로드하고 계십니다. 하지만 이 방식은 생각보다 심각한 보안 문제를 내포하고 있습니다.</p>
-      <p class="warning-detail">업로드된 문서가 AI 학습 데이터로 활용될 수 있으며, 계약서·특허·재무자료 등 민감한 정보가 의도치 않게 외부에 노출될 위험이 있습니다.</p>
-    </div>
-    <div class="security-promises">
-      <h3>IUMM은 이 문제를 해결하기 위해 설계된 번역 서비스입니다</h3>
-      <ul>
-        <li>✓ AI 학습 차단 — 고객 문서가 AI 학습에 절대 사용되지 않습니다</li>
-        <li>✓ 21일 후 자동 삭제 — 번역 완료 후 21일 이내 문서 완전 삭제 (공증서류는 발행 후 30일)</li>
-        <li>✓ 중단된 건도 자동 삭제 — 납품까지 가지 못한 주문도 일정 기간 후 원문·첨부 자동 폐기</li>
-        <li>✓ NDA 보안 계약 — 모든 검수자 NDA 체결 · 기업 고객 별도 체결 가능</li>
-        <li>✓ 기업용 API만 사용 — 학습에 쓰이지 않는 기업용 API로만 처리, 소비자용 AI 채팅에 업로드하지 않습니다 (<a href="#" onclick="showPage('privacy');return false" style="color:inherit;text-decoration:underline">위탁·국외이전 내역</a>)</li>
-        <li>✓ 독립된 처리 환경 — 보안 전송 및 분리된 인프라에서 운영</li>
-        <li>✓ 데이터 판매 금지 — 마케팅 활용 완전 금지</li>
-        <li>✓ 기업 문서 안심 — 계약서·특허·법률·재무 모두 안심하고 의뢰 가능</li>
-      </ul>
-    </div>
-    <div class="security-conclusion">
-      <p>민감한 문서일수록 번역 서비스 선택이 중요합니다.</p>
-      <p><strong>IUMM은 AI를 통해 정보가 유출되거나 수집되지 않는 독자적인 프로세스로 보안을 최우선으로 설계된 기업 전문 번역 플랫폼</strong>입니다.</p>
-    </div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section class="pricing" id="pricing" data-collapsible data-category="PRICING">
-  <p class="section-label">Pricing</p>
-  <h2 class="section-title">투명한 <span class="mint">요금제</span></h2>
-  <div class="pricing-cards" style="grid-template-columns:repeat(4,1fr);max-width:1200px">
-    <div class="price-card featured">
-      <div class="price-badge">무료 체험</div>
-      <p class="price-type">회원가입 시 · 1회 한정</p>
-      <h3 class="price-name">무료 체험</h3>
-      <p class="price-amount">0원</p>
-      <p class="price-unit">300글자 · 신용카드 불필요</p>
-      <ul class="price-list">
-        <li><span>✓</span> AI 9.5단계 정밀 검수</li>
-        <li><span>✓</span> 사전 문서 분석 포함</li>
-        <li><span>✓</span> 용어집 자동 생성</li>
-        <li><span>✗</span> 전문가 검수 미포함</li>
-        <li><span>✓</span> 회원가입 후 즉시 사용</li>
-      </ul>
-      <button style="background:var(--gold);color:var(--black);border:none;width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false">무료로 시작하기</button>
-    </div>
-
-    <div class="price-card" style="border-color:rgba(120,160,255,0.35);background:rgba(120,160,255,0.05)">
-      <div id="badge-ai" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#1a2d6e;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
-      <p class="price-type" style="color:#8ba8ff">개인 · 기업</p>
-      <h3 class="price-name">AI 프리미엄</h3>
-      <p class="price-amount" style="color:#8ba8ff">25원~</p>
-      <p class="price-unit">글자당 · AI 9.5단계 정밀 검수</p>
-      <ul class="price-list">
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 1-2 · 사전 문서 분석</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">원문 분석 · 용어집 생성 · 방향성 수립</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 3-4 · 정밀 번역</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">용어집 + 지침 100% 적용</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 5-6 · AI 품질 검수</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">오역·누락·어색한 표현 철저 검수</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 7-8 · AI 교차 검증</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">독립적 관점 교차 검증</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#8ba8ff;font-weight:700;font-size:12px">STEP 9.5 · 최종 완성</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">모든 의견 반영 최종 번역 완성</span>
-        </li>
-        <li><span>✗</span> <span style="color:rgba(255,255,255,0.35);font-size:12px">전문가 검수 미포함</span></li>
-      </ul>
-      <p style="font-size:11px;color:rgba(120,160,255,0.6);line-height:1.7;margin-bottom:14px;font-weight:300;flex:1">어떤 AI 번역보다 높은 퀄리티.<br>만족스러운 퀄리티 대비 최저가 실현.</p>
-      <button id="btn-ai" onclick="handleAI()" style="background:rgba(120,160,255,0.12);color:rgba(139,168,255,0.55);border:1px solid rgba(120,160,255,0.22);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">시작하기</button>
-    </div>
-
-    <div class="price-card" style="border-color:rgba(99,153,34,0.35);background:rgba(99,153,34,0.05)">
-      <div id="badge-standard" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#3d6614;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
-      <p class="price-type" style="color:#97c459">개인 · 기업</p>
-      <h3 class="price-name">프리미엄 플러스</h3>
-      <p class="price-amount" style="color:#97c459">40원~</p>
-      <p class="price-unit">글자당 · AI 9.5단계 + 전문가 직접검수</p>
-      <ul class="price-list">
-        <li style="flex-direction:column;align-items:flex-start;gap:3px">
-          <span style="color:#97c459;font-weight:700;font-size:12px">AI 9.5단계 정밀 검수</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">사전분석 · 정밀번역 · 품질검수 · 교차검증 · 최종완성</span>
-        </li>
-        <li style="flex-direction:column;align-items:flex-start;gap:3px;border-left:2px solid rgba(99,153,34,0.5);padding-left:10px;margin-top:4px">
-          <span style="color:#97c459;font-weight:700;font-size:12px">전문가 · 번역사 직접 대조 검수</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.45);font-weight:300">원문 1:1 대조 + 21가지 전문 체크리스트</span>
-          <span style="font-size:12px;color:#97c459;font-weight:400">전문 번역사가 직접 최종 완성</span>
-        </li>
-        <li style="margin-top:4px">
-          <span>✓</span>
-          <span style="font-size:12px;color:rgba(255,255,255,0.6)">업계 최고 속도 납기<br><span style="color:rgba(255,255,255,0.35)">(5페이지 기준 24~48시간)</span></span>
-        </li>
-      </ul>
-      <button id="btn-standard" onclick="handleStandard()" style="background:rgba(99,153,34,0.15);color:rgba(150,196,89,0.6);border:1px solid rgba(99,153,34,0.25);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">시작하기</button>
-    </div>
-
-    <div class="price-card" style="border-color:rgba(55,138,221,0.35);background:rgba(55,138,221,0.05)">
-      <div id="badge-biz" style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#0c3b6e;color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 16px;white-space:nowrap">로그인 필요</div>
-      <p class="price-type" style="color:#85b7eb">기업 · 기관</p>
-      <h3 class="price-name">비즈니스</h3>
-      <p class="price-amount" style="color:#85b7eb">견적</p>
-      <p class="price-unit">연간 · 월간 계약 단위</p>
-      <ul class="price-list">
-        <li><span>✓</span> 전담 번역가 배정</li>
-        <li><span>✓</span> 기업 전용 용어집 관리</li>
-        <li><span>✓</span> NDA 보안 계약</li>
-        <li><span>✓</span> 계약서·매뉴얼·IR 자료</li>
-        <li><span>✓</span> 우선 납기 · 전담 CS 지원</li>
-      </ul>
-      <button id="btn-biz" onclick="handleBiz()" style="background:rgba(55,138,221,0.1);color:rgba(133,183,235,0.5);border:1px solid rgba(55,138,221,0.2);width:100%;padding:14px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">문의하기</button>
-    </div>
-  </div>
-  <div class="plan-guide">
-    <div class="guide-icon"><i class="ti ti-help-circle"></i></div>
-    <h3 class="guide-title">어떤 플랜을 선택해야 할까요?</h3>
-    <p class="guide-body">일반적인 업무·콘텐츠는 <strong class="key-ai">AI 프리미엄 번역</strong>으로 충분합니다.</p>
-    <p class="guide-body">계약서·논문·특허 등 완벽함이 필요한 문서도 AI 프리미엄 번역으로 커버가 가능하나, 전문가의 터치가 한번 더 필요하시다면 <strong class="key-plus">프리미엄 플러스</strong>를 추천드립니다.</p>
-  </div>
-</section>
-
-
-<!-- GLOSSARY -->
-<section id="section-glossary" data-collapsible data-category="GLOSSARY" data-preview="무료 용어집 자동 생성 · 업계 표준 용어 기반" style="background:var(--black);padding:70px 60px">
-  <p class="section-label">Glossary</p>
-  <h2 class="section-title">용어집, <em>무료로</em> 제작해드립니다</h2>
-  <div class="glossary-grid" style="max-width:820px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px">
-    <div class="expandable-card" style="padding:36px;border:1px solid rgba(22,184,148,0.2);background:rgba(22,184,148,0.04);border-radius:12px">
-      <div style="margin-bottom:16px"><i class="ti ti-book-2" style="font-size:32px;color:#5DE0BC"></i></div>
-      <h3 style="font-size:20px;font-weight:600;color:var(--gold);margin-bottom:0">전문 용어집 무료 제작</h3>
-      <p class="hint">↓ 상세 보기</p>
-      <div class="detail"><p style="font-size:15px;color:#C9D2DC;line-height:1.75">철저한 원문 분석 후 프로젝트 전용 용어집을 무료로 제작해드립니다. 납품 시 번역 파일과 함께 제공됩니다.</p></div>
-    </div>
-    <div class="expandable-card" style="padding:36px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);border-radius:12px">
-      <div style="margin-bottom:16px"><i class="ti ti-pencil" style="font-size:32px;color:#7FB7EB"></i></div>
-      <h3 style="font-size:20px;font-weight:600;color:var(--white);margin-bottom:0">용어집 직접 입력</h3>
-      <p class="hint">↓ 상세 보기</p>
-      <div class="detail"><p style="font-size:15px;color:#C9D2DC;line-height:1.75">브랜드명·전문용어·고유명사를 직접 입력하시면 모든 번역에 일관되게 자동 적용됩니다.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- CHECKLIST -->
-<section id="section-human-touch" class="checklist-section" data-collapsible data-category="HUMAN TOUCH" data-preview="21가지 자체 검수 기준 · 전문 번역사 1:1 대조 · STEP 9.5">
-  <div class="checklist-inner">
-    <p class="section-label" style="text-align:center">Human Touch</p>
-    <h2 class="section-title">철저한 자체 <em>21가지</em> 전문 검수 기준</h2>
-
-    <!-- STEP 배너 -->
-    <div class="checklist-banner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;max-width:820px;margin:0 auto 48px;background:rgba(22,184,148,0.08);border:1px solid rgba(22,184,148,0.15);border-radius:12px;overflow:visible">
-      <div class="expandable-card" style="padding:20px;text-align:center;background:#0A1628;border-radius:10px 0 0 10px">
-        <p style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);margin-bottom:6px">STEP 1-4</p>
-        <p style="font-size:15px;font-weight:500;color:#ffffff">문서 분석 · 정밀 번역</p>
-        <div class="detail"><p style="font-size:13px;color:#9AA8B6">용어집 생성 · 방향성 수립</p></div>
-      </div>
-      <div class="expandable-card" style="padding:20px;text-align:center;background:#0A1628">
-        <p style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);margin-bottom:6px">STEP 5-8</p>
-        <p style="font-size:15px;font-weight:500;color:#ffffff">AI 9.5단계 정밀 검수</p>
-        <div class="detail"><p style="font-size:13px;color:#9AA8B6">품질검수 · 교차검증 · 최종완성</p></div>
-      </div>
-      <div class="expandable-card" style="padding:20px;background:rgba(22,184,148,0.10);text-align:center;border-radius:0 10px 10px 0">
-        <p style="font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">STEP 9.5 · 최종</p>
-        <p style="font-size:15px;font-weight:600;color:var(--gold)">전문 번역사 직접</p>
-        <div class="detail"><p style="font-size:13px;color:rgba(22,184,148,0.8)">원문 1:1 대조 검수</p></div>
-      </div>
-    </div>
-
-    <p style="text-align:center;font-size:16px;color:rgba(255,255,255,0.45);font-weight:300;margin-bottom:16px;line-height:1.9">IUMM의 전문 검수 기준은 수년간의 번역 노하우가 집약된 내부 기준입니다.<br>모든 납품물은 21가지 항목이 100% 완료된 후에만 발송됩니다.</p>
-    <p style="text-align:center;font-size:15px;color:var(--gold);font-weight:500;margin-bottom:44px;letter-spacing:0.5px">✦ STEP 9.5 · 전문 번역사가 원문과 번역문을 직접 1:1 대조하며 최종 납품합니다 ✦</p>
-
-    <!-- 8개 항목 그리드 (2열 × 4행) -->
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px 24px;max-width:880px;margin:0 auto">
-      <div class="check-item"><span class="check-num">04</span><span class="check-text">전문 용어 업계 표준 준수</span></div>
-      <div class="check-item"><span class="check-num">05</span><span class="check-text">자연스러운 목표어 표현</span></div>
-      <div class="check-item"><span class="check-num">06</span><span class="check-text">어조·문체 일관성</span></div>
-      <div class="check-item"><span class="check-num">08</span><span class="check-text">숫자·단위·날짜 정확성</span></div>
-      <div class="check-item"><span class="check-num">17</span><span class="check-text">반복 표현 일관성 검증</span></div>
-      <div class="check-item"><span class="check-num">18</span><span class="check-text">맥락·의도 보존 확인</span></div>
-      <div class="check-item"><span class="check-num">20</span><span class="check-text">최종 가독성 검토</span></div>
-      <div class="check-item"><span class="check-num">21</span><span class="check-text">원문 대조 최종 확인</span></div>
-    </div>
-
-    <!-- 영업기밀 안내 (3순위) -->
-    <p style="text-align:center;font-size:16px;color:#8A98A8;margin-top:16px"><i class="ti ti-lock-square" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>외 13가지 — IUMM 영업비밀로 보호</p>
-
-    <!-- 핵심 강조 (1순위 — 제일 큼) -->
-    <div style="margin-top:24px;padding:20px 28px;border:1px solid rgba(22,184,148,0.25);background:rgba(22,184,148,0.06);border-radius:12px;text-align:center;max-width:880px;margin-left:auto;margin-right:auto">
-      <p class="checklist-final-text" style="font-size:19px;font-weight:500;letter-spacing:0.5px;line-height:1.5">✦ 전문 번역사가 21가지 전항목을 직접 확인 · 완료 후 최종 납품 ✦</p>
-    </div>
-  </div>
-</section>
-
+<script>
+/* 메인 랜딩 — 서류 목록·금액을 공증 설정(/api/notary/config)에서 받아 채운다.
+   설정을 못 받으면 HTML 기본값(=pricing.js 현재값)이 그대로 남는다. */
+(function(){
+  var LP_CFG = null;
+  function won(n){ return Number(n||0).toLocaleString(); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  window.lpCat = function(cat){
+    [].forEach.call(document.querySelectorAll('#lp-cats .lp-cat'), function(b){
+      b.className = 'lp-cat' + (b.getAttribute('data-cat') === cat ? ' on' : ''); });
+    if (!LP_CFG) return;
+    var list = (LP_CFG.documents || []).filter(function(d){ return d.category === cat; });
+    document.getElementById('lp-docs').innerHTML = list.map(function(d){
+      var apo = d.englishIssuable && !d.needsTranslation;
+      var tag = !d.ready ? '<span>준비 중</span>' : apo ? '<span class="apo">아포스티유만</span>'
+              : d.schoolSplit ? '<span>국립 / 사립</span>' : '<span>번역공증</span>';
+      return '<a class="lp-doc' + (d.ready ? '' : ' off') + '" href="/notary/?doc=' + encodeURIComponent(d.code) + '">' +
+             esc(d.label) + tag + '</a>';
+    }).join('');
+  };
+  function fill(key, v){ [].forEach.call(document.querySelectorAll('[data-lp="' + key + '"]'), function(el){ el.textContent = won(v); }); }
+  fetch('https://iumm-pipeline-production.up.railway.app/api/notary/config')
+    .then(function(r){ return r.json(); })
+    .then(function(c){
+      if (!c || !c.ok) return;
+      LP_CFG = c;
+      var t = {}; (c.tiers || []).forEach(function(x){ t[x.code] = x; });
+      var k = c.components || {};
+      if (t.T1) fill('t1', t.T1.supply);
+      if (t.T2) fill('t2', t.T2.supply);
+      if (t.T3) fill('t3', t.T3.supply);
+      if (c.pageSurchargeSupply) fill('pp', c.pageSurchargeSupply);
+      if (k.TRANSLATE_PER_PAGE) fill('tr', k.TRANSLATE_PER_PAGE);
+      if (k.NOTARY_BASE) fill('nb', k.NOTARY_BASE);
+      if (k.NOTARY_EXTRA_PAGE) fill('ne', k.NOTARY_EXTRA_PAGE);
+      if (k.CERT) fill('ct', k.CERT);
+      if (k.APOSTILLE_ADDON) fill('aa', k.APOSTILLE_ADDON);
+      if (k.APOSTILLE_ONLY) fill('apo', k.APOSTILLE_ONLY);
+      if (k.SHIPPING) fill('ship', k.SHIPPING);
+      // 베트남 협약 발효일 — 국가 목록(Airtable)의 값 그대로
+      var vn = (c.countries || []).filter(function(x){ return x.iso === 'VN'; })[0];
+      var b = document.getElementById('lp-vn');
+      if (b) { if (vn && vn.effectiveDate) b.textContent = '베트남 ' + String(vn.effectiveDate).slice(0,10) + ' 협약 발효'; else if (!vn) b.style.display = 'none'; }
+      lpCat('개인');
+    })
+    .catch(function(){ /* 기본값 유지 */ });
+})();
+</script>
 
 
 <!-- 스탠다드 주문 모달 -->
@@ -3882,17 +2926,17 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <!-- FOOTER -->
 <section class="cta-section" id="cta">
   <div class="cta-bg"></div>
-  <h2 class="cta-title">지금 바로<br><span class="mint">완벽한 번역</span>을<br>경험해보세요</h2>
-  <p class="cta-sub">가입 시 300글자 무료 제공. 신용카드 불필요.</p>
-  <button class="btn-primary" style="font-size:16px;padding:20px 64px;position:relative" onclick="if(isLoggedIn){currentPlan='ai';isFreeTrialOrder=!freeTrialUsed;showModal('order');updateOrderModal();}else{showPage('login');}return false">무료로 시작하기</button>
-  <p class="cta-note">✦ AI와 함께 번역하고, 전문가가 완성합니다 ✦</p>
+  <h2 class="cta-title">번역공증,<br><span class="mint">집에서 신청</span>하세요</h2>
+  <p class="cta-sub">서류를 고르면 절차와 금액을 바로 안내해 드립니다.</p>
+  <button class="btn-primary" style="font-size:16px;padding:20px 64px;position:relative" onclick="location.href='/notary/';return false">서류 고르고 시작하기</button>
+  <p class="cta-note">✦ 전문 번역사가 책임지고 공증까지 진행합니다 ✦</p>
 </section>
 <footer style="flex-direction:column;align-items:stretch;gap:0;padding:48px 60px 28px;background:#0A1628">
   <!-- 상단: 로고 + 브랜드 + 메뉴 -->
   <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;margin-bottom:32px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.05)">
     <div>
       <div class="footer-logo" style="margin-bottom:8px">IUMM 아이움</div>
-      <p style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:300;letter-spacing:0.5px;margin:0">AI 기반 프리미엄 번역 플랫폼</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:300;letter-spacing:0.5px;margin:0">온라인 번역공증 · 아포스티유</p>
     </div>
     <div class="footer-links">
       <a href="#" onclick="showPage('faq');return false">FAQ</a>
@@ -6945,8 +5989,8 @@ function openTranslationOrder(){
     <svg class="fab-kakao-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C6.98 3 2.9 6.24 2.9 10.24c0 2.55 1.68 4.79 4.21 6.06-.19.68-.67 2.43-.77 2.81-.12.47.17.47.36.34.15-.1 2.42-1.64 3.4-2.31.61.09 1.24.14 1.9.14 5.02 0 9.1-3.24 9.1-7.04S17.02 3 12 3z"/></svg>
     <span class="fab-txt">카카오톡 문의</span>
   </a>
-  <a class="iumm-fab-notary" href="/notary/" aria-label="번역공증대행 문의하기">
-    <span class="fab-ico" aria-hidden="true">◆</span><span class="fab-txt">번역공증대행 문의</span>
+  <a class="iumm-fab-notary" href="/notary/" aria-label="번역공증 신청하기">
+    <span class="fab-ico" aria-hidden="true">◆</span><span class="fab-txt">번역공증 신청</span>
   </a>
 </div>
 </body>
