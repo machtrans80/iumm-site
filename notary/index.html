@@ -76,6 +76,8 @@
       </div>
       <!-- 서류가 아포스티유 단독으로 정해졌을 때 그 사실을 여기서 알린다 -->
       <div id="apo-switch-note"></div>
+      <!-- ★서류별 업로드 규칙 — 온라인 발급(발급처 바로가기) / 원본 우편 안내. 서버 uploadRule 그대로 -->
+      <div id="issuer-box"></div>
 
       <!-- 번역만 — 공증 없이 번역본만 필요한 경우 (서브 옵션) -->
       <div class="ntr-field" id="scope-field" style="display:none;margin-top:14px">
@@ -189,6 +191,9 @@
              accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onchange="onFiles()">
       <ul class="ntr-files" id="file-list"></ul>
       <div id="precheck-msg" class="ntr-msg"></div>
+      <!-- 업로드 규칙 — 온라인 발급 PDF 확인 체크 · "종이로만 받았어요" · 원본 우편 안내 -->
+      <div id="upload-rule-box"></div>
+      <p class="hint" style="margin-top:10px">파일이 많거나 형식이 섞여 있으면 <a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a> 으로 보내 주세요.</p>
       <!-- ★3종 번역공증 전용 경고. 아포스티유 단독·수동 경로에는 맞지 않아 감춘다 -->
       <div class="ntr-note warn" id="korean-only-note" style="margin-top:14px">
         공증(등기 발송) 상품은 <strong>정부 발급 영문 증명서로는 진행할 수 없습니다.</strong>
@@ -332,6 +337,8 @@
     <div class="ntr-card">
       <h2>결제가 완료되었습니다</h2>
       <p class="hint" id="done-sub">서류 인식·번역이 시작됐습니다. 확인·수정 화면으로 이동해 주세요.</p>
+      <!-- 원본 우편 주문 — 보낼 주소 (서버 NOTARY_MAIL_ADDRESS, 없으면 카카오 알림 안내) -->
+      <div id="mail-box"></div>
 
       <div id="t4-block" style="display:none">
         <div class="ntr-note warn">
@@ -394,8 +401,80 @@ function routeParams(){
 // ★날짜 목록·급행 최단일·일반 수령일·마감·금액은 전부 서버 견적값이다.
 //   WISH 가 비어 있으면 서버 견적의 일반 수령일을 기본값으로 채운다.
 var WISH = '', WISH_FLEX = false, WISH_KEY = '';
+// "종이로만 받았어요" — 온라인 발급 서류를 이 주문만 원본 우편으로 바꾼다 (서버 paperOnly)
+var PAPER_ONLY = false;
+/** 이 주문에 적용되는 업로드 규칙 — 서버 effectiveUploadRule 과 같은 기준 */
+function currentRule(){
+  var d = docByCode($('docType').value);
+  if (!d) return '';
+  var r = d.uploadRule || 'onlinePdf';
+  return (r === 'onlinePdf' && PAPER_ONLY) ? 'mailOriginal' : r;
+}
+/** 공증이 있는 상품 + 온라인 발급 서류 → PDF 원본만 받는다 (번역만 T1 은 사진도 받는다) */
+function onlinePdfOnly(){ return currentRule() === 'onlinePdf' && !!TIER && TIER.code !== 'T1'; }
+/** 원본 우편 주문인가 (번역만 T1 은 원본이 필요 없다) */
+function mailOriginalOrder(){ return currentRule() === 'mailOriginal' && !!TIER && TIER.code !== 'T1'; }
+function mailAddrText(){
+  return (CFG && CFG.mailAddress) ? ('보내실 주소: <strong>' + esc(CFG.mailAddress) + '</strong>')
+                                  : '보내실 주소는 결제 후 카카오 알림으로 안내드립니다.';
+}
+var MAIL_NOTE = '온라인 발급이 없는 서류는 원본을 빠른등기로 보내 주셔야 공증할 수 있습니다. ' +
+  '먼저 스캔본을 올려 주시면 번역을 바로 시작하고, 원본이 도착한 날 공증을 진행합니다. ' +
+  '보내주신 원본은 공증본과 함께 등기로 돌려드립니다.';
+
+/** 서류 선택 즉시 — 발급처 바로가기(온라인 발급) 또는 원본 우편 안내 */
+function renderIssuerBox(){
+  var box = $('issuer-box'); if (!box) return;
+  var d = docByCode($('docType').value);
+  if (!d || !d.ready || d.uploadRule === 'quote' || (d.schoolSplit && !SCHOOL)) { box.innerHTML = ''; return; }
+  var rule = currentRule();
+  if (rule === 'mailOriginal') {
+    box.innerHTML = '<div class="ntr-note" style="margin-top:14px"><strong>원본을 빠른등기로 보내 주세요</strong><br>' +
+      esc(MAIL_NOTE) + '<br>' + mailAddrText() + '</div>';
+    return;
+  }
+  var g = GUIDES[guideKeyOf(d)];
+  var link = (g && g.site)
+    ? '<a class="ntr-guide-btn" style="margin-top:10px" href="' + esc(g.site.url) + '" target="_blank" rel="noopener noreferrer">발급처 바로가기 — ' +
+      esc(g.site.name) + ' ↗</a>' : '';
+  box.innerHTML = '<div class="ntr-note" style="margin-top:14px"><strong>온라인으로 발급받아 \'PDF로 저장\'한 파일을 그대로 올려 주세요.</strong><br>' +
+    '종이로 발급받아 스캔하거나 촬영한 파일은 공증이 거절될 수 있습니다.' + link + '</div>';
+}
+
+/** 업로드 화면 — 온라인 발급 PDF 확인 체크 · 종이로만 받았어요 · 원본 우편 안내 */
+function renderUploadRule(){
+  var box = $('upload-rule-box'); if (!box) return;
+  var pdfOnly = onlinePdfOnly();
+  $('files').setAttribute('accept', pdfOnly ? '.pdf,application/pdf'
+                                            : '.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png');
+  if (pdfOnly) {
+    var was = $('onlinePdfOk') && $('onlinePdfOk').checked;
+    box.innerHTML =
+      '<label class="ntr-check" style="margin-top:12px"><input type="checkbox" id="onlinePdfOk"' + (was ? ' checked' : '') +
+      ' onchange="refresh()"><span><strong>[필수]</strong> 온라인으로 발급받은 PDF 원본을 올렸습니다</span></label>' +
+      '<p class="hint" style="margin-top:6px">종이로만 받으셨나요? <a href="#" onclick="paperOnly();return false">종이로만 받았어요 →</a> ' +
+      '(원본을 빠른등기로 보내 주시는 방식으로 바뀝니다)</p>';
+  } else if (mailOriginalOrder()) {
+    box.innerHTML = '<div class="ntr-note" style="margin-top:12px"><strong>원본 우편 접수</strong><br>' + esc(MAIL_NOTE) +
+      '<br>' + mailAddrText() + '<br><em style="font-style:normal;color:var(--text-muted)">스캔본·사진(PDF·JPG·PNG)을 올려 주세요. 받으실 날짜는 원본 도착 후 계산됩니다.</em></div>' +
+      (PAPER_ONLY ? '<p class="hint" style="margin-top:6px"><a href="#" onclick="paperOnly(false);return false">← 온라인 발급 PDF로 올리기</a></p>' : '');
+  } else {
+    box.innerHTML = '';
+  }
+}
+
+/** "종이로만 받았어요" — 이 주문만 원본 우편으로 (on=false 면 되돌린다) */
+function paperOnly(on){
+  PAPER_ONLY = on !== false;
+  PRECHECK_OK = false;
+  rebuildSteps();
+  renderIssuerBox();
+  renderUploadRule();
+  if ($('files').files.length) onFiles(); else refreshQuote();
+  refresh();
+}
 /** 받으실 날짜를 고르는 상품인가 — 번역공증(T2)·아포스티유(T3). 번역만·아포스티유 단독은 없다 */
-function hasWishDate(t){ return !!(t && (t.code === 'T2' || t.code === 'T3')); }
+function hasWishDate(t){ return !!(t && (t.code === 'T2' || t.code === 'T3')) && currentRule() !== 'mailOriginal'; }
 function wishParams(){
   if (!hasWishDate(TIER)) return {};
   // 서류·상품·쪽수가 바뀌면 일정이 달라진다 → 고른 날을 비워 기본값(일반 수령일)부터 다시
@@ -472,7 +551,8 @@ async function refreshQuote(){
   try {
     var r = await fetch(API + '/api/notary/quote', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(Object.assign({ tier: TIER.code, docType: doc, pages: PAGES, lang: p.lang, schoolType: p.schoolType }, wishParams()))
+      body: JSON.stringify(Object.assign({ tier: TIER.code, docType: doc, pages: PAGES, lang: p.lang, schoolType: p.schoolType },
+                                         PAPER_ONLY ? { paperOnly: '1' } : {}, wishParams()))
     });
     var d = await r.json();
     if (d && d.ok) QUOTE = d;
@@ -520,9 +600,8 @@ var GUIDES = {
     ],
     site: { name: '대법원 전자가족관계등록시스템', url: 'https://efamily.scourt.go.kr' },
     steps: [
-      { t: '위 사이트 접속' },
-      { t: '인증서 또는 간편인증으로 로그인' },
-      { t: '필요한 증명서 선택 (본인 외 부모·배우자·자녀 서류도 발급 가능)' },
+      { t: '위 사이트 접속 후 인증서 또는 간편인증으로 로그인' },
+      { t: '상단 메뉴 <span class="ntr-hl">[증명서발급]</span> → <span class="ntr-hl">[가족관계증명서]</span>·<span class="ntr-hl">[기본증명서]</span>·<span class="ntr-hl">[혼인관계증명서]</span> 중 선택 (본인 외 부모·배우자·자녀 서류도 발급 가능)' },
       { t: '발급 옵션 — 아래 두 가지는 반드시 지켜주세요',
         sub: ['증명서 종류: <span class="ntr-hl">상세</span>',
               '주민등록번호: <span class="ntr-hl">전부 공개</span>'] },
@@ -541,7 +620,7 @@ var GUIDES = {
     title: '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다',
     lead: '이 서류는 경찰청에서 영문으로 직접 발급되는 공문서입니다.',
     // ★법으로 발급 목적이 제한된다 — 경고색으로 가장 먼저 보인다
-    danger: '발급 목적은 반드시 <strong>[외국 입국·체류]</strong>를 선택하세요. ' +
+    danger: '발급 목적은 반드시 <strong>[외국입국/체류 허가]</strong>를 선택하세요. ' +
             '<strong>본인확인용</strong>으로 발급받은 회보서는 해외에 제출할 수 없습니다. ' +
             '목적 외 사용 시 <strong>2년 이하의 징역 또는 2천만원 이하의 벌금</strong> 대상입니다.',
     prep: [
@@ -550,7 +629,7 @@ var GUIDES = {
     site: { name: '경찰청 범죄경력회보서 발급시스템', url: 'https://crims.police.go.kr' },
     steps: [
       { t: '위 사이트 접속 후 본인 인증 로그인' },
-      { t: '발급 목적 — <span class="ntr-hl">[외국 입국·체류]</span>' },
+      { t: '<span class="ntr-hl">[본인발급/열람]</span> → <span class="ntr-hl">[외국입국/체류 허가]</span> 선택' },
       { t: '언어 — <span class="ntr-hl">[영문]</span> 선택' },
       { t: '영문 이름은 <span class="ntr-hl">여권 철자와 똑같이</span> 입력' },
       { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
@@ -564,10 +643,10 @@ var GUIDES = {
   gov24_resident: {
     title: '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다',
     lead: '주민등록등본·초본은 정부24에서 영문으로 발급받을 수 있습니다.',
-    site: { name: '정부24', url: 'https://www.gov.kr' },
+    site: { name: '정부24 — 주민등록표 등본(초본) 발급', url: 'https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000015' },
     steps: [
-      { t: '위 사이트 접속 후 본인 인증 로그인' },
-      { t: '주민등록표 등본(초본) 발급 신청 시 <span class="ntr-hl">[영문]</span> 선택' },
+      { t: '위 링크(정부24 「주민등록표 등본(초본) 발급」)에서 <span class="ntr-hl">[발급하기]</span> → 본인 인증 로그인' },
+      { t: '신청 시 <span class="ntr-hl">[영문]</span> 선택' },
       { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
     ],
     warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ]
@@ -579,8 +658,8 @@ var GUIDES = {
     lead: '출입국사실증명서는 정부24에서 영문으로 발급받을 수 있습니다.',
     site: { name: '정부24', url: 'https://www.gov.kr' },
     steps: [
-      { t: '위 사이트 접속 후 본인 인증 로그인' },
-      { t: '출입국사실증명 발급 신청 시 <span class="ntr-hl">[영문]</span> 선택' },
+      { t: '정부24에서 <span class="ntr-hl">「출입국에 관한 사실증명」</span> 검색 → <span class="ntr-hl">[발급하기]</span> → 본인 인증 로그인' },
+      { t: '신청 시 <span class="ntr-hl">[영문]</span> 선택' },
       { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
     ],
     warns: [ '개명하신 분은 온라인 발급이 되지 않습니다 — 출입국·외국인관서 방문 발급 후 PDF(스캔)로 올려주세요.' ]
@@ -593,7 +672,8 @@ var GUIDES = {
     site: { name: '국세청 홈택스', url: 'https://www.hometax.go.kr' },
     steps: [
       { t: '위 사이트 접속 후 로그인' },
-      { t: '증명서 발급 시 <span class="ntr-hl">[영문]</span> 선택' },
+      { t: '<span class="ntr-hl">[증명·등록·신청]</span> → <span class="ntr-hl">[민원증명]</span> → <span class="ntr-hl">[즉시발급 증명]</span>에서 사업자등록증명·납세증명서 선택' },
+      { t: '발급 시 <span class="ntr-hl">[영문]</span> 선택' },
       { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
     ],
     warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ]
@@ -608,6 +688,51 @@ var GUIDES = {
       { t: '<span class="ntr-hl">PDF</span>로 저장해 그대로 업로드' }
     ],
     warns: [ '한글 증명서만 있으시면 학교 구분을 다시 확인하시거나 담당자에게 문의해 주세요.' ]
+  },
+
+  // ── 정부24 학교생활기록부 — 실제 서비스명: 학교생활기록부(초중고) 발급 (교육부) ──
+  gov24_school_record: {
+    title: '서류 발급 방법 — 정부24에서 온라인으로 발급받으세요',
+    site: { name: '정부24', url: 'https://www.gov.kr' },
+    steps: [
+      { t: '정부24에서 <span class="ntr-hl">「학교생활기록부(초중고) 발급」</span> 검색 → <span class="ntr-hl">[발급하기]</span> → 본인 인증 로그인' },
+      { t: '발급 화면에서 <span class="ntr-hl">PDF로 저장</span>해 그대로 업로드' }
+    ],
+    warns: [ '2003년 1월 이후 고등학교 졸업자부터 온라인 발급이 됩니다.',
+             'PDF 저장이 안 되거나 종이로만 받으셨다면 업로드 화면의 "종이로만 받았어요"를 눌러 주세요.' ]
+  },
+
+  // ── 학교 증명서(번역공증) — 졸업·성적(사립)·재학 ──
+  school_cert: {
+    title: '서류 발급 방법 — 학교 증명서 발급 사이트에서 온라인으로 발급받으세요',
+    lead: '대학 증명서는 각 대학교 홈페이지의 인터넷 증명발급에서 받습니다(정부24 안내 기준). 초·중·고는 정부24에서 받을 수 있습니다.',
+    steps: [
+      { t: '학교 홈페이지 <span class="ntr-hl">인터넷 증명발급</span>(또는 정부24)에서 발급' },
+      { t: '<span class="ntr-hl">PDF로 저장</span>해 그대로 업로드' }
+    ],
+    warns: [ '학교에 따라 인쇄만 되고 PDF 저장이 안 될 수 있습니다 — 그 경우 업로드 화면의 "종이로만 받았어요"를 눌러 주세요.' ]
+  },
+
+  // ── 예방접종증명 — 실제 서비스명: 예방접종증명 (질병관리청, 예방접종도우미/정부24) ──
+  vaccination: {
+    title: '서류 발급 방법 — 예방접종도우미 또는 정부24에서 발급받으세요',
+    site: { name: '정부24', url: 'https://www.gov.kr' },
+    steps: [
+      { t: '정부24에서 <span class="ntr-hl">「예방접종증명」</span> 검색 → <span class="ntr-hl">[발급하기]</span> (예방접종도우미에서도 발급)' },
+      { t: '발급 화면에서 <span class="ntr-hl">PDF로 저장</span>해 그대로 업로드' }
+    ],
+    warns: [ 'PDF 저장이 안 되거나 종이로만 받으셨다면 업로드 화면의 "종이로만 받았어요"를 눌러 주세요.' ]
+  },
+
+  // ── 인터넷등기소 법인 등기 — 실제 메뉴: 법인 › 열람·발급 ──
+  iros: {
+    title: '서류 발급 방법 — 인터넷등기소에서 발급받으세요',
+    site: { name: '대법원 인터넷등기소', url: 'https://www.iros.go.kr' },
+    steps: [
+      { t: '<span class="ntr-hl">[법인]</span> → <span class="ntr-hl">[열람·발급]</span>에서 <span class="ntr-hl">발급</span>으로 신청 (열람용은 접수할 수 없습니다)' },
+      { t: '발급본을 <span class="ntr-hl">PDF로 저장</span>해 그대로 업로드' }
+    ],
+    warns: [ '인터넷등기소 발급은 인쇄 방식이라 PDF 저장이 안 될 수 있습니다 — 그 경우 업로드 화면의 "종이로만 받았어요"를 눌러 원본을 보내 주세요.' ]
   }
 };
 
@@ -619,6 +744,7 @@ var GUIDE_OF = {
 function guideKeyOf(d){
   if (!d) return '';
   // 졸업·성적증명서는 국립(=아포스티유 단독)일 때만 영문 발급 안내를 띄운다
+  if (d.schoolSplit && SCHOOL === '사립') return 'school_cert';
   if (d.schoolSplit && SCHOOL !== '국립') return '';
   return d.guide || GUIDE_OF[d.code] || '';
 }
@@ -805,6 +931,8 @@ function onDocType(){
   if (!canTranslateOnly) $('translateOnly').checked = false;
 
   renderApoNote(d);
+  PAPER_ONLY = false;
+  renderIssuerBox();
   if (other) { TIER = null; QUOTE = null; rebuildSteps(); renderStep(); renderIssueGuide(); return; }
   renderIssueGuide();
   syncTier();
@@ -995,6 +1123,8 @@ function renderStep(){
   $('btn-next').style.display = last ? 'none' : '';
   $('payBtn').style.display   = last ? '' : 'none';
   if (last) buildSummary();
+  // 업로드 규칙 표시는 상품·서류·종이 여부에 따라 바뀐다 — 단계마다 다시 그린다
+  renderUploadRule();
 
   msg('step-msg','');
   if (!SUPPRESS_SCROLL) window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1028,6 +1158,8 @@ function stepBlockReason(){
       if (!$('files').files.length)
         return apoOnly ? '아포스티유 받을 영문 서류를 올려주세요.' : '번역할 서류를 올려주세요.';
       if (!PRECHECK_OK) return '파일 확인이 끝나지 않았습니다. 잠시 후 다시 시도해 주세요.';
+      if (onlinePdfOnly() && !($('onlinePdfOk') && $('onlinePdfOk').checked))
+        return '"온라인으로 발급받은 PDF 원본을 올렸습니다"에 체크해 주세요. 종이로만 받으셨다면 "종이로만 받았어요"를 눌러 주세요.';
       return '';
     case 'ship':    return shipError();
     case 'date':
@@ -1080,7 +1212,9 @@ function buildSummary(){
     rows.push(['가족 영문 이름', $('familyNames').value.trim().split(/\n+/).length + '명 입력']);
   rows.push(['파일', $('files').files.length + '개 · ' + (QUOTE ? QUOTE.pages : PAGES) + '쪽']);
   var sc = QUOTE && QUOTE.schedule;
-  if (sc) {
+  if (sc && sc.awaitingOriginal) {
+    rows.push(['받으실 날짜', '원본 도착 후 계산 (원본을 빠른등기로 보내 주세요)']);
+  } else if (sc) {
     var rd = QUOTE.express ? sc.expressLabel : sc.normalLabel;
     rows.push(['받으실 날짜', rd + ' 예정 · ' + (QUOTE.express ? '급행' : '일반') + ' (영업일 기준)']);
   }
@@ -1097,6 +1231,7 @@ function buildSummary(){
 
   // ★처리 기간 — 서버 견적의 예정수령일(영업일 기준) 그대로
   var period = !sc ? ''
+    : sc.awaitingOriginal ? '<li>원본 우편 접수 — ' + esc(MAIL_NOTE) + ' ' + mailAddrText() + '</li>'
     : '<li>받으실 날짜: <strong>' + esc(QUOTE.express ? sc.expressLabel : sc.normalLabel) +
       '</strong> 예정 (영업일 기준' + (QUOTE.express ? ' · 급행' : '') + ')</li>';
 
@@ -1426,6 +1561,7 @@ async function precheck(){
   fd.append('docType', p.docType);
   fd.append('lang', p.lang);
   fd.append('schoolType', p.schoolType);
+  if (PAPER_ONLY) fd.append('paperOnly', '1');
   Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
   try {
     var r = await fetch(API + '/api/notary/precheck', { method:'POST', body: fd });
@@ -1597,6 +1733,7 @@ async function pay(){
   fd.append('name', ME.name || '');
   fd.append('phone', ME.phone || '');
   fd.append('agreed', '1');
+  if (PAPER_ONLY) fd.append('paperOnly', '1');
   // 받으실 날짜 — 서버가 결제 시각 기준으로 다시 계산한다. 급행은 결제한 금액으로 판정된다
   if (QUOTE && QUOTE.schedule) {
     fd.append('express', QUOTE.express ? '1' : '0');
@@ -1614,7 +1751,7 @@ async function pay(){
     var r2 = await fetch(API + '/api/notary/order/create', { method:'POST', body: fd });
     var d2 = await r2.json();
     if (!d2.ok) throw new Error(d2.error || '주문 접수 실패');
-    showDone();
+    showDone(d2);
   } catch(e){
     PAYING = false; refresh();
     msg('pay-msg','주문 접수 실패: '+esc(e.message)+
@@ -1626,9 +1763,20 @@ async function pay(){
 // ─── 결제 완료 화면 ──────────────────────────────────────
 // 아포스티유 상품인데 아포스티유가 적용되지 않는 국가면(비협약·발효 전·미등록)
 // 여기서만 영사인증 추가 문의를 받는다. 영사인증은 시스템 결제가 없다.
-function showDone(){
+function showDone(res){
   $('form-area').style.display = 'none';
   $('done-area').style.display = '';
+  // 원본 우편 — 결제 완료 화면에 보낼 주소를 바로 보여 준다
+  var mb = $('mail-box');
+  if (mb) {
+    mb.innerHTML = (res && res.mailOriginal)
+      ? '<div class="ntr-note warn" style="margin-top:14px"><strong>원본을 빠른등기로 보내 주세요</strong><br>' +
+        (res.mailAddress ? '보내실 주소: <strong>' + esc(res.mailAddress) + '</strong><br>'
+                         : '보내실 주소는 카카오 알림으로 안내드립니다.<br>') +
+        '봉투에 주문번호 <strong>' + esc(ORDER_NUMBER) + '</strong>를 적어 주세요. ' +
+        '원본이 도착한 날 공증을 진행하고, 받으실 날짜를 알려 드립니다. 보내주신 원본은 공증본과 함께 돌려드립니다.</div>'
+      : '';
+  }
   var apoOnly = !!(TIER && TIER.translate === false);
   var route = currentRoute();
   var needT4 = !!(TIER && TIER.apostille && COUNTRY && !COUNTRY.effectiveNow);

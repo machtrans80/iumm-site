@@ -153,7 +153,7 @@ for (const [v, ok] of [['HONG GILDONG', true], ['Hong Gil-dong', true], ["O'BRIE
 console.log('\n[8] 발급 안내 배너');
 for (const [c, must] of [
   ['family_relation', ['efamily.scourt.go.kr', '상세', '전부 공개', 'PDF로 저장']],
-  ['crime_record',    ['crims.police.go.kr', '외국 입국·체류', '본인확인용', '2년 이하의 징역', '2천만원 이하의 벌금', '영문', '여권 철자']],
+  ['crime_record',    ['crims.police.go.kr', '외국입국/체류 허가', '본인확인용', '2년 이하의 징역', '2천만원 이하의 벌금', '영문', '여권 철자']],
   ['immigration',     ['정부24', '개명하신 분은 온라인 발급이 되지 않습니다']],
   ['resident_full',   ['정부24', '영문']],
   ['tax_payment',     ['홈택스', '영문']],
@@ -275,6 +275,45 @@ console.log('\n[12] 아포스티유 입구 — 협약국을 고르면 체크가 
   pick('crime_record');
   check(sandbox.TIER.code === 'APO', '영문 발급 서류는 그대로 아포스티유 단독');
   sandbox.WANT_APO_PRESET = false;
+}
+// ── 13. 서류별 업로드 규칙 ──
+console.log('\n[13] 업로드 규칙 — 온라인 발급 PDF · 종이로만 받았어요 · 원본 우편');
+{
+  sandbox.CFG.mailAddress = '06236 서울 강남구 테헤란로 123 IUMM';
+  pick('school_record');
+  check($id('issuer-box').innerHTML.includes("'PDF로 저장'한 파일을 그대로 올려 주세요") &&
+        $id('issuer-box').innerHTML.includes('발급처 바로가기') && $id('issuer-box').innerHTML.includes('www.gov.kr'),
+    '생활기록부 선택 즉시 — 발급처 바로가기 + 온라인 PDF 안내');
+  sandbox.renderUploadRule();
+  check($id('upload-rule-box').innerHTML.includes('온라인으로 발급받은 PDF 원본을 올렸습니다') &&
+        $id('upload-rule-box').innerHTML.includes('종이로만 받았어요'), '업로드: 필수 체크 + 종이로만 받았어요 링크');
+  sandbox.STEPS = ['doc','upload','confirm']; sandbox.STEP_I = 1; sandbox.PRECHECK_OK = true;
+  $id('files').files = [{ name: 'a.pdf' }];
+  $id('onlinePdfOk').checked = false;
+  check(/PDF 원본을 올렸습니다/.test(sandbox.stepBlockReason()), '체크 안 하면 다음 단계 막힘');
+  $id('onlinePdfOk').checked = true;
+  check(sandbox.stepBlockReason() === '', '체크하면 통과');
+  sandbox.paperOnly();
+  check(sandbox.currentRule() === 'mailOriginal' && !sandbox.hasWishDate(sandbox.TIER), '종이로만 → 원본 우편 · 받으실 날짜 단계 없음');
+  check($id('upload-rule-box').innerHTML.includes('원본 우편 접수') && $id('upload-rule-box').innerHTML.includes('테헤란로'),
+    '원본 우편 안내 + 보낼 주소');
+  check($id('issuer-box').innerHTML.includes('원본을 빠른등기로 보내 주세요'), '서류 단계 안내도 원본 우편으로');
+  sandbox.paperOnly(false);
+  check(sandbox.currentRule() === 'onlinePdf', '되돌리기 → 온라인 발급');
+  pick('contract');
+  check(sandbox.currentRule() === 'mailOriginal' && $id('issuer-box').innerHTML.includes('온라인 발급이 없는 서류는 원본을 빠른등기로'),
+    '계약서 → 원본 우편 안내 (MAIL_NOTE 문구)');
+  sandbox.QUOTE = { route: 'manual', pages: 3, supply: 75000, schedule: { awaitingOriginal: true, expressAvailable: false } };
+  sandbox.buildSummary();
+  check($id('pay-summary').innerHTML.includes('원본 도착 후 계산'), '요약: 받으실 날짜 = 원본 도착 후 계산');
+  sandbox.CFG.mailAddress = '';
+  sandbox.renderIssuerBox();
+  check($id('issuer-box').innerHTML.includes('결제 후 카카오 알림으로 안내드립니다'), '주소 미설정 → 카카오 알림 안내 문구');
+  sandbox.showDone({ ok: true, mailOriginal: true, mailAddress: '서울 테헤란로 1' });
+  check($id('mail-box').innerHTML.includes('서울 테헤란로 1'), '결제 완료 화면에 보낼 주소');
+  pick('family_relation');
+  sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'T1');
+  check(!sandbox.onlinePdfOnly(), '번역만(T1)은 PDF 강제 없음');
 }
 const visible2 = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
