@@ -235,6 +235,24 @@
       </div>
     </section>
 
+    <!-- ── STEP: 받으실 날짜 (번역공증·아포스티유 — 쪽수가 정해진 뒤) ──
+         ★날짜·금액·마감은 전부 서버 견적(/quote)의 schedule·wish 값이다. 여기서 계산하지 않는다. -->
+    <section class="ntr-card ntr-panel" data-step="date">
+      <h2>언제 받으실 예정인가요?</h2>
+      <p class="hint">서류가 필요한 날을 골라 주세요. 일반 일정으로 맞출 수 있으면 일반 요금으로 진행합니다.</p>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="wishDate">받으실 날짜</label>
+        <select class="ntr-inp" id="wishDate" onchange="onWishChange()"></select>
+      </div>
+      <label class="ntr-check" style="margin-top:4px"><input type="checkbox" id="wishFlex" onchange="onWishChange()"><span>받는 날 상관없음 (여유 있음)</span></label>
+      <div id="date-sched" class="ntr-sched"></div>
+      <div id="date-mode"></div>
+      <p class="ntr-sched-foot">
+        수령일은 영업일 기준 예정일입니다. 빠른등기는 발송 다음 영업일 도착이 기본이며, 지역·우체국 사정에
+        따라 1영업일 더 걸릴 수 있습니다. 아포스티유는 관공서 사정에 따라 1~2영업일 더 걸릴 수 있습니다.
+      </p>
+    </section>
+
     <!-- ── STEP: 동의·결제 (마지막) ───────────────────── -->
     <section class="ntr-card ntr-panel" data-step="confirm">
       <h2>확인하고 결제해 주세요</h2>
@@ -255,6 +273,8 @@
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag1"><span>위 안내사항을 확인했습니다</span></label>
         <label class="ntr-check" id="ag2-label"><input type="checkbox" class="agree" id="ag2"><span>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가함을 확인했습니다</span></label>
         <label class="ntr-check" id="ag3-label"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
+        <!-- 급행일 때만 보인다 (agreedAll 도 급행일 때만 요구) -->
+        <label class="ntr-check" id="ag6-label" style="display:none"><input type="checkbox" class="agree" id="ag6"><span><strong>[필수]</strong> 급행이라도 위 사정으로 수령일이 늦어질 수 있음을 확인했습니다</span></label>
       </div>
 
       <!-- ── 개인정보 필수 동의 ─────────────────────────────
@@ -368,6 +388,80 @@ function routeParams(){
   return { docType: $('docType').value, lang: $('lang').value || 'en', schoolType: SCHOOL };
 }
 
+// ─── 받으실 날짜 (급행 판정) ─────────────────────────────────
+// ★날짜 목록·급행 최단일·일반 수령일·마감·금액은 전부 서버 견적값이다.
+//   WISH 가 비어 있으면 서버 견적의 일반 수령일을 기본값으로 채운다.
+var WISH = '', WISH_FLEX = false, WISH_KEY = '';
+/** 받으실 날짜를 고르는 상품인가 — 번역공증(T2)·아포스티유(T3). 번역만·아포스티유 단독은 없다 */
+function hasWishDate(t){ return !!(t && (t.code === 'T2' || t.code === 'T3')); }
+function wishParams(){
+  if (!hasWishDate(TIER)) return {};
+  // 서류·상품·쪽수가 바뀌면 일정이 달라진다 → 고른 날을 비워 기본값(일반 수령일)부터 다시
+  var key = TIER.code + '|' + $('docType').value + '|' + SCHOOL + '|' + PAGES;
+  if (key !== WISH_KEY) { WISH_KEY = key; WISH = ''; }
+  return WISH_FLEX ? { flexible: '1' } : (WISH ? { wishDate: WISH } : {});
+}
+function onWishChange(){
+  WISH_FLEX = $('wishFlex').checked;
+  WISH = $('wishDate').value || WISH;
+  $('wishDate').disabled = WISH_FLEX;
+  refreshQuote();
+}
+function wonOnly(n){ return Number(n||0).toLocaleString(); }
+
+/** 날짜 단계 — 서버 schedule/wish 로 목록·안내를 그린다 */
+function renderDateStep(){
+  var box = $('date-sched'), mode = $('date-mode');
+  if (!box) return;
+  var sc = QUOTE && QUOTE.schedule;
+  if (!sc || !hasWishDate(TIER)) { box.innerHTML = ''; mode.innerHTML = ''; $('wishDate').innerHTML = ''; return; }
+  // 목록 — 영업일만 (서버가 준 selectable). 기본값 = 일반 수령일
+  var sel = $('wishDate');
+  if (!WISH) WISH = sc.normalDay;
+  var opts = (sc.selectable || []);
+  var inList = opts.some(function(o){ return o.day === WISH; });
+  // ★고른 날이 목록에서 사라졌으면(마감이 지나 일정이 밀림) 맨 위에 "선택 불가"로 남겨 다시 고르게 한다
+  sel.innerHTML = (inList ? '' : '<option value="' + esc(WISH) + '" selected>' + esc(WISH) + ' · 선택 불가</option>') +
+    opts.map(function(o){
+      return '<option value="' + esc(o.day) + '"' + (o.day === WISH ? ' selected' : '') + '>' +
+             esc(o.label) + (o.mode === 'express' ? ' · 급행' : '') + '</option>';
+    }).join('');
+  sel.disabled = WISH_FLEX;
+  $('wishFlex').checked = WISH_FLEX;
+
+  var isT3 = TIER.code === 'T3';
+  box.innerHTML =
+    '<div class="ntr-sched-row"><span>급행</span><strong>' + esc(sc.expressLabel) + ' 수령</strong></div>' +
+    '<div class="ntr-sched-row"><span>일반</span><strong>' + esc(sc.normalLabel) + ' 수령</strong></div>' +
+    (sc.extraTranslationDay ? '<p class="ntr-sched-extra">번역 분량에 따라 1영업일이 더해졌습니다</p>' : '');
+
+  var w = QUOTE.wish || {};
+  if (w.mode === 'invalid') {
+    mode.innerHTML = '<div class="ntr-note warn" style="margin-top:12px">' + esc(w.error || '받으실 날짜를 다시 골라 주세요') + '</div>';
+    return;
+  }
+  if (QUOTE.express) {
+    var np = QUOTE.normalPrice || {}, ep = QUOTE.expressPrice || {};
+    var who = sc.needsConfirm ? '결제와 번역본 확정을' : '결제를';
+    var when = sc.intakeToday ? '오늘 ' : (sc.intakeLabel + ' ');
+    var hour = isT3 ? '오전 11시' : '낮 12시';
+    mode.innerHTML =
+      '<div class="ntr-note warn ntr-express" style="margin-top:12px">' +
+      '<strong>선택하신 날짜는 급행으로만 가능합니다. 급행 요금이 적용됩니다.</strong><br>' +
+      esc(sc.normalLabel) + ' 이후로 받으실 날을 지정하시면 일반 요금으로 진행됩니다.' +
+      '<div class="ntr-express-prices">' +
+      '<div><span>일반 요금</span><b>' + wonOnly(np.supply) + '원</b> <small>부가세 별도</small></div>' +
+      '<div class="on"><span>급행 요금</span><b>' + wonOnly(ep.supply) + '원</b> <small>부가세 별도</small></div>' +
+      '</div>' +
+      '<p class="ntr-express-cut">급행은 ' + esc(when) + hour + '까지 ' + who + ' 마쳐야 합니다. ' +
+      '지나면 다음 영업일 기준으로 다시 계산됩니다.</p>' +
+      '</div>';
+  } else {
+    mode.innerHTML = '<div class="ntr-note" style="margin-top:12px">일반 요금으로 진행합니다 · ' +
+      esc(sc.normalLabel) + ' 수령 예정</div>';
+  }
+}
+
 async function refreshQuote(){
   QUOTE = null;
   var doc = $('docType').value;
@@ -376,11 +470,12 @@ async function refreshQuote(){
   try {
     var r = await fetch(API + '/api/notary/quote', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ tier: TIER.code, docType: doc, pages: PAGES, lang: p.lang, schoolType: p.schoolType })
+      body: JSON.stringify(Object.assign({ tier: TIER.code, docType: doc, pages: PAGES, lang: p.lang, schoolType: p.schoolType }, wishParams()))
     });
     var d = await r.json();
     if (d && d.ok) QUOTE = d;
   } catch(e){ QUOTE = null; }
+  renderDateStep();
   renderQuoteLine();
   renderPayBreak();
   refresh();
@@ -843,6 +938,7 @@ var STEP_TITLE = {
   info:    '언어 · 영문 이름',
   upload:  '서류 업로드',
   ship:    '등기 수령 정보',
+  date:    '받으실 날짜',
   confirm: '확인·결제'
 };
 var STEPS = ['doc'], STEP_I = 0;
@@ -862,6 +958,7 @@ function stepsFor(tier){
   }
   s.push('upload');
   if (tier.needsAddress) s.push('ship');          // 등기 발송이 있는 상품만
+  if (hasWishDate(tier)) s.push('date');          // 번역공증·아포스티유만 — 쪽수가 정해진 뒤라 업로드 다음
   s.push('confirm');
   return s;
 }
@@ -930,6 +1027,10 @@ function stepBlockReason(){
       if (!PRECHECK_OK) return '파일 확인이 끝나지 않았습니다. 잠시 후 다시 시도해 주세요.';
       return '';
     case 'ship':    return shipError();
+    case 'date':
+      if (!QUOTE || !QUOTE.schedule) return '일정을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.';
+      if (QUOTE.wish && QUOTE.wish.mode === 'invalid') return QUOTE.wish.error || '받으실 날짜를 다시 골라 주세요.';
+      return '';
     default:        return '';
   }
 }
@@ -975,18 +1076,26 @@ function buildSummary(){
   if (!apoOnly && d && d.familyNames && $('familyNames').value.trim())
     rows.push(['가족 영문 이름', $('familyNames').value.trim().split(/\n+/).length + '명 입력']);
   rows.push(['파일', $('files').files.length + '개 · ' + (QUOTE ? QUOTE.pages : PAGES) + '쪽']);
+  var sc = QUOTE && QUOTE.schedule;
+  if (sc) {
+    var rd = QUOTE.express ? sc.expressLabel : sc.normalLabel;
+    rows.push(['받으실 날짜', rd + ' 예정 · ' + (QUOTE.express ? '급행' : '일반') + ' (영업일 기준)']);
+  }
   if (TIER && TIER.needsAddress) {
     rows.push(['스캔본', '발송 전 제공 (포함)']);
     rows.push(['등기 수령', ($('recipient').value.trim() || '-') + ' · ' + ($('address').value.trim() || '-')]);
   }
   $('pay-summary').innerHTML = rows.map(function(r){
     return '<div class="ntr-sum-row"><span>' + esc(r[0]) + '</span><strong>' + esc(r[1]) + '</strong></div>';
-  }).join('');
+  }).join('') +
+  // 수령일 공통 안내 — 급행 동의(ag6)의 "위 사정"이 이 문단이다
+  (sc ? '<p class="ntr-sched-foot">수령일은 영업일 기준 예정일입니다. 빠른등기는 발송 다음 영업일 도착이 기본이며, ' +
+        '지역·우체국 사정에 따라 1영업일 더 걸릴 수 있습니다. 아포스티유는 관공서 사정에 따라 1~2영업일 더 걸릴 수 있습니다.</p>' : '');
 
-  // ★처리 기간 — 영업일 기준. 공증은 주 2회 일괄, 아포스티유는 대행 기관 일정을 따른다
-  var period = !TIER ? '' : TIER.code === 'T1' ? ''
-    : '<li>처리 기간(영업일 기준): 공증은 <strong>주 2회</strong> 일괄 진행합니다' +
-      (TIER.apostille ? ', 아포스티유는 대행 기관 일정에 따라 추가로 소요됩니다' : '') + '.</li>';
+  // ★처리 기간 — 서버 견적의 예정수령일(영업일 기준) 그대로
+  var period = !sc ? ''
+    : '<li>받으실 날짜: <strong>' + esc(QUOTE.express ? sc.expressLabel : sc.normalLabel) +
+      '</strong> 예정 (영업일 기준' + (QUOTE.express ? ' · 급행' : '') + ')</li>';
 
   // ★결제 전 안내는 경로에 맞춘다
   var notes;
@@ -1340,7 +1449,8 @@ function agreedAll(){
      동의 없이 받게 된다 — 환불 동의(ag2)보다 먼저 지켜야 하는 항목이다.
      관리자 무료우회(NTR-ADM-)는 이 화면을 쓰지 않는다(어드민 패널 별도 경로). */
   return $('ag1').checked && $('ag2').checked && $('ag3').checked &&
-         $('ag4').checked && $('ag5').checked;
+         $('ag4').checked && $('ag5').checked &&
+         (!(QUOTE && QUOTE.express) || $('ag6').checked);   // 급행 지연 가능성 확인 (급행일 때만)
 }
 /* ★서버(notary/index.js validateShipping)와 같은 기준이다.
    한쪽만 고치면 프론트는 통과했는데 서버가 400을 주는 상황이 생긴다. 같이 고칠 것. */
@@ -1371,8 +1481,10 @@ function nameOk(){
 function refresh(){
   renderPayBreak();
   $('amount').textContent = QUOTE ? won(QUOTE.amount) : '—';
+  $('ag6-label').style.display = (QUOTE && QUOTE.express) ? '' : 'none';
+  var wishBad = !!(QUOTE && QUOTE.wish && QUOTE.wish.mode === 'invalid');
   var ok = !!(ME.kakaoId && TIER && QUOTE && countryOk() && nameOk() && PRECHECK_OK &&
-              agreedAll() && shipOk() && !PAYING);
+              agreedAll() && shipOk() && !wishBad && !PAYING);
   $('payBtn').disabled = !ok;
 }
 document.addEventListener('input', refresh);
@@ -1385,6 +1497,23 @@ async function pay(){
   if (!token) { alert('로그인이 만료되었습니다. 다시 로그인해 주세요.'); checkLogin(); return; }
 
   PAYING = true; refresh();
+  // ★결제 직전 서버 재검증 — 마감이 지나 급행/일반 판정이나 금액이 바뀌었으면 결제를 막는다
+  if (QUOTE && QUOTE.schedule) {
+    msg('pay-msg','<span class="ntr-spinner"></span> 일정과 금액을 다시 확인하는 중…');
+    var before = { express: !!QUOTE.express, amount: QUOTE.amount };
+    await refreshQuote();
+    var changed = !QUOTE || (QUOTE.wish && QUOTE.wish.mode === 'invalid') ||
+                  !!QUOTE.express !== before.express || QUOTE.amount !== before.amount;
+    if (changed) {
+      PAYING = false;
+      var di = STEPS.indexOf('date');
+      if (di >= 0) { STEP_I = di; SUPPRESS_SCROLL = true; renderStep(); SUPPRESS_SCROLL = false; }
+      msg(di >= 0 ? 'step-msg' : 'pay-msg',
+          '마감 시각이 지나 수령 일정이 바뀌었습니다. 받으실 날짜와 금액을 다시 확인해 주세요.', 'err');
+      refresh();
+      return;
+    }
+  }
   msg('pay-msg','<span class="ntr-spinner"></span> 결제창을 여는 중…');
 
   var orderNumber = 'NTR-' + Date.now();
@@ -1463,6 +1592,12 @@ async function pay(){
   fd.append('name', ME.name || '');
   fd.append('phone', ME.phone || '');
   fd.append('agreed', '1');
+  // 받으실 날짜 — 서버가 결제 시각 기준으로 다시 계산한다. 급행은 결제한 금액으로 판정된다
+  if (QUOTE && QUOTE.schedule) {
+    fd.append('express', QUOTE.express ? '1' : '0');
+    if (WISH_FLEX) fd.append('flexible', '1');
+    else if (WISH) fd.append('wishDate', WISH);
+  }
   if (TIER.needsAddress) {
     fd.append('recipient', $('recipient').value.trim());
     fd.append('recipientPhone', $('recipientPhone').value.trim());

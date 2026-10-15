@@ -84,7 +84,7 @@ check(sandbox.STEPS.join() === 'doc', '서류를 고르기 전 단계 = 서류 �
 console.log('\n[2] 가족관계증명서 → 번역공증 기본');
 pick('family_relation');
 check(sandbox.TIER && sandbox.TIER.code === 'T2', `T2 (현재 ${sandbox.TIER && sandbox.TIER.code})`);
-check(steps() === 'doc>country>info>upload>ship>confirm', `단계 ${steps()}`);
+check(steps() === 'doc>country>info>upload>ship>date>confirm', `단계 ${steps()} (받으실 날짜 포함)`);
 check($id('family-field').style.display === '', '가족 영문 이름 입력 노출');
 check($id('scope-field').style.display === '', '"번역본만" 옵션 노출');
 check($id('korean-only-note').style.display === '', '"한글 원본 PDF" 경고 (3종 + 영어)');
@@ -187,6 +187,79 @@ console.log('\n[10] 고객 화면 표현');
 const visible = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/\bAI\b|GPT|Claude|인공지능|자동 ?번역/.test(visible), 'AI·자동번역 표현 없음');
 check(!/최저|최고|BEST/.test(visible), '최상급 표현 없음');
+
+// ── 11. 받으실 날짜 · 급행 ──
+console.log('\n[11] 받으실 날짜 — 급행 판정 안내 · 동의 · 요약');
+{
+  // 서버 /quote 응답 모양 그대로 (3종 T2, 목 11:30, 희망 10/16)
+  const sched = {
+    expressAvailable: true, expressDay: '2026-10-16', normalDay: '2026-10-20',
+    expressLabel: '10월 16일(금)', normalLabel: '10월 20일(화)', cutoff: '12:00',
+    intakeToday: true, intakeLabel: '10월 15일(목)', extraTranslationDay: false, needsConfirm: true,
+    maxDay: '2026-12-14',
+    selectable: [{ day: '2026-10-16', label: '10월 16일(금)', mode: 'express' },
+                 { day: '2026-10-19', label: '10월 19일(월)', mode: 'express' },
+                 { day: '2026-10-20', label: '10월 20일(화)', mode: 'normal' }],
+  };
+  pick('family_relation');
+  check(sandbox.hasWishDate(sandbox.TIER) && steps().includes('>date>'), 'T2 → 받으실 날짜 단계');
+  sandbox.PAGES = 1;
+  sandbox.QUOTE = { route: 'auto', pages: 1, supply: 85000, amount: 93500, express: true,
+    normalPrice: { supply: 55000 }, expressPrice: { supply: 85000 }, schedule: sched,
+    wish: { mode: 'express', receiveDay: '2026-10-16' } };
+  sandbox.WISH = '2026-10-16'; sandbox.WISH_KEY = 'T2|family_relation||1';
+  $id('docType').value = 'family_relation';
+  sandbox.renderDateStep();
+  const m = $id('date-mode').innerHTML;
+  check(m.includes('선택하신 날짜는 급행으로만 가능합니다. 급행 요금이 적용됩니다.') &&
+        m.includes('10월 20일(화) 이후로 받으실 날을 지정하시면 일반 요금으로 진행됩니다.'), '급행 안내 문구');
+  check(m.includes('55,000원') && m.includes('85,000원') && (m.match(/부가세 별도/g) || []).length === 2,
+    '일반·급행 금액 나란히 (부가세 별도)');
+  check(m.includes('급행은 오늘 낮 12시까지 결제와 번역본 확정을 마쳐야 합니다') && m.includes('다음 영업일 기준으로 다시 계산'),
+    '3종 마감 안내 (결제와 번역본 확정)');
+  check(!/번역 \(|공증 \(|등기|자격인증/.test(m), '금액 분해 없음');
+  check($id('wishDate').innerHTML.includes('10월 16일(금) · 급행') && $id('wishDate').innerHTML.includes('10월 20일(화)</option>'),
+    '날짜 목록 — 영업일·급행 표시');
+  // 급행 동의 체크 — 급행일 때만 요구
+  ['ag1','ag2','ag3','ag4','ag5'].forEach(id => { $id(id).checked = true; });
+  $id('ag6').checked = false;
+  check(sandbox.agreedAll() === false, '급행 + ag6 미체크 → 결제 불가');
+  $id('ag6').checked = true;
+  check(sandbox.agreedAll() === true, '급행 + ag6 체크 → 통과');
+  sandbox.buildSummary();
+  const sum = $id('pay-summary').innerHTML;
+  check(sum.includes('10월 16일(금) 예정 · 급행') && sum.includes('빠른등기는 발송 다음 영업일 도착이 기본'),
+    '요약: 받으실 날짜 · 공통 안내');
+
+  // 3종 외 서류 — 마감 안내는 "결제"만, 번역 1영업일 추가 표시
+  pick('school_record');
+  sandbox.QUOTE = { route: 'manual', pages: 10, supply: 220000, amount: 242000, express: true,
+    normalPrice: { supply: 145000 }, expressPrice: { supply: 220000 },
+    schedule: { ...sched, needsConfirm: false, extraTranslationDay: true, expressLabel: '10월 19일(월)', normalLabel: '10월 21일(수)' },
+    wish: { mode: 'express' } };
+  sandbox.renderDateStep();
+  check($id('date-mode').innerHTML.includes('낮 12시까지 결제를 마쳐야') && !$id('date-mode').innerHTML.includes('확정'),
+    '3종 외 — 마감 안내 "결제"만');
+  check($id('date-sched').innerHTML.includes('번역 분량에 따라 1영업일이 더해졌습니다'), '번역 1영업일 추가 안내');
+
+  // 아포스티유(T3) 마감 11시
+  sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'T3');
+  sandbox.renderDateStep();
+  check($id('date-mode').innerHTML.includes('오전 11시'), 'T3 마감 오전 11시');
+
+  // 선택 불가 — 다음 단계·결제 막힘
+  sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'T2');
+  sandbox.QUOTE = { route: 'auto', pages: 1, supply: 55000, amount: 60500, express: false, schedule: sched,
+    wish: { mode: 'invalid', error: '가장 빠른 수령일은 10월 16일(금)입니다' } };
+  sandbox.STEPS = ['doc','date','confirm']; sandbox.STEP_I = 1;
+  check(sandbox.stepBlockReason() === '가장 빠른 수령일은 10월 16일(금)입니다', '선택 불가 → 다음 단계 막힘');
+
+  // APO·T1 — 날짜 단계 없음
+  pick('crime_record');
+  check(!steps().includes('date'), 'APO → 날짜 단계 없음');
+}
+const visible2 = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);
