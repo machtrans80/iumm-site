@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>공증 서류 번역 — IUMM</title>
-<meta name="description" content="가족관계증명서 등 공증용 서류 번역. 용어 사전 기반 정확 번역 + 원본 양식 그대로.">
+<title>번역공증 신청 — IUMM</title>
+<meta name="description" content="온라인 번역공증·아포스티유 신청. 서류를 고르고 올리면 공증본을 집에서 받아보실 수 있습니다.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=33">
+<link rel="stylesheet" href="/notary/notary.css?v=34">
 <!-- ★메인(index.html)과 같은 v1 SDK. 버전이 다르면 토큰 저장 형식이 달라
      같은 브라우저에서도 로그인 세션을 공유하지 못해 재로그인을 요구하게 된다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -20,15 +20,15 @@
 <nav class="ntr-nav">
   <a href="/" class="logo">IUMM</a>
   <div class="right">
-    <a href="/">← 번역 서비스</a>
+    <a href="/">← 처음으로</a>
     <span id="who" style="color:var(--text-muted)"></span>
   </div>
 </nav>
 
 <div class="ntr-wrap">
-  <h1 class="ntr-page-title">공증 서류 번역</h1>
+  <h1 class="ntr-page-title">온라인 번역공증 · 아포스티유</h1>
   <p class="ntr-page-sub">
-    원본 양식 그대로, 용어 사전 기반으로 번역합니다. 화면에서 직접 확인·수정한 뒤 확정하세요.
+    직접 가지 않으셔도 됩니다. 서류를 고르고 올려주시면 번역·공증·아포스티유까지 진행해 집으로 보내드립니다.
   </p>
 
   <!-- ── 로그인 ─────────────────────────────────────────── -->
@@ -43,49 +43,57 @@
   <div id="form-area" style="display:none">
 
     <!-- ── 진행바 ─────────────────────────────────────── -->
-    <!-- 총 단계 수는 고른 상품에 따라 달라진다 (T1 4 / T2 5 / T3 6) -->
+    <!-- 총 단계 수는 서류가 정한다 (번역만 4 / 번역공증 6 / 아포스티유 단독 5) -->
     <div class="ntr-prog" id="prog">
       <div class="ntr-prog-head">
-        <span class="ntr-prog-title" id="prog-title">상품 선택</span>
-        <span class="ntr-prog-count" id="prog-count">1 / 4</span>
+        <span class="ntr-prog-title" id="prog-title">서류 선택</span>
+        <span class="ntr-prog-count" id="prog-count">1 / 6</span>
       </div>
       <div class="ntr-prog-bar"><div class="ntr-prog-fill" id="prog-fill"></div></div>
+      <!-- 예상 금액(공급가) — 서버 견적값 그대로. 부가세는 결제 화면에서만 분해한다 -->
+      <div class="ntr-quote" id="quote-line"></div>
     </div>
 
-    <!-- ── STEP: 상품 ─────────────────────────────────── -->
-    <section class="ntr-card ntr-panel" data-step="tier">
-      <h2>어떤 서비스를 원하시나요?</h2>
-      <p class="hint">먼저 상품을 고르시면, 그 상품에 필요한 단계만 순서대로 안내해 드립니다.</p>
-      <div class="ntr-tiers" id="tiers"></div>
-      <div id="tier-note"></div>
-    </section>
+    <!-- ── STEP: 서류 선택 ────────────────────────────── -->
+    <!-- ★고객은 경로를 고르지 않는다. 서류가 번역공증 / 아포스티유 단독을 정한다. -->
+    <section class="ntr-card ntr-panel" data-step="doc">
+      <h2>어떤 서류가 필요하신가요?</h2>
+      <p class="hint">서류를 고르시면 필요한 절차와 금액을 안내해 드립니다.</p>
+      <div class="ntr-cats" id="doc-cats"></div>
+      <div class="ntr-docs" id="doc-list"></div>
+      <input type="hidden" id="docType" value="">
 
-    <!-- ── STEP: 서류·언어 ────────────────────────────── -->
-    <section class="ntr-card ntr-panel" data-step="lang">
-      <h2>어떤 서류를 어떤 언어로 번역할까요?</h2>
-      <p class="hint">가족관계·기본·혼인관계증명서는 한국어→영어로 번역합니다.</p>
-      <div class="ntr-field">
-        <label class="ntr-lbl" for="docType">서류 종류</label>
-        <select class="ntr-inp" id="docType" onchange="onDocType()"></select>
+      <!-- 졸업·성적증명서 — 국립/사립에 따라 절차가 다르다 -->
+      <div class="ntr-field" id="school-field" style="display:none;margin-top:16px">
+        <label class="ntr-lbl">학교 구분</label>
+        <div class="ntr-radios" id="school-radios"></div>
       </div>
+
       <!-- 정부24·국세청·등기소 서류는 '열람용'으로 받으면 접수할 수 없다 -->
-      <div class="ntr-note warn" id="submit-use-note" style="display:none">
+      <div class="ntr-note warn" id="submit-use-note" style="display:none;margin-top:14px">
         이 서류는 발급 시 <strong>“제출용(발급용)”</strong>으로 받아 주세요.
         <strong>열람용은 접수할 수 없습니다.</strong>
       </div>
-      <div id="doc-price-note"></div>
+      <!-- 서류가 아포스티유 단독으로 정해졌을 때 그 사실을 여기서 알린다 -->
+      <div id="apo-switch-note"></div>
+
+      <!-- 번역만 — 공증 없이 번역본만 필요한 경우 (서브 옵션) -->
+      <div class="ntr-field" id="scope-field" style="display:none;margin-top:14px">
+        <label class="ntr-check"><input type="checkbox" id="translateOnly" onchange="onScopeChange()">
+          <span>공증 없이 <strong>번역본만</strong> 필요합니다</span></label>
+      </div>
+      <div id="tier-note"></div>
 
       <!-- 목록에 없는 서류 → 결제 없이 담당자 문의 -->
       <div id="other-doc-box" style="display:none;margin-top:16px">
         <div class="ntr-note warn">
           <strong>목록에 없는 서류는 담당자가 직접 확인합니다</strong><br>
-          상장·계약서·의사록·위임장·인감증명서 등은 양식이 정해져 있지 않아 자동 처리 대상이 아닙니다.
-          서류와 연락처를 남겨주시면 <strong>원본/사본 여부, 아포스티유 가능 여부까지 개별로 안내</strong>드립니다.
+          서류와 연락처를 남겨주시면 <strong>번역공증 가능 여부, 아포스티유 가능 여부, 금액까지 개별로 안내</strong>드립니다.
           <em style="font-style:normal;color:var(--text-muted)"> (이 단계에서는 결제하지 않습니다)</em>
         </div>
         <div class="ntr-field" style="margin-top:14px">
           <label class="ntr-lbl" for="other-name">서류명</label>
-          <input class="ntr-inp" id="other-name" type="text" maxlength="60" placeholder="예: 재직증명서, 위임장">
+          <input class="ntr-inp" id="other-name" type="text" maxlength="60" placeholder="예: 인감증명서, 상장">
         </div>
         <div class="ntr-field">
           <label class="ntr-lbl" for="other-contact">연락처 (전화 또는 이메일)</label>
@@ -96,24 +104,18 @@
           <textarea class="ntr-inp" id="other-content" placeholder="제출 국가, 희망 일정 등"></textarea>
         </div>
         <div class="ntr-field">
-          <label class="ntr-lbl" for="other-files">서류 파일</label>
-          <input class="ntr-inp" type="file" id="other-files" multiple accept="image/*,application/pdf">
+          <label class="ntr-lbl" for="other-files">서류 파일 (PDF·JPG·PNG)</label>
+          <input class="ntr-inp" type="file" id="other-files" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
         </div>
         <button class="ntr-btn" id="other-btn" onclick="sendOtherInquiry()">담당자에게 문의하기</button>
         <div id="other-msg" class="ntr-msg"></div>
       </div>
-      <div class="ntr-field" id="lang-field">
-        <label class="ntr-lbl" for="lang">번역 언어</label>
-        <select class="ntr-inp" id="lang"></select>
-      </div>
-      <!-- 서류가 상품을 바꿨을 때 그 사실을 여기서 알린다 -->
-      <div id="apo-switch-note"></div>
     </section>
 
-    <!-- ── STEP: 제출 국가 (T3 전용) ──────────────────── -->
+    <!-- ── STEP: 제출 국가 ────────────────────────────── -->
     <section class="ntr-card ntr-panel" data-step="country">
       <h2>서류를 어느 나라에 제출하시나요?</h2>
-      <p class="hint">아포스티유 적용 여부에 따라 안내가 달라집니다. 검색창에 국가명을 입력해 보세요.</p>
+      <p class="hint">아포스티유 협약국이면 아포스티유를 함께 받으실 수 있습니다. 검색창에 국가명을 입력해 보세요.</p>
 
       <!-- 검색 가능한 그룹형 국가 선택 -->
       <div class="ntr-field">
@@ -141,11 +143,38 @@
       </div>
 
       <div id="country-note"></div>
+
+      <!-- ★아포스티유는 협약국(발효 중)일 때만 체크 옵션으로 보인다 -->
+      <div class="ntr-field" id="apostille-field" style="display:none;margin-top:12px">
+        <label class="ntr-check"><input type="checkbox" id="wantApostille" onchange="onScopeChange()">
+          <span><strong>아포스티유</strong>도 함께 받겠습니다 <em style="font-style:normal;color:var(--text-muted)">(금액은 위 예상 금액에 바로 반영됩니다)</em></span></label>
+      </div>
+    </section>
+
+    <!-- ── STEP: 언어 · 영문 이름 ─────────────────────── -->
+    <section class="ntr-card ntr-panel" data-step="info">
+      <h2>번역 언어와 영문 이름을 알려주세요</h2>
+      <div class="ntr-field" id="lang-field">
+        <label class="ntr-lbl" for="lang">번역 언어</label>
+        <select class="ntr-inp" id="lang" onchange="onLangChange()"></select>
+        <p class="hint" style="margin-top:6px">제출 국가와 관계없이 영어로 받으시는 경우가 많습니다. 제출처 요구에 맞춰 선택해 주세요.</p>
+      </div>
+      <div class="ntr-field">
+        <label class="ntr-lbl" for="englishName">본인 영문 이름 (여권 철자 그대로)</label>
+        <input class="ntr-inp" id="englishName" type="text" maxlength="80" autocomplete="off"
+               placeholder="예: HONG GILDONG">
+        <p class="hint" style="margin-top:6px">번역본의 이름은 이 철자로 고정됩니다. 그 밖의 인물은 표준 로마자 표기를 따릅니다.</p>
+      </div>
+      <div class="ntr-field" id="family-field" style="display:none">
+        <label class="ntr-lbl" for="familyNames">가족 영문 이름 (여권이 있는 분만, 선택)</label>
+        <textarea class="ntr-inp" id="familyNames" maxlength="1000"
+                  placeholder="한 줄에 한 분씩 — 예) 부: HONG GILSOON / 모: KIM YOUNGHEE"></textarea>
+      </div>
     </section>
 
     <!-- ── STEP: 서류 업로드 ──────────────────────────── -->
     <section class="ntr-card ntr-panel" data-step="upload">
-      <h2 id="upload-head">번역할 서류를 올려주세요</h2>
+      <h2 id="upload-head">서류를 올려주세요</h2>
 
       <!-- ★발급 안내 배너 — 고른 서류에 맞춰 여기 채워진다(renderIssueGuide).
            업로드 박스 위에 두는 것이 핵심이다. 파일을 고르기 직전이
@@ -153,14 +182,14 @@
       <div id="issue-guide"></div>
 
       <p class="hint" id="upload-hint">
-        한글 원본을 올려주세요. 최대 10장.
+        PDF·JPG·PNG 파일을 올려주세요.
         <span id="upload-req"></span>
       </p>
       <input class="ntr-inp" type="file" id="files" multiple
-             accept="image/*,application/pdf" onchange="onFiles()">
+             accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onchange="onFiles()">
       <ul class="ntr-files" id="file-list"></ul>
       <div id="precheck-msg" class="ntr-msg"></div>
-      <!-- ★아포스티유 단독 상품에는 이 경고가 정반대다(영문 발급본을 받는다) → 감춘다 -->
+      <!-- ★3종 번역공증 전용 경고. 아포스티유 단독·수동 경로에는 맞지 않아 감춘다 -->
       <div class="ntr-note warn" id="korean-only-note" style="margin-top:14px">
         공증(등기 발송) 상품은 <strong>정부 발급 영문 증명서로는 진행할 수 없습니다.</strong>
         반드시 한글 원본 PDF를 올려주세요.
@@ -170,17 +199,17 @@
       <div class="ntr-guide-other" style="margin-top:20px;margin-bottom:0">
         <strong>찾으시는 서류가 목록에 없나요?</strong>
         <p>여기 없는 서류도 번역·공증·아포스티유 처리가 가능합니다.
-           아래로 서류를 보내주시고 필요하신 내용을 적어주시면,
+           서류를 보내주시고 필요하신 내용을 적어주시면,
            담당자가 확인 후 빠르게 안내드립니다.<br>
            <a href="mailto:iumm.master@gmail.com">iumm.master@gmail.com</a>
            또는 <a href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener noreferrer">카카오 채널</a>로 문의해 주세요.</p>
       </div>
     </section>
 
-    <!-- ── STEP: 배송지 (T2·T3) ───────────────────────── -->
+    <!-- ── STEP: 배송지 (등기 발송 상품) ──────────────── -->
     <section class="ntr-card ntr-panel" data-step="ship">
       <h2>공증 원본을 어디로 보내드릴까요?</h2>
-      <p class="hint">공증 원본을 등기로 보내드립니다.</p>
+      <p class="hint">완료된 서류를 등기로 보내드립니다. 발송 전 스캔본을 먼저 드립니다.</p>
       <div class="ntr-row">
         <div class="ntr-field">
           <label class="ntr-lbl" for="recipient">수령인</label>
@@ -215,26 +244,16 @@
         실제 상품 금액이 아닙니다. 정식 요금으로 전환된 뒤 다시 주문해 주세요.
       </div>
       <div class="ntr-summary" id="pay-summary"></div>
-      <!-- ★문구는 상품에 따라 달라진다 (buildSummary 가 채운다).
-           아포스티유 단독에는 인식·번역도, 확인·수정 화면도 없다. -->
-      <div class="ntr-note danger" id="confirm-notes">
-        <strong>반드시 확인해 주세요</strong>
-        <ul>
-          <li>결제 즉시 서류 인식·번역이 자동으로 시작됩니다.</li>
-          <li>결제 후에는 <strong>환불이 불가</strong>합니다.</li>
-          <li>화면에서 확인·수정한 뒤 <strong>최종 확정하면 수정·취소가 불가</strong>합니다.</li>
-          <li>발행 후 <strong>30일이 지나면</strong> 원본·번역본·개인정보가 서버에서 완전히 삭제됩니다.</li>
-        </ul>
-      </div>
+      <!-- ★문구는 경로에 따라 달라진다 (buildSummary 가 채운다) -->
+      <div class="ntr-note danger" id="confirm-notes"></div>
       <!-- ★동의 체크박스는 이 블록 하나뿐이다. id 를 중복시키지 말 것 —
            agreedAll() 은 $('ag1')…$('ag5') 로 읽어 첫 번째만 본다.
-           ag3-label 은 아포스티유 단독 상품일 때 JS 가 문구를 갈아끼우므로,
-           복사본을 두면 체크해도 반응 없는 칸이 생기고 문구도 엇갈린다.
+           ag2·ag3 라벨은 경로에 따라 JS 가 문구를 갈아끼운다.
            ★ag4·ag5 는 개인정보 동의라 상품에 따라 바뀌지 않는다 —
-             ag3-label 안에 넣지 말 것(innerHTML 교체에 같이 날아간다). -->
+             ag2/ag3 라벨 안에 넣지 말 것(innerHTML 교체에 같이 날아간다). -->
       <div style="margin-top:16px">
         <label class="ntr-check"><input type="checkbox" class="agree" id="ag1"><span>위 안내사항을 확인했습니다</span></label>
-        <label class="ntr-check"><input type="checkbox" class="agree" id="ag2"><span>결제 후 환불이 불가함을 확인했습니다</span></label>
+        <label class="ntr-check" id="ag2-label"><input type="checkbox" class="agree" id="ag2"><span>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가함을 확인했습니다</span></label>
         <label class="ntr-check" id="ag3-label"><input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span></label>
       </div>
 
@@ -286,8 +305,8 @@
 
   </div><!-- /form-area -->
 
-  <!-- ── 결제 완료 (T4 영사인증 문의는 여기서만) ─────────── -->
-  <!-- T3 + 비협약국으로 결제한 경우에만 영사인증 추가 문의를 띄운다.
+  <!-- ── 결제 완료 (영사인증 문의는 여기서만) ─────────── -->
+  <!-- 아포스티유 상품 + 비협약국으로 결제한 경우에만 영사인증 추가 문의를 띄운다.
        영사인증은 시스템 결제가 없어 담당자가 견적·협의한다. -->
   <div id="done-area" style="display:none">
     <div class="ntr-card">
@@ -329,47 +348,65 @@ var PORTONE_CHANNEL = 'channel-key-6a333887-dfcd-490a-a661-aec79ee11974';
 var CFG = null, TIER = null, COUNTRY = null, PRECHECK_OK = false, PAYING = false;
 var ME = { kakaoId:'', name:'', email:'', phone:'' };
 var ORDER_NUMBER = '';   // 결제 완료 후 편집 화면으로 넘길 주문번호
+var DOC_CAT = '';        // 서류 선택 화면의 현재 탭
+var SCHOOL = '';         // 졸업·성적증명서 학교 구분 (국립/사립)
 
 function $(id){ return document.getElementById(id); }
 /** 금액 표기 통일 */
 function won(n){ return Number(n||0).toLocaleString()+'원'; }
 
 // ★결제 금액은 서버 견적(/api/notary/quote)만 신뢰한다.
-//   서류별 추가금(α)이 붙으면 티어 금액만으로는 결제액을 알 수 없고,
+//   3종 고정가·구성요소 합산·아포스티유 단독이 서류마다 다르고,
 //   프론트에서 따로 계산하면 서버 화이트리스트와 어긋나 402 가 난다.
 var QUOTE = null;
-// ★업로드한 서류의 장수. 2장 이상이면 장당 추가금이 붙는다(서버가 계산).
-//   사전검증(/precheck)에서 받아 견적 요청에 그대로 실어 보낸다.
+// ★업로드한 서류의 장수(PDF 페이지 합계 + 이미지 장수). 사전검증(/precheck)에서 받는다.
 //   ★최종 금액은 서버가 업로드된 파일에서 다시 세어 결정한다 — 여기 값은 표시용이다.
 var PAGES = 1;
+
+/** 견적 요청에 같이 보내는 경로 판정 재료 (서류·언어·학교구분) */
+function routeParams(){
+  return { docType: $('docType').value, lang: $('lang').value || 'en', schoolType: SCHOOL };
+}
 
 async function refreshQuote(){
   QUOTE = null;
   var doc = $('docType').value;
-  if (!TIER || !doc || doc === '__other__') { renderPayBreak(); refresh(); return; }
+  if (!TIER || !doc || doc === '__other__') { renderQuoteLine(); renderPayBreak(); refresh(); return; }
+  var p = routeParams();
   try {
     var r = await fetch(API + '/api/notary/quote', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ tier: TIER.code, docType: doc, pages: PAGES })
+      body: JSON.stringify({ tier: TIER.code, docType: doc, pages: PAGES, lang: p.lang, schoolType: p.schoolType })
     });
     var d = await r.json();
     if (d && d.ok) QUOTE = d;
   } catch(e){ QUOTE = null; }
+  renderQuoteLine();
   renderPayBreak();
   refresh();
 }
 
-/** 결제 화면 부가세 분해 — 서버 견적값 그대로 */
+/** 진행바 아래 예상 금액 — 공급가만. 장수가 정해지기 전에는 1쪽 기준이라고 밝힌다 */
+function renderQuoteLine(){
+  var box = $('quote-line');
+  if (!box) return;
+  if (!QUOTE) { box.innerHTML = ''; return; }
+  var basis = PRECHECK_OK ? (QUOTE.pages + '쪽 기준') : '1쪽 기준 · 업로드 후 확정';
+  box.innerHTML = '예상 금액 <b>' + won(QUOTE.supply) + '</b> (부가세 별도 · ' + esc(basis) + ')';
+}
+
+/** 결제 화면 금액 분해 — 서버 견적의 줄별 공급가 + 부가세 그대로 */
 function renderPayBreak(){
   var box = $('pay-break');
   if (!box) return;
   if (!QUOTE) { box.innerHTML = ''; return; }
   var pct = Math.round(((CFG && CFG.vatRate) || 0) * 100);
-  box.innerHTML =
-    '<div class="ntr-pb-row"><span>상품금액 (공급가)</span><span>'+won(QUOTE.supply)+'</span></div>' +
-    (QUOTE.surcharge ? '<div class="ntr-pb-row"><span>서류 추가금 포함</span><span>+'+won(QUOTE.surcharge)+'</span></div>' : '') +
-    (QUOTE.pageSurcharge ? '<div class="ntr-pb-row"><span>장수 추가금 ('+(QUOTE.pages||1)+'장)</span><span>+'+won(QUOTE.pageSurcharge)+'</span></div>' : '') +
-    (QUOTE.vat ? '<div class="ntr-pb-row"><span>부가세 ('+pct+'%)</span><span>'+won(QUOTE.vat)+'</span></div>' : '');
+  var lines = (QUOTE.lines || []).map(function(l){
+    return '<div class="ntr-pb-row"><span>' + esc(l.item) + '</span><span>' + won(l.supply) + '</span></div>';
+  }).join('');
+  box.innerHTML = lines +
+    '<div class="ntr-pb-row"><span>공급가 합계</span><span>' + won(QUOTE.supply) + '</span></div>' +
+    (QUOTE.vat ? '<div class="ntr-pb-row"><span>부가세 (' + pct + '%)</span><span>' + won(QUOTE.vat) + '</span></div>' : '');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -377,8 +414,7 @@ function renderPayBreak(){
 // ═══════════════════════════════════════════════════════════
 // ★고객이 "어디서 어떤 옵션으로 받아야 하는지"를 검색하지 않게 한다.
 //   잘못 발급받은 서류는 재발급 → 재업로드라 이탈로 직결된다.
-//   내용은 발급처별로 하나씩 두고, 서류 코드가 그중 하나를 가리킨다.
-//   (서류가 늘어도 GUIDE_OF 에 한 줄만 추가하면 된다)
+//   어떤 안내를 쓸지는 서버 서류 정의의 guide 키가 정한다(pricing.js 단일 출처).
 var GUIDES = {
   // ── 대법원 전자가족관계등록시스템 (가족관계·기본·혼인) ──
   scourt: {
@@ -407,45 +443,103 @@ var GUIDES = {
 
   // ── 경찰청 (범죄경력·수사경력회보서) — 영문 발급 → 번역 불필요 ──
   police: {
-    title: '영문으로 발급받으시면 번역이 필요 없습니다',
-    lead: '이 서류는 경찰청에서 영문으로 직접 발급되는 공문서라 ' +
-          '번역·공증 없이 아포스티유만 받으면 됩니다.',
+    title: '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다',
+    lead: '이 서류는 경찰청에서 영문으로 직접 발급되는 공문서입니다.',
+    // ★법으로 발급 목적이 제한된다 — 경고색으로 가장 먼저 보인다
+    danger: '발급 목적은 반드시 <strong>[외국 입국·체류]</strong>를 선택하세요. ' +
+            '<strong>본인확인용</strong>으로 발급받은 회보서는 해외에 제출할 수 없습니다. ' +
+            '목적 외 사용 시 <strong>2년 이하의 징역 또는 2천만원 이하의 벌금</strong> 대상입니다.',
     prep: [
       '공동인증서 / 금융인증서 / 간편인증(카카오·네이버·PASS) 중 하나'
     ],
     site: { name: '경찰청 범죄경력회보서 발급시스템', url: 'https://crims.police.go.kr' },
     steps: [
       { t: '위 사이트 접속 후 본인 인증 로그인' },
-      { t: '발급 목적 선택 — <span class="ntr-hl">[외국 입국·체류]</span> 등 제출처가 요구하는 목적' },
+      { t: '발급 목적 — <span class="ntr-hl">[외국 입국·체류]</span>' },
       { t: '언어 — <span class="ntr-hl">[영문]</span> 선택' },
-      { t: '<span class="ntr-hl">[PDF로 저장]</span>' },
-      { t: '저장한 PDF를 그대로 업로드' }
+      { t: '영문 이름은 <span class="ntr-hl">여권 철자와 똑같이</span> 입력' },
+      { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
     ],
     warns: [
-      '이 서류는 법으로 발급 목적이 제한됩니다(형의 실효 등에 관한 법률). ' +
-        '목적 외 사용 시 처벌 대상이 되므로 제출처가 요구하는 목적을 정확히 선택해 주세요.',
-      '외국인이거나 대리 발급이 필요한 경우 경찰서 방문 신청만 가능합니다.',
-      '해외 체류 중이거나 \u2018실효된 형 포함\u2019 버전이 필요한 경우는 별도 안내가 필요하니 문의해 주세요.'
+      '해외 체류 중이시거나 대리 발급이 필요한 경우는 별도로 문의해 주세요.'
     ]
+  },
+
+  // ── 정부24 주민등록등본·초본 — 영문 발급 ──
+  gov24_resident: {
+    title: '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다',
+    lead: '주민등록등본·초본은 정부24에서 영문으로 발급받을 수 있습니다.',
+    site: { name: '정부24', url: 'https://www.gov.kr' },
+    steps: [
+      { t: '위 사이트 접속 후 본인 인증 로그인' },
+      { t: '주민등록표 등본(초본) 발급 신청 시 <span class="ntr-hl">[영문]</span> 선택' },
+      { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
+    ],
+    warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ]
+  },
+
+  // ── 정부24 출입국사실증명서 — 영문 발급 ──
+  gov24_immigration: {
+    title: '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다',
+    lead: '출입국사실증명서는 정부24에서 영문으로 발급받을 수 있습니다.',
+    site: { name: '정부24', url: 'https://www.gov.kr' },
+    steps: [
+      { t: '위 사이트 접속 후 본인 인증 로그인' },
+      { t: '출입국사실증명 발급 신청 시 <span class="ntr-hl">[영문]</span> 선택' },
+      { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
+    ],
+    warns: [ '개명하신 분은 온라인 발급이 되지 않습니다 — 출입국·외국인관서 방문 발급 후 PDF(스캔)로 올려주세요.' ]
+  },
+
+  // ── 국세청 홈택스 — 영문 증명 ──
+  hometax: {
+    title: '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다',
+    lead: '국세청 홈택스에서 영문 증명서를 발급받을 수 있습니다.',
+    site: { name: '국세청 홈택스', url: 'https://www.hometax.go.kr' },
+    steps: [
+      { t: '위 사이트 접속 후 로그인' },
+      { t: '증명서 발급 시 <span class="ntr-hl">[영문]</span> 선택' },
+      { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
+    ],
+    warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ]
+  },
+
+  // ── 국립대 졸업·성적증명서 — 영문 발급 (사립대는 번역공증 경로라 이 안내가 나오지 않는다) ──
+  school: {
+    title: '국립대학교 증명서는 영문으로 발급받으시면 아포스티유만 받으시면 됩니다',
+    lead: '국립대학교 학적 서류는 2024년 6월 1일부터 공증 없이 아포스티유를 받을 수 있습니다.',
+    steps: [
+      { t: '학교 증명서 발급 사이트(또는 학교 행정실)에서 <span class="ntr-hl">영문 증명서</span>로 발급' },
+      { t: '<span class="ntr-hl">PDF</span>로 저장해 그대로 업로드' }
+    ],
+    warns: [ '한글 증명서만 있으시면 학교 구분을 다시 확인하시거나 담당자에게 문의해 주세요.' ]
   }
 };
 
-/** 서류 코드 → 쓸 안내. 없으면 배너를 띄우지 않는다 */
+/** 서류 코드 → 쓸 안내. 서버 guide 키가 없으면(옛 서버) 3종·경찰청만 기존 대응표로 */
 var GUIDE_OF = {
   family_relation: 'scourt', basic: 'scourt', marriage: 'scourt',
   crime_record: 'police',  investigation: 'police'
 };
+function guideKeyOf(d){
+  if (!d) return '';
+  // 졸업·성적증명서는 국립(=아포스티유 단독)일 때만 영문 발급 안내를 띄운다
+  if (d.schoolSplit && SCHOOL !== '국립') return '';
+  return d.guide || GUIDE_OF[d.code] || '';
+}
 
 /** 고른 서류에 맞는 발급 안내를 업로드 화면 맨 위에 그린다 */
 function renderIssueGuide(){
   var box = $('issue-guide');
   if (!box) return;
-  var g = GUIDES[GUIDE_OF[$('docType').value]];
+  var g = GUIDES[guideKeyOf(docByCode($('docType').value))];
   if (!g) { box.innerHTML = ''; return; }
 
   var h = '<div class="ntr-guide">';
   h += '<h3>' + esc(g.title) + '</h3>';
   if (g.lead) h += '<p class="g-lead">' + esc(g.lead) + '</p>';
+  // ★danger 는 상수 마크업(고객 입력 없음) — 경고 강조를 위해 그대로 쓴다
+  if (g.danger) h += '<div class="ntr-g-danger">⚠ ' + g.danger + '</div>';
 
   if (g.prep && g.prep.length) {
     h += '<div class="g-sec"><p class="g-h">준비물</p><ul>' +
@@ -458,7 +552,7 @@ function renderIssueGuide(){
     h += '<div class="g-sec"><p class="g-h">발급처</p>' +
          '<a class="ntr-guide-btn" href="' + esc(g.site.url) + '"' +
          ' target="_blank" rel="noopener noreferrer">' +
-         esc(g.site.name) + ' \u2197<span class="u">' + esc(g.site.url) + '</span></a></div>';
+         esc(g.site.name) + ' ↗<span class="u">' + esc(g.site.url) + '</span></a></div>';
   }
 
   if (g.steps && g.steps.length) {
@@ -474,7 +568,7 @@ function renderIssueGuide(){
 
   if (g.warns && g.warns.length) {
     h += '<div class="g-warn">' +
-         g.warns.map(function(w){ return '<p>\u26a0 ' + esc(w) + '</p>'; }).join('') +
+         g.warns.map(function(w){ return '<p>⚠ ' + esc(w) + '</p>'; }).join('') +
          '</div>';
   }
 
@@ -490,84 +584,145 @@ function docByCode(code){
 function tierByCode(code){
   return (CFG && CFG.tiers || []).filter(function(t){ return t.code === code; })[0] || null;
 }
-/** 이 서류는 영문으로 발급돼 번역·공증이 필요 없는가 */
+/** 이 서류는 영문으로 발급돼 번역·공증이 필요 없는가 (졸업·성적은 학교 구분이 정한다) */
 function isApoOnlyDoc(d){
-  return !!d && d.englishIssuable === true && d.needsTranslation === false;
+  if (!d) return false;
+  if (d.schoolSplit) return SCHOOL === '국립';
+  return d.englishIssuable === true && d.needsTranslation === false;
+}
+/** 지금 고른 국가에서 아포스티유를 받을 수 있는가 (서버 판정 effectiveNow 만 본다) */
+function apostilleAvailable(){
+  return !!(COUNTRY && !COUNTRY.unknown && COUNTRY.effectiveNow);
 }
 
-// ★아포스티유 단독으로 자동 전환되기 직전에 고객이 고른 상품.
-//   서류를 되돌리면 원래 상품으로 함께 되돌려 준다 — 전환이 일방통행이면
-//   "번역 상품으로 돌아가는 길"을 고객이 스스로 찾아야 한다.
-var TIER_BEFORE_APO = '';
+// ═══════════════════════════════════════════════════════════
+// ★처리 범위 = 서류가 정한다 — 고객은 경로를 고르지 않는다
+// ═══════════════════════════════════════════════════════════
+//   영문 발급 서류            → APO (아포스티유 단독)
+//   "번역본만" 체크           → T1  (번역만)
+//   협약국 + 아포스티유 체크  → T3  (번역공증 + 아포스티유)
+//   그 외                     → T2  (번역공증, 기본)
+function deriveTierCode(){
+  var d = docByCode($('docType').value);
+  if (!d || !d.ready) return '';
+  if (d.schoolSplit && !SCHOOL) return '';        // 학교 구분을 골라야 범위가 정해진다
+  if (isApoOnlyDoc(d)) return 'APO';
+  if ($('translateOnly').checked) return 'T1';
+  return ($('wantApostille').checked && apostilleAvailable()) ? 'T3' : 'T2';
+}
 
-/**
- * ★서류에 맞는 상품으로 시스템이 길을 정한다.
- *   영문 발급 서류를 골랐는데 번역 상품이 선택돼 있으면 → 아포스티유 단독으로 전환
- *   번역 서류로 되돌렸는데 아포스티유 단독이 선택돼 있으면 → 원래 상품으로 복귀
- *   (고객이 "내 서류가 영문 발급 대상인가"를 판단하게 두지 않는다)
- */
-function syncTierToDoc(d){
+/** 범위가 바뀌었으면 상품을 갈아끼우고, 아니면 금액만 다시 받는다 */
+function syncTier(){
+  var code = deriveTierCode();
+  var cur = TIER ? TIER.code : '';
+  if (code === cur) { applyTierCopy(); refreshQuote(); return; }
+  SUPPRESS_SCROLL = true;
+  applyTier(code ? tierByCode(code) : null);
+  SUPPRESS_SCROLL = false;
+}
+
+/** 아포스티유 단독 안내 — 금액은 서버 설정값(pricing.js)만 쓴다 */
+function renderApoNote(d){
   var note = $('apo-switch-note');
-  if (!CFG || !d) { if (note) note.innerHTML = ''; return; }
-
+  if (!note) return;
+  if (!isApoOnlyDoc(d)) { note.innerHTML = ''; return; }
   var apo = tierByCode('APO');
-  if (!apo) { if (note) note.innerHTML = ''; return; }
+  note.innerHTML =
+    '<div class="ntr-note" style="margin-top:14px">' +
+    '<strong>영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다.</strong><br>' +
+    '<strong>아포스티유 단독</strong>' +
+    (apo ? ' (<strong>' + Number(apo.supply).toLocaleString() + '원</strong> · 등기 포함)' : '') +
+    '으로 진행합니다. 발급받으신 영문 PDF를 그대로 올려주세요. 발급 방법은 업로드 화면에서 안내해 드립니다.' +
+    '</div>';
+}
 
-  if (isApoOnlyDoc(d)) {
-    if (!TIER || TIER.code !== 'APO') {
-      TIER_BEFORE_APO = (TIER && TIER.code) || '';
-      applyTier(apo);
-    }
-    if (note) {
-      note.innerHTML =
-        '<div class="ntr-note">' +
-        '<strong>이 서류는 영문으로 발급되어 번역·공증이 필요 없습니다.</strong><br>' +
-        '<strong>아포스티유 단독</strong> 상품(<strong>' +
-        Number(apo.supply).toLocaleString() + '원</strong>)으로 자동 변경했습니다. ' +
-        '발급받으신 영문 PDF를 그대로 올려주시면 아포스티유만 대행해 드립니다.' +
-        '</div>';
-    }
+/** 서류 선택 화면 — 카테고리 탭 + 서류 버튼 */
+function renderDocPicker(){
+  if (!CFG) return;
+  var cats = (CFG.docCategoryOrder || ['개인','유학','기업']).concat(['기타']);
+  if (!DOC_CAT) DOC_CAT = cats[0];
+  $('doc-cats').innerHTML = cats.map(function(c){
+    return '<button type="button" class="ntr-cat' + (c === DOC_CAT ? ' sel' : '') +
+           '" onclick="pickCat(\'' + esc(c) + '\')">' + esc(c) + '</button>';
+  }).join('');
+
+  var cur = $('docType').value;
+  if (DOC_CAT === '기타') {
+    $('doc-list').innerHTML =
+      '<button type="button" class="ntr-docbtn' + (cur === '__other__' ? ' sel' : '') +
+      '" onclick="pickDoc(\'__other__\')">목록에 없는 서류<span class="tag">담당자 확인 · 결제 전 문의</span></button>';
     return;
   }
-
-  // 번역이 필요한 서류로 되돌아왔다 → 아포스티유 단독에서 빠져나온다
-  if (TIER && TIER.code === 'APO') {
-    var back = tierByCode(TIER_BEFORE_APO) || tierByCode('T2');
-    if (back) applyTier(back);
-    TIER_BEFORE_APO = '';
-  }
-  if (note) note.innerHTML = '';
+  var list = (CFG.documents || []).filter(function(d){ return d.category === DOC_CAT; });
+  $('doc-list').innerHTML = list.map(function(d){
+    var tag = !d.ready ? '준비 중'
+            : (d.englishIssuable && !d.needsTranslation) ? '<span class="tag apo">아포스티유만</span>'
+            : d.schoolSplit ? '국립 / 사립'
+            : '번역공증';
+    if (tag.indexOf('<span') !== 0) tag = '<span class="tag">' + esc(tag) + '</span>';
+    return '<button type="button" class="ntr-docbtn' + (cur === d.code ? ' sel' : '') + '"' +
+           (d.ready ? '' : ' disabled') +
+           ' onclick="pickDoc(\'' + esc(d.code) + '\')">' + esc(d.label) + tag + '</button>';
+  }).join('');
+}
+function pickCat(c){ DOC_CAT = c; renderDocPicker(); }
+function pickDoc(code){
+  $('docType').value = code;
+  renderDocPicker();
+  onDocType();
+}
+function pickSchool(v){
+  SCHOOL = v;
+  renderSchool();
+  onDocType();
+}
+function renderSchool(){
+  var types = (CFG && CFG.schoolTypes) || ['국립','사립'];
+  $('school-radios').innerHTML = types.map(function(t){
+    return '<span class="ntr-radio' + (SCHOOL === t ? ' sel' : '') +
+           '" onclick="pickSchool(\'' + esc(t) + '\')">' + esc(t) + '대학교·학교</span>';
+  }).join('');
 }
 
-/** 서류 선택 — 제출용 안내·추가금 표시, '기타'는 담당자 문의로 분기 */
+/** 서류 선택 — 제출용 안내, '기타'는 담당자 문의로 분기, 범위 자동 결정 */
 function onDocType(){
   var code = $('docType').value;
   var d = docByCode(code);
-  $('submit-use-note').style.display = (d && d.submitUse) ? '' : 'none';
-  $('doc-price-note').innerHTML = (d && d.surcharge)
-    ? '<div class="ntr-note">이 서류는 기본가에 <strong>'+won(d.surcharge)+'</strong>이 추가됩니다.</div>' : '';
-
   var other = (code === '__other__');
+
   $('other-doc-box').style.display = other ? '' : 'none';
   $('form-area').classList.toggle('other-mode', other);
-  if (other) {
-    $('apo-switch-note').innerHTML = '';
-    renderIssueGuide();
-    QUOTE = null; renderPayBreak(); refresh(); return;
-  }
+  $('submit-use-note').style.display = (d && d.submitUse) ? '' : 'none';
 
-  // ★서류가 상품을 정한다 — 고객이 직접 판단하지 않게 시스템이 길을 잡는다.
-  //   (전환이 일어나면 applyTier 안에서 refreshQuote·renderStep 까지 끝난다)
-  SUPPRESS_SCROLL = true;
-  syncTierToDoc(d);
-  SUPPRESS_SCROLL = false;
+  // 학교 구분 — 졸업·성적증명서만
+  var school = !!(d && d.schoolSplit);
+  $('school-field').style.display = school ? '' : 'none';
+  if (!school) SCHOOL = '';
+  else renderSchool();
 
-  // 번역 상품에는 언어 선택이 의미가 있고, 아포스티유 단독에는 없다
-  var apoOnly = !!(TIER && TIER.translate === false);
-  $('lang-field').style.display = apoOnly ? 'none' : '';
+  // 가족 영문 이름 — 가족관계증명서만
+  $('family-field').style.display = (d && d.familyNames) ? '' : 'none';
 
+  // 번역만 옵션 — 번역이 있는 서류에서만 (학교 구분을 아직 안 골랐으면 감춘다)
+  var apoOnly = isApoOnlyDoc(d);
+  var canTranslateOnly = !!(d && d.ready && !apoOnly && (!school || SCHOOL));
+  $('scope-field').style.display = canTranslateOnly ? '' : 'none';
+  if (!canTranslateOnly) $('translateOnly').checked = false;
+
+  renderApoNote(d);
+  if (other) { TIER = null; QUOTE = null; rebuildSteps(); renderStep(); renderIssueGuide(); return; }
   renderIssueGuide();
-  refreshQuote();
+  syncTier();
+}
+
+/** 번역만 / 아포스티유 체크가 바뀌었을 때 */
+function onScopeChange(){ syncTier(); }
+/** 언어가 바뀌면 경로(3종 자동 ↔ 수동)가 바뀔 수 있다 → 견적·사전검증 다시 */
+function onLangChange(){
+  PRECHECK_OK = false;
+  if ($('files').files.length) onFiles();
+  else refreshQuote();
+  applyTierCopy();
 }
 
 // ─── 기타 서류 문의 (결제 없음) ──────────────────────────
@@ -594,7 +749,7 @@ async function sendOtherInquiry(){
     msg('other-msg','접수 실패: '+esc(e.message),'err');
   }
 }
-function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function msg(el, text, kind){ var e=$(el); e.className='ntr-msg'+(kind?' '+kind:''); e.innerHTML=text; }
 
 // ─── 로그인 ──────────────────────────────────────────────
@@ -639,6 +794,7 @@ function checkLogin(){
   else { $('card-login').style.display=''; $('form-area').style.display='none'; }
 }
 
+
 // ─── 설정 로드 ───────────────────────────────────────────
 async function loadConfig(){
   try {
@@ -646,88 +802,73 @@ async function loadConfig(){
     CFG = await r.json();
     if (!CFG || !CFG.ok) throw new Error('config');
   } catch(e){
-    msg('pay-msg','설정을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.','err');
+    msg('step-msg','설정을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.','err');
     return;
   }
 
-  // 서류는 발급처별로 묶어 보여준다. 준비 중인 서류도 목록에는 노출하되 고를 수 없게 한다
-  // (무엇이 될 예정인지 보이는 편이 문의를 줄인다). 맨 아래 '기타 서류'는 담당자 문의로 간다.
-  var ds = $('docType');
-  var order = CFG.docIssuerOrder || [];
-  var used = {};
-  var groups = order.map(function(issuer){
-    var list = CFG.documents.filter(function(d){ return d.issuer === issuer; });
-    list.forEach(function(d){ used[d.code] = 1; });
-    return { issuer: issuer, list: list };
-  }).concat([{ issuer: '기타', list: CFG.documents.filter(function(d){ return !used[d.code]; }) }]);
-
-  ds.innerHTML = '<option value="">— 서류를 선택하세요 —</option>' +
-    groups.filter(function(g){ return g.list.length; }).map(function(g){
-      return '<optgroup label="'+esc(g.issuer)+'">' + g.list.map(function(d){
-        return '<option value="'+esc(d.code)+'"'+(d.ready?'':' disabled')+'>'+
-               esc(d.label) + (d.ready ? '' : ' (준비 중)') +
-               (d.surcharge ? ' +' + Number(d.surcharge).toLocaleString() + '원' : '') +
-               '</option>';
-      }).join('') + '</optgroup>';
-    }).join('') +
-    '<optgroup label="목록에 없는 서류">' +
-    '<option value="__other__">기타 서류 — 담당자 문의 (결제 없음)</option></optgroup>';
+  // 번역 언어 — 기본값은 서버가 정한다(영어). 고객이 바꿀 수 있다.
   var ls = $('lang');
   ls.innerHTML = CFG.langs.map(function(l){
     return '<option value="'+esc(l.code)+'"'+(l.ready?'':' disabled')+'>'+esc(l.label)+(l.ready?'':' (준비중)')+'</option>';
   }).join('');
+  ls.value = CFG.defaultLang || 'en';
 
   // ★effectiveNow·group = 오늘 기준 서버 판정값.
   //   가입은 했으나 발효 전인 나라(예: 베트남)를 협약국으로 잘못 안내하지 않기 위해
   //   isMember 가 아니라 이 값으로만 분기한다. 브라우저에서 날짜를 다시 계산하지 않는다.
   renderCountryList();
 
-  renderTiers();
-  msg('pay-msg','');   // 초기 로드 실패 메시지가 남아 있으면 지운다
-  renderStep();        // 첫 화면 = 상품 선택만
+  // 메인 페이지 서류 카드에서 /notary/?doc=코드 로 들어오면 그 서류를 바로 고른다
+  var pre = '';
+  try { pre = new URLSearchParams(location.search).get('doc') || ''; } catch(e){}
+  var pd = docByCode(pre);
+  if (pd && pd.ready) { DOC_CAT = pd.category || ''; $('docType').value = pd.code; }
+  else if (pre === 'other') { DOC_CAT = '기타'; $('docType').value = '__other__'; }
+
+  renderDocPicker();
+  renderStep();        // 첫 화면 = 서류 선택
+  if ($('docType').value) onDocType();
 }
 
 // ═══════════════════════════════════════════════════════════
 // 위저드 — 한 화면에 한 단계
 // ═══════════════════════════════════════════════════════════
-// 단계 구성은 고른 상품에 따라 달라진다. 필요 없는 단계는 아예 만들지 않는다.
-//   T1 상품→언어→업로드→결제                (4)
-//   T2 상품→언어→업로드→배송지→결제          (5)
-//   T3 상품→국가→언어→업로드→배송지→결제     (6)
+// 단계 구성은 서류가 정한 범위에 따라 달라진다. 필요 없는 단계는 아예 만들지 않는다.
+//   T1  번역만           서류→언어·이름→업로드→결제                 (4)
+//   T2·T3 번역공증       서류→국가→언어·이름→업로드→배송지→결제     (6)
+//   APO 아포스티유 단독  서류→국가→업로드→배송지→결제               (5)
+//   ★T2 ↔ T3 는 국가 화면의 아포스티유 체크로만 바뀐다 — 단계 구성이 같아서
+//     체크를 바꿔도 지금 화면이 흔들리지 않는다.
 var STEP_TITLE = {
-  tier:    '상품 선택',
+  doc:     '서류 선택',
   country: '제출 국가',
-  lang:    '서류·언어',
+  info:    '언어 · 영문 이름',
   upload:  '서류 업로드',
   ship:    '등기 수령 정보',
   confirm: '확인·결제'
 };
-var STEPS = ['tier'], STEP_I = 0;
+var STEPS = ['doc'], STEP_I = 0;
 // renderStep 의 자동 스크롤을 한 번만 끄는 스위치.
-// ★서류를 고른 순간 상품이 자동 전환되면서 화면이 맨 위로 튀면
+// ★서류·체크를 고른 순간 범위가 바뀌면서 화면이 맨 위로 튀면
 //   방금 무엇을 골랐는지 놓친다 — 그 경우에만 끈다.
 var SUPPRESS_SCROLL = false;
 
 function stepsFor(tier){
-  if (!tier) return ['tier'];
-  var s = ['tier'];
-  // ★아포스티유 단독은 "서류를 고른 결과" 도달하는 상품이다.
-  //   국가를 서류 앞에 두면 자동 전환 시점에 이미 지나친 단계가 되어
-  //   국가를 묻지 못한 채 업로드로 넘어간다(서버는 국가 없으면 400).
-  //   그래서 이 상품만 서류 → 국가 순서로 둔다.
+  if (!tier) return ['doc'];
+  var s = ['doc'];
   if (tier.translate === false) {
-    s.push('lang', 'country');
+    s.push('country');
   } else {
-    if (tier.apostille) s.push('country');  // 아포스티유 상품에서만 국가를 묻는다
-    s.push('lang');
+    if (tier.code !== 'T1') s.push('country');   // 번역만은 제출 국가에 따라 달라지는 게 없다
+    s.push('info');
   }
   s.push('upload');
-  if (tier.needsAddress) s.push('ship');    // 등기 발송이 있는 상품만
+  if (tier.needsAddress) s.push('ship');          // 등기 발송이 있는 상품만
   s.push('confirm');
   return s;
 }
 
-/** 상품이 바뀌면 단계 목록을 다시 만든다. 이미 입력한 값은 건드리지 않는다. */
+/** 범위가 바뀌면 단계 목록을 다시 만든다. 이미 입력한 값은 건드리지 않는다. */
 function rebuildSteps(){
   var cur = STEPS[STEP_I];
   STEPS = stepsFor(TIER);
@@ -743,9 +884,8 @@ function renderStep(){
     p.style.display = (p.getAttribute('data-step') === step) ? '' : 'none';
   });
 
-  // 상품을 아직 안 골랐으면 총 단계 수를 확정할 수 없다 → 최소 구성(T1, 4단계) 기준으로
-  // 미리 보여주고, 상품을 고르면 그 상품의 실제 단계 수로 바뀐다.
-  var total = TIER ? STEPS.length : 4;
+  // 서류를 아직 안 골랐으면 총 단계 수를 확정할 수 없다 → 번역공증(6단계) 기준으로 보여준다
+  var total = TIER ? STEPS.length : 6;
   $('prog-title').textContent = STEP_TITLE[step] || '';
   $('prog-count').textContent = (STEP_I + 1) + ' / ' + total;
   $('prog-fill').style.width  = Math.round((STEP_I + 1) / total * 100) + '%';
@@ -763,18 +903,29 @@ function renderStep(){
   refresh();
 }
 
+/** 영문 이름 — 서버(normalizeEnglishName)와 같은 기준 */
+function englishNameOk(){
+  var v = ($('englishName').value || '').replace(/\s+/g, ' ').trim();
+  return !!v && v.length <= 80 && /^[A-Za-z][A-Za-z .,'\-]*[A-Za-z.]$/.test(v);
+}
+
 /** 다음으로 넘어가도 되는지. 안 되면 이유를 돌려준다(문자열). */
 function stepBlockReason(){
   var apoOnly = !!(TIER && TIER.translate === false);
   switch (currentStep()) {
-    case 'tier':    return TIER ? '' : '상품을 선택해 주세요.';
-    case 'country': return COUNTRY ? '' : '제출 국가를 선택해 주세요.';
-    case 'lang':
-      if ($('docType').value === '__other__')
+    case 'doc': {
+      var code = $('docType').value;
+      if (!code) return '서류를 선택해 주세요.';
+      if (code === '__other__')
         return '목록에 없는 서류는 위 문의 폼으로 접수해 주세요 (결제 단계로 진행하지 않습니다).';
-      // 아포스티유 단독은 번역을 하지 않으므로 언어를 묻지 않는다
-      if (apoOnly) return $('docType').value ? '' : '서류를 선택해 주세요.';
-      return ($('docType').value && $('lang').value) ? '' : '서류와 언어를 선택해 주세요.';
+      var d = docByCode(code);
+      if (d && d.schoolSplit && !SCHOOL) return '학교 구분(국립/사립)을 선택해 주세요.';
+      return TIER ? '' : '서류를 다시 선택해 주세요.';
+    }
+    case 'country': return COUNTRY ? '' : '제출 국가를 선택해 주세요.';
+    case 'info':
+      if (!$('lang').value) return '번역 언어를 선택해 주세요.';
+      return englishNameOk() ? '' : '여권과 같은 영문 이름을 입력해 주세요 (영문·공백·하이픈만).';
     case 'upload':
       if (!$('files').files.length)
         return apoOnly ? '아포스티유 받을 영문 서류를 올려주세요.' : '번역할 서류를 올려주세요.';
@@ -795,104 +946,93 @@ function prevStep(){
   if (STEP_I > 0) { STEP_I--; renderStep(); }
 }
 
+/** 범위 표시명 — 고객 화면용 */
+var SCOPE_NAME = {
+  T1: '번역만 (공증 없음)',
+  T2: '번역공증 (등기 발송 · 스캔본 포함)',
+  T3: '번역공증 + 아포스티유 (등기 발송 · 스캔본 포함)',
+  APO: '아포스티유 단독 (번역·공증 없음 · 등기 발송 · 스캔본 포함)'
+};
+function tierName(t){ return (t && (SCOPE_NAME[t.code] || t.label)) || ''; }
+
+/** 현재 경로 — 서버 견적이 알려준다 (auto | manual | apo) */
+function currentRoute(){
+  if (QUOTE && QUOTE.route) return QUOTE.route;
+  return (TIER && TIER.translate === false) ? 'apo' : 'auto';
+}
+
 /** 마지막 화면에서 고른 내용을 한눈에 보여준다 */
 function buildSummary(){
   var apoOnly = !!(TIER && TIER.translate === false);
+  var route = currentRoute();
+  var d = docByCode($('docType').value);
+  var l = $('lang').selectedOptions[0];
   var rows = [];
-  if (TIER)    rows.push(['상품', tierName(TIER) + ' (' + TIER.code + ')']);
-  if (COUNTRY) rows.push(['제출 국가', COUNTRY.nameKo + (COUNTRY.effectiveNow ? '' : ' · 영사인증 별도')]);
-  var d = $('docType').selectedOptions[0], l = $('lang').selectedOptions[0];
-  if (d) rows.push(['서류', d.textContent]);
-  // 아포스티유 단독에는 번역이 없다 — 언어 줄을 넣으면 번역하는 상품처럼 읽힌다
-  if (l && !apoOnly) rows.push(['언어', l.textContent]);
-  if (apoOnly)       rows.push(['번역·공증', '진행하지 않음 (영문 공문서 그대로 접수)']);
-  rows.push(['파일', $('files').files.length + '개']);
-  if (TIER && TIER.needsAddress) rows.push(['등기 수령', $('recipient').value.trim() || '-']);
+  if (d) rows.push(['서류', d.label + (SCHOOL ? ' (' + SCHOOL + ')' : '')]);
+  if (TIER) rows.push(['처리 범위', tierName(TIER)]);
+  if (COUNTRY) rows.push(['제출 국가', COUNTRY.nameKo + (TIER && TIER.apostille && !COUNTRY.effectiveNow ? ' · 영사인증 별도' : '')]);
+  // 아포스티유 단독에는 번역이 없다 — 언어·이름 줄을 넣으면 번역하는 상품처럼 읽힌다
+  if (!apoOnly && l) rows.push(['번역 언어', l.textContent]);
+  if (!apoOnly) rows.push(['영문 이름', $('englishName').value.replace(/\s+/g, ' ').trim()]);
+  if (!apoOnly && d && d.familyNames && $('familyNames').value.trim())
+    rows.push(['가족 영문 이름', $('familyNames').value.trim().split(/\n+/).length + '명 입력']);
+  rows.push(['파일', $('files').files.length + '개 · ' + (QUOTE ? QUOTE.pages : PAGES) + '쪽']);
+  if (TIER && TIER.needsAddress) {
+    rows.push(['스캔본', '발송 전 제공 (포함)']);
+    rows.push(['등기 수령', ($('recipient').value.trim() || '-') + ' · ' + ($('address').value.trim() || '-')]);
+  }
   $('pay-summary').innerHTML = rows.map(function(r){
     return '<div class="ntr-sum-row"><span>' + esc(r[0]) + '</span><strong>' + esc(r[1]) + '</strong></div>';
   }).join('');
 
-  // ★결제 전 안내도 상품에 맞춰야 한다. 아포스티유 단독에는 인식·번역도,
-  //   확인·수정 화면도 없다 — 그대로 두면 오지 않을 화면을 기다리게 된다.
-  $('confirm-notes').innerHTML = apoOnly
-    ? '<strong>반드시 확인해 주세요</strong>' +
-      '<ul>' +
-      '<li>이 상품은 <strong>번역·공증을 진행하지 않습니다.</strong> 올려주신 영문 서류 그대로 아포스티유를 받습니다.</li>' +
-      '<li>결제 즉시 아포스티유 접수 준비가 시작되며, <strong>결제 후에는 환불이 불가</strong>합니다.</li>' +
-      '<li>확인·수정 화면은 없습니다. 완료되면 <strong>스캔본과 등기 발송번호</strong>를 마이페이지에서 확인하실 수 있습니다.</li>' +
-      '<li>발송 후 <strong>30일이 지나면</strong> 원본·스캔본·개인정보가 서버에서 완전히 삭제됩니다.</li>' +
-      '</ul>'
-    : '<strong>반드시 확인해 주세요</strong>' +
-      '<ul>' +
-      '<li>결제 즉시 서류 인식·번역이 자동으로 시작됩니다.</li>' +
-      '<li>결제 후에는 <strong>환불이 불가</strong>합니다.</li>' +
-      '<li>화면에서 확인·수정한 뒤 <strong>최종 확정하면 수정·취소가 불가</strong>합니다.</li>' +
-      '<li>발행 후 <strong>30일이 지나면</strong> 원본·번역본·개인정보가 서버에서 완전히 삭제됩니다.</li>' +
-      '</ul>';
+  // ★처리 기간 — 영업일 기준. 공증은 주 2회 일괄, 아포스티유는 대행 기관 일정을 따른다
+  var period = !TIER ? '' : TIER.code === 'T1' ? ''
+    : '<li>처리 기간(영업일 기준): 공증은 <strong>주 2회</strong> 일괄 진행합니다' +
+      (TIER.apostille ? ', 아포스티유는 대행 기관 일정에 따라 추가로 소요됩니다' : '') + '.</li>';
+
+  // ★결제 전 안내는 경로에 맞춘다
+  var notes;
+  if (apoOnly) {
+    notes = '<li>이 상품은 <strong>번역·공증을 진행하지 않습니다.</strong> 올려주신 영문 서류 그대로 아포스티유를 받습니다.</li>' +
+      '<li>결제 즉시 접수가 진행되며, <strong>착수 후에는 취소·환불이 불가</strong>합니다.</li>' +
+      period +
+      '<li>완료되면 <strong>스캔본을 먼저</strong> 드리고, 실물은 등기로 보내드립니다. 진행 상황은 마이페이지에서 확인하실 수 있습니다.</li>' +
+      '<li>발송 후 <strong>30일이 지나면</strong> 원본·스캔본·개인정보가 서버에서 완전히 삭제됩니다.</li>';
+  } else if (route === 'manual') {
+    notes = '<li><strong>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가합니다.</strong></li>' +
+      '<li>번역본의 본인 이름은 입력하신 영문 이름(<strong>여권 철자</strong>)으로 표기합니다.</li>' +
+      (TIER && TIER.code === 'T1'
+        ? '<li>번역이 끝나면 마이페이지에서 번역본을 내려받으실 수 있습니다. 번역확인서 등은 제공되지 않습니다.</li>'
+        : '<li>번역 후 공증을 진행하고, <strong>스캔본을 먼저</strong> 드린 뒤 실물을 등기로 보내드립니다.</li>') +
+      period +
+      '<li>완료 후 <strong>30일이 지나면</strong> 원본·번역본·개인정보가 서버에서 완전히 삭제됩니다.</li>';
+  } else {
+    notes = '<li><strong>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가합니다.</strong></li>' +
+      '<li>몇 분 뒤 번역본 확인·수정 화면이 열립니다. <strong>최종 확정하면 수정·취소가 불가</strong>합니다.</li>' +
+      (TIER && TIER.needsAddress ? '<li>확정 후 공증을 진행하고, <strong>스캔본을 먼저</strong> 드린 뒤 실물을 등기로 보내드립니다.</li>' : '') +
+      period +
+      '<li>발행 후 <strong>30일이 지나면</strong> 원본·번역본·개인정보가 서버에서 완전히 삭제됩니다.</li>';
+  }
+  $('confirm-notes').innerHTML = '<strong>반드시 확인해 주세요</strong><ul>' + notes + '</ul>';
+
+  $('ag2-label').innerHTML = apoOnly
+    ? '<input type="checkbox" class="agree" id="ag2"><span>결제 즉시 접수가 진행되며, 착수 후에는 취소·환불이 불가함을 확인했습니다</span>'
+    : '<input type="checkbox" class="agree" id="ag2"><span>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가함을 확인했습니다</span>';
   $('ag3-label').innerHTML = apoOnly
     ? '<input type="checkbox" class="agree" id="ag3"><span>번역·공증 없이 아포스티유만 진행됨을 확인했습니다</span>'
-    : '<input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span>';
+    : route === 'manual'
+      ? '<input type="checkbox" class="agree" id="ag3"><span>입력한 영문 이름(여권 철자)으로 번역됨을 확인했습니다</span>'
+      : '<input type="checkbox" class="agree" id="ag3"><span>최종 컨펌 후에는 수정·취소가 불가함을 확인했습니다</span>';
 }
 
-function renderTiers(){
-  // ★비협약국(또는 발효 전)이라도 T3를 막지 않는다.
-  //   아포스티유만 받고 영사확인은 직접 하시는 분이 많다. 대신 아래에 안내를 띄운다.
-  // ★첫 화면 카드는 서버가 정해 내려준 visibleTiers 만 깐다(T1/T2/T3 세 장).
-  //   카드가 4장이 되면 고객이 "내 서류가 영문 발급 대상인가"부터 판단해야 해서
-  //   복잡해지고 이탈한다. 아포스티유 단독은 서류를 고르면 자동으로 전환된다.
-  var visible = (CFG && CFG.visibleTiers) ||
-                CFG.tiers.filter(function(t){ return !t.hidden; }).map(function(t){ return t.code; });
-  $('tiers').innerHTML = CFG.tiers.filter(function(t){
-    return visible.indexOf(t.code) >= 0;
-  }).map(function(t){
-    var extra = (t.apostille && COUNTRY && !COUNTRY.effectiveNow)
-      ? '<br><span style="color:var(--warn)">' +
-        (COUNTRY.unknown ? '담당자 확인 후 안내' : '영사인증 별도 필요') + '</span>'
-      : '';
-    return '<div class="ntr-tier'+(TIER&&TIER.code===t.code?' sel':'')+
-      '" data-code="'+t.code+'" onclick="selectTier(\''+t.code+'\')">'+
-      '<div class="code">'+esc(t.code)+'</div>'+
-      '<div class="label">'+esc(tierName(t))+'</div>'+
-      (tierSub(t) ? '<div class="sub">'+esc(tierSub(t))+'</div>' : '')+
-      // ★상품 화면에는 공급가만 깔끔하게 보여준다.
-      //   부가세는 결제 화면에서만 분해한다 — 여기서 "부가세 별도"까지 붙이면
-      //   고를 때부터 금액이 두 개로 보여 지저분하다.
-      //   숫자만 골드로 강조하고 '원'은 흰색으로 둔다.
-      '<div class="price"><b>'+Number(t.supply != null ? t.supply : t.amount).toLocaleString()+
-      '</b>원</div>'+
-      '<div class="desc">'+esc(t.desc)+extra+'</div>'+
-      '</div>';
-  }).join('');
-}
-
-// 화면에 쓰는 상품 이름. 서버가 주는 label 은 내부 표기라 그대로 두고 표시만 바꾼다.
-var TIER_NAME = {
-  T1: '번역만 의뢰',
-  T2: '번역공증 대행 풀패키지',
-  T3: '아포스티유 대행 풀패키지',
-  APO: '아포스티유 단독'
-};
-/** 상품명 아래 괄호 부제 — 무엇이 포함되는지 한눈에 보이게 */
-var TIER_SUB = {
-  T2: '(번역+공증+우편+스캔)',
-  T3: '(번역+공증+아포스티유+우편+스캔)',
-  APO: '(번역·공증 없음 · 아포스티유+우편+스캔)'
-};
-function tierName(t){
-  return (t && (TIER_NAME[t.code] || t.label)) || '';
-}
-function tierSub(t){
-  return (t && TIER_SUB[t.code]) || '';
-}
-
-/** 결제 완료 화면(T4)의 영사인증 안내 문구. 국가 상태별로 표현을 달리한다. */
+/** 결제 완료 화면의 영사인증 안내 문구. 국가 상태별로 표현을 달리한다. */
 function t4HeadText(){
   if (!COUNTRY) return '이 국가는 아포스티유 후 영사인증이 추가로 필요합니다';
   var n = COUNTRY.nameKo, j = josa(n);
   if (COUNTRY.unknown) {
     return n + j + ' 목록에 없는 국가입니다 — 담당자가 확인 후 안내드립니다';
   }
-  // 가입은 했으나 발효 전인 나라를 "미가입국"이라 쓰면 사실과 다르다 (예: 베트남)
+  // 가입은 했으나 발효 전인 나라를 "미가입국"이라 쓰면 사실과 다르다
   if (COUNTRY.isMember && COUNTRY.effectiveDate) {
     return n + j + ' ' + COUNTRY.effectiveDate + ' 발효 예정이라, 지금은 아포스티유 후 영사인증이 추가로 필요합니다';
   }
@@ -907,69 +1047,53 @@ function josa(word){
   return '은(는)';
 }
 
-/** 고객이 상품 카드를 직접 눌렀을 때 */
-function selectTier(code){
-  var t = tierByCode(code);
-  if (!t) return;
-  // 직접 고른 순간부터는 "자동 전환 이전 상품" 기억이 의미를 잃는다
-  TIER_BEFORE_APO = '';
-  applyTier(t);
-}
-
 /**
- * 상품 적용 — 카드 클릭과 서류 자동 전환이 같은 길을 쓴다.
- * ★두 경로가 갈라지면 자동 전환 때만 단계 구성·안내 문구가 낡는다.
+ * 범위(상품) 적용 — 서류·체크가 바뀌면 syncTier 가 부른다.
+ * ★경로가 갈라지면 단계 구성·안내 문구가 낡는다 — 반드시 이 한 길로만 바꾼다.
  */
 function applyTier(t){
   TIER = t || null;
-  renderTiers();
   // 상품이 바뀌면 필요한 단계 구성과 총 단계 수가 바뀐다
   rebuildSteps();
-  // 아포스티유가 없는 상품으로 바꾸면 국가 선택은 의미가 없다 → 같이 비운다
-  if (TIER && !TIER.apostille) { COUNTRY = null; $('country-note').innerHTML = ''; }
   applyTierCopy();
   PRECHECK_OK = false;
-  if ($('files').files.length) onFiles();
+  if ($('files').files.length && TIER) onFiles();
   refreshQuote();
   renderStep();
 }
 
-/** 상품에 따라 달라지는 업로드 화면 문구 — 한곳에서만 정한다 */
+/** 범위·경로에 따라 달라지는 문구 — 한곳에서만 정한다 */
 function applyTierCopy(){
   var apoOnly = !!(TIER && TIER.translate === false);
+  var d = docByCode($('docType').value);
+  // 3종 + 영어 + 공증 상품만 "한글 원본 PDF" 를 요구한다 (수동 경로는 사진·스캔도 받는다)
+  var autoDoc = !!(d && d.autoTranslate && ($('lang').value || 'en') === 'en');
+  var pdfOnly = !!(TIER && TIER.needsPdfOriginal && (apoOnly || autoDoc));
 
   $('upload-head').textContent = apoOnly
     ? '아포스티유 받을 서류를 올려주세요'
     : '번역할 서류를 올려주세요';
 
-  // ★아포스티유 단독은 "한글 원본"을 요구하지 않는다 — 정반대다.
   $('upload-hint').innerHTML = apoOnly
-    ? '발급받으신 <strong>영문 PDF</strong>를 그대로 올려주세요. 최대 10장. <span id="upload-req"></span>'
-    : '한글 원본을 올려주세요. 최대 10장. <span id="upload-req"></span>';
+    ? '발급받으신 <strong>영문 PDF</strong>를 그대로 올려주세요. <span id="upload-req"></span>'
+    : '한글 원본을 올려주세요. 여러 장이면 모두 올려주세요. <span id="upload-req"></span>';
 
-  $('upload-req').innerHTML = (TIER && TIER.needsPdfOriginal)
+  $('upload-req').innerHTML = pdfOnly
     ? (apoOnly
         ? '<strong style="color:var(--warn)">인쇄물을 다시 찍은 사진은 접수되지 않습니다.</strong>'
-        : '<strong style="color:var(--warn)">이 상품은 원본 한글 PDF만 가능합니다.</strong>')
-    : '이미지(JPG/PNG) 또는 PDF 모두 가능합니다.';
+        : '<strong style="color:var(--warn)">이 서류는 원본 한글 PDF만 가능합니다.</strong>')
+    : 'PDF·JPG·PNG 모두 가능합니다. <strong>HWP·Word 파일은 PDF로 저장해 올려 주세요.</strong>';
 
-  // 이 경고는 번역 상품 전용이다. 아포스티유 단독에는 정반대라 감춘다.
-  $('korean-only-note').style.display = apoOnly ? 'none' : '';
+  // 이 경고는 3종 번역공증 전용이다
+  $('korean-only-note').style.display = (pdfOnly && !apoOnly) ? '' : 'none';
 
   $('tier-note').innerHTML = (TIER && TIER.code === 'T1')
     ? '<div class="ntr-note">' +
-      '· 번역 결과물(PDF)만 제공됩니다.<br>' +
-      '· 확인서·인증서는 발급되지 않습니다.<br>' +
-      '· 공증이 필요하시면 별도 서비스를 이용해 주세요 (변호사 공증 후 우편 발송).<br>' +
-      '· 개인정보 관련 서류는 발급하지 않습니다.' +
+      '· 번역 결과물만 제공됩니다.<br>' +
+      '· <strong>번역확인서 등은 제공되지 않습니다.</strong><br>' +
+      '· 공증이 필요하시면 위 체크를 해제해 번역공증으로 진행해 주세요.' +
       '</div>'
-    : (apoOnly
-        ? '<div class="ntr-note">' +
-          '· 번역·공증은 진행하지 않습니다 (영문 공문서 그대로 접수).<br>' +
-          '· 외교부 아포스티유 대리 접수 후 등기로 보내드립니다.<br>' +
-          '· 발송 전 스캔본을 먼저 드려 실물 도착 전에도 제출하실 수 있습니다.' +
-          '</div>'
-        : '');
+    : '';
 }
 
 // ─── 국가 선택 (검색 + 대륙 그룹 헤더) ───────────────────
@@ -1118,8 +1242,15 @@ function onOtherCountry(){
   applyCountry();
 }
 
+
+/**
+ * 국가가 정해지면 — 안내 문구 + 아포스티유 체크 노출 여부.
+ * ★아포스티유 체크는 협약 발효국에서만 보인다. 비협약·발효 전·미등록 국가는
+ *   담당자가 진행 방법을 안내한다(번역공증까지는 그대로 진행).
+ *   아포스티유 단독(영문 발급 서류)은 국가와 무관하게 아포스티유 상품이다.
+ */
 function applyCountry(){
-  // 영사인증(T4) 문의는 결제 후 완료 화면에서만 받는다 → 여기서는 안내만 한다
+  var apoOnly = !!(TIER && TIER.translate === false);
   var note = '';
   if (!COUNTRY) {
     note = '';
@@ -1130,29 +1261,33 @@ function applyCountry(){
       '· 결제 후 담당자가 먼저 연락드립니다.' +
       '</div>';
   } else if (COUNTRY.isMember && !COUNTRY.effectiveNow) {
-    // 가입은 했으나 발효 전 (예: 베트남 2026-09-11) — "미가입국"이라 쓰면 사실과 다르다
+    // 가입은 했으나 발효 전 — "미가입국"이라 쓰면 사실과 다르다
     note = '<div class="ntr-note warn">' +
       '<strong>' + esc(COUNTRY.nameKo) + josa(COUNTRY.nameKo) + ' ' +
       esc(COUNTRY.effectiveDate) + '부터 아포스티유 협약이 발효됩니다</strong><br>' +
-      '· 그 전까지는 아포스티유 후 <strong>대사관 영사인증이 추가로 필요</strong>합니다.<br>' +
-      '· 발효일 이후 주문부터는 자동으로 아포스티유만으로 처리됩니다.<br>' +
-      '· 영사인증 일괄처리는 결제 후 안내드립니다.' +
+      '· 그 전까지는 <strong>대사관 영사인증</strong>이 필요합니다. 담당자가 진행 방법을 안내드립니다.' +
       '</div>';
   } else if (!COUNTRY.effectiveNow) {
     note = '<div class="ntr-note warn">' +
       '<strong>아포스티유 협약 미가입국입니다</strong><br>' +
-      '· 이 상품으로 아포스티유까지 진행되며, 이후 <strong>대사관 영사인증이 추가로 필요</strong>합니다.<br>' +
-      '· 영사인증 일괄처리를 원하시면 결제 후 화면에서 문의해 주세요.' +
+      '· 아포스티유 대신 <strong>대사관 영사인증</strong>이 필요합니다. 담당자가 진행 방법을 안내드립니다.' +
+      (apoOnly ? '' : '<br>· 번역공증까지는 그대로 진행하실 수 있습니다.') +
       '</div>';
   } else {
-    note = '<div class="ntr-note">아포스티유 협약이 발효 중인 국가입니다. ' +
-           '이 상품으로 아포스티유까지 처리됩니다.</div>';
+    note = '<div class="ntr-note">아포스티유 협약이 발효 중인 국가입니다.' +
+           (apoOnly ? ' 아포스티유까지 처리해 드립니다.' : ' 필요하시면 아래에서 아포스티유를 함께 신청하세요.') +
+           '</div>';
   }
   $('country-note').innerHTML = note;
-  refresh();
+
+  var showApo = !apoOnly && apostilleAvailable();
+  $('apostille-field').style.display = showApo ? '' : 'none';
+  if (!showApo) $('wantApostille').checked = false;
+  syncTier();
 }
 
 // ─── 파일 ────────────────────────────────────────────────
+var BLOCKED_EXT = /\.(hwp|hwpx|doc|docx)$/i;
 function onFiles(){
   var fs = $('files').files;
   $('file-list').innerHTML = Array.prototype.map.call(fs, function(f){
@@ -1161,14 +1296,24 @@ function onFiles(){
   PRECHECK_OK = false;
   refresh();
   if (!fs.length || !TIER) return;
+  // ★HWP·Word 는 서버도 거부한다 — 올리기 전에 바로 알려준다
+  var bad = Array.prototype.filter.call(fs, function(f){ return BLOCKED_EXT.test(f.name); });
+  if (bad.length) {
+    msg('precheck-msg', 'HWP·Word 파일은 PDF로 저장해 올려 주세요 (' + bad.map(function(f){ return esc(f.name); }).join(', ') + ')', 'err');
+    return;
+  }
   precheck();
 }
 
 async function precheck(){
   msg('precheck-msg','<span class="ntr-spinner"></span> 파일 확인 중…');
   PAGES = 1;                       // 실패하면 1장 기준으로 되돌린다 (요금을 부풀리지 않는다)
+  var p = routeParams();
   var fd = new FormData();
   fd.append('tier', TIER.code);
+  fd.append('docType', p.docType);
+  fd.append('lang', p.lang);
+  fd.append('schoolType', p.schoolType);
   Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
   try {
     var r = await fetch(API + '/api/notary/precheck', { method:'POST', body: fd });
@@ -1177,12 +1322,8 @@ async function precheck(){
       PRECHECK_OK = true;
       PAGES = d.pages || 1;
       var w = (d.warnings||[]).length ? '<br><span style="color:var(--warn)">'+d.warnings.map(esc).join('<br>')+'</span>' : '';
-      // ★장수 추가금은 T1 에만 붙는다. 다른 상품에서 "장당 추가금" 안내를 띄우면
-      //   실제로는 오르지 않는 금액을 걱정하게 만든다.
-      var extra = (PAGES > 1 && TIER && TIER.code === 'T1')
-        ? ' — 2장 이상은 장당 추가금이 붙습니다' : '';
-      msg('precheck-msg','✓ 확인 완료 — '+PAGES+'장'+extra+w,'ok');
-      /* ★장수가 정해졌으니 금액을 다시 뽑는다 (2장이면 결제액이 올라간다) */
+      msg('precheck-msg','✓ 확인 완료 — 전체 '+PAGES+'쪽'+w,'ok');
+      /* ★장수가 정해졌으니 금액을 다시 뽑는다 */
       refreshQuote();
     } else {
       PRECHECK_OK = false;
@@ -1219,15 +1360,20 @@ function shipError(){
   return '';
 }
 function shipOk(){ return shipError() === ''; }
-/** 국가는 아포스티유 상품(T3)에서만 필수다 — 나머지 상품엔 국가 화면 자체가 없다 */
+/** 국가는 번역만(T1)을 뺀 모든 상품에서 필수다 */
 function countryOk(){
-  if (!TIER || !TIER.apostille) return true;
+  if (!TIER || TIER.code === 'T1') return true;
   return !!COUNTRY;
+}
+/** 번역 상품은 영문 이름 필수 (아포스티유 단독은 번역이 없다) */
+function nameOk(){
+  if (!TIER || TIER.translate === false) return true;
+  return englishNameOk();
 }
 function refresh(){
   renderPayBreak();
   $('amount').textContent = QUOTE ? won(QUOTE.amount) : '—';
-  var ok = !!(ME.kakaoId && TIER && QUOTE && countryOk() && PRECHECK_OK &&
+  var ok = !!(ME.kakaoId && TIER && QUOTE && countryOk() && nameOk() && PRECHECK_OK &&
               agreedAll() && shipOk() && !PAYING);
   $('payBtn').disabled = !ok;
 }
@@ -1246,11 +1392,15 @@ async function pay(){
   var orderNumber = 'NTR-' + Date.now();
   ORDER_NUMBER = orderNumber;
   var paymentId   = 'iumm_ntr_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
-  // ★결제창·영수증에 뜨는 이름. 아포스티유 단독을 "공증 서류 번역"이라고 쓰면
+  var d = docByCode($('docType').value);
+  var docLabel = d ? d.label : '';
+  // ★결제창·영수증에 뜨는 이름. 아포스티유 단독을 "번역공증"이라고 쓰면
   //   카드 명세서와 실제 받은 서비스가 달라 보인다.
   var orderName = (TIER && TIER.translate === false)
-    ? 'IUMM 아포스티유 단독 (' + ($('docType').selectedOptions[0].textContent) + ')'
-    : 'IUMM 공증 서류 번역 (' + ($('docType').selectedOptions[0].textContent) + ')';
+    ? 'IUMM 아포스티유 단독 (' + docLabel + ')'
+    : (TIER && TIER.code === 'T1')
+      ? 'IUMM 번역 (' + docLabel + ')'
+      : 'IUMM 번역공증 (' + docLabel + ')';
 
   var pr;
   try {
@@ -1296,15 +1446,19 @@ async function pay(){
   // ★필드명은 반드시 ASCII 로 보낸다.
   //   multipart 필드"명"을 busboy 가 latin1 로 디코딩해서 한글 이름은 깨진다
   //   ('주문번호' → 'ì£¼ë¬¸ë²ˆí˜¸'). 값은 UTF-8 이라 멀쩡하다.
-  //   서버는 두 이름을 모두 받지만, 깨질 여지가 없는 쪽을 쓴다.
+  var p = routeParams();
   var fd = new FormData();
   fd.append('orderNumber', orderNumber);
   fd.append('paymentId', pr.paymentId);
   fd.append('tier', TIER.code);
-  fd.append('docType', $('docType').value);
-  // 번역이 없는 상품에는 언어가 없다 — 서버도 APO 에서는 언어를 묻지 않는다
-  if (TIER.translate !== false) fd.append('lang', $('lang').value);
-  // 국가는 T3 에서만 받는다. T1·T2 는 빈 값 (서버도 아포스티유 상품에서만 필수로 본다)
+  fd.append('docType', p.docType);
+  fd.append('schoolType', p.schoolType);
+  // 번역이 없는 상품에는 언어·영문 이름이 없다 — 서버도 APO 에서는 묻지 않는다
+  if (TIER.translate !== false) {
+    fd.append('lang', p.lang);
+    fd.append('englishName', $('englishName').value.replace(/\s+/g, ' ').trim());
+    if (d && d.familyNames) fd.append('familyNames', $('familyNames').value.trim());
+  }
   fd.append('country', COUNTRY ? COUNTRY.nameKo : '');
   fd.append('kakaoId', ME.kakaoId);
   fd.append('email', ME.email || '');
@@ -1316,7 +1470,6 @@ async function pay(){
     fd.append('recipientPhone', $('recipientPhone').value.trim());
     fd.append('address', $('address').value.trim());
   }
-  // 영사인증(T4)은 결제 후 완료 화면에서 별도 문의로 받는다 → 주문에는 싣지 않는다
   Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
 
   try {
@@ -1333,19 +1486,20 @@ async function pay(){
 }
 
 // ─── 결제 완료 화면 ──────────────────────────────────────
-// T3 로 결제했는데 아포스티유가 아직 적용되지 않는 국가면(비협약·발효 전·미등록)
-// 여기서만 영사인증(T4) 추가 문의를 받는다. 영사인증은 시스템 결제가 없다.
+// 아포스티유 상품인데 아포스티유가 적용되지 않는 국가면(비협약·발효 전·미등록)
+// 여기서만 영사인증 추가 문의를 받는다. 영사인증은 시스템 결제가 없다.
 function showDone(){
   $('form-area').style.display = 'none';
   $('done-area').style.display = '';
   var apoOnly = !!(TIER && TIER.translate === false);
+  var route = currentRoute();
   var needT4 = !!(TIER && TIER.apostille && COUNTRY && !COUNTRY.effectiveNow);
   $('t4-block').style.display = needT4 ? '' : 'none';
 
-  // ★아포스티유 단독에는 확인·수정 화면이 없다. 버튼을 그대로 두면
-  //   열리지 않을 화면으로 보내게 된다 — 마이페이지로 보낸다.
+  // ★편집 화면은 3종 자동 경로에만 있다. 아포스티유 단독·수동 경로는 마이페이지로 보낸다.
   var goBtn = $('go-edit');
-  if (apoOnly) {
+  var toMypage = apoOnly || route === 'manual';
+  if (toMypage) {
     goBtn.textContent = '마이페이지에서 진행 상황 보기 →';
     goBtn.onclick = function(){ location.href = '/mypage'; };
   } else {
@@ -1356,13 +1510,13 @@ function showDone(){
   var base = apoOnly
     ? '접수가 완료됐습니다. 번역·공증 없이 아포스티유 절차가 시작됩니다. ' +
       '완료되면 스캔본과 등기 발송번호를 마이페이지에서 확인하실 수 있습니다.'
-    : '서류 인식·번역이 시작됐습니다. 확인·수정 화면으로 이동해 주세요.';
+    : route === 'manual'
+      ? '접수가 완료됐습니다. 담당 번역사가 번역을 시작합니다. 진행 상황은 마이페이지에서 확인하실 수 있습니다.'
+      : '서류 인식·번역이 시작됐습니다. 확인·수정 화면으로 이동해 주세요.';
 
   if (needT4) {
     $('t4-head').textContent = t4HeadText();
-    $('done-sub').textContent = apoOnly
-      ? '접수가 완료됐습니다. 아래 영사인증 안내를 확인해 주세요.'
-      : '서류 인식·번역이 시작됐습니다. 아래 영사인증 안내를 확인하신 뒤 확인·수정 화면으로 이동해 주세요.';
+    $('done-sub').textContent = base + ' 아래 영사인증 안내도 확인해 주세요.';
     // 연락처를 알고 있으면 미리 채워 준다
     if (!$('cr-contact').value) $('cr-contact').value = ME.phone || ME.email || '';
   } else {
