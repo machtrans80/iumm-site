@@ -56,16 +56,20 @@
       document.body.appendChild(pad);
     }
 
-    // 모바일 하단 고정 버튼 줄(위저드 이전/다음·결제)과 겹치지 않게 그 위로 올린다
+    // 하단 버튼 줄(위저드 이전/다음·결제)과 겹치지 않게 그 위로 올린다.
+    // ★모바일은 줄이 화면 하단에 붙어 있고(sticky), 데스크톱은 본문 끝에 있다 —
+    //   어느 쪽이든 줄이 버튼 자리(화면 오른쪽 아래)에 걸쳐 있으면 올린다.
     if (opt.raise) {
       var place = function () {
         var bar = document.querySelector(opt.raise);
         var base = window.innerWidth <= 640 ? 14 : 26;
         var lift = 0;
-        if (bar && bar.offsetParent !== null && window.innerWidth <= 640) {
+        if (bar && bar.offsetParent !== null) {
           var r = bar.getBoundingClientRect();
-          // 막대가 버튼 자리(화면 하단 70px)에 걸쳐 있으면 막대 위로 올린다
-          if (r.top < window.innerHeight && r.bottom > window.innerHeight - 70) lift = Math.ceil(window.innerHeight - r.top) + 8;
+          var a = box.firstChild ? box.firstChild.getBoundingClientRect() : { width: 170, height: 48 };
+          var zoneTop = window.innerHeight - base - a.height - 8;
+          var zoneLeft = window.innerWidth - (window.innerWidth <= 640 ? 12 : 22) - a.width - 8;
+          if (r.top < window.innerHeight && r.bottom > zoneTop && r.right > zoneLeft) lift = Math.ceil(window.innerHeight - r.top) + 8;
         }
         box.style.bottom = (lift ? lift : base) + 'px';
       };

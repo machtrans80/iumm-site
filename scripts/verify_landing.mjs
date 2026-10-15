@@ -90,6 +90,11 @@ console.log('\n[5] 전문 번역 주문 창');
   check(!/⚠|✓|✗|201,168,76|linear-gradient/.test(conf), '결제 전 최종 확인 창 이모지·금색 없음');
   check(/#tab-free,#tab-ai,#tab-standard\{font-size:13px/.test(html), '모바일 탭 13px (한 줄)');
 }
+{
+  const faqNew = '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으실 수 있습니다. 제출처가 한글본 번역공증을 요구하면 번역공증도 가능합니다.';
+  check(html.split(faqNew).length - 1 === 2 && !/자동으로 아포스티유 단독으로 안내|서류를 고르시면 자동으로 안내/.test(html),
+    'FAQ "영문으로 발급되는 서류" 2곳 교체 · 자동 안내 문장 삭제');
+}
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);

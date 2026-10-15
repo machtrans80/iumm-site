@@ -157,6 +157,8 @@
         <label class="ntr-check"><input type="checkbox" id="wantApostille" onchange="onScopeChange()">
           <span><strong>아포스티유</strong>도 함께 받겠습니다 <em style="font-style:normal;color:var(--text-muted)">(금액은 위 예상 금액에 바로 반영됩니다)</em></span></label>
       </div>
+      <!-- ★영문 발급 가능 서류 + 아포스티유 포함(T3)일 때만 — "아포스티유만으로 바꾸기" 선택지 (renderApoOption) -->
+      <div id="apo-option-box"></div>
 
       <!-- ★아포스티유(T3·APO) 준비 서류 — 당사자 구분과 준비할 서류를 결제 전에 알린다.
            업로드는 결제 직후 화면에서 받는다(문구·양식은 edit.html 업셀과 같다). -->
@@ -728,7 +730,18 @@ var GUIDES = {
     ],
     warns: [
       '해외 체류 중이시거나 대리 발급이 필요한 경우는 별도로 문의해 주세요.'
-    ]
+    ],
+    // 번역공증(T1·T2·T3) — 한글 원본 PDF. danger(발급 목적 경고)는 그대로 보인다
+    ko: {
+      title: '서류 발급 방법 — 경찰청에서 국문으로 발급받아 PDF로 올려 주세요',
+      lead: '한글로 발급받은 회보서를 번역·공증합니다.',
+      steps: [
+        { t: '위 사이트 접속 후 본인 인증 로그인' },
+        { t: '<span class="ntr-hl">[본인발급/열람]</span> → <span class="ntr-hl">[외국입국/체류 허가]</span> 선택' },
+        { t: '언어 — <span class="ntr-hl">[국문]</span> 선택' },
+        { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
+      ]
+    }
   },
 
   // ── 정부24 주민등록등본·초본 — 영문 발급 ──
@@ -741,7 +754,16 @@ var GUIDES = {
       { t: '신청 시 <span class="ntr-hl">[영문]</span> 선택' },
       { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
     ],
-    warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ]
+    warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ],
+    ko: {
+      title: '서류 발급 방법 — 정부24에서 국문으로 발급받아 PDF로 올려 주세요',
+      lead: '한글로 발급받은 등본·초본을 번역·공증합니다.',
+      steps: [
+        { t: '위 링크(정부24 「주민등록표 등본(초본) 발급」)에서 <span class="ntr-hl">[발급하기]</span> → 본인 인증 로그인' },
+        { t: '신청 시 <span class="ntr-hl">[국문]</span> 선택' },
+        { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
+      ]
+    }
   },
 
   // ── 정부24 출입국사실증명서 — 영문 발급 ──
@@ -754,7 +776,16 @@ var GUIDES = {
       { t: '신청 시 <span class="ntr-hl">[영문]</span> 선택' },
       { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
     ],
-    warns: [ '개명하신 분은 온라인 발급이 되지 않습니다 — 출입국·외국인관서 방문 발급 후 PDF(스캔)로 올려주세요.' ]
+    warns: [ '개명하신 분은 온라인 발급이 되지 않습니다 — 출입국·외국인관서 방문 발급 후 PDF(스캔)로 올려주세요.' ],
+    ko: {
+      title: '서류 발급 방법 — 정부24에서 국문으로 발급받아 PDF로 올려 주세요',
+      lead: '한글로 발급받은 출입국사실증명을 번역·공증합니다.',
+      steps: [
+        { t: '정부24에서 <span class="ntr-hl">「출입국에 관한 사실증명」</span> 검색 → <span class="ntr-hl">[발급하기]</span> → 본인 인증 로그인' },
+        { t: '신청 시 <span class="ntr-hl">[국문]</span> 선택' },
+        { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
+      ]
+    }
   },
 
   // ── 국세청 홈택스 — 영문 증명 ──
@@ -768,7 +799,17 @@ var GUIDES = {
       { t: '발급 시 <span class="ntr-hl">[영문]</span> 선택' },
       { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
     ],
-    warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ]
+    warns: [ '열람용이 아니라 제출용(발급용)으로 받아 주세요.' ],
+    ko: {
+      title: '서류 발급 방법 — 홈택스에서 국문으로 발급받아 PDF로 올려 주세요',
+      lead: '한글로 발급받은 증명서를 번역·공증합니다.',
+      steps: [
+        { t: '위 사이트 접속 후 로그인' },
+        { t: '<span class="ntr-hl">[증명·등록·신청]</span> → <span class="ntr-hl">[민원증명]</span> → <span class="ntr-hl">[즉시발급 증명]</span>에서 사업자등록증명·납세증명서 선택' },
+        { t: '발급 시 <span class="ntr-hl">[국문]</span> 선택' },
+        { t: '<span class="ntr-hl">[PDF로 저장]</span> 후 그대로 업로드' }
+      ]
+    }
   },
 
   // ── 국립대 졸업·성적증명서 — 영문 발급 (사립대는 번역공증 경로라 이 안내가 나오지 않는다) ──
@@ -779,7 +820,16 @@ var GUIDES = {
       { t: '학교 증명서 발급 사이트(또는 학교 행정실)에서 <span class="ntr-hl">영문 증명서</span>로 발급' },
       { t: '<span class="ntr-hl">PDF</span>로 저장해 그대로 업로드' }
     ],
-    warns: [ '한글 증명서만 있으시면 학교 구분을 다시 확인하시거나 담당자에게 문의해 주세요.' ]
+    warns: [ '한글 증명서만 있으시면 학교 구분을 다시 확인하시거나 담당자에게 문의해 주세요.' ],
+    ko: {
+      title: '서류 발급 방법 — 학교 증명서 발급 사이트에서 국문으로 발급받아 PDF로 올려 주세요',
+      lead: '한글로 발급받은 증명서를 번역·공증합니다.',
+      steps: [
+        { t: '학교 홈페이지 <span class="ntr-hl">인터넷 증명발급</span>(또는 학교 행정실)에서 <span class="ntr-hl">국문 증명서</span>로 발급' },
+        { t: '<span class="ntr-hl">PDF로 저장</span>해 그대로 업로드' }
+      ],
+      warns: [ '학교에 따라 인쇄만 되고 PDF 저장이 안 될 수 있습니다 — 그 경우 업로드 화면의 "종이로만 받았어요"를 눌러 주세요.' ]
+    }
   },
 
   // ── 정부24 학교생활기록부 — 실제 서비스명: 학교생활기록부(초중고) 발급 (교육부) ──
@@ -835,7 +885,7 @@ var GUIDE_OF = {
 };
 function guideKeyOf(d){
   if (!d) return '';
-  // 졸업·성적증명서는 국립(=아포스티유 단독)일 때만 영문 발급 안내를 띄운다
+  // 졸업·성적증명서 — 국립은 영문(APO)/국문(번역공증) 안내가 경로에 따라 갈린다, 사립은 학교 증명서 안내
   if (d.schoolSplit && SCHOOL === '사립') return 'school_cert';
   if (d.schoolSplit && SCHOOL !== '국립') return '';
   return d.guide || GUIDE_OF[d.code] || '';
@@ -845,7 +895,7 @@ function guideKeyOf(d){
 function renderIssueGuide(){
   var box = $('issue-guide');
   if (!box) return;
-  var g = GUIDES[guideKeyOf(docByCode($('docType').value))];
+  var g = guideFor(docByCode($('docType').value));
   if (!g) { box.innerHTML = ''; return; }
 
   var h = '<div class="ntr-guide">';
@@ -889,6 +939,16 @@ function renderIssueGuide(){
   h += '</div>';
   box.innerHTML = h;
 }
+/** 경로에 맞는 발급 안내 — 아포스티유 단독(APO)이면 영문 발급, 번역 상품(T1·T2·T3)이면 국문(ko) 발급.
+ *  ★danger(범죄경력회보서 발급 목적 경고)는 두 경로 모두 그대로 남는다. */
+function guideFor(d){
+  var g = GUIDES[guideKeyOf(d)];
+  if (!g) return null;
+  if (!g.ko || (TIER && TIER.code === 'APO')) return g;
+  var k = {}; Object.keys(g).forEach(function(x){ if (x !== 'ko') k[x] = g[x]; });
+  Object.keys(g.ko).forEach(function(x){ k[x] = g.ko[x]; });
+  return k;
+}
 /** 서류 코드 → 서버가 내려준 정의 */
 function docByCode(code){
   return (CFG && CFG.documents || []).filter(function(x){ return x.code === code; })[0] || null;
@@ -897,12 +957,14 @@ function docByCode(code){
 function tierByCode(code){
   return (CFG && CFG.tiers || []).filter(function(t){ return t.code === code; })[0] || null;
 }
-/** 이 서류는 영문으로 발급돼 번역·공증이 필요 없는가 (졸업·성적은 학교 구분이 정한다) */
-function isApoOnlyDoc(d){
+/** 영문으로도 발급되는 서류인가 → 아포스티유 단독(APO)을 "고를 수 있다" (졸업·성적은 국립만).
+ *  ★2026-10-16 전용 해제 — 기본은 번역공증(T2), APO 는 T3 를 고른 손님에게만 선택지로 보인다. */
+function isApoEligible(d){
   if (!d) return false;
   if (d.schoolSplit) return SCHOOL === '국립';
-  return d.englishIssuable === true && d.needsTranslation === false;
+  return d.englishIssuable === true;
 }
+var APO_CHOSEN = false;   // 손님이 "아포스티유만으로 바꾸기"를 눌렀는가 (서류를 바꾸면 초기화)
 /** 지금 고른 국가에서 아포스티유를 받을 수 있는가 (서버 판정 effectiveNow 만 본다) */
 function apostilleAvailable(){
   return !!(COUNTRY && !COUNTRY.unknown && COUNTRY.effectiveNow);
@@ -912,7 +974,7 @@ function apostilleAvailable(){
 // ★처리 범위 = 서류가 정한다 — 고객은 경로를 고르지 않는다
 // ═══════════════════════════════════════════════════════════
 //   신분증·여권 사본          → CPA (사본공증 + 아포스티유)
-//   영문 발급 서류            → APO (아포스티유 단독)
+//   영문 발급 가능 서류 + "아포스티유만으로 바꾸기" → APO (아포스티유 단독 — 선택지일 뿐 자동 전환 없음)
 //   "번역본만" 체크           → T1  (번역만)
 //   협약국 + 아포스티유 체크  → T3  (번역공증 + 아포스티유)
 //   그 외                     → T2  (번역공증, 기본)
@@ -921,7 +983,7 @@ function deriveTierCode(){
   if (!d || !d.ready) return '';
   if (d.schoolSplit && !SCHOOL) return '';        // 학교 구분을 골라야 범위가 정해진다
   if (isCopyDoc(d)) return 'CPA';
-  if (isApoOnlyDoc(d)) return 'APO';
+  if (APO_CHOSEN && isApoEligible(d)) return 'APO';
   if ($('translateOnly').checked) return 'T1';
   return ($('wantApostille').checked && apostilleAvailable()) ? 'T3' : 'T2';
 }
@@ -951,15 +1013,40 @@ function renderApoNote(d){
       '</div>';
     return;
   }
-  if (!isApoOnlyDoc(d)) { note.innerHTML = ''; return; }
+  // ★영문 발급 가능 서류도 서류를 고르는 순간에는 아무것도 띄우지 않는다 (기본 = 번역공증)
+  note.innerHTML = '';
+}
+
+/** 아포스티유 포함(T3)을 고른 손님에게만 — "영문 발급이면 아포스티유만으로 끝납니다" 선택지.
+ *  APO 로 바꾼 뒤에는 "번역공증으로 돌아가기". T1·T2 손님에게는 띄우지 않는다. 금액은 서버 설정값. */
+function renderApoOption(){
+  var box = $('apo-option-box'); if (!box) return;
+  var d = docByCode($('docType').value);
   var apo = tierByCode('APO');
-  note.innerHTML =
-    '<div class="ntr-note" style="margin-top:14px">' +
-    '<strong>영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으시면 됩니다.</strong><br>' +
-    '<strong>아포스티유 단독</strong>' +
-    (apo ? ' (<strong>' + Number(apo.supply).toLocaleString() + '원</strong> 부가세 별도 · 등기 포함)' : '') +
-    '으로 진행합니다. 발급받으신 영문 PDF를 그대로 올려주세요. 발급 방법은 업로드 화면에서 안내해 드립니다.' +
-    '</div>';
+  var price = apo ? Number(apo.supply).toLocaleString() + '원' : '';
+  if (!d || !TIER || !isApoEligible(d)) { box.innerHTML = ''; return; }
+  if (TIER.code === 'T3') {
+    box.innerHTML = '<div class="ntr-note" style="margin-top:12px">' +
+      '이 서류는 영문으로 발급받으시면 번역·공증 없이 아포스티유만으로 끝납니다 (' + price + ', 부가세 별도).<br>' +
+      '제출처가 번역공증본을 요구하지 않는다면 이쪽이 더 간단합니다.' +
+      '<div style="margin-top:10px"><button type="button" class="ntr-btn ghost" id="btn-apo-only" onclick="chooseApo(true)">아포스티유만으로 바꾸기</button></div></div>';
+  } else if (TIER.code === 'APO') {
+    box.innerHTML = '<div class="ntr-note" style="margin-top:12px">' +
+      '<strong>아포스티유 단독</strong> (' + price + ', 부가세 별도 · 등기·스캔본 포함)으로 진행합니다. ' +
+      '영문으로 발급받은 PDF를 올려 주세요. 발급 방법은 업로드 화면에서 안내해 드립니다.' +
+      '<div style="margin-top:10px"><button type="button" class="ntr-btn ghost" id="btn-apo-back" onclick="chooseApo(false)">번역공증으로 돌아가기</button></div></div>';
+  } else {
+    box.innerHTML = '';
+  }
+}
+/** 아포스티유만 ↔ 번역공증 + 아포스티유 (돌아가면 아포스티유 체크를 다시 켠다 — T3 에서 왔으므로) */
+function chooseApo(on){
+  APO_CHOSEN = !!on;
+  if (!on && apostilleAvailable()) $('wantApostille').checked = true;
+  syncTier();
+  // APO 면 '아포스티유도 함께' 체크를 숨기고(상품 자체가 아포스티유), 돌아오면 다시 보인다
+  if (COUNTRY) applyCountry();
+  renderApoOption();
 }
 
 /** 서류 선택 화면 — 카테고리 탭 + 서류 버튼 */
@@ -981,13 +1068,8 @@ function renderDocPicker(){
   }
   var list = (CFG.documents || []).filter(function(d){ return d.category === DOC_CAT; });
   $('doc-list').innerHTML = list.map(function(d){
-    var tag = !d.ready ? '준비 중'
-            : d.uploadRule === 'quote' ? '견적 요청'
-            : d.copyNotary ? '<span class="tag apo">사본공증+아포스티유</span>'
-            : (d.englishIssuable && !d.needsTranslation) ? '<span class="tag apo">아포스티유만</span>'
-            : d.schoolSplit ? '국립 / 사립'
-            : '번역공증';
-    if (tag.indexOf('<span') !== 0) tag = '<span class="tag">' + esc(tag) + '</span>';
+    // ★서류 버튼에는 서류 이름만 — 처리 방식 태그(번역공증·아포스티유만 등)를 달지 않는다. '준비 중'만 표시
+    var tag = d.ready ? '' : '<span class="tag">준비 중</span>';
     return '<button type="button" class="ntr-docbtn' + (cur === d.code ? ' sel' : '') + '"' +
            (d.ready ? '' : ' disabled') +
            ' onclick="pickDoc(\'' + esc(d.code) + '\')">' + esc(d.label) + tag + '</button>';
@@ -1033,8 +1115,9 @@ function onDocType(){
   $('family-field').style.display = (d && d.familyNames) ? '' : 'none';
 
   // 번역만 옵션 — 번역이 있는 서류에서만 (학교 구분을 아직 안 골랐으면 감춘다)
-  var apoOnly = isApoOnlyDoc(d) || isCopyDoc(d);
-  var canTranslateOnly = !!(d && d.ready && !apoOnly && !quote && (!school || SCHOOL));   // 견적 요청 서류는 결제 상품이 없다
+  APO_CHOSEN = false;                              // 서류를 바꾸면 기본(번역공증)부터
+  var noTranslate = isCopyDoc(d);
+  var canTranslateOnly = !!(d && d.ready && !noTranslate && !quote && (!school || SCHOOL));   // 견적 요청 서류는 결제 상품이 없다
   $('scope-field').style.display = canTranslateOnly ? '' : 'none';
   if (!canTranslateOnly) $('translateOnly').checked = false;
 
@@ -1534,8 +1617,11 @@ function applyTierCopy(){
                   : '<strong style="color:var(--warn)">이 서류는 온라인으로 발급받은 PDF만 가능합니다.</strong>')
     : 'PDF·JPG·PNG 모두 가능합니다. <strong>HWP·Word 파일은 PDF로 저장해 올려 주세요.</strong>';
 
-  // 이 경고는 3종 번역공증 전용이다
-  $('korean-only-note').style.display = (pdfOnly && !apoOnly && autoDoc) ? '' : 'none';
+  // 한글 원본 PDF 필수 — 3종 번역공증 + 영문 발급 가능 서류를 번역 상품(T1·T2·T3)으로 고른 경우
+  $('korean-only-note').style.display = ((pdfOnly && !apoOnly && autoDoc) || (!apoOnly && TIER && isApoEligible(d))) ? '' : 'none';
+  // 경로(APO ↔ 번역)가 바뀌면 발급 안내(영문 ↔ 국문)와 아포스티유만 선택지도 바뀐다
+  renderIssueGuide();
+  renderApoOption();
 
   $('tier-note').innerHTML = (TIER && TIER.code === 'T1')
     ? '<div class="ntr-note">' +
@@ -2168,6 +2254,6 @@ loadConfig();
   showDocsBox('');
 })();
 </script>
-<script src="/assets/kakao-fab.js" defer data-pad="1" data-raise="#wiz-nav"></script>
+<script src="/assets/kakao-fab.js?v=2" defer data-pad="1" data-raise="#wiz-nav"></script>
 </body>
 </html>

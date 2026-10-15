@@ -65,6 +65,9 @@ const check = (ok, label) => { if (ok) { pass++; console.log('  ✅ ' + label); 
                                else { fail++; console.log('  ❌ ' + label); } };
 const steps = () => sandbox.STEPS.join('>');
 const pick = (c) => sandbox.pickDoc(c);
+// 영문 발급 가능 서류를 아포스티유 단독으로 — 손님 동선 그대로: 협약국 → 아포스티유 체크(T3) → 아포스티유만으로 바꾸기
+const toApo = (c) => { pick(c); sandbox.COUNTRY = { nameKo: '미국', isMember: true, effectiveNow: true, effectiveDate: '', group: '', unknown: false };
+  sandbox.applyCountry(); $id('wantApostille').checked = true; sandbox.onScopeChange(); sandbox.chooseApo(true); };
 const effective = { nameKo: '미국', isMember: true, effectiveNow: true, effectiveDate: '', group: '', unknown: false };
 const consular  = { nameKo: '중국대만', isMember: false, effectiveNow: false, effectiveDate: '', group: '', unknown: false };
 
@@ -75,9 +78,11 @@ const cats = $id('doc-cats').innerHTML;
 check(['개인', '유학', '기업', '기타'].every(c => cats.includes('>' + c + '<')), '탭 개인·유학·기업·기타');
 const personal = $id('doc-list').innerHTML;
 check(personal.includes('가족관계증명서') && personal.includes('범죄경력회보서'), '개인 탭에 가족관계·범죄경력');
-check(/onclick="pickDoc\('driver_license'\)">운전면허증 사본<span class="tag apo">사본공증\+아포스티유/.test(personal) &&
+check(/onclick="pickDoc\('driver_license'\)">운전면허증 사본<\/button>/.test(personal) &&
       !/disabled onclick="pickDoc\('driver_license'\)/.test(personal),
-  '운전면허증 사본 — 사본공증+아포스티유 (활성)');
+  '운전면허증 사본 — 활성 · 이름만');
+check(!/아포스티유만|class="tag apo"|>번역공증<|국립 \/ 사립|사본공증\+아포스티유/.test(personal), '서류 버튼에 처리 방식 태그 없음 (아포스티유만·번역공증·사본공증·국립/사립)');
+check(!/>아포스티유만<|tag apo">아포스티유만/.test(html), '위저드 어디에도 "아포스티유만" 태그 없음');
 check(['주민등록증 사본', '여권 사본'].every(l => personal.includes(l)), '개인 탭에 주민등록증·여권 사본');
 check(!html.includes('data-step="tier"'), '상품 카드 단계가 없다');
 check(sandbox.STEPS.join() === 'doc', '서류를 고르기 전 단계 = 서류 선택뿐');
@@ -112,33 +117,60 @@ check(sandbox.TIER.code === 'T3' && sandbox.currentStep() === 'country', 'T3 전
 sandbox.COUNTRY = consular; sandbox.applyCountry();
 check(sandbox.TIER.code === 'T2' && $id('wantApostille').checked === false, '비협약국으로 바꾸면 체크 해제 + T2');
 
-// ── 5. 영문 발급 서류 → 아포스티유 단독 ──
-console.log('\n[5] 범죄경력회보서 → 아포스티유 단독 자동 전환');
+// ── 5. 영문 발급 가능 서류 — 기본 번역공증, T3 에서만 "아포스티유만" 선택지 ──
+console.log('\n[5] 범죄경력회보서 — 기본 번역공증(T2) · T3 에서 아포스티유만으로 바꾸기');
 sandbox.STEP_I = 0;
 pick('crime_record');
-check(sandbox.TIER.code === 'APO', `APO (현재 ${sandbox.TIER.code})`);
-const apoNote = $id('apo-switch-note').innerHTML;
-check(apoNote.includes('영문으로 발급받으시면 번역·공증 없이 아포스티유만'), '"영문으로 발급받으시면…" 안내');
+check(sandbox.TIER.code === 'T2', `자동 전환 없음 — T2 (현재 ${sandbox.TIER.code})`);
+check($id('apo-switch-note').innerHTML === '', '서류를 고르자마자 뜨던 "아포스티유 단독으로 진행" 안내 없음');
+check(steps() === 'doc>country>info>upload>ship>date>confirm', `단계 ${steps()} (언어·이름·날짜 포함)`);
+check($id('scope-field').style.display === '', '"번역본만" 옵션 노출 (T1 가능)');
+check($id('korean-only-note').style.display === '', '"한글 원본 PDF" 경고 표시 (번역 상품)');
+$id('translateOnly').checked = true; sandbox.onScopeChange();
+check(sandbox.TIER.code === 'T1' && $id('apo-option-box').innerHTML === '', 'T1 가능 · 아포스티유만 선택지 안 뜸');
+$id('translateOnly').checked = false; sandbox.onScopeChange();
+check(sandbox.TIER.code === 'T2' && $id('apo-option-box').innerHTML === '', 'T2 · 아포스티유만 선택지 안 뜸');
+sandbox.STEP_I = sandbox.STEPS.indexOf('country');
+sandbox.COUNTRY = effective; sandbox.applyCountry();
+$id('wantApostille').checked = true; sandbox.onScopeChange();
+const opt = $id('apo-option-box').innerHTML;
 const apoSupply = cfg.tiers.find(t => t.code === 'APO').supply;
-check(apoNote.includes(apoSupply.toLocaleString() + '원'), `금액 = 서버 설정값 ${apoSupply.toLocaleString()}원 (하드코딩 아님)`);
-check(!apoNote.includes('70,000'), '구 금액 70,000 미표기');
-check(steps() === 'doc>country>upload>ship>confirm', `단계 ${steps()} (언어·이름 없음)`);
-check($id('scope-field').style.display === 'none', '"번역본만" 옵션 숨김');
-check($id('korean-only-note').style.display === 'none', '"한글 원본" 경고 숨김');
+check(sandbox.TIER.code === 'T3' && opt.includes('이 서류는 영문으로 발급받으시면 번역·공증 없이 아포스티유만으로 끝납니다 (' + apoSupply.toLocaleString() + '원, 부가세 별도).') &&
+      opt.includes('제출처가 번역공증본을 요구하지 않는다면 이쪽이 더 간단합니다.') && opt.includes('아포스티유만으로 바꾸기'),
+  `T3 → 안내 박스 + [아포스티유만으로 바꾸기] (금액 = 서버 설정값 ${apoSupply.toLocaleString()}원)`);
+check(/언어 — <span class="ntr-hl">\[국문\]/.test($id('issue-guide').innerHTML) && !/\[영문\]/.test($id('issue-guide').innerHTML), 'T3 발급 안내 = 국문');
+sandbox.chooseApo(true);
+check(sandbox.TIER.code === 'APO' && steps() === 'doc>country>upload>ship>confirm' && sandbox.currentStep() === 'country',
+  `[아포스티유만으로 바꾸기] → APO · 단계 ${steps()} · 국가 화면 유지`);
+check($id('apo-option-box').innerHTML.includes('번역공증으로 돌아가기'), 'APO 상태 — [번역공증으로 돌아가기]');
+check($id('apostille-field').style.display === 'none', 'APO 상태 — "아포스티유도 함께" 체크 숨김 (상품 자체가 아포스티유)');
+check(/언어 — <span class="ntr-hl">\[영문\]/.test($id('issue-guide').innerHTML) && $id('issue-guide').innerHTML.includes('class="ntr-g-danger"'),
+  'APO 발급 안내 = 영문 · 목적 경고 유지');
+check($id('korean-only-note').style.display === 'none', 'APO — "한글 원본" 경고 숨김');
+sandbox.chooseApo(false);
+check(sandbox.TIER.code === 'T3' && /\[국문\]/.test($id('issue-guide').innerHTML) && $id('issue-guide').innerHTML.includes('class="ntr-g-danger"'),
+  '[번역공증으로 돌아가기] → T3 · 국문 안내 · 목적 경고 유지');
+check($id('apostille-field').style.display === '' && $id('wantApostille').checked === true, '돌아오면 아포스티유 체크 다시 보임 · 체크됨');
 for (const c of ['resident_full', 'resident_abstract', 'immigration', 'investigation', 'biz_registration', 'tax_payment']) {
   pick(c);
-  check(sandbox.TIER.code === 'APO', `${c} → APO`);
+  check(sandbox.TIER.code !== 'APO' && sandbox.TIER.translate !== false && $id('apo-switch-note').innerHTML === '', `${c} → 번역공증 기본 ${sandbox.TIER.code} (자동 전환 없음)`);
 }
 
 // ── 6. 졸업·성적증명서 — 학교 구분 ──
-console.log('\n[6] 졸업증명서 — 국립 = 단독 / 사립 = 번역공증');
+console.log('\n[6] 졸업증명서 — 국립 = 번역공증 기본 + 아포스티유만 선택지 / 사립 = 번역공증');
 sandbox.SCHOOL = '';
 pick('graduation');
 check(!sandbox.TIER && $id('school-field').style.display === '', '학교 구분 전에는 범위 미정 + 선택지 노출');
+$id('wantApostille').checked = false;
 sandbox.pickSchool('국립');
-check(sandbox.TIER.code === 'APO', '국립 → APO');
+check(sandbox.TIER.code === 'T2', '국립 → T2 기본 (자동 전환 없음)');
+sandbox.COUNTRY = effective; sandbox.applyCountry(); $id('wantApostille').checked = true; sandbox.onScopeChange();
+check(sandbox.TIER.code === 'T3' && $id('apo-option-box').innerHTML.includes('아포스티유만으로 바꾸기'), '국립 + T3 → 아포스티유만 선택지');
+sandbox.chooseApo(true);
+check(sandbox.TIER.code === 'APO', '국립 → 아포스티유만으로 바꾸기 → APO');
+$id('wantApostille').checked = false;
 sandbox.pickSchool('사립');
-check(sandbox.TIER.code === 'T2', '사립 → T2 번역공증');
+check(sandbox.TIER.code === 'T2' && $id('apo-option-box').innerHTML === '', '사립 → T2 번역공증 (학교를 바꾸면 APO 해제 · 선택지 없음)');
 pick('school_record');
 check(sandbox.SCHOOL === '' && $id('school-field').style.display === 'none', '다른 서류로 바꾸면 학교 구분 초기화');
 check($id('korean-only-note').style.display === 'none', '수동 경로 — "한글 원본 PDF" 경고 숨김 (사진 허용)');
@@ -155,24 +187,29 @@ for (const [v, ok] of [['HONG GILDONG', true], ['Hong Gil-dong', true], ["O'BRIE
 console.log('\n[8] 발급 안내 배너');
 for (const [c, must] of [
   ['family_relation', ['efamily.scourt.go.kr', '상세', '전부 공개', 'PDF로 저장']],
-  ['crime_record',    ['crims.police.go.kr', '외국입국/체류 허가', '본인확인용', '2년 이하의 징역', '2천만원 이하의 벌금', '영문', '여권 철자']],
-  ['immigration',     ['정부24', '개명하신 분은 온라인 발급이 되지 않습니다']],
-  ['resident_full',   ['정부24', '영문']],
-  ['tax_payment',     ['홈택스', '영문']],
+  ['crime_record',    ['crims.police.go.kr', '외국입국/체류 허가', '본인확인용', '2년 이하의 징역', '2천만원 이하의 벌금', '[국문]']],
+  ['immigration',     ['정부24', '개명하신 분은 온라인 발급이 되지 않습니다', '[국문]']],
+  ['resident_full',   ['정부24', '[국문]']],
+  ['tax_payment',     ['홈택스', '[국문]']],
 ]) {
-  $id('docType').value = c;
+  pick(c);
   sandbox.renderIssueGuide();
   const h = $id('issue-guide').innerHTML;
   check(must.every(m => h.includes(m)), `${c} 배너 — ${must.join(' · ')}`);
 }
-$id('docType').value = 'crime_record'; sandbox.renderIssueGuide();
-check($id('issue-guide').innerHTML.includes('class="ntr-g-danger"'), '범죄경력회보서 목적 경고 = 경고색 블록');
+pick('crime_record');
+check($id('issue-guide').innerHTML.includes('class="ntr-g-danger"') && !/영문으로 발급받으시면/.test($id('issue-guide').innerHTML),
+  '범죄경력회보서(번역) — 목적 경고 + 한글 원본 발급 안내 제목');
+sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'APO'); sandbox.renderIssueGuide();
+check(['[영문]', '여권 철자', '영문으로 발급받으시면'].every(m => $id('issue-guide').innerHTML.includes(m)) &&
+      $id('issue-guide').innerHTML.includes('class="ntr-g-danger"'), '범죄경력회보서(APO) — 영문 발급 안내 + 목적 경고');
+pick('family_relation');
 $id('docType').value = 'contract'; sandbox.renderIssueGuide();
 check($id('issue-guide').innerHTML === '', '안내 없는 서류(계약서)는 배너 없음');
 
 // ── 9. 결제 화면 문구 ──
 console.log('\n[9] 결제 화면 — 경로별 안내 · 착수 후 취소·환불 불가');
-pick('crime_record'); sandbox.QUOTE = { route: 'apo', pages: 1 }; sandbox.buildSummary();
+pick('crime_record'); sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'APO'); sandbox.QUOTE = { route: 'apo', pages: 1 }; sandbox.buildSummary();
 check($id('confirm-notes').innerHTML.includes('번역·공증을 진행하지 않습니다'), 'APO 안내');
 check(!$id('pay-summary').innerHTML.includes('번역 언어'), 'APO 요약에 언어 줄 없음');
 pick('school_record'); sandbox.QUOTE = { route: 'manual', pages: 10 }; sandbox.buildSummary();
@@ -257,7 +294,7 @@ console.log('\n[11] 받으실 날짜 — 급행 판정 안내 · 동의 · 요�
   check(sandbox.stepBlockReason() === '가장 빠른 수령일은 10월 16일(금)입니다', '선택 불가 → 다음 단계 막힘');
 
   // APO·T1 — 날짜 단계 없음
-  pick('crime_record');
+  toApo('crime_record');
   check(!steps().includes('date'), 'APO → 날짜 단계 없음');
 }
 // ── 12. 메인 "아포스티유" 입구 (/notary/?apostille=1) ──
@@ -275,7 +312,7 @@ console.log('\n[12] 아포스티유 입구 — 협약국을 고르면 체크가 
   sandbox.COUNTRY = consular; sandbox.applyCountry();
   check(sandbox.TIER.code === 'T2' && sandbox.WANT_APO_PRESET === true, '비협약국에서는 켜지 않고 다음 협약국 선택까지 유지');
   pick('crime_record');
-  check(sandbox.TIER.code === 'APO', '영문 발급 서류는 그대로 아포스티유 단독');
+  check(sandbox.TIER.code !== 'APO', '영문 발급 가능 서류도 자동으로 아포스티유 단독이 되지 않는다');
   sandbox.WANT_APO_PRESET = false;
 }
 // ── 13. 서류별 업로드 규칙 ──
@@ -350,7 +387,7 @@ console.log('\n[15] 아포스티유 준비 서류 — 당사자 구분 · 준비
   check($id('docs-box').style.display === '' && $id('dc-party').value === '개인', '결제 완료 화면에 준비 서류 양식 (당사자 미리 선택)');
   $id('dc-party').value = '법인(명판없음)'; sandbox.renderDocsBox();
   check($id('dc-btn').disabled === true, '명판 없는 법인 → 제출 버튼 비활성 (담당자 안내)');
-  pick('crime_record');
+  toApo('crime_record');
   sandbox.renderPartyBox();
   check(sandbox.TIER.code === 'APO' && $id('party-box').style.display === '', 'APO 도 당사자 구분 표시');
   sandbox.TIER = sandbox.CFG.tiers.find(t => t.code === 'T3');
@@ -402,14 +439,14 @@ console.log('\n[16] 신분증·여권 사본 → 사본공증 + 아포스티유 
   sandbox.QUOTE = { supply: 65000, pages: 1 }; sandbox.PRECHECK_OK = false; sandbox.renderQuoteLine();
   check($id('quote-line').innerHTML.includes('65,000') && !/쪽 기준/.test($id('quote-line').innerHTML) &&
         $id('quote-line').innerHTML.includes('(부가세 별도)'), 'CPA 예상 금액 — "1쪽 기준" 없음');
-  pick('crime_record'); sandbox.QUOTE = { supply: 40000, pages: 1 }; sandbox.renderQuoteLine();
+  toApo('crime_record'); sandbox.QUOTE = { supply: 40000, pages: 1 }; sandbox.renderQuoteLine();
   check(sandbox.TIER.code === 'APO' && !/쪽 기준/.test($id('quote-line').innerHTML), 'APO 예상 금액 — "1쪽 기준" 없음');
   pick('school_record'); sandbox.QUOTE = { supply: 60000, pages: 1 }; sandbox.renderQuoteLine();
   check(/1쪽 기준 · 업로드 후 확정/.test($id('quote-line').innerHTML), '쪽당 상품은 "1쪽 기준" 유지');
   check(html.includes('<a href="/" class="logo">IUMM 아이움</a>'), '위저드 로고 = IUMM 아이움');
   check($id('mail-box').innerHTML.includes('출국 일정'), '완료 화면 — 여권 출국 일정 안내');
   check($id('docs-box').style.display === '', '완료 화면 — 아포스티유 준비 서류');
-  pick('family_relation');
+  $id('wantApostille').checked = false; pick('family_relation');
   check(sandbox.TIER.code === 'T2', '다른 서류로 바꾸면 CPA 해제 (T2)');
 }
 // ── 17. 여러 파일 — 누적 · 중복 무시 · 순서 · 삭제 · 10개 상한 · 디바운스 ──
