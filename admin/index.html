@@ -368,6 +368,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <button class="tab-btn ntr-t"        data-t="T2"  onclick="ntrTier('T2')">T2 공증</button>
         <button class="tab-btn ntr-t"        data-t="T3"  onclick="ntrTier('T3')">T3 아포스티유</button>
         <button class="tab-btn ntr-t"        data-t="APO" onclick="ntrTier('APO')">APO 단독</button>
+        <button class="tab-btn ntr-t"        data-t="CPA" onclick="ntrTier('CPA')">CPA 사본공증</button>
         <span style="flex:1"></span>
         <span id="ntr-count" style="font-size:12px;color:rgba(255,255,255,0.35)"></span>
         <button class="tab-btn" onclick="loadNotaryShipping()">새로고침</button>
@@ -3525,7 +3526,7 @@ function renderNotaryShipping() {
     var col = o.stageKey === 'shipped' ? '#22c55e' : (o.stageKey === 'ready' ? '#D4AF37' : 'rgba(255,255,255,0.45)');
     // ★APO(아포스티유 단독)는 번역도 공증도 없다 — "T2 공증"으로 뭉뚱그리면
     //   대표가 있지도 않은 번역본을 찾게 된다.
-    var TIER_LABEL = { T3: 'T3 아포스티유', T2: 'T2 공증', APO: 'APO 아포스티유 단독', T1: 'T1 번역만' };
+    var TIER_LABEL = { T3: 'T3 아포스티유', T2: 'T2 공증', APO: 'APO 아포스티유 단독', CPA: 'CPA 사본공증+아포스티유', T1: 'T1 번역만' };
     var tierLabel = TIER_LABEL[o.tier] || (o.tier || '-');
     // ── 수동 경로 — 번역부터 대표가 한다 ──
     var routeBadge = o.manual

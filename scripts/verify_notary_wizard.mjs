@@ -75,8 +75,10 @@ const cats = $id('doc-cats').innerHTML;
 check(['개인', '유학', '기업', '기타'].every(c => cats.includes('>' + c + '<')), '탭 개인·유학·기업·기타');
 const personal = $id('doc-list').innerHTML;
 check(personal.includes('가족관계증명서') && personal.includes('범죄경력회보서'), '개인 탭에 가족관계·범죄경력');
-check(/disabled onclick="pickDoc\('driver_license'\)">운전면허증<span class="tag">준비 중/.test(personal),
-  '운전면허증 준비 중(비활성)');
+check(/onclick="pickDoc\('driver_license'\)">운전면허증 사본<span class="tag apo">사본공증\+아포스티유/.test(personal) &&
+      !/disabled onclick="pickDoc\('driver_license'\)/.test(personal),
+  '운전면허증 사본 — 사본공증+아포스티유 (활성)');
+check(['주민등록증 사본', '여권 사본'].every(l => personal.includes(l)), '개인 탭에 주민등록증·여권 사본');
 check(!html.includes('data-step="tier"'), '상품 카드 단계가 없다');
 check(sandbox.STEPS.join() === 'doc', '서류를 고르기 전 단계 = 서류 선택뿐');
 
@@ -364,6 +366,49 @@ console.log('\n[15] 아포스티유 준비 서류 — 당사자 구분 · 준비
   sandbox.WISH = '2026-10-20'; sandbox.WISH_KEY = 'T3|' + $id('docType').value + '||' + sandbox.PAGES;
   sandbox.renderDateStep();
   check($id('date-mode').innerHTML.includes('준비 서류(동의서·신분증) 업로드'), '급행 마감 안내에 준비 서류 업로드 포함');
+}
+// ── 16. 사본공증 + 아포스티유 (CPA) ──
+console.log('\n[16] 신분증·여권 사본 → 사본공증 + 아포스티유 (CPA)');
+{
+  sandbox.STEP_I = 0; sandbox.COUNTRY = null; sandbox.PAPER_ONLY = false;
+  for (const c of ['id_card_copy', 'driver_license', 'passport_copy']) {
+    pick(c);
+    check(sandbox.TIER && sandbox.TIER.code === 'CPA', `${c} → CPA`);
+  }
+  const cpa = cfg.tiers.find(t => t.code === 'CPA');
+  check(cpa.supply === 65000, 'CPA 공급가 65,000 (서버 설정)');
+  check($id('apo-switch-note').innerHTML.includes(cpa.supply.toLocaleString() + '원'), 'CPA 안내 금액 = 서버 설정값');
+  check(steps() === 'doc>country>upload>ship>confirm', `단계 ${steps()} (언어·이름·날짜 없음)`);
+  check($id('scope-field').style.display === 'none', '"번역본만" 옵션 숨김');
+  check($id('issuer-box').innerHTML.includes('신분증·여권 원본 확인이 필요합니다') &&
+        $id('issuer-box').innerHTML.includes('출국 일정이 없는지'), '원본 우편 안내 — 사본공증 문구');
+  sandbox.STEP_I = sandbox.STEPS.indexOf('country');
+  sandbox.COUNTRY = consular; sandbox.applyCountry();
+  check($id('country-note').innerHTML.includes('사본공증 + 아포스티유로 접수할 수 없습니다'), '비협약국 → 판매 불가 안내');
+  check($id('apostille-field').style.display === 'none', '아포스티유 체크 숨김 (상품 자체가 아포스티유)');
+  $id('party').value = '개인';
+  check(/협약이 발효 중인 국가에만/.test(sandbox.stepBlockReason()), '비협약국은 국가 단계 통과 못 함');
+  sandbox.COUNTRY = { ...consular, unknown: true, nameKo: '기타' }; sandbox.applyCountry();
+  check(/협약이 발효 중인 국가에만/.test(sandbox.stepBlockReason()), '목록에 없는 국가도 통과 못 함');
+  sandbox.COUNTRY = effective; sandbox.applyCountry();
+  check(sandbox.TIER.code === 'CPA' && sandbox.stepBlockReason() === '', '협약국 + 당사자 → 통과, CPA 유지');
+  check($id('party-box').style.display === '', 'CPA 도 당사자 구분 표시');
+  sandbox.applyTierCopy();
+  check($id('upload-head').textContent.includes('신분증·여권'), '업로드 제목 — 신분증·여권');
+  check(!$id('upload-req').innerHTML.includes('PDF만'), '사진·스캔 허용 (PDF 전용 아님)');
+  check(sandbox.mailOriginalOrder() && !sandbox.onlinePdfOnly(), '원본 우편 주문');
+  sandbox.QUOTE = { route: 'copy', pages: 1, schedule: { awaitingOriginal: true } }; sandbox.buildSummary();
+  const cn = $id('confirm-notes').innerHTML;
+  check(cn.includes('번역을 진행하지 않습니다') && cn.includes('원본과 대조'), '결제 전 안내 — 번역 없음 · 원본 대조');
+  check(cn.includes('신분증·여권 원본 확인이 필요합니다'), '결제 전 안내 — 원본 우편 (사본공증 문구)');
+  check($id('pay-summary').innerHTML.includes('사본공증 + 아포스티유') && !$id('pay-summary').innerHTML.includes('번역 언어'), '요약 — 처리 범위 CPA · 언어 줄 없음');
+  check($id('ag3-label').innerHTML.includes('사본공증과 아포스티유만'), '동의 문구 — CPA');
+  sandbox.showDone({ ok: true, mailOriginal: true, mailAddress: '' });
+  check($id('done-sub').textContent.includes('원본이 도착하면 사본공증'), '완료 화면 — CPA 문구');
+  check($id('mail-box').innerHTML.includes('출국 일정'), '완료 화면 — 여권 출국 일정 안내');
+  check($id('docs-box').style.display === '', '완료 화면 — 아포스티유 준비 서류');
+  pick('family_relation');
+  check(sandbox.TIER.code === 'T2', '다른 서류로 바꾸면 CPA 해제 (T2)');
 }
 const visible2 = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
