@@ -1,4 +1,4 @@
-// 메인 랜딩 회귀 — "N년째" 계산 · 금지 표현 · 전문 번역 단가 단일 출처
+// 메인 랜딩 회귀 — SINCE 라벨 · 금지 표현 · 전문 번역 단가 단일 출처
 //   node scripts/verify_landing.mjs
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -16,22 +16,16 @@ const a = html.indexOf('<!-- HERO -->'), b = html.indexOf('<!-- 스탠다드 주
 const land = html.slice(a, b);
 check(a > 0 && b > a, '랜딩 구역 찾음');
 
-// ── 1. N년째 — KST 연도 기준, 2009년 = 1년째 ──
-console.log('\n[1] 업력 "N년째" — 하드코딩 없이 계산');
+// ── 1. SINCE 라벨 — 고정 문구 (연차 계산 없음) ──
+console.log('\n[1] 첫 화면 라벨 — SINCE 2009');
 const script = land.match(/<script>([\s\S]*?)<\/script>/)[1];
 const els = {};
 const sandbox = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }, showPage(){}, location: {},
   document: { getElementById: (id) => (els[id] = els[id] || { textContent: '' }) } };
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
-const years = sandbox.window.lpYears;
-check(years(Date.UTC(2009, 0, 1, 0, 0)) === 1, '2009년 = 1년째');
-check(years(Date.UTC(2026, 9, 15, 3, 0)) === 18, '2026-10-15 = 18년째');
-check(years(Date.UTC(2026, 11, 31, 14, 59)) === 18, '2026-12-31 23:59 KST = 18년째');
-check(years(Date.UTC(2026, 11, 31, 15, 0)) === 19, '2027-01-01 00:00 KST(= UTC 12-31 15:00) = 19년째');
-const nowN = new Date(Date.now() + 9 * 3600e3).getUTCFullYear() - 2008;
-check(els['lp-since'].textContent === `2009년부터 이어 온 번역·공증 실무, 올해로 ${nowN}년째입니다.`, `화면 문구 = 올해로 ${nowN}년째`);
-check(!/올해로\s*\d+\s*년째/.test(land.replace(/<script>[\s\S]*?<\/script>/g, '')), 'HTML 에 숫자 하드코딩 없음');
+check(/<p class="lp-label">SINCE 2009 · 번역·공증·아포스티유<\/p>\s*<h1>/.test(land), 'h1 위 라벨 "SINCE 2009 · 번역·공증·아포스티유"');
+check(!/lp-since|lpYears|년째/.test(land), '옛 문장(N년째)·lpYears 스크립트 없음');
 
 // ── 2. 전문 번역 단가 — PLAN_PRICE 한 곳 ──
 console.log('\n[2] 전문 번역 단가 단일 출처');

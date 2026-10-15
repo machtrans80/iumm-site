@@ -1838,7 +1838,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
      ★입구 카드 2개: [1] 번역공증 · 아포스티유 의뢰(강조) / [2] 전문 번역 의뢰
        [1] → 기존 위저드(/notary/) · [2] → 기존 전문 번역 주문 모달(handleAI)
      ★회원 전용 블록·가입 유도 블록 없음 — 로그인은 입구에서 필요할 때만 받는다(lpGo).
-     ★"N년째"는 2009년 기준으로 KST 연도에서 계산한다 — 숫자를 하드코딩하지 말 것.
+     ★첫 화면 라벨 "SINCE 2009 · 번역·공증·아포스티유"는 고정 문구다 (연차 계산 없음).
      ★전문 번역 단가는 PLAN_PRICE 한 곳에서만 읽는다 (주문 모달·견적과 같은 값).
      ★표기 원칙: 숫자만, 최상급 표현 금지(표시광고법). 공증·아포스티유 포함 금액은 위저드에서만 보인다.
      ════════════════════════════════════════════════════════════════ -->
@@ -1911,8 +1911,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <!-- ── 첫 화면 + 입구 2개 ──────────────────────────────────── -->
 <section class="lp-hero" id="top">
   <div class="lp">
+    <p class="lp-label">SINCE 2009 · 번역·공증·아포스티유</p>
     <h1>공증 받으러<br>멀리 가지 마세요</h1>
-    <p class="lp-lead" id="lp-since">2009년부터 이어 온 번역·공증 실무입니다.</p>
     <p class="lp-lead">서류만 올리시면 번역부터 공증·아포스티유까지 마치고 집으로 보내드립니다.</p>
 
     <div class="lp-cards" id="lp-entry">
@@ -1977,7 +1977,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
    ai = 스탠다드(일반 검수) / standard = 프리미엄 플러스(전문가 검수). 키는 내부 플랜값 그대로 */
 var PLAN_PRICE = { ai: 25, standard: 40 };
 
-/* 메인 랜딩 — 입구 · 업력 */
+/* 메인 랜딩 — 입구 */
 (function(){
   var DEST = { notary: '/notary/', apostille: '/notary/?apostille=1' };
   /** 입구 — 로그인돼 있으면 위저드로, 아니면 기존 로그인 복귀 장치에 경로를 넣고 로그인 화면 */
@@ -1987,13 +1987,6 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
     try { sessionStorage.setItem('iumm_login_next', dest); } catch(e){}
     showPage('login');
   };
-  /** 2009년 시작 기준 몇 년째인가 — 한국 시간(KST) 연도로 센다. 2009년 = 1년째 */
-  window.lpYears = function(nowMs){
-    var kst = new Date((nowMs == null ? Date.now() : nowMs) + 9 * 3600 * 1000);
-    return kst.getUTCFullYear() - 2009 + 1;
-  };
-  var since = document.getElementById('lp-since');
-  if (since) since.textContent = '2009년부터 이어 온 번역·공증 실무, 올해로 ' + window.lpYears() + '년째입니다.';
   var pp = document.getElementById('lp-plan-price');
   if (pp) pp.textContent = PLAN_PRICE.ai + '원부터';
 })();
