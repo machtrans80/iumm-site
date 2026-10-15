@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=34">
+<link rel="stylesheet" href="/notary/notary.css?v=35">
 <!-- ★메인(index.html)과 같은 v1 SDK. 버전이 다르면 토큰 저장 형식이 달라
      같은 브라우저에서도 로그인 세션을 공유하지 못해 재로그인을 요구하게 된다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -107,7 +107,12 @@
         </div>
         <div class="ntr-field">
           <label class="ntr-lbl" for="other-files">서류 파일 (PDF·JPG·PNG)</label>
-          <input class="ntr-inp" type="file" id="other-files" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
+          <div class="ntr-drop" id="other-files-drop">
+            <input class="ntr-inp" type="file" id="other-files" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                   onchange="addFiles('other', this.files); this.value=''">
+          </div>
+          <ul class="ntr-files" id="other-file-list"></ul>
+          <div id="other-files-msg" class="ntr-msg"></div>
         </div>
         <button class="ntr-btn" id="other-btn" onclick="sendOtherInquiry()">담당자에게 문의하기</button>
         <div id="other-msg" class="ntr-msg"></div>
@@ -209,8 +214,13 @@
         PDF·JPG·PNG 파일을 올려주세요.
         <span id="upload-req"></span>
       </p>
-      <input class="ntr-inp" type="file" id="files" multiple
-             accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onchange="onFiles()">
+      <p class="hint" style="margin:0 0 8px">서류가 여러 파일로 나뉘어 있으면 모두 올려 주세요. 다른 서류는 서류마다 따로 신청해 주세요.</p>
+      <!-- ★여러 파일 누적 — 고를 때마다 FILES 에 더한다(덮어쓰지 않음). 끌어다 놓기도 같은 경로 -->
+      <div class="ntr-drop" id="files-drop">
+        <input class="ntr-inp" type="file" id="files" multiple
+               accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onchange="addFiles('main', this.files); this.value=''">
+        <p class="hint" id="files-limit" style="margin:6px 0 0">파일을 여기로 끌어다 놓아도 됩니다.</p>
+      </div>
       <ul class="ntr-files" id="file-list"></ul>
       <div id="precheck-msg" class="ntr-msg"></div>
       <!-- 업로드 규칙 — 온라인 발급 PDF 확인 체크 · "종이로만 받았어요" · 원본 우편 안내 -->
@@ -548,7 +558,7 @@ function paperOnly(on){
   applyTierCopy();
   renderIssuerBox();
   renderUploadRule();
-  if ($('files').files.length) onFiles(); else refreshQuote();
+  if (FILES.main.length) onFiles(); else refreshQuote();
   refresh();
 }
 /** 받으실 날짜를 고르는 상품인가 — 번역공증(T2)·아포스티유(T3). 번역만·아포스티유 단독은 없다 */
@@ -1041,7 +1051,7 @@ function onScopeChange(){ syncTier(); }
 /** 언어가 바뀌면 경로(3종 자동 ↔ 수동)가 바뀔 수 있다 → 견적·사전검증 다시 */
 function onLangChange(){
   PRECHECK_OK = false;
-  if ($('files').files.length) onFiles();
+  if (FILES.main.length) onFiles();
   else refreshQuote();
   applyTierCopy();
 }
@@ -1119,7 +1129,7 @@ async function sendApostilleDocs(){
 async function sendOtherInquiry(){
   var contact = $('other-contact').value.trim();
   if (!contact) { msg('other-msg','연락처를 입력해 주세요.','err'); return; }
-  if (!$('other-files').files.length) { msg('other-msg','서류 파일을 올려주세요.','err'); return; }
+  if (!FILES.other.length) { msg('other-msg','서류 파일을 올려주세요.','err'); return; }
   $('other-btn').disabled = true;
   msg('other-msg','<span class="ntr-spinner"></span> 접수 중…');
   var fd = new FormData();
@@ -1128,7 +1138,7 @@ async function sendOtherInquiry(){
   fd.append('content', $('other-content').value.trim());
   fd.append('kakaoId', ME.kakaoId || '');
   fd.append('email', ME.email || '');
-  Array.prototype.forEach.call($('other-files').files, function(f){ fd.append('files', f); });
+  FILES.other.forEach(function(f){ fd.append('files', f); });
   try {
     var r = await fetch(API + '/api/notary/other-inquiry', { method:'POST', body: fd });
     var d = await r.json();
@@ -1329,7 +1339,7 @@ function stepBlockReason(){
       if (!$('lang').value) return '번역 언어를 선택해 주세요.';
       return englishNameOk() ? '' : '여권과 같은 영문 이름을 입력해 주세요 (영문·공백·하이픈만).';
     case 'upload':
-      if (!$('files').files.length)
+      if (!FILES.main.length)
         return (TIER && TIER.code === 'CPA') ? '신분증·여권 스캔본이나 사진을 올려주세요.'
              : apoOnly ? '아포스티유 받을 영문 서류를 올려주세요.' : '번역할 서류를 올려주세요.';
       if (!PRECHECK_OK) return '파일 확인이 끝나지 않았습니다. 잠시 후 다시 시도해 주세요.';
@@ -1387,7 +1397,7 @@ function buildSummary(){
   if (!apoOnly) rows.push(['영문 이름', $('englishName').value.replace(/\s+/g, ' ').trim()]);
   if (!apoOnly && d && d.familyNames && $('familyNames').value.trim())
     rows.push(['가족 영문 이름', $('familyNames').value.trim().split(/\n+/).length + '명 입력']);
-  rows.push(['파일', $('files').files.length + '개 · ' + (QUOTE ? QUOTE.pages : PAGES) + '쪽']);
+  rows.push(['파일', FILES.main.length + '개 · ' + (QUOTE ? QUOTE.pages : PAGES) + '쪽']);
   var sc = QUOTE && QUOTE.schedule;
   if (sc && sc.awaitingOriginal) {
     rows.push(['받으실 날짜', '원본 도착 후 계산 (원본을 빠른등기로 보내 주세요)']);
@@ -1491,7 +1501,7 @@ function applyTier(t){
   rebuildSteps();
   applyTierCopy();
   PRECHECK_OK = false;
-  if ($('files').files.length && TIER) onFiles();
+  if (FILES.main.length && TIER) onFiles();
   refreshQuote();
   renderStep();
 }
@@ -1737,24 +1747,83 @@ function applyCountry(){
 
 // ─── 파일 ────────────────────────────────────────────────
 var BLOCKED_EXT = /\.(hwp|hwpx|doc|docx)$/i;
-function onFiles(){
-  var fs = $('files').files;
-  $('file-list').innerHTML = Array.prototype.map.call(fs, function(f){
-    return '<li>'+esc(f.originalname||f.name)+' — '+Math.round(f.size/1024).toLocaleString()+'KB</li>';
-  }).join('');
+// ★여러 파일 — 고를 때마다 목록에 더한다(덮어쓰지 않음). 목록 순서 = 공증본을 묶는 순서.
+//   main = 업로드 단계, other = 목록에 없는 서류 문의. 같은 파일(이름+크기)은 한 번만.
+//   ★용량 상한은 서버 multer 와 같은 값(CFG.maxFiles·maxFileMB) — 파일 1개당 기준, 합계 상한 없음.
+var FILES = { main: [], other: [] };
+var FILE_PAGES = [];          // 업로드 단계 파일별 쪽수 (서버 사전검증 결과, FILES.main 과 같은 순서)
+function maxFiles(){ return (CFG && CFG.maxFiles) || 10; }
+function maxFileMB(){ return (CFG && CFG.maxFileMB) || 50; }
+var TOO_MANY = '한 번에 10개까지 올릴 수 있습니다. 더 많으면 오른쪽 카카오톡 문의 또는 iumm.master@gmail.com 으로 보내 주세요.';
+function fileKey(f){ return f.name + '|' + f.size; }
+function fileMsgId(kind){ return kind === 'main' ? 'precheck-msg' : 'other-files-msg'; }
+function addFiles(kind, list){
+  var arr = FILES[kind], have = {}, over = false, big = [];
+  arr.forEach(function(f){ have[fileKey(f)] = true; });
+  Array.prototype.forEach.call(list || [], function(f){
+    if (have[fileKey(f)]) return;                         // 같은 파일은 무시
+    if (f.size > maxFileMB() * 1024 * 1024) { big.push(f.name); return; }
+    if (arr.length >= maxFiles()) { over = true; return; }
+    arr.push(f); have[fileKey(f)] = true;
+  });
+  if (kind === 'main') { FILE_PAGES = []; onFiles(); } else renderFileList('other');
+  var notes = [];
+  if (over) notes.push(TOO_MANY.replace('10개', maxFiles() + '개'));
+  if (big.length) notes.push('파일 1개당 ' + maxFileMB() + 'MB까지 올릴 수 있습니다 (' + big.map(esc).join(', ') + ')');
+  if (notes.length) msg(fileMsgId(kind), notes.map(function(t){ return esc(t).replace(/&lt;br&gt;/g,'<br>'); }).join('<br>'), 'err');
+}
+function removeFile(kind, i){
+  FILES[kind].splice(i, 1);
+  if (kind === 'main') { FILE_PAGES.splice(i, 1); onFiles(); } else { renderFileList('other'); msg('other-files-msg',''); }
+}
+function moveFile(kind, i, d){
+  var arr = FILES[kind], j = i + d;
+  if (j < 0 || j >= arr.length) return;
+  var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  if (kind === 'main') { var p = FILE_PAGES[i]; FILE_PAGES[i] = FILE_PAGES[j]; FILE_PAGES[j] = p; onFiles(true); }
+  else renderFileList('other');
+}
+function fmtSize(n){ return n >= 1048576 ? (n / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(n / 1024)).toLocaleString() + 'KB'; }
+function renderFileList(kind){
+  var arr = FILES[kind], box = $(kind === 'main' ? 'file-list' : 'other-file-list');
+  if (!box) return;
+  var main = kind === 'main';
+  box.innerHTML = arr.map(function(f, i){
+    var pg = main ? (FILE_PAGES[i] != null ? FILE_PAGES[i] + '쪽 · ' : '') : '';
+    return '<li class="ntr-file"><span class="no">' + (i + 1) + '</span>' +
+      '<span class="nm">' + esc(f.name) + '<em>' + pg + fmtSize(f.size) + '</em></span>' +
+      '<span class="act">' +
+        '<button type="button" aria-label="위로" onclick="moveFile(\'' + kind + '\',' + i + ',-1)"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+        '<button type="button" aria-label="아래로" onclick="moveFile(\'' + kind + '\',' + i + ',1)"' + (i === arr.length - 1 ? ' disabled' : '') + '>↓</button>' +
+        '<button type="button" onclick="removeFile(\'' + kind + '\',' + i + ')">삭제</button>' +
+      '</span></li>';
+  }).join('') +
+  (main && arr.length > 1 ? '<li class="ntr-file-note">공증본은 이 순서대로 묶입니다.</li>' : '') +
+  (arr.length ? '<li class="ntr-file-note">' + arr.length + ' / ' + maxFiles() + '개 · 파일 1개당 ' + maxFileMB() + 'MB까지</li>' : '');
+}
+/** 목록이 바뀌었다 — 표시하고, 사전검증은 잠깐 기다렸다 한 번만 (연속으로 더하고 빼도 호출 1회) */
+var PRECHECK_TIMER = null, PRECHECK_SEQ = 0;
+function onFiles(keepPages){
+  if (!keepPages) FILE_PAGES = [];
+  renderFileList('main');
   PRECHECK_OK = false;
   refresh();
-  if (!fs.length || !TIER) return;
+  clearTimeout(PRECHECK_TIMER);
+  var fs = FILES.main;
+  if (!fs.length) { msg('precheck-msg',''); PAGES = 1; refreshQuote(); return; }
+  if (!TIER) return;
   // ★HWP·Word 는 서버도 거부한다 — 올리기 전에 바로 알려준다
-  var bad = Array.prototype.filter.call(fs, function(f){ return BLOCKED_EXT.test(f.name); });
+  var bad = fs.filter(function(f){ return BLOCKED_EXT.test(f.name); });
   if (bad.length) {
     msg('precheck-msg', 'HWP·Word 파일은 PDF로 저장해 올려 주세요 (' + bad.map(function(f){ return esc(f.name); }).join(', ') + ')', 'err');
     return;
   }
-  precheck();
+  msg('precheck-msg','<span class="ntr-spinner"></span> 파일 확인 중…');
+  PRECHECK_TIMER = setTimeout(precheck, 700);
 }
 
 async function precheck(){
+  var seq = ++PRECHECK_SEQ;
   msg('precheck-msg','<span class="ntr-spinner"></span> 파일 확인 중…');
   PAGES = 1;                       // 실패하면 1장 기준으로 되돌린다 (요금을 부풀리지 않는다)
   var p = routeParams();
@@ -1764,15 +1833,18 @@ async function precheck(){
   fd.append('lang', p.lang);
   fd.append('schoolType', p.schoolType);
   if (PAPER_ONLY) fd.append('paperOnly', '1');
-  Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
+  FILES.main.forEach(function(f){ fd.append('files', f); });
   try {
     var r = await fetch(API + '/api/notary/precheck', { method:'POST', body: fd });
     var d = await r.json();
+    if (seq !== PRECHECK_SEQ) return;   // 그사이 목록이 또 바뀌었다 — 옛 결과는 버린다
+    FILE_PAGES = d.filePages || [];
+    renderFileList('main');
     if (d.ok) {
       PRECHECK_OK = true;
       PAGES = d.pages || 1;
       var w = (d.warnings||[]).length ? '<br><span style="color:var(--warn)">'+d.warnings.map(esc).join('<br>')+'</span>' : '';
-      msg('precheck-msg','✓ 확인 완료 — 전체 '+PAGES+'쪽'+w,'ok');
+      msg('precheck-msg','✓ 확인 완료 — ' + FILES.main.length + '개 파일 · 전체 '+PAGES+'쪽'+w,'ok');
       /* ★장수가 정해졌으니 금액을 다시 뽑는다 */
       refreshQuote();
     } else {
@@ -1780,11 +1852,25 @@ async function precheck(){
       msg('precheck-msg', (d.errors||[d.error||'확인 실패']).map(esc).join('<br>'), 'err');
     }
   } catch(e){
+    if (seq !== PRECHECK_SEQ) return;
     PRECHECK_OK = false;
     msg('precheck-msg','파일 확인에 실패했습니다: '+esc(e.message),'err');
   }
   refresh();
 }
+
+/** 끌어다 놓기 — 여러 개를 한 번에 놓아도 목록에 더한다 */
+function bindDrop(id, kind){
+  var z = $(id); if (!z || !z.addEventListener) return;
+  z.addEventListener('dragover', function(e){ e.preventDefault(); z.classList.add('over'); });
+  z.addEventListener('dragleave', function(){ z.classList.remove('over'); });
+  z.addEventListener('drop', function(e){
+    e.preventDefault(); z.classList.remove('over');
+    if (e.dataTransfer && e.dataTransfer.files) addFiles(kind, e.dataTransfer.files);
+  });
+}
+bindDrop('files-drop', 'main');
+bindDrop('other-files-drop', 'other');
 
 // ─── 유효성 ──────────────────────────────────────────────
 function agreedAll(){
@@ -1950,7 +2036,7 @@ async function pay(){
     fd.append('recipientPhone', $('recipientPhone').value.trim());
     fd.append('address', $('address').value.trim());
   }
-  Array.prototype.forEach.call($('files').files, function(f){ fd.append('files', f); });
+  FILES.main.forEach(function(f){ fd.append('files', f); });   // ★목록 순서 = 공증본 묶음 순서
 
   try {
     var r2 = await fetch(API + '/api/notary/order/create', { method:'POST', body: fd });

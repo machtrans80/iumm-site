@@ -290,7 +290,7 @@ console.log('\n[13] 업로드 규칙 — 온라인 발급 PDF · 종이로만 �
   check($id('upload-rule-box').innerHTML.includes('온라인으로 발급받은 PDF 원본을 올렸습니다') &&
         $id('upload-rule-box').innerHTML.includes('종이로만 받았어요'), '업로드: 필수 체크 + 종이로만 받았어요 링크');
   sandbox.STEPS = ['doc','upload','confirm']; sandbox.STEP_I = 1; sandbox.PRECHECK_OK = true;
-  $id('files').files = [{ name: 'a.pdf' }];
+  sandbox.FILES.main = [{ name: 'a.pdf', size: 1 }];
   $id('onlinePdfOk').checked = false;
   check(/PDF 원본을 올렸습니다/.test(sandbox.stepBlockReason()), '체크 안 하면 다음 단계 막힘');
   $id('onlinePdfOk').checked = true;
@@ -412,7 +412,64 @@ console.log('\n[16] 신분증·여권 사본 → 사본공증 + 아포스티유 
   pick('family_relation');
   check(sandbox.TIER.code === 'T2', '다른 서류로 바꾸면 CPA 해제 (T2)');
 }
-const visible2 = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+// ── 17. 여러 파일 — 누적 · 중복 무시 · 순서 · 삭제 · 10개 상한 · 디바운스 ──
+console.log('\n[17] 여러 파일 업로드 — 누적 · 순서 · 삭제 · 10개 상한 · 사전검증 1회');
+{
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+  pick('contract');                                  // 원본 우편 서류 — PDF·사진 섞어 받는다
+  sandbox.FILES.main = []; sandbox.FILES.other = [];
+  let calls = 0, lastFiles = [];
+  sandbox.FormData = class { constructor(){ this.f = []; } append(k, v){ if (k === 'files') this.f.push(v.name); } };
+  sandbox.fetch = async (url, opt) => {
+    if (/precheck/.test(url)) { calls++; lastFiles = opt.body.f;
+      const pg = { 'a.pdf': 2, 'b.pdf': 1, 'c.png': 1 };
+      const fp = lastFiles.map(n => pg[n] || 1);
+      return { json: async () => ({ ok: true, pages: fp.reduce((s, x) => s + x, 0), filePages: fp, warnings: [] }) };
+    }
+    return { json: async () => ({ ok: false }) };
+  };
+  const F = (name, size = 1000) => ({ name, size });
+  sandbox.addFiles('main', [F('a.pdf', 2000), F('b.pdf', 1000)]);
+  sandbox.addFiles('main', [F('c.png', 500)]);
+  check(sandbox.FILES.main.map(f => f.name).join(',') === 'a.pdf,b.pdf,c.png', '다시 골라도 기존 목록에 누적 (덮어쓰기 없음)');
+  sandbox.addFiles('main', [F('a.pdf', 2000)]);
+  check(sandbox.FILES.main.length === 3, '같은 파일(이름+크기)은 무시');
+  check(calls === 0, '고르는 즉시 사전검증을 쏘지 않는다 (디바운스)');
+  await wait(900);
+  check(calls === 1 && lastFiles.join(',') === 'a.pdf,b.pdf,c.png', `목록이 바뀐 뒤 사전검증 1회 (${calls}회) · 목록 순서대로 전송`);
+  check(sandbox.PAGES === 4 && /2쪽/.test($id('file-list').innerHTML) && /전체 4쪽/.test($id('precheck-msg').innerHTML),
+    `PDF 2쪽 + 1쪽 + 이미지 = ${sandbox.PAGES}쪽 · 파일별 쪽수 표시`);
+  check(/공증본은 이 순서대로 묶입니다/.test($id('file-list').innerHTML) && /삭제/.test($id('file-list').innerHTML) &&
+        /aria-label="위로"/.test($id('file-list').innerHTML), '목록 — 순서 안내 · 위/아래 · 삭제 버튼');
+  sandbox.moveFile('main', 2, -1);
+  check(sandbox.FILES.main.map(f => f.name).join(',') === 'a.pdf,c.png,b.pdf' && sandbox.FILE_PAGES.join(',') === '2,1,1', '순서 바꾸기 — 파일·쪽수 함께 이동');
+  await wait(900);
+  check(lastFiles.join(',') === 'a.pdf,c.png,b.pdf', '바뀐 순서로 다시 확인 (주문도 같은 순서로 보냄)');
+  sandbox.removeFile('main', 0);
+  await wait(900);
+  check(sandbox.FILES.main.length === 2 && sandbox.PAGES === 2, `삭제 반영 — ${sandbox.FILES.main.length}개 · ${sandbox.PAGES}쪽`);
+  const before = calls;
+  for (let i = 0; i < 12; i++) sandbox.addFiles('main', [F('x' + i + '.pdf', 100 + i)]);
+  check(sandbox.FILES.main.length === 10, `10개 상한 — 11번째부터 추가 안 함 (${sandbox.FILES.main.length}개)`);
+  check(/한 번에 10개까지 올릴 수 있습니다. 더 많으면 오른쪽 카카오톡 문의 또는 iumm.master@gmail.com 으로 보내 주세요./.test($id('precheck-msg').innerHTML),
+    '11번째 → 안내 문구');
+  await wait(900);
+  check(calls === before + 1, `12번 연달아 더해도 사전검증 1회 (${calls - before}회)`);
+  sandbox.addFiles('main', [F('huge.pdf', 60 * 1024 * 1024)]);
+  sandbox.FILES.main = [];
+  sandbox.addFiles('main', [F('huge.pdf', 60 * 1024 * 1024)]);
+  check(sandbox.FILES.main.length === 0 && /파일 1개당 50MB/.test($id('precheck-msg').innerHTML), '파일 1개당 50MB 초과 → 추가 안 함 + 안내 (서버 multer 와 같은 값)');
+  check(/onchange="addFiles\('main', this\.files\); this\.value=''"/.test(html), '고른 뒤 input 비움 — 지웠다 같은 파일 다시 넣기 가능');
+  check(/서류가 여러 파일로 나뉘어 있으면 모두 올려 주세요. 다른 서류는 서류마다 따로 신청해 주세요./.test(html), '여러 파일 안내 한 줄');
+  check(/FILES\.main\.forEach\(function\(f\)\{ fd\.append\('files', f\); \}\);/.test(html), '주문 전송 = 목록 순서');
+  // 기타 서류 문의도 같은 방식
+  sandbox.addFiles('other', [F('o1.pdf')]); sandbox.addFiles('other', [F('o2.jpg')]);
+  check(sandbox.FILES.other.length === 2 && /o2\.jpg/.test($id('other-file-list').innerHTML), '기타 서류 문의 파일도 누적');
+  sandbox.FILES.main = []; sandbox.FILES.other = [];
+  sandbox.fetch = async () => ({ json: async () => ({ ok: false }) });
+  await wait(900);
+}
+const visible2 =html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);

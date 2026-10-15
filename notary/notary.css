@@ -315,6 +315,19 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 
 .ntr-files{margin-top:10px;font-size:12.5px;color:var(--text-muted)}
 .ntr-files li{margin:3px 0}
+/* 여러 파일 목록 — 번호·이름(쪽수·용량)·위/아래·삭제. 목록 순서 = 공증본 묶음 순서 */
+.ntr-drop{border:1.5px dashed var(--border);border-radius:10px;padding:12px}
+.ntr-drop.over{border-color:var(--gold);background:rgba(22,184,148,0.06)}
+.ntr-files{list-style:none;padding:0}
+.ntr-file{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:6px 0;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.03)}
+.ntr-file .no{flex:0 0 22px;height:22px;border-radius:50%;background:rgba(22,184,148,0.16);color:var(--gold-light);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.ntr-file .nm{flex:1 1 auto;min-width:0;color:#fff;font-size:13px;word-break:break-all}
+.ntr-file .nm em{display:block;font-style:normal;color:var(--text-muted);font-size:12px}
+.ntr-file .act{display:flex;gap:4px;flex:0 0 auto}
+.ntr-file .act button{min-width:44px;min-height:44px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.85);font-family:inherit;font-size:13px;cursor:pointer}
+.ntr-file .act button:disabled{opacity:.35;cursor:default}
+.ntr-file-note{margin:6px 2px;color:var(--text-muted);font-size:12.5px}
+@media(max-width:640px){.ntr-file .act button{min-width:38px;padding:0 6px}}
 .ntr-msg{font-size:13px;margin-top:12px;line-height:1.7}
 .ntr-msg.err{color:var(--danger)}
 .ntr-msg.ok{color:var(--gold)}
