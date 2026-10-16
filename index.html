@@ -2296,7 +2296,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 /* 인트로 → 첫 화면 경계 자동 착지 (scroll-snap 없이 JS, 2026-10-16)
    T = #top 맨 위가 고정 내비 바로 아래에 오는 스크롤 위치(고정이 풀리는 지점 = 첫 화면 도착).
    경계 구간 = 인트로 p 0.84 지점 ~ T + 화면 높이 35% (움직임 줄이기는 T ± 35%).
-   스크롤이 완전히 멈추면(scrollend · 없으면 마지막 scroll 뒤 140ms, 손가락이 닿아 있는 동안은 기다림) 구간 안일 때만 T 로 0.4초 ease-out.
+   스크롤이 완전히 멈추면(scrollend 또는 마지막 scroll 뒤 140ms, 손가락이 닿아 있는 동안은 기다림) 구간 안일 때만 T 로 0.4초 ease-out.
    휠·터치·키·마우스 입력이 오면 즉시 멈춘다(손님 조작 우선). 구간 밖은 절대 건드리지 않는다.
    단, 첫 화면(T)에 머물다 아래로 내려가며 시작한 스크롤은 되돌리지 않는다 — 카드를 읽으려는 조작이라서.
    움직임 줄이기 = 즉시 이동(behavior:'instant' — html 의 scroll-behavior:smooth 때문에 'auto' 는 부드럽게 움직인다). */
@@ -2339,7 +2339,8 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     land(z[2]);
   }
   var hasEnd = 'onscrollend' in window;
-  window.addEventListener('scroll', function(){ if (!anim) { lastScroll = now(); if (!hasEnd) later(); } }, { passive: true });
+  // scrollend 가 있어도 140ms 대기를 함께 건다 — 앵커(#top) 이동처럼 scroll 한 번만 오고 scrollend 가 안 오는 경우가 있다
+  window.addEventListener('scroll', function(){ if (!anim) { lastScroll = now(); later(); } }, { passive: true });
   if (hasEnd) window.addEventListener('scrollend', function(){ if (!anim) settle(); });
   ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(t){
     window.addEventListener(t, function(){ lastInput = now(); stop(); if (t === 'touchstart') touching = true; }, { passive: true });
