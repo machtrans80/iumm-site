@@ -226,69 +226,95 @@ check(html.includes('<div class="footer-biz" style="font-size:12px;color:rgba(25
       (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">\|<\/span>/g) || []).length === 6 &&
       /footer > div:nth-child\(2\)\{text-align:center;font-size:12px !important/.test(html), '푸터 사업자 정보 12px · 흰 50% · 구분선 25% (모바일도 12px)');
 
-// ── 15. 인트로 — 서울에서 세계로 선이 이어지는 연출 (한국 중심 점 세계지도) ──
+// ── 15. 인트로 — 한반도에서 세계로 줌아웃 · 서울에서 세계로 선 (한국 중심 점 세계지도) ──
 console.log('\n[15] 인트로');
 {
   const i0 = html.indexOf('<section class="it" id="intro"'), top = html.indexOf('<section class="lp-hero" id="top">');
   check(i0 > 0 && top > i0 && !/<section[^>]*>/.test(html.slice(html.indexOf('</section>', i0) + 10, top).replace(/<script[\s\S]*?<\/script>/g, '')), '#intro 가 #top 바로 위');
   const it = html.slice(html.lastIndexOf('<!-- ════', i0), top);
+  const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
   check(/\.it\{position:relative;height:250vh;/.test(it) && /@media\(max-width:640px\)\{\s*\.it\{height:220vh\}/.test(it), '바깥 높이 PC 250vh / 모바일 220vh');
   check(/\.it-stage\{position:sticky;top:0;height:100vh;height:100dvh;/.test(it), '무대 sticky · 100vh → 100dvh (iOS 주소창 높이 변화)');
   check(it.includes('<p class="it-head">당신을 세계로 이어 드립니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
   check(land.includes('<h1>공증 받으러<br>멀리 가지 마세요</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "공증 받으러 멀리 가지 마세요" 그대로 · 메인 화면에 하나뿐');
 
-  // 지도 — 점 격자 path 하나
-  const dm = it.match(/<g id="continents"><path id="land" class="land" d="([^"]*)"\/><\/g>/);
-  const d = dm ? dm[1] : '';
+  // ── 지도 — 점 세계지도 + 한반도 윤곽
+  const dm = it.match(/<g id="continents"><path id="land" class="land" d="([^"]*)"\/><path id="korea" class="korea" d="([^"]*)"\/><\/g>/);
+  const d = dm ? dm[1] : '', kd = dm ? dm[2] : '';
   check(!!dm && /^M\d/.test(d) && /^[Mmh0-9 \-]+$/.test(d) && (d.match(/h0/g) || []).length > 3000,
     `점 지도 = <g id="continents"> 안 path 하나 · "h0" 점 ${(d.match(/h0/g) || []).length}개`);
-  check(Buffer.byteLength(d, 'utf8') <= 40 * 1024, `지도 용량 ${(Buffer.byteLength(d, 'utf8') / 1024).toFixed(1)}KB (≤ 40KB)`);
-  check(it.includes('.it-map .land{fill:none;stroke:rgba(255,255,255,0.18);stroke-linecap:round}') && /'stroke-width', \(\(mob \? 1\.2 : 1\.6\) \/ k\)/.test(it),
-    '점 = 둥근 선끝 · 흰색 18% · 지름 PC 1.6px (모바일 1.2px)');
+  check(it.includes('.it-map .land{fill:none;stroke:rgba(255,255,255,0.42);stroke-width:2.4px;stroke-linecap:round;vector-effect:non-scaling-stroke}'),
+    '점 = 둥근 선끝 · 지름 2.4px · 흰색 42% (줌해도 굵기 그대로)');
+  check(/^M[\d.]+ [\d.]+l/.test(kd) && (kd.match(/z/g) || []).length === 12 && Buffer.byteLength(kd, 'utf8') <= 6 * 1024 &&
+        it.includes('.it-map .korea{fill:rgba(93,224,188,0.12);stroke:#5DE0BC;stroke-width:1.5px;'),
+    `한반도 = 50m 남·북 윤곽 path (고리 ${(kd.match(/z/g) || []).length}개 · ${(Buffer.byteLength(kd, 'utf8') / 1024).toFixed(1)}KB) · 민트 선 1.5px + 민트 12%`);
+  const mapBytes = Buffer.byteLength(d + kd, 'utf8');
+  check(mapBytes <= 40 * 1024, `지도 용량 ${(mapBytes / 1024).toFixed(1)}KB (점 ${(Buffer.byteLength(d, 'utf8') / 1024).toFixed(1)} + 한반도 ${(Buffer.byteLength(kd, 'utf8') / 1024).toFixed(1)}, ≤ 40KB)`);
+  check(it.indexOf('id="korea"') < it.indexOf('class="pulse"') && it.indexOf('class="pulse"') < it.indexOf('class="kr"'), '서울 점·맥박은 한반도 위');
   {
     const bm = fs.readFileSync(path.resolve(HERE, 'build_intro_map.mjs'), 'utf8');
-    check(/STEP = 1\.8, LON0 = 127, LAT_TOP = 75, COLS = 200, ROWS = 72/.test(bm) && /LON0 = 127, STEP = 1\.8, LAT_TOP = 75, COLS = 200, LAST_ROW = 71/.test(it),
-      '투영 값 일치 — 변환 스크립트 ↔ 인트로 (중심 127°E · 1.8° · 75°N부터 72행)');
-    check(!fs.existsSync(path.resolve(HERE, '../ne_110m_land.geojson')) && !fs.existsSync(path.resolve(HERE, 'ne_110m_land.geojson')), 'Natural Earth 원본 파일은 저장소에 없음');
+    check(/STEP = 1\.8, LON0 = 127, LAT_TOP = 75, COLS = 200, ROWS = 72/.test(bm) && /LON0 = 127, STEP = 1\.8, LAT_TOP = 75, COLS = 200,/.test(it) && /\['KOR', 'PRK'\]/.test(bm),
+      '투영 값 일치 — 변환 스크립트 ↔ 인트로 (중심 127°E · 1.8° · 75°N부터 72행) · 한반도 = KOR·PRK');
+    check(!['ne_110m_land.geojson', 'ne_50m_admin_0_countries.geojson'].some(n => fs.existsSync(path.resolve(HERE, '..', n)) || fs.existsSync(path.resolve(HERE, n))),
+      'Natural Earth 원본 파일은 저장소에 없음');
   }
+  check(!/veil/.test(it), '지도 전체 남색 막 없음 (글자 뒤 바탕만)');
 
-  // 서울 · 도시 · 라벨
-  check(it.includes('<circle class="pulse" r="5"/>') && it.includes('<circle class="kr" r="5"/>') && it.includes('>SEOUL</text>') && it.includes('.it-map .kr{fill:#5DE0BC}'),
-    '서울 = 민트 점 + 맥박 + "SEOUL"');
+  // ── 서울 · 도시 · 라벨
+  check(it.includes('<circle class="pulse" r="5"/>') && it.includes('<circle class="kr" r="5"/>') && /<text class="lb home"[^>]*>SEOUL<\/text>/.test(it) && it.includes('.it-map .kr{fill:#5DE0BC}'),
+    '서울 = 민트 점 + 맥박 + "SEOUL" (모바일도 표시)');
   const names = [...it.matchAll(/<text class="lb to( m-hide)?">([A-Z ]+)<\/text>/g)].map(m => [m[2], !!m[1]]);
+  const dirs = [...it.matchAll(/<text class="lb dir pc-hide"[^>]*>([^<]+)<\/text>/g)].map(m => m[1]);
   check(names.map(n => n[0]).join('|') === 'BEIJING|FRANKFURT|LONDON|LOS ANGELES|NEW YORK' && (it.match(/class="rt"/g) || []).length === 5 && (it.match(/class="dst"/g) || []).length === 5,
     '곡선·도시 점·라벨 5개 — BEIJING · FRANKFURT · LONDON · LOS ANGELES · NEW YORK');
-  check(names.filter(n => !n[1]).map(n => n[0]).join('|') === 'BEIJING|LONDON|NEW YORK' && /\.it-map \.lb\.m-hide\{display:none\}/.test(it),
-    '모바일 라벨 = BEIJING · LONDON · NEW YORK 만');
+  check(names.filter(n => !n[1]).map(n => n[0]).join('|') === 'BEIJING' && !/class="lb home[^"]*m-hide/.test(it) && dirs.join('|') === '← EUROPE|USA →' &&
+        /\.it-map \.lb\.m-hide\{display:none\}/.test(it) && /min-width:641px\)\{\s*\.it-map \.lb\.pc-hide\{display:none\}/.test(it),
+    '모바일 라벨 = SEOUL · BEIJING · ← EUROPE · USA → 만 (방향 라벨은 모바일만)');
+  check(/if \(i === 2 \|\| i === 4\)/.test(js) && /dirs\[0\]\.style\.opacity = dd\[2\] >= DIR\[0\]/.test(js) && /dirs\[1\]\.style\.opacity = dd\[4\] >= DIR\[1\]/.test(js) && /\.it-map\{[^}]*overflow:hidden/.test(it),
+    '모바일 — 화면 밖 곡선은 끝까지 그리고, 곡선이 화면 끝에 닿으면 방향 라벨');
   check(it.includes('.it-map .lb{fill:rgba(255,255,255,0.7);font-size:11px;letter-spacing:2px;'), '라벨 11px · 자간 2px · 흰색 70%');
-  const cities = [...it.matchAll(/\{ ll: \[(-?[\d.]+), (-?[\d.]+)\],\s*at: \[([\d.]+), ([\d.]+)\]/g)].map(m => m.slice(1).map(Number));
+  const cities = [...it.matchAll(/\{ ll: \[(-?[\d.]+), (-?[\d.]+)\],\s*q: \[([\d.]+), ([\d.]+)\]/g)].map(m => m.slice(1).map(Number));
   const want = [[116.4, 39.9], [8.7, 50.1], [-0.1, 51.5], [-118.2, 34.1], [-74.0, 40.7]];
   check(cities.length === 5 && cities.every((c, i) => c[0] === want[i][0] && c[1] === want[i][1]), '도시 좌표 (BEIJING 116.4E 39.9N … NEW YORK 74.0W 40.7N)');
-  check(cities.length === 5 && cities[0][3] <= Math.min(cities[1][2], cities[2][2]) + 0.001 && Math.max(cities[1][2], cities[2][2]) < Math.min(cities[3][2], cities[4][2]) &&
-        cities.every(c => c[3] <= 0.6), '그리는 순서 BEIJING → FRANKFURT·LONDON → LOS ANGELES·NEW YORK, 모두 p 0.6 안');
-  check(/'Q' \+ f\(\(s\[0\] \+ d\[0\]\) \/ 2\) \+ ' ' \+ f\(\(s\[1\] \+ d\[1\]\) \/ 2 - dist \* 0\.38\)/.test(it) && /% 360\) - 180/.test(it), '위로 휘는 호 · 중심 경도 기준 좌표 (좌우 끝 안)');
-  check(/dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = d >= 0\.999/.test(it), '선이 도착하면 도시 점·이름이 켜짐');
+  check(cities.length === 5 && cities[0][2] < Math.min(cities[1][2], cities[2][2]) && Math.max(cities[1][2], cities[2][2]) < Math.min(cities[3][2], cities[4][2]) && cities.every(c => c[3] <= 1),
+    '그리는 순서 BEIJING → FRANKFURT·LONDON → LOS ANGELES·NEW YORK');
+  check(/E2 = Z0 \* F > 2 \? 1 - Math\.log\(2 \/ F\) \/ Math\.log\(Z0\) : 0/.test(js) && /var q = E2 < 1 \? c01\(\(e - E2\) \/ \(1 - E2\)\)/.test(js),
+    '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.6 에 모두 도착');
+  check(/'Q' \+ f\(Q\[0\]\) \+ ' ' \+ f\(Q\[1\]\)/.test(js) && /dist \* 0\.38\]/.test(js) && /% 360\) - 180/.test(js), '위로 휘는 호 · 중심 경도 기준 좌표');
+  check(/dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = d >= 0\.999/.test(js) && /labels\[i\]\.style\.transform = 'translate\(/.test(js),
+    '선이 도착하면 도시 점·이름이 켜짐 (줌 중에는 도시 점을 따라감)');
 
-  // 장면
-  check(it.includes('.it-map .veil{fill:rgba(10,22,40,0.55);opacity:0}') && /veil\.style\.opacity = e\.toFixed/.test(it), '지도 위 남색 막 0 → 0.55 (p 0→0.6)');
+  // ── 줌아웃
+  check(/F = mob \? 1\.6 : 1;/.test(js) && /Z0 = kh > 0 \? Math\.max\(1\.5, r0 \* 2 \* 0\.74 \/ kh\) : 6 \/ F;/.test(js) && /var z = Math\.pow\(Z0, 1 - e\);/.test(js) &&
+        /zoom\.style\.transform = 'translate\(' \+ f\(S\[0\]\) \+ 'px,' \+ f\(S\[1\]\) \+ 'px\) scale\(/.test(js) && it.includes('<g class="it-zoom">'),
+    '줌아웃 — 서울 기준 transform:scale, 한반도가 카드에 차는 배율(PC 약 6배) → 최종 PC 1배 · 모바일 1.6배');
+
+  // ── 글자 · 끝
   check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신을 세계로 이어 드립니다<\/p>\s*<\/div>/.test(it) &&
-        it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"아 · 이 · 움"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
-  check(it.includes('<span>아</span><span> · </span><span>이</span><span> · </span><span>움</span>') && /color:#5DE0BC;font-size:clamp\(40px,7vw,96px\)/.test(it), '"아 · 이 · 움" 민트 clamp(40px,7vw,96px)');
-  const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
-  check(!/0\.35/.test(js), '끝 장면 흐리게(0.35) 없음 — 마지막 장면 그대로 위로 밀려 올라감');
+        it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"IUMM"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
+  check(it.includes('<p class="w"><span>I</span><span>U</span><span>M</span><span>M</span></p>') && !/아 · 이 · 움|<span>아<\/span>/.test(it) &&
+        /color:#5DE0BC;font-size:clamp\(48px,8vw,112px\);font-weight:800;letter-spacing:0\.18em;/.test(it) && /\.it-word \.s\{[^}]*color:rgba\(255,255,255,0\.8\)/.test(it) &&
+        /var at = \[0\.6, 0\.64, 0\.68, 0\.72\];/.test(js),
+    '"IUMM" I·U·M·M 하나씩 (p 0.6→0.85) · 민트 clamp(48px,8vw,112px) · 자간 0.18em · 800 · 부제 흰색 80%');
+  check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.85\) \/ 0\.15\), lift = \(-24 \* g\)/.test(js) && /stage\.style\.opacity = \(1 - g\)/.test(js) &&
+        /card\.style\.transform = 'translate3d\(0,' \+ lift/.test(js) && /word\.style\.transform = 'translate3d\(0,calc\(-50% \+ ' \+ lift/.test(js),
+    '끝 — p 0.85→1 지도·선·도시명·IUMM·부제가 함께 사라짐(살짝 위로), 다 사라진 뒤 고정 해제');
   {
     const pcPad = +(land.match(/\.lp-hero\{[^}]*padding:(\d+)px /) || [])[1], moPad = +(land.match(/section\.lp-hero\{padding:(\d+)px /) || [])[1];
-    check(pcPad + 8 <= 40 && moPad + 8 <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) &&
-          /\.lp-hero\{position:relative;z-index:1;/.test(land) && /\.it-stage\{[^}]*z-index:0\}/.test(it),
-      `인트로 끝 → #top 빈 구간 PC ${pcPad + 8}px / 모바일 ${moPad + 8}px (≤ 40) · #top 이 무대 위로`);
+    check(pcPad <= 40 && moPad <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) && /Math\.max\(0, Math\.floor\(H - navH\)\)/.test(js) &&
+          /\.lp-hero\{position:relative;z-index:1;[^}]*background:var\(--black\)/.test(land) &&
+          /\.it-stage\{[^}]*z-index:2;background:var\(--black\);pointer-events:none\}/.test(it) && /\.it\{[^}]*background:var\(--black\)/.test(it),
+      `인트로 ↔ #top 배경 같은 남색 · 장면이 사라지면 #top 이 내비 바로 아래 (빈 구간 0, 첫 줄까지 PC ${pcPad}px / 모바일 ${moPad}px)`);
   }
 
-  // 정리 — 움직이는 속성·용량·외부 리소스
+  // ── 정리 — 움직이는 속성·용량·외부 리소스
   check(!/<script[^>]+src=|https?:\/\/(?!www\.w3\.org)/.test(it), '외부 라이브러리·외부 리소스 없음');
   check(Buffer.byteLength(it, 'utf8') <= 60 * 1024, `인트로 전체 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (지도 포함, ≤ 60KB)`);
-  check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음 (transform·opacity·clip-path·stroke-dashoffset 만)');
+  check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음');
+  check([...js.matchAll(/\.style\.(\w+) =/g)].every(m => ['clipPath', 'opacity', 'transform', 'strokeDashoffset'].includes(m[1])),
+    '움직이는 style = clip-path · opacity · transform · stroke-dashoffset 뿐');
   check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js) && !/setTimeout|setInterval/.test(js), 'rAF + passive 스크롤 · 자동 재생 없음');
-  check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 삭제)');
+  check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 없음)');
   // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
   const mkEl = () => ({ style: {}, setAttribute(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
   const store = {};
@@ -296,18 +322,18 @@ console.log('\n[15] 인트로');
     const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }), style: { setProperty(){} },
       querySelector: (q) => q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => mkEl() } : mkEl(),
       querySelectorAll: () => Array.from({ length: 5 }, mkEl) };
-    let rafs = 0, listens = 0;
+    let listens = 0;
     const sb = { document: { getElementById: () => sec }, window: { innerWidth: 1280, innerHeight: 800, addEventListener(){ listens++; }, matchMedia: () => ({ matches: reduce }) },
       matchMedia: () => ({ matches: reduce }), sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } },
-      requestAnimationFrame: () => { rafs++; }, Math, Number };
+      requestAnimationFrame: () => {}, Math, Number };
     vm.createContext(sb); vm.runInContext(js, sb);
     return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender };
   };
   const first = run({ reduce: false }), second = run({ reduce: false });
   check(!first.cls.includes('still') && !second.cls.includes('still') && first.listens >= 2 && second.listens >= 2 && first.hasRender && Object.keys(store).length === 0,
     '같은 세션 두 번 열어도 두 번 다 스크롤 연출 (저장 없음)');
-  check(run({ reduce: true }).cls.includes('still') && /\.it\.still\{height:60vh\}/.test(it) && /\.it\.still \.it-stage\{position:relative;height:100%\}/.test(it),
-    'prefers-reduced-motion 만 정지 장면 (높이 60vh · 고정 없음)');
+  check(run({ reduce: true }).cls.includes('still') && /\.it\.still\{height:60vh\}/.test(it) && /\.it\.still \.it-stage\{position:relative;height:100%\}/.test(it) && /render\(0\.85\);   \/\/ 정지 장면/.test(js),
+    'prefers-reduced-motion 만 정지 장면 (높이 60vh · 사라지기 직전 완성 장면)');
   const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
 }
