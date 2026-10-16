@@ -838,7 +838,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <a href="#" onclick="lpGo('notary');return false">번역공증</a>
       <a href="#" onclick="lpGo('apostille');return false">아포스티유</a>
       <!-- 전문번역(번역만)은 보조 서비스 — 내비 링크 + 랜딩 한 줄 두 곳에서만 진입한다 -->
-      <a href="#" onclick="handleAI();return false">전문번역</a>
+      <a href="#" onclick="handleAI();return false">전문 번역</a>
       <a href="#" onclick="showPage('faq');return false">FAQ</a>
       <a href="#" id="nav-login-link" onclick="showPage('login');return false">로그인 / 가입</a>
     </div>
@@ -849,7 +849,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <div class="nav-mobile-menu" id="nav-mobile-menu">
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary');return false">번역공증</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('apostille');return false">아포스티유</a>
-  <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');handleAI();return false">전문번역</a>
+  <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');handleAI();return false">전문 번역</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');showPage('faq');return false">FAQ</a>
   <a href="#" id="nav-login-link-mobile" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
   <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="location.href='/notary/'">번역공증 신청</button>
@@ -1820,13 +1820,11 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 /* 전문 번역 카드 — 공증 카드와 같은 무게(2px 테두리·채운 버튼), 색만 하늘색 계열 */
 .lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}
 .lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}
-.lp-card.pro .k .no{border-color:#9ACDF5;color:#9ACDF5}
 .lp-card.pro li::before{background:#9ACDF5}
 .lp-card.pro .lp-big .n{color:#9ACDF5}
 .lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}
 .lp-btn.pro-btn:hover{background:#9ACDF5;border-color:#9ACDF5}
 .lp-card .k{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;color:#fff;margin:0}
-.lp-card .k .no{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--mint-light);color:var(--mint-light);font-size:14px;font-weight:800}
 .lp-card h3{margin:0;font-size:clamp(20px,2.2vw,24px);font-weight:700;color:#fff;line-height:1.4;word-break:keep-all}
 .lp-big{margin:0;color:#fff;line-height:1.2;word-break:keep-all}
 .lp-big .s{display:block;font-size:clamp(17px,1.8vw,19px);font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:6px}
@@ -1859,7 +1857,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-faq details p{font-size:17px;color:rgba(255,255,255,0.78);line-height:1.8;margin:10px 0 0;word-break:keep-all}
 .lp-note{font-size:15px;margin-top:14px;line-height:1.7}
 .lp-note a{color:var(--mint-light)}
-.lp-seo{padding:24px 0 28px;border-top:1px solid rgba(255,255,255,0.08);font-size:14px;color:rgba(255,255,255,0.68);line-height:1.7;word-break:keep-all}
 /* 전문 번역 과정 — 첫 화면 전문 번역 카드와 같은 하늘색 계열(#6FB8F0 / #9ACDF5) */
 .lp-sec.pro-sec .lp-label{color:#9ACDF5}
 .lp-steps.four{grid-template-columns:repeat(4,1fr)}
@@ -1903,31 +1900,31 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div class="lp">
     <p class="lp-label">SINCE 2009 · 번역·공증·아포스티유</p>
     <h1>공증 받으러<br>멀리 가지 마세요</h1>
-    <p class="lp-lead">서류만 올리시면 번역부터 공증·아포스티유까지 마치고 집으로 보내드립니다.</p>
+    <p class="lp-lead">서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다.</p>
 
     <div class="lp-cards" id="lp-entry">
       <div class="lp-card main">
-        <p class="k"><span class="no">1</span>번역공증 · 아포스티유 의뢰</p>
+        <p class="k">번역공증 · 아포스티유 의뢰</p>
         <div class="lp-bigs">
-          <p class="lp-big"><span class="s">가족관계·기본·혼인 번역</span><span class="n">5,000원</span></p>
-          <p class="lp-big"><span class="s">생활기록부 번역 · 1페이지</span><span class="n">9,000원</span></p>
+          <p class="lp-big"><span class="s">가족관계·기본·혼인증명서 번역</span><span class="n">5,000원</span></p>
+          <p class="lp-big"><span class="s">생활기록부 번역 (1페이지)</span><span class="n">9,000원</span></p>
         </div>
         <ul>
           <li>그 외 서류 1페이지 9,000원</li>
-          <li>급행이면 다음 영업일 수령</li>
-          <li>신분증·여권 사본공증 + 아포스티유도 가능</li>
+          <li>급행 접수 시 다음 영업일 수령</li>
+          <li>신분증·여권 사본공증 및 아포스티유</li>
         </ul>
         <div class="act">
-          <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 시작</button>
+          <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 신청하기</button>
         </div>
       </div>
       <div class="lp-card pro">
-        <p class="k"><span class="no">2</span>전문 번역 의뢰</p>
-        <h3>번역의 기준이 바뀌었습니다</h3>
-        <p class="d">분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성도를 높여 납품합니다.</p>
+        <p class="k">전문 번역 의뢰</p>
+        <h3>비즈니스·학술 문서를 위한 전문 번역</h3>
+        <p class="d">분야별 전용 용어집으로 번역하고 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성해 납품합니다.</p>
         <p class="lp-big"><span class="s">글자당</span><span class="n" id="lp-plan-price">25원부터</span></p>
         <div class="act">
-          <button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>
+          <button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>
         </div>
       </div>
     </div>
@@ -1937,11 +1934,11 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <section class="lp-sec" id="process">
   <div class="lp">
     <p class="lp-label">번역공증 · 아포스티유</p>
-    <h2 class="lp-h2">3단계면 끝납니다</h2>
+    <h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다</h2>
     <div class="lp-steps">
-      <div class="lp-step"><div class="no">STEP 1</div><div class="t">올리기</div><div class="d">서류를 고르고 정부 사이트에서 받은 PDF를 올려주세요. 발급 방법도 함께 안내합니다.</div></div>
-      <div class="lp-step"><div class="no">STEP 2</div><div class="t">결제</div><div class="d">받으실 날짜를 고르시면 일정과 금액을 바로 보여 드립니다. 확인 후 결제해 주세요.</div></div>
-      <div class="lp-step"><div class="no">STEP 3</div><div class="t">집에서 받기</div><div class="d">스캔본을 먼저 마이페이지로 드리고, 실물은 등기로 보내드립니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 1</div><div class="t">서류 업로드</div><div class="d">필요한 서류를 선택하고 정부 사이트에서 발급받은 PDF를 올려 주세요. 발급 방법도 함께 안내해 드립니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 2</div><div class="t">일정 확인 · 결제</div><div class="d">받으실 날짜를 선택하시면 일정과 금액을 바로 확인하실 수 있습니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 3</div><div class="t">댁에서 수령</div><div class="d">공증 서류 스캔본을 마이페이지로 먼저 보내 드리고, 실물은 등기로 발송합니다.</div></div>
     </div>
     <div class="lp-pro-act">
       <p class="lp-trust">급행이면 다음 영업일에 받아 보실 수 있습니다.</p>
@@ -1958,16 +1955,16 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <p class="lp-label">전문 번역</p>
     <h2 class="lp-h2">용어는 끝까지 같게, 숫자는 하나도 틀리지 않게</h2>
     <div class="lp-steps four">
-      <div class="lp-step"><div class="no">STEP 1</div><div class="t">올리기</div><div class="d">파일을 올리거나 붙여 넣으면 글자 수와 금액이 바로 나옵니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 1</div><div class="t">파일 업로드</div><div class="d">파일을 올리거나 텍스트를 붙여 넣으시면 글자 수와 금액이 바로 산출됩니다.</div></div>
       <div class="lp-step"><div class="no">STEP 2</div><div class="t">분야별 번역</div><div class="d">문서 분야에 맞는 전용 용어집을 기준으로 번역합니다.</div></div>
-      <div class="lp-step"><div class="no">STEP 3</div><div class="t">점검</div><div class="d">용어가 문서 전체에서 같은지, 숫자·날짜·이름이 정확한지, 빠진 문장은 없는지 확인합니다.</div></div>
+      <div class="lp-step"><div class="no">STEP 3</div><div class="t">정밀 점검</div><div class="d">용어가 문서 전체에서 같은지, 숫자·날짜·이름이 정확한지, 빠진 문장은 없는지 확인합니다.</div></div>
       <div class="lp-step"><div class="no">STEP 4</div><div class="t">휴먼터치 · 납품</div><div class="d">최종 휴먼터치로 자연스럽게 다듬어 마이페이지로 납품하고, 알림톡으로 알려 드립니다.</div></div>
     </div>
     <div class="lp-plans">
       <div class="lp-plan"><p class="nm">스탠다드 <span>(일반 검수)</span></p><p class="pr">글자당 <b><span data-plan="ai"></span>원</b></p></div>
       <div class="lp-plan"><p class="nm">프리미엄 플러스 <span>(전문가 검수)</span></p><p class="pr">글자당 <b><span data-plan="standard"></span>원</b></p></div>
     </div>
-    <p class="lp-pro-note">제출·계약용 문서는 프리미엄 플러스를 권합니다.</p>
+    <p class="lp-pro-note">공식 제출·계약 문서에는 프리미엄 플러스를 권해 드립니다.</p>
     <div class="lp-pro-act">
       <p class="lp-trust">명백한 오역은 납품 후 5일 이내 무료로 다시 번역해 드립니다.</p>
       <button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>
@@ -1980,16 +1977,14 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <p class="lp-label">FAQ</p>
     <h2 class="lp-h2">자주 묻는 질문</h2>
     <details><summary>정말 직접 가지 않아도 되나요?</summary><p>네. 서류를 올리고 결제하시면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 방문하실 필요가 없습니다. 온라인 발급본이 없는 서류는 카카오톡으로 문의해 주시면 진행 방법을 안내해 드립니다. 신분증·여권 사본공증은 원본을 빠른등기로 보내 주시면 공증 후 함께 돌려드립니다.</p></details>
-    <details><summary>비용은 얼마인가요?</summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 1페이지 9,000원입니다. 공증·아포스티유를 포함한 금액은 서류를 올리시면 바로 보여 드립니다.</p></details>
+    <details><summary>비용은 얼마인가요?</summary><p>번역 비용은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 1페이지 9,000원입니다. 공증·아포스티유를 포함한 금액은 서류를 올리시면 바로 확인하실 수 있습니다.</p></details>
     <details><summary>얼마나 걸리나요?</summary><p>번역공증은 급행 다음 영업일, 일반 3영업일에 받으실 수 있고, 번역공증 + 아포스티유는 급행 3영업일, 일반 5영업일입니다(영업일 기준 예정). 신청 화면에서 받으실 날짜를 고르시면 일정과 금액을 바로 보여 드립니다.</p></details>
     <details><summary>영문으로 발급되는 서류도 번역해야 하나요?</summary><p>영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으실 수 있습니다. 제출처가 한글본 번역공증을 요구하면 번역공증도 가능합니다.</p></details>
-    <details><summary>결제 후 취소할 수 있나요?</summary><p>결제 즉시 번역이 착수되며, 착수 후에는 취소·환불이 불가합니다. 결제 전에 서류와 금액을 꼭 확인해 주세요.</p></details>
+    <details><summary>어떤 서류를 맡길 수 있나요?</summary><p>가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등을 맡기실 수 있습니다. 목록에 없는 서류는 카카오톡으로 문의해 주세요.</p></details>
     <p class="lp-note"><a href="#" onclick="showPage('faq');return false">전체 질문 보기 →</a></p>
   </div>
 </section>
 
-<!-- ── 검색 노출용 한 줄 ───────────────────────────────────── -->
-<div class="lp"><p class="lp-seo">맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등</p></div>
 
 <script>
 /* 전문 번역 글자당 단가 — 화면 표시·주문 모달·견적이 모두 이 값을 쓴다 (부가세 별도)

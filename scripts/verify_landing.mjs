@@ -37,22 +37,29 @@ check(!/_memberRate(Ai|Pp)\s*\|\|\s*(25|40)\)/.test(html), '견적 기본 단가
 // ── 3. 구성 ──
 console.log('\n[3] 구성 — 누구에게나 같은 화면');
 check(land.includes('공증 받으러<br>멀리 가지 마세요') && !html.includes('서울까지'), '제목');
-check(land.includes('서류만 올리시면 번역부터 공증·아포스티유까지 마치고 집으로 보내드립니다.'), '부제');
+check(land.includes('<p class="lp-lead">서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다.</p>'), '부제');
 check((land.match(/class="lp-card[ "]/g) || []).length === 2 && land.includes('lp-card main'), '카드 2개 · 1번 강조');
 check(land.includes("onclick=\"lpGo('notary')\">번역공증 · 아포스티유 시작<"), '1번 버튼 → 위저드');
 check(land.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>') && land.includes('<div class="lp-card pro">'), '2번 카드 pro · 버튼 → 전문 번역 모달 (채운 버튼)');
 check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}', '.lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}',
-       '.lp-card.pro .k .no{border-color:#9ACDF5;color:#9ACDF5}', '.lp-card.pro li::before{background:#9ACDF5}', '.lp-card.pro .lp-big .n{color:#9ACDF5}',
+       '.lp-card.pro li::before{background:#9ACDF5}', '.lp-card.pro .lp-big .n{color:#9ACDF5}',
        '.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}', '.lp-btn.pro-btn:hover{background:#9ACDF5'].every(x => land.includes(x)),
-  '전문 번역 카드 색 (#6FB8F0 / #9ACDF5) · 번호 원·점·가격·채운 버튼');
+  '전문 번역 카드 색 (#6FB8F0 / #9ACDF5) · 점·가격·채운 버튼');
+check(!/class="no">\d<\/span>/.test(land) && !land.includes('.lp-card .k .no{') && land.includes('<p class="k">번역공증 · 아포스티유 의뢰</p>') && land.includes('<p class="k">전문 번역 의뢰</p>'),
+  '카드 번호 원 삭제 · 카드 제목 유지');
 check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
-check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 1페이지</span><span class="n">9,000원', '<li>그 외 서류 1페이지 9,000원</li>', '<li>급행이면 다음 영업일 수령</li>',
-       '신분증·여권 사본공증 + 아포스티유도 가능'].every(t => land.includes(t)), '1번 카드 문구');
-check(['번역의 기준이 바뀌었습니다', '분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성도를 높여 납품합니다.',
-       '<span class="n" id="lp-plan-price">25원부터</span></p>'].every(t => land.includes(t)), '2번 카드 문구 (가격 옆 부가세 문구 없음)');
+check(['<span class="s">가족관계·기본·혼인증명서 번역</span><span class="n">5,000원</span>', '<span class="s">생활기록부 번역 (1페이지)</span><span class="n">9,000원</span>',
+       '<li>그 외 서류 1페이지 9,000원</li>', '<li>급행 접수 시 다음 영업일 수령</li>', '<li>신분증·여권 사본공증 및 아포스티유</li>',
+       ">번역공증 · 아포스티유 신청하기</button>"].every(t => land.includes(t)), '1번 카드 문구 · 버튼 "번역공증 · 아포스티유 신청하기"');
+check(['<h3>비즈니스·학술 문서를 위한 전문 번역</h3>', '분야별 전용 용어집으로 번역하고 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성해 납품합니다.',
+       '<span class="n" id="lp-plan-price">25원부터</span></p>', 'onclick="handleAI()">전문 번역 의뢰하기</button>'].every(t => land.includes(t)), '2번 카드 문구 · 버튼 "전문 번역 의뢰하기"');
 check((land.match(/<details>/g) || []).length === 5 && land.includes("showPage('faq')"), 'FAQ 5개 + 전체 보기');
-check(land.includes('3단계면 끝납니다'), '3단계 안내');
-check(land.includes('맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등<'), '맡길 수 있는 서류 한 줄');
+check(land.includes('<h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다</h2>') &&
+      ['<div class="t">서류 업로드</div><div class="d">필요한 서류를 선택하고 정부 사이트에서 발급받은 PDF를 올려 주세요. 발급 방법도 함께 안내해 드립니다.</div>',
+       '<div class="t">일정 확인 · 결제</div><div class="d">받으실 날짜를 선택하시면 일정과 금액을 바로 확인하실 수 있습니다.</div>',
+       '<div class="t">댁에서 수령</div><div class="d">공증 서류 스캔본을 마이페이지로 먼저 보내 드리고, 실물은 등기로 발송합니다.</div>'].every(t => land.includes(t)), '공증 3단계 제목·STEP 문구');
+check(!land.includes('lp-seo') && !land.includes('맡길 수 있는 서류:'), '맨 아래 "맡길 수 있는 서류" 한 줄 삭제');
+check(/>전문 번역<\/a>/.test(html) && !/>전문번역<\/a>/.test(html), '메뉴 "전문 번역" (PC·모바일)');
 check(!/lp-in|lpApplyLogin|lp-member|lp-join|카카오로 시작하기/.test(land), '회원 전용·가입 유도 블록 없음');
 
 // ── 4. 금지 표현 ──
@@ -99,13 +106,13 @@ console.log('\n[7] 전문 번역 과정 섹션');
 {
   const pa = land.indexOf('id="process"'), pb = land.indexOf('id="process-pro"'), pc = land.indexOf('id="faq-summary"');
   check(pa > 0 && pb > pa && pc > pb, '위치 — 공증 3단계(#process) 바로 아래, FAQ 위');
-  check(/id="process">\s*<div class="lp">\s*<p class="lp-label">번역공증 · 아포스티유<\/p>\s*<h2 class="lp-h2">3단계면 끝납니다<\/h2>/.test(land) && !land.includes('HOW IT WORKS'),
+  check(/id="process">\s*<div class="lp">\s*<p class="lp-label">번역공증 · 아포스티유<\/p>\s*<h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다<\/h2>/.test(land) && !land.includes('HOW IT WORKS'),
     '공증 3단계 라벨 "번역공증 · 아포스티유" (HOW IT WORKS 없음)');
   const sec = land.slice(pb, pc);
   check(sec.includes('<p class="lp-label">전문 번역</p>') && sec.includes('용어는 끝까지 같게, 숫자는 하나도 틀리지 않게'), '라벨·제목');
-  check(['<div class="t">올리기</div><div class="d">파일을 올리거나 붙여 넣으면 글자 수와 금액이 바로 나옵니다.',
+  check(['<div class="t">파일 업로드</div><div class="d">파일을 올리거나 텍스트를 붙여 넣으시면 글자 수와 금액이 바로 산출됩니다.',
          '<div class="t">분야별 번역</div><div class="d">문서 분야에 맞는 전용 용어집을 기준으로 번역합니다.',
-         '<div class="t">점검</div><div class="d">용어가 문서 전체에서 같은지, 숫자·날짜·이름이 정확한지, 빠진 문장은 없는지 확인합니다.',
+         '<div class="t">정밀 점검</div><div class="d">용어가 문서 전체에서 같은지, 숫자·날짜·이름이 정확한지, 빠진 문장은 없는지 확인합니다.',
          '<div class="t">휴먼터치 · 납품</div><div class="d">최종 휴먼터치로 자연스럽게 다듬어 마이페이지로 납품하고, 알림톡으로 알려 드립니다.'].every(x => sec.includes(x)) &&
         (sec.match(/class="lp-step"/g) || []).length === 4, 'STEP 1~4 문구');
   check(sec.includes('class="lp-steps four"') && land.includes('.lp-steps.four{grid-template-columns:repeat(4,1fr)}') &&
@@ -119,7 +126,7 @@ console.log('\n[7] 전문 번역 과정 섹션');
   vm.createContext(sb2); vm.runInContext(script, sb2);
   check(plans[0].t === sb2.PLAN_PRICE.ai && plans[1].t === sb2.PLAN_PRICE.standard, `플랜 금액 = PLAN_PRICE (${plans[0].t} / ${plans[1].t})`);
   check(sec.includes('스탠다드 <span>(일반 검수)</span>') && sec.includes('프리미엄 플러스 <span>(전문가 검수)</span>') &&
-        sec.includes('<p class="lp-pro-note">제출·계약용 문서는 프리미엄 플러스를 권합니다.</p>'), '플랜 이름·권장 문구 (부가세 문구 없음)');
+        sec.includes('<p class="lp-pro-note">공식 제출·계약 문서에는 프리미엄 플러스를 권해 드립니다.</p>'), '플랜 이름·권장 문구 (부가세 문구 없음)');
   check(sec.includes('명백한 오역은 납품 후 5일 이내 무료로 다시 번역해 드립니다.') &&
         /무료 재번역 또는 A\/S\(품질수정\)/.test(html) && /납품일로부터 <span class="highlight">5일 이내<\/span>/.test(html),
     '신뢰 문구 — 약관 제7조(5일 이내 무료 재번역)와 일치');
@@ -150,7 +157,10 @@ console.log('\n[11] 메인 — 부가세 문구 없음');
   check(!/부가세/.test(vis), `메인 보이는 영역 "부가세" 0건 (${(vis.match(/부가세/g) || []).length}건)`);
   const faqSum = land.slice(land.indexOf('id="faq-summary"'));
   check(/얼마나 걸리나요\?<\/summary><p>[^<]*\(영업일 기준 예정\)/.test(faqSum), '메인 FAQ "얼마나 걸리나요?"의 (영업일 기준 예정)은 유지');
-  check(/비용은 얼마인가요\?<\/summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 1페이지 9,000원입니다\./.test(faqSum), '메인 FAQ "비용은" 답변 — 부가세 문구 없음');
+  check(faqSum.includes('<summary>비용은 얼마인가요?</summary><p>번역 비용은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 1페이지 9,000원입니다. 공증·아포스티유를 포함한 금액은 서류를 올리시면 바로 확인하실 수 있습니다.</p>'), '메인 FAQ "비용은" 답변 — 새 문구 · 부가세 문구 없음');
+  check(!faqSum.includes('결제 후 취소할 수 있나요?') && faqSum.includes('<summary>어떤 서류를 맡길 수 있나요?</summary><p>가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등을 맡기실 수 있습니다. 목록에 없는 서류는 카카오톡으로 문의해 주세요.</p>'),
+    '메인 FAQ — 취소 질문 빼고 "어떤 서류를 맡길 수 있나요?"');
+  check(/결제 후 취소·환불이 되나요\?/.test(html.slice(html.indexOf('id="page-faq"'), html.indexOf('id="page-faq"') + 60000)), '취소 질문은 전체 FAQ 에 있음');
   const pageFaq = html.slice(html.indexOf('id="page-faq"'), html.indexOf('id="page-faq"') + 60000);
   check(/1페이지 9,000원\(부가세 별도\)/.test(pageFaq), '전체 FAQ 페이지의 (부가세 별도)는 그대로');
 }
