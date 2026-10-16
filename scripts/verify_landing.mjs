@@ -232,8 +232,15 @@ check(land.includes('.lp-label{font-size:13px;letter-spacing:1px;') && land.incl
       land.includes('<p class="lp-label"><span class="en">FAQ</span></p>') && land.includes('<p class="lp-label">번역공증 · 아포스티유</p>') && land.includes('<p class="lp-label">전문 번역</p>'),
   '라벨 자간 — 기본 1px, 영문(SINCE 2011·FAQ)만 3px');
 check(html.includes('<div class="footer-biz" style="font-size:12px;color:rgba(255,255,255,0.5);') &&
-      (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">\|<\/span>/g) || []).length === 6 &&
+      (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">·<\/span>/g) || []).length === 6 &&
       /footer > div:nth-child\(2\)\{text-align:center;font-size:12px !important/.test(html), '푸터 사업자 정보 12px · 흰 50% · 구분선 25% (모바일도 12px)');
+{
+  const fbHtml = html.slice(html.indexOf('<div class="footer-biz"'), html.indexOf('</footer>'));
+  const fb = fbHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  check(fb === '운영 (주)마하글로벌 · 대표 임정한 · 사업자등록번호 894-88-00873 · 통신판매업신고 2018-안양동안-0458 경기도 안양시 동안구 시민대로 181, 243 · 대표전화 010-2390-5647 · 이메일 iumm.master@gmail.com · 개인정보보호책임자 임정한 © 2026 IUMM 아이움' &&
+        !/<strong|<b>/.test(fbHtml),
+    '푸터 — 운영사 정보 8항목(상호·대표·사업자번호·통신판매업·주소·전화·이메일·개인정보책임자) 그대로 · 굵은 글씨 없음 · © 2026 IUMM 아이움');
+}
 
 // ── 15. 인트로 — 한반도에서 세계로 줌아웃 · 서울에서 세계로 선 (한국 중심 점 세계지도) ──
 console.log('\n[15] 인트로');
