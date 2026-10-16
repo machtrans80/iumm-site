@@ -265,31 +265,43 @@ console.log('\n[15] 인트로');
   // ── 서울 · 도시 · 라벨
   check(it.includes('<circle class="pulse" r="5"/>') && it.includes('<circle class="kr" r="5"/>') && /<text class="lb home"[^>]*>SEOUL<\/text>/.test(it) && it.includes('.it-map .kr{fill:#5DE0BC}'),
     '서울 = 민트 점 + 맥박 + "SEOUL" (모바일도 표시)');
-  const names = [...it.matchAll(/<text class="lb to( m-hide)?">([A-Z ]+)<\/text>/g)].map(m => [m[2], !!m[1]]);
   const dirs = [...it.matchAll(/<text class="lb dir pc-hide"[^>]*>([^<]+)<\/text>/g)].map(m => m[1]);
-  const NAMES = ['TOKYO', 'BEIJING', 'HO CHI MINH', 'SINGAPORE', 'DUBAI', 'FRANKFURT', 'PARIS', 'LONDON', 'VANCOUVER', 'LOS ANGELES', 'NEW YORK', 'SYDNEY'];
-  check(names.map(n => n[0]).join('|') === NAMES.join('|') && ['rt', 'dst', 'spark'].every(c => (it.match(new RegExp(`class="${c}"`, 'g')) || []).length === 12),
-    '연결 도시 12곳 — 곡선·도시 점·빛 점·라벨 12개씩 (TOKYO … SYDNEY)');
-  check(names.filter(n => !n[1]).map(n => n[0]).join('|') === 'TOKYO|BEIJING|SYDNEY' && !/class="lb home[^"]*m-hide/.test(it) && dirs.join('|') === '← EUROPE|USA →' &&
+  const cities = [...((js.match(/var CITY = \[([\s\S]*?)\n  \];/) || [])[1] || '').matchAll(/\['([A-Z ]+)', (-?[\d.]+), (-?[\d.]+), (\d), (\d)\]/g)].map(m => ({ n: m[1], lon: +m[2], lat: +m[3], w: +m[4], lb: +m[5] }));
+  const WANT = { TOKYO: [139.7, 35.7], BEIJING: [116.4, 39.9], ULAANBAATAR: [106.9, 47.9], MOSCOW: [37.6, 55.8], ANCHORAGE: [-149.9, 61.2], VANCOUVER: [-123.1, 49.3],
+    'LOS ANGELES': [-118.2, 34.1], 'NEW YORK': [-74.0, 40.7], TORONTO: [-79.4, 43.7], HONOLULU: [-157.8, 21.3], 'MEXICO CITY': [-99.1, 19.4], LIMA: [-77.0, -12.0],
+    MANILA: [121.0, 14.6], JAKARTA: [106.8, -6.2], SYDNEY: [151.2, -33.9], AUCKLAND: [174.8, -36.8], 'HO CHI MINH': [106.7, 10.8], BANGKOK: [100.5, 13.8],
+    SINGAPORE: [103.8, 1.35], 'NEW DELHI': [77.2, 28.6], DUBAI: [55.3, 25.2], ISTANBUL: [29.0, 41.0], CAIRO: [31.2, 30.0], JOHANNESBURG: [28.0, -26.2],
+    FRANKFURT: [8.7, 50.1], PARIS: [2.35, 48.9], LONDON: [-0.1, 51.5] };
+  const relL = (lon) => ((lon - 127 + 540) % 360) - 180;
+  check(cities.length === 27 && new Set(cities.map(c => c.n)).size === 27 && cities.every(c => WANT[c.n] && WANT[c.n][0] === c.lon && WANT[c.n][1] === c.lat) &&
+        cities.every(c => Math.abs(relL(c.lon)) <= 170) && it.includes('<g class="g-rt"></g><g class="g-dst"></g><g class="g-sp"></g>') && !/<path class="rt"/.test(it),
+    `연결 도시 27곳 (좌표 일치 · 지도 좌우 끝 10° 안 도시 없음, 가장 먼 곳 ${Math.max(...cities.map(c => Math.abs(relL(c.lon)))).toFixed(1)}°) — 곡선·점·빛 점·라벨은 CITY 에서 생성`);
+  {
+    const WAVES = [['TOKYO', 'BEIJING', 'ULAANBAATAR', 'MANILA', 'JAKARTA', 'HO CHI MINH', 'BANGKOK', 'SINGAPORE', 'NEW DELHI'],
+      ['DUBAI', 'MOSCOW', 'ISTANBUL', 'FRANKFURT', 'PARIS', 'LONDON', 'SYDNEY', 'AUCKLAND'],
+      ['CAIRO', 'JOHANNESBURG', 'ANCHORAGE', 'VANCOUVER', 'LOS ANGELES', 'NEW YORK', 'TORONTO', 'HONOLULU', 'MEXICO CITY', 'LIMA']];
+    const ws = cities.map(c => c.w), sorted = ws.every((w, i) => !i || w >= ws[i - 1]);
+    const ang = (c) => Math.atan2(-(c.lat - 37.57), relL(c.lon) - relL(126.98)) * 180 / Math.PI, adiff = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+    const avg = [0, 1, 2].map(w => { const l = cities.filter(c => c.w === w); let s = 0; for (let i = 1; i < l.length; i++) s += adiff(ang(l[i - 1]), ang(l[i])); return s / (l.length - 1); });
+    check(sorted && WAVES.every((l, w) => cities.filter(c => c.w === w).map(c => c.n).sort().join() === l.slice().sort().join()) && avg.every(a => a >= 60) &&
+          /var WAVE = \[\[0, 0\.31\], \[0\.34, 0\.65\], \[0\.68, 1\]\], DUR = 0\.16/.test(js),
+      `물결 순서 ① 가까운 곳·아시아 9 → ② 중동·유럽·오세아니아 8 → ③ 아프리카·미주 10 · 물결 안 이웃 도시 방향 차 평균 ${avg.map(a => a.toFixed(0) + '°').join(' / ')} (≥ 60°, 한쪽 쏠림 없음)`);
+  }
+  check(cities.filter(c => c.lb).map(c => c.n).sort().join('|') === ['TOKYO', 'BEIJING', 'MOSCOW', 'VANCOUVER', 'NEW YORK', 'LOS ANGELES', 'MEXICO CITY', 'SYDNEY', 'SINGAPORE', 'NEW DELHI', 'DUBAI', 'LONDON', 'PARIS', 'JOHANNESBURG'].sort().join('|') &&
+        cities.filter(c => c.lb === 2).map(c => c.n).sort().join('|') === 'BEIJING|SINGAPORE|SYDNEY|TOKYO' && /'lb to' \+ \(c\[4\] < 2 \? ' m-hide' : ''\)/.test(js) &&
+        !/class="lb home[^"]*m-hide/.test(it) && dirs.join('|') === '← EUROPE|USA →' &&
         /\.it-map \.lb\.m-hide\{display:none\}/.test(it) && /min-width:641px\)\{\s*\.it-map \.lb\.pc-hide\{display:none\}/.test(it),
-    '라벨 — PC 12곳 모두 · 모바일 SEOUL · TOKYO · BEIJING · SYDNEY · ← EUROPE · USA → 만');
-  check(/var EU = 7, US = 10;/.test(js) && /dirs\[0\]\.style\.opacity = dd\[EU\] >= DIR\[0\]/.test(js) && /dirs\[1\]\.style\.opacity = dd\[US\] >= DIR\[1\]/.test(js) && /\.it-map\{[^}]*overflow:hidden/.test(it),
+    '라벨 — PC 14곳(TOKYO·BEIJING·MOSCOW·VANCOUVER·NEW YORK·LOS ANGELES·MEXICO CITY·SYDNEY·SINGAPORE·NEW DELHI·DUBAI·LONDON·PARIS·JOHANNESBURG), 나머지는 점만 · 모바일 SEOUL·TOKYO·BEIJING·SYDNEY·SINGAPORE·← EUROPE·USA → 만');
+  check(/if \(c\[0\] === 'LONDON'\) EU = i;/.test(js) && /if \(c\[0\] === 'NEW YORK'\) US = i;/.test(js) && /dirs\[0\]\.style\.opacity = dd\[EU\] >= DIR\[0\]/.test(js) && /dirs\[1\]\.style\.opacity = dd\[US\] >= DIR\[1\]/.test(js) && /\.it-map\{[^}]*overflow:hidden/.test(it),
     '모바일 — 화면 밖 곡선은 끝까지 그리고, LONDON·NEW YORK 곡선이 화면 끝에 닿으면 방향 라벨');
   check(it.includes('.it-map .lb{fill:rgba(255,255,255,0.7);font-size:11px;letter-spacing:2px;') && /function hit\(bx\)/.test(js) && /SPOT_UP = \[/.test(js) && /SPOT_DN = \[/.test(js),
-    '라벨 11px · 자간 2px · 흰색 70% · 겹치면 다음 후보 자리로 (FRANKFURT·PARIS·LONDON)');
-  const cities = [...it.matchAll(/\{ ll: \[(-?[\d.]+), (-?[\d.]+)\],\s*q: \[([\d.]+), ([\d.]+)\](, dn: 1)?/g)].map(m => [...m.slice(1, 5).map(Number), !!m[5]]);
-  const want = [[139.7, 35.7], [116.4, 39.9], [106.7, 10.8], [103.8, 1.35], [55.3, 25.2], [8.7, 50.1], [2.35, 48.9], [-0.1, 51.5], [-123.1, 49.3], [-118.2, 34.1], [-74.0, 40.7], [151.2, -33.9]];
-  check(cities.length === 12 && cities.every((c, i) => c[0] === want[i][0] && c[1] === want[i][1]), '도시 좌표 12곳 (TOKYO 139.7E 35.7N … SYDNEY 151.2E 33.9S)');
-  const wave = (a, b) => cities.slice(a, b);
-  check(cities.length === 12 && Math.max(...wave(0, 4).map(c => c[3])) < Math.min(...wave(4, 8).map(c => c[2])) &&
-        Math.max(...wave(4, 8).map(c => c[3])) < Math.min(...wave(8, 12).map(c => c[2])) && cities.every(c => c[3] <= 1),
-    '물결 순서 ① TOKYO·BEIJING·HO CHI MINH·SINGAPORE → ② DUBAI·FRANKFURT·PARIS·LONDON → ③ VANCOUVER·LOS ANGELES·NEW YORK·SYDNEY');
-  check(cities.filter(c => c[4]).map((c, i) => c.slice(0, 2).join()).join('|') === '106.7,10.8|103.8,1.35|151.2,-33.9' && /\(c\.dn \? 1 : -1\) \* dist \* 0\.38\]/.test(js),
-    '곡선 높이 = 거리 × 0.38 · 남쪽 도시(HO CHI MINH·SINGAPORE·SYDNEY)는 아래로');
+    '라벨 11px · 자간 2px · 흰색 70% · 겹치면 다음 후보 자리로');
+  check(it.includes('.it-map .rt{fill:none;stroke:rgba(93,224,188,0.7);stroke-width:1.2;') && it.includes('.it-map .dst{fill:none;stroke:#5DE0BC;stroke-width:4px;'),
+    '선 1.2px · 민트 70% · 도착 점 지름 4px');
   check(/E2 = Z0 \* F > 2 \? 1 - Math\.log\(2 \/ F\) \/ Math\.log\(Z0\) : 0/.test(js) && /var q = E2 < 1 \? c01\(\(e - E2\) \/ \(1 - E2\)\)/.test(js),
     '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.5 에 모두 도착');
   check(/'Q' \+ f\(Q\[0\]\) \+ ' ' \+ f\(Q\[1\]\)/.test(js) && /% 360\) - 180/.test(js), '중심 경도(127°E) 기준 좌표');
-  check(/ARR\[i\] = d >= 0\.999;/.test(js) && /dots\[i\]\.style\.opacity = ARR\[i\] \? '1' : '0';/.test(js) && /labels\[i\]\.style\.opacity = sparks\[i\]\.style\.opacity = ARR\[i\] \? gone : '0';/.test(js) && /labels\[i\]\.style\.transform = 'translate\(/.test(js),
+  check(/ARR\[i\] = d >= 0\.999;/.test(js) && /dots\[i\]\.style\.opacity = ARR\[i\] \? '1' : '0';/.test(js) && /sparks\[i\]\.style\.opacity = ARR\[i\] \? gone : '0';/.test(js) && /lb\.style\.opacity = ARR\[i\] \? gone : '0';/.test(js) && /lb\.style\.transform = 'translate\(/.test(js),
     '선이 도착하면 도시 점·이름·빛 점이 켜짐 (줌 중에는 도시 점을 따라감)');
   {
     const tick = (js.match(/function tick\(now\)\{[\s\S]*?\n  \}/) || [''])[0];
@@ -339,24 +351,26 @@ console.log('\n[15] 인트로');
   check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js) && !/setTimeout|setInterval/.test(js), 'rAF + passive 스크롤 · 자동 재생 없음');
   check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 없음)');
   // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
-  const mkEl = () => ({ style: {}, setAttribute(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
+  const mkEl = () => ({ style: {}, attr: {}, setAttribute(k, x){ this.attr[k] = x; }, insertBefore(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
   const store = {};
   const run = ({ reduce }) => {
     const one = {}, all = {};
     const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }), style: { setProperty(){} },
       querySelector: (q) => one[q] = one[q] || (q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => (one['frame rect'] = one['frame rect'] || mkEl()) } : mkEl()),
-      querySelectorAll: (q) => all[q] = all[q] || Array.from({ length: 12 }, mkEl) };
+      querySelectorAll: (q) => all[q] = all[q] || Array.from({ length: 2 }, mkEl) };
+    const made = (cls, el) => { (all['made ' + cls] = all['made ' + cls] || []).push(el); return el; };
+    const raf = { n: 0 };
     let listens = 0;
     const hero = { style: {} };   // #top > .lp
     const topEl = { id: 'top' }, cards = { offsetTop: 300, offsetParent: topEl };   // #top · 카드 줄(#lp-entry) — p=1 에서 무대 기준 70 + 300 = 370px
-    const sb = { document: { getElementById: (id) => id === 'top' ? topEl : id === 'lp-entry' ? cards : sec,
+    const sb = { document: { createElementNS: () => { const el = mkEl(), sa = el.setAttribute; el.setAttribute = function(k, x){ sa.call(this, k, x); if (k === 'class') made(x, this); }; return el; }, getElementById: (id) => id === 'top' ? topEl : id === 'lp-entry' ? cards : sec,
       querySelector: (q) => q === '#top > .lp' ? hero : q === 'nav' ? { offsetHeight: 70 } : null },
       window: { innerWidth: 1280, innerHeight: 800, addEventListener(){ listens++; }, matchMedia: () => ({ matches: reduce }) },
       matchMedia: () => ({ matches: reduce }), sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } },
-      requestAnimationFrame: () => {}, Math, Number };
+      requestAnimationFrame: () => { raf.n++; }, Math, Number };
     vm.createContext(sb); vm.runInContext(js, sb);
     const scene = () => JSON.stringify([Object.keys(one).sort().map(k => [k, one[k].style]), Object.keys(all).sort().map(k => [k, all[k].map(e => e.style)]), hero.style]);
-    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender, render: sb.window.__itRender, hero, scene, one, all };
+    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender, render: sb.window.__itRender, hero, scene, one, all, raf };
   };
   const first = run({ reduce: false }), second = run({ reduce: false });
   check(!first.cls.includes('still') && !second.cls.includes('still') && first.listens >= 2 && second.listens >= 2 && first.hasRender && Object.keys(store).length === 0,
@@ -380,7 +394,7 @@ console.log('\n[15] 인트로');
       const o = e.one, a = e.all, st = (k) => (o[k] || {}).style || {};
       const keep = ['.it-zoom', '.it-map .kr', '.it-map .pulse'].every(k => st(k).opacity === '0.140');
       const gone = ['.it-word', '.it-map .home', '.it-tint'].every(k => st(k).opacity === '0.000') &&
-                   a['.it-map .lb.to'].every(x => x.style.opacity === '0.000') && a['.it-map .spark'].every(x => x.style.opacity === '0.000') &&
+                   a['made lb to'].concat(a['made lb to m-hide']).every(x => x.style.opacity === '0.000') && a['made spark'].length === 27 && a['made spark'].every(x => x.style.opacity === '0.000') &&
                    a['.it-map .lb.dir'].slice(0, 2).every(x => x.style.opacity === '0.000' || x.style.opacity === '0');
       check(keep && gone && st('.it-shade').opacity === '1.000' && /translate3d\(213\.3px,0,0\)/.test(st('.it-map').transform),
         `#top 배경 지도 — 지도 점·한반도·곡선·서울 ${st('.it-zoom').opacity} · IUMM·부제·도시명·빛 점 0 · 제목 쪽 남색 1 · 서울 오른쪽 1/3 (+W/6)`);
@@ -389,6 +403,23 @@ console.log('\n[15] 인트로');
         `카드 뒤 지도 0 — mask 가 카드 줄 위쪽 끝(370px)에서 0, 그 위 120px 동안 서서히 (${m.slice(0, 60)}…)`);
       e.render(0.7);
       check(!st('.it-card').maskImage && st('.it-zoom').opacity === '1.000', '머무는 구간·연출 중에는 mask 없음 · 지도 그대로');
+    }
+    {
+      // 방사형 — 모든 곡선의 조절점이 서울→도착지 방향 왼쪽 수직 · 실제 휨 18% · 도착 방향이 사방(동·남·서·북)에 퍼짐
+      const r = run({ reduce: false }), rts = r.all['made rt'] || [];
+      const geo = rts.map(e => (e.attr.d || '').match(/-?[\d.]+/g).map(Number)).map(([sx, sy, qx, qy, dx, dy]) => {
+        const vx = dx - sx, vy = dy - sy, L = Math.hypot(vx, vy), mx = (sx + dx) / 2, my = (sy + dy) / 2;
+        return { cross: vx * (qy - sy) - vy * (qx - sx), bend: Math.hypot(qx - mx, qy - my) / 2 / L, along: Math.abs(((qx - mx) * vx + (qy - my) * vy) / L), ang: Math.atan2(vy, vx) * 180 / Math.PI };
+      });
+      const quad = [g => Math.abs(g.ang) < 90, g => g.ang > 0, g => Math.abs(g.ang) > 90, g => g.ang < 0].map(t => geo.filter(t).length);   // 화면 기준 동·남·서·북 쪽 (반평면)
+      check(geo.length === 27 && geo.every(g => g.cross < 0 && Math.abs(g.bend - 0.18) < 0.002 && g.along < 0.2) && quad.every(n => n > 0),
+        `방사형 휨 — 27개 모두 진행 방향 왼쪽 수직으로 부풂(같은 회전 방향 = 시계 방향 소용돌이) · 휨 = 직선거리의 ${(geo.reduce((s, g) => s + g.bend, 0) / (geo.length || 1) * 100).toFixed(1)}% · 도착 방향 동/남/서/북 반쪽 ${quad.join('/')}`);
+      const lbs = (r.all['made lb to'] || []).concat(r.all['made lb to m-hide'] || []);
+      check((r.all['made spark'] || []).length === 27 && (r.all['made dst'] || []).length === 27 && lbs.length === 14 && rts.every(e => e.attr.pathLength === '1'),
+        '곡선 · 도시 점 · 빛 점 27개씩, 라벨 14개 생성');
+      const n0 = r.raf.n; r.render(0.7);
+      const q = run({ reduce: true }), q0 = q.raf.n; q.render(0.7); q.render(0.8);
+      check(r.raf.n > n0 && q.raf.n === q0 && /setLive\(!still && /.test(js), `reduced-motion 빛 점 없음 — 빛 점 루프 요청 일반 ${r.raf.n - n0}회 · 움직임 줄이기 ${q.raf.n - q0}회`);
     }
     const s = run({ reduce: true });
     s.render(0.9); s.render(1);
