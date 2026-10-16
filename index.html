@@ -2319,12 +2319,13 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   function stop(){ if (anim) { cancelAnimationFrame(anim); anim = 0; } }
   function land(T){
     stop();
-    var y0 = Y(), d = T - y0, t0 = now();
+    var y0 = Y(), d = T - y0, t0 = now(), put = y0;
     if (Math.abs(d) < 1) return;
     if (reduce) { go(T); rest = T; return; }
     anim = requestAnimationFrame(function step(){
+      if (Math.abs(Y() - put) > 3) { anim = 0; rest = Y(); return; }   // 그 사이 손님 쪽 스크롤(관성 등)이 끼어들면 멈춤
       var k = Math.min(1, (now() - t0) / 400);
-      go(y0 + d * (1 - Math.pow(1 - k, 3)));   // ease-out
+      go(put = y0 + d * (1 - Math.pow(1 - k, 3)));   // ease-out
       anim = k < 1 ? requestAnimationFrame(step) : 0;
       if (!anim) rest = T;   // 도착 = 손님이 머무는 자리
     });

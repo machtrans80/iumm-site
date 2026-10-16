@@ -499,6 +499,8 @@ console.log('\n[15] 인트로');
       const k3 = mk(); k3.set(1600); k3.fire('scroll'); k3.tick(200); k3.fire('scrollend'); k3.tick(100); k3.fire('keydown'); const c3 = k3.calls.length; k3.tick(100);
       check(mid > 1600 && mid < T && k.calls.length === c && k2.calls.length === c2 && k3.calls.length === c3,
         `이동 중 휠·터치·키 입력 → 즉시 중단 (중단 위치 ${mid.toFixed(0)}px, 그 뒤 이동 0)`); }
+    { const k = mk(); k.set(1600); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(150); const c = k.calls.length; k.set(1500); k.tick(300);
+      check(k.calls.length === c && k.y === 1500, '이동 중 다른 스크롤(관성 등)이 끼어들면 즉시 멈춤 — 손님 쪽 위치 유지'); }
     { const k = mk(); k.set(1700); k.fire('touchstart'); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(300); const held = k.calls.length; k.fire('touchend'); k.tick(800);
       check(held === 0 && Math.abs(k.y - T) < 0.5, '손가락이 닿아 있는 동안은 기다리고, 뗀 뒤(관성 끝) 착지'); }
     { const k = mk({ scrollend: false }); k.set(1700); k.fire('scroll'); k.tick(100); const early = k.calls.length; k.tick(900);
