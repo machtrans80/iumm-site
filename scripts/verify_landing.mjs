@@ -46,10 +46,10 @@ check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}
        '.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}', '.lp-btn.pro-btn:hover{background:#9ACDF5'].every(x => land.includes(x)),
   '전문 번역 카드 색 (#6FB8F0 / #9ACDF5) · 번호 원·점·가격·채운 버튼');
 check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
-check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 쪽당</span><span class="n">9,000원', '그 외 서류 쪽당 9,000원 · 부가세 별도', '급행이면 다음 영업일 수령 (영업일 기준 예정)',
+check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 쪽당</span><span class="n">9,000원', '<li>그 외 서류 쪽당 9,000원</li>', '<li>급행이면 다음 영업일 수령</li>',
        '신분증·여권 사본공증 + 아포스티유도 가능'].every(t => land.includes(t)), '1번 카드 문구');
 check(['번역의 기준이 바뀌었습니다', '분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성도를 높여 납품합니다.',
-       '(부가세 별도)'].every(t => land.includes(t)), '2번 카드 문구');
+       '<span class="n" id="lp-plan-price">25원부터</span></p>'].every(t => land.includes(t)), '2번 카드 문구 (가격 옆 부가세 문구 없음)');
 check((land.match(/<details>/g) || []).length === 5 && land.includes("showPage('faq')"), 'FAQ 5개 + 전체 보기');
 check(land.includes('3단계면 끝납니다'), '3단계 안내');
 check(land.includes('맡길 수 있는 서류: 가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등<'), '맡길 수 있는 서류 한 줄');
@@ -119,7 +119,7 @@ console.log('\n[7] 전문 번역 과정 섹션');
   vm.createContext(sb2); vm.runInContext(script, sb2);
   check(plans[0].t === sb2.PLAN_PRICE.ai && plans[1].t === sb2.PLAN_PRICE.standard, `플랜 금액 = PLAN_PRICE (${plans[0].t} / ${plans[1].t})`);
   check(sec.includes('스탠다드 <span>(일반 검수)</span>') && sec.includes('프리미엄 플러스 <span>(전문가 검수)</span>') &&
-        sec.includes('제출·계약용 문서는 프리미엄 플러스를 권합니다.') && sec.includes('부가세 별도'), '플랜 이름·권장 문구·부가세 별도');
+        sec.includes('<p class="lp-pro-note">제출·계약용 문서는 프리미엄 플러스를 권합니다.</p>'), '플랜 이름·권장 문구 (부가세 문구 없음)');
   check(sec.includes('명백한 오역은 납품 후 5일 이내 무료로 다시 번역해 드립니다.') &&
         /무료 재번역 또는 A\/S\(품질수정\)/.test(html) && /납품일로부터 <span class="highlight">5일 이내<\/span>/.test(html),
     '신뢰 문구 — 약관 제7조(5일 이내 무료 재번역)와 일치');
@@ -133,7 +133,7 @@ console.log('\n[7] 전문 번역 과정 섹션');
 console.log('\n[9] 공증 3단계 — 시작 버튼');
 {
   const ps = land.slice(land.indexOf('id="process"'), land.indexOf('id="process-pro"'));
-  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust">급행이면 다음 영업일에 받으실 수 있습니다 \(영업일 기준 예정\)\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 시작<\/button>\s*<\/div>/.test(ps),
+  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust">급행이면 다음 영업일에 받아 보실 수 있습니다\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 시작<\/button>\s*<\/div>/.test(ps),
     '.lp-steps 아래 안내 한 줄 + [번역공증 · 아포스티유 시작] → lpGo(notary), 민트 채운 버튼');
 }
 
@@ -141,6 +141,19 @@ console.log('\n[9] 공증 3단계 — 시작 버튼');
 console.log('\n[10] 떠 있는 버튼 — 카카오톡 문의만');
 check(!/iumm-fab|fabGlow|fab-ico|fab-txt|◆ ?<\/span><span class="fab-txt">번역공증 신청/.test(html), '금색 번역공증 신청 버튼·CSS(iumm-fab·fabGlow) 없음');
 check(html.includes('<script src="/assets/kakao-fab.js?v=2" defer></script>'), '카카오톡 문의 버튼(공통 조각)은 그대로');
+
+// ── 11. 메인 보이는 영역 — 부가세·단서 문구 없음 (조건은 결제 단계에서만) ──
+console.log('\n[11] 메인 — 부가세 문구 없음');
+{
+  // 보이는 영역 = 랜딩(첫 화면·카드·3단계·전문 번역·메인 FAQ·서류 한 줄). 스크립트·스타일·주석 제외
+  const vis = land.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+  check(!/부가세/.test(vis), `메인 보이는 영역 "부가세" 0건 (${(vis.match(/부가세/g) || []).length}건)`);
+  const faqSum = land.slice(land.indexOf('id="faq-summary"'));
+  check(/얼마나 걸리나요\?<\/summary><p>[^<]*\(영업일 기준 예정\)/.test(faqSum), '메인 FAQ "얼마나 걸리나요?"의 (영업일 기준 예정)은 유지');
+  check(/비용은 얼마인가요\?<\/summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 쪽당 9,000원입니다\./.test(faqSum), '메인 FAQ "비용은" 답변 — 부가세 문구 없음');
+  const pageFaq = html.slice(html.indexOf('id="page-faq"'), html.indexOf('id="page-faq"') + 60000);
+  check(/쪽당 9,000원\(부가세 별도\)/.test(pageFaq), '전체 FAQ 페이지의 (부가세 별도)는 그대로');
+}
 
 // ── 8. FAQ 낡은 문구 ──
 console.log('\n[8] FAQ 문구 정리');
