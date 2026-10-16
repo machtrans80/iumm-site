@@ -141,9 +141,14 @@ console.log('\n[7] 전문 번역 과정 섹션');
   check(plans[0].t === sb2.PLAN_PRICE.ai && plans[1].t === sb2.PLAN_PRICE.standard, `플랜 금액 = PLAN_PRICE (${plans[0].t} / ${plans[1].t})`);
   check(sec.includes('스탠다드 <span>(일반 검수)</span>') && sec.includes('프리미엄 플러스 <span>(전문가 검수)</span>') &&
         sec.includes('<p class="lp-pro-note">공식 제출·계약 문서에는 프리미엄 플러스를 권해 드립니다.</p>'), '플랜 이름·권장 문구 (부가세 문구 없음)');
-  check(sec.includes('<p class="lp-trust">납품 후 5일 이내, 명백한 오역은 무상으로 재번역해 드립니다.</p>') &&
-        /무료 재번역 또는 A\/S\(품질수정\)/.test(html) && /납품일로부터 <span class="highlight">5일 이내<\/span>/.test(html),
-    '신뢰 문구 — 약관 제7조(5일 이내 무료 재번역)와 일치');
+  check(sec.includes('<p class="lp-trust">파일만 올리면 견적이 바로 나옵니다 · 2009년부터 누적 1만 건 이상</p>') && !/재번역|무상|오역/.test(land.replace(/<[^>]+>/g, '')),
+    'CTA 띠 문구 = "파일만 올리면 견적이 바로 나옵니다 · 2009년부터 누적 1만 건 이상" · 메인에 무상 재번역 안내 없음');
+  {
+    const pf = html.slice(html.indexOf('id="page-faq"'), html.indexOf('<!-- 하단 문의 -->', html.indexOf('id="page-faq"')));
+    check(/번역에 오류가 있으면 어떻게 하나요\?/.test(pf) && /무료 재번역 또는 A\/S\(품질수정\)/.test(pf) && /납품일로부터 <strong>5일 이내<\/strong>/.test(pf) &&
+          /무료 재번역 또는 A\/S\(품질수정\)/.test(html.slice(html.indexOf('id="page-terms"'), html.indexOf('id="page-faq"'))) && /납품일로부터 <span class="highlight">5일 이내<\/span>/.test(html),
+      '무상 재번역 안내는 전체 FAQ("번역에 오류가 있으면 어떻게 하나요?")·이용약관 제7조에 유지');
+  }
   check(sec.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>'), 'CTA 띠 버튼 → handleAI() · 첫 화면 전문 번역 버튼과 같은 스타일');
   check(sec.includes('<button type="button" class="lp-plan" onclick="handleAI()"><span class="nm">스탠다드') &&
         sec.includes('<button type="button" class="lp-plan" onclick="handleStandard()"><span class="nm">프리미엄 플러스') &&
