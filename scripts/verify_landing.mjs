@@ -180,7 +180,7 @@ console.log('\n[9] 공증 3단계 — 시작 버튼');
 // ── 10. 금색 '번역공증 신청' 떠 있는 버튼 삭제 ──
 console.log('\n[10] 떠 있는 버튼 — 카카오톡 문의만');
 check(!/iumm-fab|fabGlow|fab-ico|fab-txt|◆ ?<\/span><span class="fab-txt">번역공증 신청/.test(html), '금색 번역공증 신청 버튼·CSS(iumm-fab·fabGlow) 없음');
-check(html.includes('<script src="/assets/kakao-fab.js?v=3" defer></script>'), '카카오톡 문의 버튼(공통 조각)은 그대로');
+check(html.includes('<script src="/assets/kakao-fab.js?v=4" defer></script>'), '카카오톡 문의 버튼(공통 조각)은 그대로');
 
 // ── 11. 메인 보이는 영역 — 부가세·단서 문구 없음 (조건은 결제 단계에서만) ──
 console.log('\n[11] 메인 — 부가세 문구 없음');
@@ -206,6 +206,11 @@ console.log('\n[12] 검색·공유 문구 · 카카오 버튼');
   check(['name="description"', 'property="og:description"', 'name="twitter:description"'].every(k => html.includes('<meta ' + k + ' content="' + D + '">')), 'meta·OG·twitter 설명 3곳 같은 문구 (부가세·쪽당 없음)');
   const kf = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
   check(kf.includes('#iumm-kakao-fab a{width:52px;height:52px;padding:0;border-radius:50%;gap:0}') && kf.includes('#iumm-kakao-fab a span{display:none}') && kf.includes('aria-label="카카오톡 문의"'), '모바일 카카오 — 52px 원형 아이콘 · aria-label 카카오톡 문의');
+  check(kf.includes("var NTALK_URL = 'https://talk.naver.com/ct/w3r4x3p';") &&
+        kf.includes(`'<a class="ntalk" href="' + NTALK_URL + '" target="_blank" rel="noopener noreferrer" aria-label="네이버 톡톡 문의"`) &&
+        kf.indexOf('NTALK_URL + \'"') < kf.indexOf('KAKAO_URL + \'"') && kf.includes('#iumm-kakao-fab a.ntalk{background:#03C75A;color:#fff}') &&
+        kf.includes('flex-direction:column;align-items:stretch;gap:10px') && !/partner\.talk\.naver\.com/.test(kf),
+    '네이버 톡톡 버튼 — talk.naver.com/ct/w3r4x3p · 새 탭 · 카카오 바로 위(간격 10px) · #03C75A · 관리자 주소 없음');
 }
 
 // ── 13. '쪽' → '페이지' (손님에게 보이는 곳) ──
