@@ -503,7 +503,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   footer > div:first-child > div:first-child{text-align:center}
   footer > div:nth-child(2){text-align:center;font-size:12px !important;line-height:1.9 !important}
   footer > div:nth-child(2) p{word-break:keep-all}
-  footer > div:nth-child(2) span:nth-child(even){display:none !important}
+  footer .footer-biz .fi{white-space:nowrap}  /* 항목 안에서는 줄을 바꾸지 않음 · 구분점은 모두 보임 */
   .footer-links{flex-wrap:wrap;justify-content:center;gap:16px !important}
 
   /* 마이페이지 */
@@ -3330,16 +3330,10 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
   <!-- 하단: 사업자 정보 (한 영역으로 통합, 흐릿하게) -->
   <div class="footer-biz" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.85;font-weight:300;letter-spacing:0.2px">
     <p style="margin:0 0 4px 0">
-      운영 (주)마하글로벌
-      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span>대표 임정한
-      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span>사업자등록번호 894-88-00873
-      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span>통신판매업신고 2018-안양동안-0458
+      <span class="fi">운영 (주)마하글로벌</span><span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span><wbr><span class="fi">대표 임정한</span><span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span><wbr><span class="fi">사업자등록번호 894-88-00873</span><span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span><wbr><span class="fi">통신판매업신고 2018-안양동안-0458</span>
     </p>
     <p style="margin:0 0 4px 0">
-      경기도 안양시 동안구 시민대로 181, 243
-      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span>대표전화 010-2390-5647
-      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span>이메일 iumm.master@gmail.com
-      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span>개인정보보호책임자 임정한
+      <span class="fi">경기도 안양시 동안구 시민대로 181, 243</span><span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span><wbr><span class="fi">대표전화 010-2390-5647</span><span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span><wbr><span class="fi">이메일 iumm.master@gmail.com</span><span style="margin:0 8px;color:rgba(255,255,255,0.25)">·</span><wbr><span class="fi">개인정보보호책임자 임정한</span>
     </p>
     <p style="margin:12px 0 0 0;color:rgba(255,255,255,0.5)">© 2026 IUMM 아이움</p>
   </div>
