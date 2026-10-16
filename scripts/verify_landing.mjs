@@ -554,25 +554,21 @@ console.log('\n[6] 로고');
     '로고 그라데이션·애니메이션 없음');
 }
 
-// ── 통합-2. 해외 서류 메뉴 ──
-console.log('\n[통합-2] 상단 메뉴 "해외 서류"');
+// ── 통합-2. 상단 메뉴 — 해외 서류 항목 없음 (지시 변경) ──
+console.log('\n[통합-2] 상단 메뉴 — 해외 서류 항목 없음');
 {
   const dk = html.slice(html.indexOf('id="nav-links-desktop"'), html.indexOf('</div>', html.indexOf('id="nav-links-desktop"')));
   const mb = html.slice(html.indexOf('id="nav-mobile-menu"'), html.indexOf('</div>', html.indexOf('id="nav-mobile-menu"')));
-  const order = (blk) => ['>아포스티유<', '>해외 서류<', '>전문 번역<'].map(t => blk.indexOf(t));
-  const ok = (blk) => { const o = order(blk); return o[0] >= 0 && o[0] < o[1] && o[1] < o[2] && blk.includes('<a href="/notary/?overseas=1">해외 서류</a>'); };
-  check(ok(dk) && ok(mb), 'PC·모바일 메뉴 — 아포스티유와 전문 번역 사이 · /notary/?overseas=1 (lpGo·로그인 없이 바로)');
-  check(/\.nav-links a\{[^}]*white-space:nowrap/.test(html) && /@media\(min-width:769px\) and \(max-width:1100px\)\{\.nav-links\{gap:18px\}/.test(html), '메뉴 줄바꿈 없음 (좁은 PC 는 간격 18px)');
+  check(!/해외 서류|overseas/.test(dk + mb), 'PC·모바일 메뉴에 "해외 서류" 없음');
 }
-
 // ── 통합-3. 메인 FAQ — 해외 서류 ──
 console.log('\n[통합-3] 메인 FAQ — 해외 서류');
 {
   const fq = html.slice(html.indexOf('id="faq-summary"'), html.indexOf('</section>', html.indexOf('id="faq-summary"')));
   const qs = [...fq.matchAll(/<summary>([^<]+)<\/summary>/g)].map(m => m[1]);
   check(qs.length <= 6 && qs[qs.length - 1] === '해외에서 발급받은 서류도 맡길 수 있나요?' &&
-        fq.includes('<p>네. 미국·일본·중국 등 해외에서 발급받은 서류를 한국에 제출해야 할 때, 현지 공증·아포스티유부터 한국어 번역공증까지 한 번에 진행합니다. 나라와 서류에 따라 절차와 비용이 달라 카카오톡으로 상담 후 안내해 드립니다.</p>'),
-    `메인 FAQ 맨 아래 "해외에서 발급받은 서류도 맡길 수 있나요?" (질문 ${qs.length}개 · 6개 이하)`);
+        fq.includes('<p>네. 미국·일본·중국 등 해외에서 발급받은 서류를 한국에 제출해야 할 때, 현지 공증·아포스티유부터 한국어 번역공증까지 한 번에 진행합니다. 나라와 서류에 따라 절차와 비용이 달라 카카오톡으로 상담 후 안내해 드립니다. <a class="lp-faq-link" href="/notary/?overseas=1">해외 서류 상담 안내 →</a></p>'),
+    `메인 FAQ 맨 아래 "해외에서 발급받은 서류도 맡길 수 있나요?" + "해외 서류 상담 안내 →"(/notary/?overseas=1) (질문 ${qs.length}개 · 6개 이하)`);
 }
 
 // ── 통합-4. 밝은 본문 ──
