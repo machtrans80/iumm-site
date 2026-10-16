@@ -17,7 +17,7 @@ const land = html.slice(a, b);
 check(a > 0 && b > a, '랜딩 구역 찾음');
 
 // ── 1. SINCE 라벨 — 고정 문구 (연차 계산 없음) ──
-console.log('\n[1] 첫 화면 라벨 — SINCE 2012');
+console.log('\n[1] 첫 화면 라벨 — SINCE 2011');
 // 랜딩 스크립트(PLAN_PRICE·lpGo) — 인트로 스크립트와 구분해 고른다
 const script = [...land.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(x => x.includes('PLAN_PRICE'));
 const els = {};
@@ -25,7 +25,7 @@ const sandbox = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }
   document: { getElementById: (id) => (els[id] = els[id] || { textContent: '' }) } };
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
-check(/<p class="lp-label"><span class="en">SINCE 2012<\/span> · 누적 처리 1만 건 이상<\/p>\s*<h1 class="serif">/.test(land), 'h1 위 라벨 "SINCE 2012 · 누적 처리 1만 건 이상"');
+check(/<p class="lp-label"><span class="en">SINCE 2011<\/span> · 누적 처리 1만 건 이상<\/p>\s*<h1 class="serif">/.test(land), 'h1 위 라벨 "SINCE 2011 · 누적 처리 1만 건 이상"');
 check(/\.lp-hero h1\.serif\{font-family:'Nanum Myeongjo',serif !important;font-weight:700;/.test(land) && /family=Nanum\+Myeongjo:wght@[^"&]*700/.test(html), 'h1 명조(Nanum Myeongjo 700) — class="serif" 하나로 관리 (지우면 고딕)');
 check(!/lp-since|lpYears|년째/.test(land), '옛 문장(N년째)·lpYears 스크립트 없음');
 
@@ -141,8 +141,8 @@ console.log('\n[7] 전문 번역 과정 섹션');
   check(plans[0].t === sb2.PLAN_PRICE.ai && plans[1].t === sb2.PLAN_PRICE.standard, `플랜 금액 = PLAN_PRICE (${plans[0].t} / ${plans[1].t})`);
   check(sec.includes('스탠다드 <span>(일반 검수)</span>') && sec.includes('프리미엄 플러스 <span>(전문가 검수)</span>') &&
         sec.includes('<p class="lp-pro-note">공식 제출·계약 문서에는 프리미엄 플러스를 권해 드립니다.</p>'), '플랜 이름·권장 문구 (부가세 문구 없음)');
-  check(sec.includes('<p class="lp-trust">파일만 올리면 견적이 바로 나옵니다 · 2012년부터 누적 1만 건 이상</p>') && !/재번역|무상|오역/.test(land.replace(/<[^>]+>/g, '')),
-    'CTA 띠 문구 = "파일만 올리면 견적이 바로 나옵니다 · 2012년부터 누적 1만 건 이상" · 메인에 무상 재번역 안내 없음');
+  check(sec.includes('<p class="lp-trust">파일만 올리면 견적이 바로 나옵니다 · 2011년부터 누적 1만 건 이상</p>') && !/재번역|무상|오역/.test(land.replace(/<[^>]+>/g, '')),
+    'CTA 띠 문구 = "파일만 올리면 견적이 바로 나옵니다 · 2011년부터 누적 1만 건 이상" · 메인에 무상 재번역 안내 없음');
   {
     const pf = html.slice(html.indexOf('id="page-faq"'), html.indexOf('<!-- 하단 문의 -->', html.indexOf('id="page-faq"')));
     check(/번역에 오류가 있으면 어떻게 하나요\?/.test(pf) && /무료 재번역 또는 A\/S\(품질수정\)/.test(pf) && /납품일로부터 <strong>5일 이내<\/strong>/.test(pf) &&
@@ -230,7 +230,7 @@ check(/\.nav-cta\{background:#16B894;color:#06202f;/.test(html) && html.includes
 check(land.includes('.lp-card.main{border:2px solid var(--mint);background:rgba(22,184,148,0.09)}'), '공증 카드 배경 0.09 · 전문 번역 0.06');
 check(land.includes('.lp-label{font-size:13px;letter-spacing:1px;') && land.includes('.lp-label .en{letter-spacing:3px}') &&
       land.includes('<p class="lp-label"><span class="en">FAQ</span></p>') && land.includes('<p class="lp-label">번역공증 · 아포스티유</p>') && land.includes('<p class="lp-label">전문 번역</p>'),
-  '라벨 자간 — 기본 1px, 영문(SINCE 2012·FAQ)만 3px');
+  '라벨 자간 — 기본 1px, 영문(SINCE 2011·FAQ)만 3px');
 check(html.includes('<div class="footer-biz" style="font-size:12px;color:rgba(255,255,255,0.5);') &&
       (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">\|<\/span>/g) || []).length === 6 &&
       /footer > div:nth-child\(2\)\{text-align:center;font-size:12px !important/.test(html), '푸터 사업자 정보 12px · 흰 50% · 구분선 25% (모바일도 12px)');
@@ -620,7 +620,7 @@ console.log('\n[통합-6] 신뢰 섹션 #proof — 사진 있으면 켜고, 없�
   check(pr.includes('<h2 class="lp-h2">이렇게 받으십니다</h2>') &&
         /src="assets\/sample-notary-1200\.jpg" alt="번역공증 완료본"[^>]*loading="lazy"[^>]*><figcaption>번역공증 완료본<\/figcaption>/.test(pr) &&
         /src="assets\/sample-school-record-1200\.jpg" alt="생활기록부 번역본"[^>]*loading="lazy"[^>]*><figcaption>생활기록부 번역본<\/figcaption>/.test(pr) &&
-        ['공증 완료본은 스캔으로 먼저, 실물은 등기로', '2012년부터 누적 처리 1만 건 이상', '급행 접수 시 다음 영업일 수령'].every(t => pr.includes('<li>' + t + '</li>')),
+        ['공증 완료본은 스캔으로 먼저, 실물은 등기로', '2011년부터 누적 처리 1만 건 이상', '급행 접수 시 다음 영업일 수령'].every(t => pr.includes('<li>' + t + '</li>')),
     '제목 · 사진 2장(가로 1200 사본 · lazy · 캡션) · 3줄');
   check(/\.lp-proof img\{[^}]*object-fit:cover;border-radius:14px/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-proof \.pf\{grid-template-columns:1fr;[^}]*\}\s*\.lp-proof \.ph\{grid-template-columns:1fr\}/.test(html),
     'cover · radius 14px · 모바일 세로 쌓기');
