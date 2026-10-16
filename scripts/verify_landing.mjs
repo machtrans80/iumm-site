@@ -26,7 +26,7 @@ const sandbox = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
 check(/<p class="lp-label"><span class="en">SINCE 2009<\/span> · 누적 처리 1만 건 이상<\/p>\s*<h1 class="serif">/.test(land), 'h1 위 라벨 "SINCE 2009 · 누적 처리 1만 건 이상"');
-check(/\.lp-hero h1\.serif\{font-family:'Nanum Myeongjo',serif;font-weight:700;/.test(land) && /family=Nanum\+Myeongjo:wght@[^"&]*700/.test(html), 'h1 명조(Nanum Myeongjo 700) — class="serif" 하나로 관리 (지우면 고딕)');
+check(/\.lp-hero h1\.serif\{font-family:'Nanum Myeongjo',serif !important;font-weight:700;/.test(land) && /family=Nanum\+Myeongjo:wght@[^"&]*700/.test(html), 'h1 명조(Nanum Myeongjo 700) — class="serif" 하나로 관리 (지우면 고딕)');
 check(!/lp-since|lpYears|년째/.test(land), '옛 문장(N년째)·lpYears 스크립트 없음');
 
 // ── 2. 전문 번역 단가 — PLAN_PRICE 한 곳 ──

@@ -1817,7 +1817,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-h2{font-size:clamp(26px,3.6vw,34px);font-weight:700;color:#fff;letter-spacing:-0.5px;margin:0 0 22px;line-height:1.35}
 .lp-hero{position:relative;z-index:1;padding:24px 0 56px;background:transparent}  /* 인트로(#intro) 바로 다음 — 인트로 아래 빈 곳(--it-tail)을 덮고 올라오므로 위 여백은 24px (빈 남색 40px 이하) */
 .lp-hero h1{font-size:clamp(34px,6vw,64px);font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.2;margin:0 0 22px;word-break:keep-all}
-.lp-hero h1.serif{font-family:'Nanum Myeongjo',serif;font-weight:700;letter-spacing:-1px}  /* 명조 — class 하나로 켜고 끈다 */
+.lp-hero h1.serif{font-family:'Nanum Myeongjo',serif !important;font-weight:700;letter-spacing:-1px}  /* 명조 — class 하나로 켜고 끈다 (전역 *{font-family:… !important} 를 넘으려고 important) */
 .lp-lead{margin:0 0 6px;font-size:clamp(17px,2vw,20px);color:rgba(255,255,255,0.85);line-height:1.65;word-break:keep-all}
 .lp-cards{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
 .lp-card{display:flex;flex-direction:column;gap:16px;padding:32px 30px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);transition:border-color .15s,background .15s}
