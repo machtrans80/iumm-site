@@ -296,9 +296,12 @@ console.log('\n[15] 인트로');
         /color:#5DE0BC;font-size:clamp\(48px,8vw,112px\);font-weight:800;letter-spacing:0\.18em;/.test(it) && /\.it-word \.s\{[^}]*color:rgba\(255,255,255,0\.8\)/.test(it) &&
         /var at = \[0\.6, 0\.64, 0\.68, 0\.72\];/.test(js),
     '"IUMM" I·U·M·M 하나씩 (p 0.6→0.85) · 민트 clamp(48px,8vw,112px) · 자간 0.18em · 800 · 부제 흰색 80%');
-  check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.85\) \/ 0\.15\), lift = \(-24 \* g\)/.test(js) && /stage\.style\.opacity = \(1 - g\)/.test(js) &&
+  check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.85\) \/ 0\.08\), lift = \(-24 \* g\)/.test(js) && /stage\.style\.opacity = \(1 - g\)/.test(js) &&
         /card\.style\.transform = 'translate3d\(0,' \+ lift/.test(js) && /word\.style\.transform = 'translate3d\(0,calc\(-50% \+ ' \+ lift/.test(js),
-    '끝 — p 0.85→1 지도·선·도시명·IUMM·부제가 함께 사라짐(살짝 위로), 다 사라진 뒤 고정 해제');
+    '끝 ① p 0.85→0.93 지도·선·도시명·IUMM·부제가 함께 사라짐(살짝 위로) — 0.93 이후 무대 완전히 투명');
+  check(/heroIn = heroIn \|\| document\.querySelector\('#top > \.lp'\)/.test(js) && /var h = c01\(\(p - 0\.93\) \/ 0\.07\)/.test(js) &&
+        /'translate3d\(0,' \+ \(16 \* \(1 - h\)\)/.test(js) && /DOMContentLoaded', update/.test(js),
+    '끝 ② p 0.93→1 #top 내용(라벨·h1·lead·카드) opacity 0→1 · 16px→0 (위로 돌아가면 역순)');
   {
     const pcPad = +(land.match(/\.lp-hero\{[^}]*padding:(\d+)px /) || [])[1], moPad = +(land.match(/section\.lp-hero\{padding:(\d+)px /) || [])[1];
     check(pcPad <= 40 && moPad <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) && /Math\.max\(0, Math\.floor\(H - navH\)\)/.test(js) &&
@@ -323,17 +326,30 @@ console.log('\n[15] 인트로');
       querySelector: (q) => q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => mkEl() } : mkEl(),
       querySelectorAll: () => Array.from({ length: 5 }, mkEl) };
     let listens = 0;
-    const sb = { document: { getElementById: () => sec }, window: { innerWidth: 1280, innerHeight: 800, addEventListener(){ listens++; }, matchMedia: () => ({ matches: reduce }) },
+    const hero = { style: {} };   // #top > .lp
+    const sb = { document: { getElementById: () => sec, querySelector: (q) => q === '#top > .lp' ? hero : q === 'nav' ? { offsetHeight: 70 } : null },
+      window: { innerWidth: 1280, innerHeight: 800, addEventListener(){ listens++; }, matchMedia: () => ({ matches: reduce }) },
       matchMedia: () => ({ matches: reduce }), sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } },
       requestAnimationFrame: () => {}, Math, Number };
     vm.createContext(sb); vm.runInContext(js, sb);
-    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender };
+    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender, render: sb.window.__itRender, hero };
   };
   const first = run({ reduce: false }), second = run({ reduce: false });
   check(!first.cls.includes('still') && !second.cls.includes('still') && first.listens >= 2 && second.listens >= 2 && first.hasRender && Object.keys(store).length === 0,
     '같은 세션 두 번 열어도 두 번 다 스크롤 연출 (저장 없음)');
   check(run({ reduce: true }).cls.includes('still') && /\.it\.still\{height:60vh\}/.test(it) && /\.it\.still \.it-stage\{position:relative;height:100%\}/.test(it) && /render\(0\.85\);   \/\/ 정지 장면/.test(js),
     'prefers-reduced-motion 만 정지 장면 (높이 60vh · 사라지기 직전 완성 장면)');
+  {
+    // 인트로가 남아 있는 동안(p 0.85~0.93) #top 내용 opacity 0 — 실제 render 를 p 별로 돌려 본다
+    const r = run({ reduce: false }), at = (p) => { r.render(p); return { o: r.hero.style.opacity, t: r.hero.style.transform }; };
+    const hidden = [0, 0.5, 0.85, 0.87, 0.9, 0.92, 0.93].every(p => Number(at(p).o) === 0);
+    const mid = at(0.965), done = at(1), back = at(0.9);
+    check(hidden && Number(mid.o) > 0 && Number(mid.o) < 1 && /translate3d\(0,8\.0px,0\)/.test(mid.t) && done.o === '' && done.t === '' && Number(back.o) === 0,
+      `p 0.85~0.93 사이 #top 내용 opacity 0 · 0.965 → ${mid.o} · p=1 다 보임(style 비움) · 다시 0.9 로 돌아가면 0`);
+    const s = run({ reduce: true });
+    s.render(0.9); s.render(1);
+    check(s.hero.style.opacity === undefined && s.hero.style.transform === undefined, 'reduced-motion 에서 #top 내용 항상 보임 (opacity·transform 을 건드리지 않음)');
+  }
   const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
 }
