@@ -18,7 +18,8 @@ check(a > 0 && b > a, '랜딩 구역 찾음');
 
 // ── 1. SINCE 라벨 — 고정 문구 (연차 계산 없음) ──
 console.log('\n[1] 첫 화면 라벨 — SINCE 2009');
-const script = land.match(/<script>([\s\S]*?)<\/script>/)[1];
+// 랜딩 스크립트(PLAN_PRICE·lpGo) — 인트로 스크립트와 구분해 고른다
+const script = [...land.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(x => x.includes('PLAN_PRICE'));
 const els = {};
 const sandbox = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }, showPage(){}, location: {},
   document: { getElementById: (id) => (els[id] = els[id] || { textContent: '' }) } };
@@ -66,7 +67,12 @@ check(!/lp-in|lpApplyLogin|lp-member|lp-join|카카오로 시작하기/.test(lan
 console.log('\n[4] 금지 표현');
 const visible = land.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/\bAI\b|인공지능|스마트/.test(visible.replace(/PLAN_PRICE\.ai|ai\s*:|handleAI|'ai'/g, '')), 'AI·인공지능·스마트 없음');
-check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible), '그라데이션·글로우·자동 애니메이션 없음');
+// 인트로(#intro)는 맥박·스크롤 안내 움직임이 요구 사항이라 제외하고 본다 (그라데이션·글로우는 인트로도 금지)
+const introStart = land.indexOf('<!-- ════'), introEnd = land.indexOf('<section class="lp-hero" id="top">');
+const introPart = introStart >= 0 && introEnd > introStart ? land.slice(introStart, introEnd) : '';
+check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible.replace(introPart.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, ''), '')),
+  '그라데이션·글로우·자동 애니메이션 없음 (인트로 제외)');
+check(!/gradient|box-shadow|glow/.test(introPart), '인트로도 그라데이션·글로우 없음');
 check(!/✦|[\u{1F300}-\u{1FAFF}]|[☀-➿]/u.test(visible), '✦·이모지 없음');
 check(!html.includes('✦'), 'index.html 전체 ✦ 없음');
 check(!/최고|최저|최초|유일|1위|완벽/.test(visible), '최상급 표현 없음');
@@ -215,6 +221,48 @@ check(land.includes('.lp-label{font-size:13px;letter-spacing:1px;') && land.incl
 check(html.includes('<div class="footer-biz" style="font-size:12px;color:rgba(255,255,255,0.5);') &&
       (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">\|<\/span>/g) || []).length === 6 &&
       /footer > div:nth-child\(2\)\{text-align:center;font-size:12px !important/.test(html), '푸터 사업자 정보 12px · 흰 50% · 구분선 25% (모바일도 12px)');
+
+// ── 15. 인트로 — 스크롤로 선이 이어지는 연출 ──
+console.log('\n[15] 인트로');
+{
+  const i0 = html.indexOf('<section class="it" id="intro"'), top = html.indexOf('<section class="lp-hero" id="top">');
+  check(i0 > 0 && top > i0 && !/<section[^>]*>/.test(html.slice(html.indexOf('</section>', i0) + 10, top).replace(/<script[\s\S]*?<\/script>/g, '')), '#intro 가 #top 바로 위');
+  const it = html.slice(html.lastIndexOf('<!-- ════', i0), top);
+  check(/\.it\{position:relative;height:250vh;/.test(it) && /@media\(max-width:640px\)\{\s*\.it\{height:220vh\}/.test(it), '바깥 높이 PC 250vh / 모바일 220vh');
+  check(/\.it-stage\{position:sticky;top:0;height:100vh;height:100dvh;/.test(it), '무대 sticky · 100vh → 100dvh (iOS 주소창 높이 변화)');
+  check(it.includes('<p class="it-head">당신을 세계로 이어 드립니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
+  check(land.includes('<h1>공증 받으러<br>멀리 가지 마세요</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "공증 받으러 멀리 가지 마세요" 그대로 · 메인 화면에 하나뿐');
+  check((it.match(/class="rt"/g) || []).length === 6 && (it.match(/class="dst"/g) || []).length === 6 && it.includes('class="pulse"'), '한국 → 6곳 곡선·도착 점 · 한국 맥박');
+  check(it.includes('<span>아</span><span> · </span><span>이</span><span> · </span><span>움</span>') && /color:#5DE0BC;font-size:clamp\(40px,7vw,96px\)/.test(it), '"아 · 이 · 움" 민트 clamp(40px,7vw,96px)');
+  check(!/<script[^>]+src=|https?:\/\/(?!www\.w3\.org)/.test(it), '외부 라이브러리·외부 리소스 없음');
+  check(Buffer.byteLength(it, 'utf8') < 100 * 1024, `추가 용량 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (< 100KB)`);
+  const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
+  check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음 (transform·opacity·clip-path·SVG 만)');
+  check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js), 'rAF + passive 스크롤');
+  // 재방문·움직임 줄이기 → static (고정 없음, 완성 장면)
+  const mkEl = () => ({ style: {}, setAttribute(){}, classList: { add(c){ this.c = c; } } });
+  const run = ({ seen, reduce }) => {
+    const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }),
+      querySelector: (q) => q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => mkEl() } : mkEl(),
+      querySelectorAll: (q) => q === '.rt' || q === '.dst' ? Array.from({ length: 6 }, mkEl) : Array.from({ length: 5 }, mkEl) };
+    const store = {}; if (seen) store.iumm_intro_seen = '1';
+    let rafs = 0;
+    const sb = { document: { getElementById: () => sec }, window: { innerWidth: 1280, innerHeight: 800, addEventListener(){}, matchMedia: () => ({ matches: reduce }) },
+      matchMedia: () => ({ matches: reduce }), sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } },
+      requestAnimationFrame: () => { rafs++; }, Math, Number };
+    sb.window.sessionStorage = sb.sessionStorage;
+    vm.createContext(sb); vm.runInContext(js, sb);
+    return { cls: sec.classList.list, store, hasRender: !!sb.window.__itRender };
+  };
+  const first = run({ seen: false, reduce: false });
+  check(!first.cls.includes('static') && first.store.iumm_intro_seen === '1' && first.hasRender, '첫 방문 — 스크롤 연출 · 방문 표시 저장');
+  check(run({ seen: true, reduce: false }).cls.includes('static'), '같은 세션 재방문 — static (고정 없음 · 완성 장면)');
+  check(run({ seen: false, reduce: true }).cls.includes('static'), 'prefers-reduced-motion — static');
+  check(/\.it\.static\{height:100vh;height:100dvh\}/.test(it) && /\.it\.static \.it-stage\{position:relative\}/.test(it), 'static = 높이 100vh·100dvh, 고정 없음');
+  check(/try \{ seen = sessionStorage/.test(js), 'sessionStorage 는 try/catch 안에서만');
+  const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+  check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
+}
 
 // ── 8. FAQ 낡은 문구 ──
 console.log('\n[8] FAQ 문구 정리');
