@@ -140,7 +140,7 @@ console.log('\n[9] 공증 3단계 — 시작 버튼');
 // ── 10. 금색 '번역공증 신청' 떠 있는 버튼 삭제 ──
 console.log('\n[10] 떠 있는 버튼 — 카카오톡 문의만');
 check(!/iumm-fab|fabGlow|fab-ico|fab-txt|◆ ?<\/span><span class="fab-txt">번역공증 신청/.test(html), '금색 번역공증 신청 버튼·CSS(iumm-fab·fabGlow) 없음');
-check(html.includes('<script src="/assets/kakao-fab.js?v=2" defer></script>'), '카카오톡 문의 버튼(공통 조각)은 그대로');
+check(html.includes('<script src="/assets/kakao-fab.js?v=3" defer></script>'), '카카오톡 문의 버튼(공통 조각)은 그대로');
 
 // ── 11. 메인 보이는 영역 — 부가세·단서 문구 없음 (조건은 결제 단계에서만) ──
 console.log('\n[11] 메인 — 부가세 문구 없음');
@@ -153,6 +153,16 @@ console.log('\n[11] 메인 — 부가세 문구 없음');
   check(/비용은 얼마인가요\?<\/summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 쪽당 9,000원입니다\./.test(faqSum), '메인 FAQ "비용은" 답변 — 부가세 문구 없음');
   const pageFaq = html.slice(html.indexOf('id="page-faq"'), html.indexOf('id="page-faq"') + 60000);
   check(/쪽당 9,000원\(부가세 별도\)/.test(pageFaq), '전체 FAQ 페이지의 (부가세 별도)는 그대로');
+}
+
+// ── 12. 검색·공유 문구 · 모바일 카카오 원형 ──
+console.log('\n[12] 검색·공유 문구 · 카카오 버튼');
+{
+  const D = '공증 받으러 멀리 가지 마세요. 서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다. 가족관계·기본·혼인증명서 번역 5,000원, 생활기록부 1페이지 9,000원.';
+  check(html.includes('<title>IUMM 아이움 — 온라인 번역공증 · 아포스티유</title>'), 'title');
+  check(['name="description"', 'property="og:description"', 'name="twitter:description"'].every(k => html.includes('<meta ' + k + ' content="' + D + '">')), 'meta·OG·twitter 설명 3곳 같은 문구 (부가세·쪽당 없음)');
+  const kf = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
+  check(kf.includes('#iumm-kakao-fab a{width:52px;height:52px;padding:0;border-radius:50%;gap:0}') && kf.includes('#iumm-kakao-fab a span{display:none}') && kf.includes('aria-label="카카오톡 문의"'), '모바일 카카오 — 52px 원형 아이콘 · aria-label 카카오톡 문의');
 }
 
 // ── 8. FAQ 낡은 문구 ──

@@ -29,10 +29,11 @@
     '.iumm-kfab-pad{height:84px}' +
     '@media(max-width:640px){' +
       '#iumm-kakao-fab{right:12px;bottom:14px}' +
-      '#iumm-kakao-fab a{height:44px;padding:0 15px;font-size:14.5px;border-radius:11px;gap:8px}' +
-      '#iumm-kakao-fab svg{width:17px;height:17px}' +
-    '}' +
-    '@media(max-width:360px){#iumm-kakao-fab a{height:40px;padding:0 12px;font-size:13.5px}}';
+      // ★모바일은 글자를 숨기고 노란 원형 아이콘(지름 52px, 말풍선만) — 본문을 덜 가린다
+      '#iumm-kakao-fab a{width:52px;height:52px;padding:0;border-radius:50%;gap:0}' +
+      '#iumm-kakao-fab a span{display:none}' +
+      '#iumm-kakao-fab svg{width:24px;height:24px}' +
+    '}';
 
   function mount() {
     if (document.getElementById('iumm-kakao-fab')) return;
@@ -44,7 +45,7 @@
     var box = document.createElement('div');
     box.id = 'iumm-kakao-fab';
     box.innerHTML =
-      '<a href="' + KAKAO_URL + '" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 채널로 문의하기 (새 창으로 열림)">' +
+      '<a href="' + KAKAO_URL + '" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 문의" title="카카오톡 문의 (새 창)">' +
       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C6.98 3 2.9 6.24 2.9 10.24c0 2.55 1.68 4.79 4.21 6.06-.19.68-.67 2.43-.77 2.81-.12.47.17.47.36.34.15-.1 2.42-1.64 3.4-2.31.61.09 1.24.14 1.9.14 5.02 0 9.1-3.24 9.1-7.04S17.02 3 12 3z"/></svg>' +
       '<span>카카오톡 문의</span></a>';
     document.body.appendChild(box);
