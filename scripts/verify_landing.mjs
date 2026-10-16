@@ -233,7 +233,7 @@ console.log('\n[15] 인트로');
   check(i0 > 0 && top > i0 && !/<section[^>]*>/.test(html.slice(html.indexOf('</section>', i0) + 10, top).replace(/<script[\s\S]*?<\/script>/g, '')), '#intro 가 #top 바로 위');
   const it = html.slice(html.lastIndexOf('<!-- ════', i0), top);
   const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
-  check(/\.it\{position:relative;height:250vh;/.test(it) && /@media\(max-width:640px\)\{\s*\.it\{height:220vh\}/.test(it), '바깥 높이 PC 250vh / 모바일 220vh');
+  check(/\.it\{position:relative;height:330vh;/.test(it) && /@media\(max-width:640px\)\{\s*\.it\{height:290vh\}/.test(it), '바깥 높이 PC 330vh / 모바일 290vh');
   check(/\.it-stage\{position:sticky;top:0;height:100vh;height:100dvh;/.test(it), '무대 sticky · 100vh → 100dvh (iOS 주소창 높이 변화)');
   check(it.includes('<p class="it-head">당신을 세계로 이어 드립니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
   check(land.includes('<h1>공증 받으러<br>멀리 가지 마세요</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "공증 받으러 멀리 가지 마세요" 그대로 · 메인 화면에 하나뿐');
@@ -279,7 +279,7 @@ console.log('\n[15] 인트로');
   check(cities.length === 5 && cities[0][2] < Math.min(cities[1][2], cities[2][2]) && Math.max(cities[1][2], cities[2][2]) < Math.min(cities[3][2], cities[4][2]) && cities.every(c => c[3] <= 1),
     '그리는 순서 BEIJING → FRANKFURT·LONDON → LOS ANGELES·NEW YORK');
   check(/E2 = Z0 \* F > 2 \? 1 - Math\.log\(2 \/ F\) \/ Math\.log\(Z0\) : 0/.test(js) && /var q = E2 < 1 \? c01\(\(e - E2\) \/ \(1 - E2\)\)/.test(js),
-    '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.6 에 모두 도착');
+    '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.5 에 모두 도착');
   check(/'Q' \+ f\(Q\[0\]\) \+ ' ' \+ f\(Q\[1\]\)/.test(js) && /dist \* 0\.38\]/.test(js) && /% 360\) - 180/.test(js), '위로 휘는 호 · 중심 경도 기준 좌표');
   check(/dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = d >= 0\.999/.test(js) && /labels\[i\]\.style\.transform = 'translate\(/.test(js),
     '선이 도착하면 도시 점·이름이 켜짐 (줌 중에는 도시 점을 따라감)');
@@ -294,14 +294,14 @@ console.log('\n[15] 인트로');
         it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"IUMM"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
   check(it.includes('<p class="w"><span>I</span><span>U</span><span>M</span><span>M</span></p>') && !/아 · 이 · 움|<span>아<\/span>/.test(it) &&
         /color:#5DE0BC;font-size:clamp\(48px,8vw,112px\);font-weight:800;letter-spacing:0\.18em;/.test(it) && /\.it-word \.s\{[^}]*color:rgba\(255,255,255,0\.8\)/.test(it) &&
-        /var at = \[0\.6, 0\.64, 0\.68, 0\.72\];/.test(js),
-    '"IUMM" I·U·M·M 하나씩 (p 0.6→0.85) · 민트 clamp(48px,8vw,112px) · 자간 0.18em · 800 · 부제 흰색 80%');
-  check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.85\) \/ 0\.08\), lift = \(-24 \* g\)/.test(js) && /stage\.style\.opacity = \(1 - g\)/.test(js) &&
+        /var e = ease\(c01\(p \/ 0\.5\)\);/.test(js) && /var at = \[0\.5, 0\.525, 0\.55, 0\.575\];/.test(js) && /c01\(\(p - at\[j\]\) \/ 0\.03\)/.test(js) && /sub\.style\.opacity = c01\(\(p - 0\.585\) \/ 0\.035\)/.test(js),
+    '줌아웃·곡선 p 0→0.5 · "IUMM" I·U·M·M 하나씩 + 부제 (p 0.5→0.62) · 민트 clamp(48px,8vw,112px) · 자간 0.18em · 800 · 부제 흰색 80%');
+  check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.84\) \/ 0\.08\), lift = \(-24 \* g\)/.test(js) && /stage\.style\.opacity = \(1 - g\)/.test(js) &&
         /card\.style\.transform = 'translate3d\(0,' \+ lift/.test(js) && /word\.style\.transform = 'translate3d\(0,calc\(-50% \+ ' \+ lift/.test(js),
-    '끝 ① p 0.85→0.93 지도·선·도시명·IUMM·부제가 함께 사라짐(살짝 위로) — 0.93 이후 무대 완전히 투명');
-  check(/heroIn = heroIn \|\| document\.querySelector\('#top > \.lp'\)/.test(js) && /var h = c01\(\(p - 0\.93\) \/ 0\.07\)/.test(js) &&
+    '끝 ① p 0.84→0.92 지도·선·도시명·IUMM·부제가 함께 사라짐(살짝 위로) — 0.92 이후 무대 완전히 투명');
+  check(/heroIn = heroIn \|\| document\.querySelector\('#top > \.lp'\)/.test(js) && /var h = c01\(\(p - 0\.92\) \/ 0\.08\)/.test(js) &&
         /'translate3d\(0,' \+ \(16 \* \(1 - h\)\)/.test(js) && /DOMContentLoaded', update/.test(js),
-    '끝 ② p 0.93→1 #top 내용(라벨·h1·lead·카드) opacity 0→1 · 16px→0 (위로 돌아가면 역순)');
+    '끝 ② p 0.92→1 #top 내용(라벨·h1·lead·카드) opacity 0→1 · 16px→0 (위로 돌아가면 역순)');
   {
     const pcPad = +(land.match(/\.lp-hero\{[^}]*padding:(\d+)px /) || [])[1], moPad = +(land.match(/section\.lp-hero\{padding:(\d+)px /) || [])[1];
     check(pcPad <= 40 && moPad <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) && /Math\.max\(0, Math\.floor\(H - navH\)\)/.test(js) &&
@@ -322,9 +322,10 @@ console.log('\n[15] 인트로');
   const mkEl = () => ({ style: {}, setAttribute(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
   const store = {};
   const run = ({ reduce }) => {
+    const one = {}, all = {};
     const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }), style: { setProperty(){} },
-      querySelector: (q) => q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => mkEl() } : mkEl(),
-      querySelectorAll: () => Array.from({ length: 5 }, mkEl) };
+      querySelector: (q) => one[q] = one[q] || (q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => (one['frame rect'] = one['frame rect'] || mkEl()) } : mkEl()),
+      querySelectorAll: (q) => all[q] = all[q] || Array.from({ length: 5 }, mkEl) };
     let listens = 0;
     const hero = { style: {} };   // #top > .lp
     const sb = { document: { getElementById: () => sec, querySelector: (q) => q === '#top > .lp' ? hero : q === 'nav' ? { offsetHeight: 70 } : null },
@@ -332,23 +333,31 @@ console.log('\n[15] 인트로');
       matchMedia: () => ({ matches: reduce }), sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } },
       requestAnimationFrame: () => {}, Math, Number };
     vm.createContext(sb); vm.runInContext(js, sb);
-    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender, render: sb.window.__itRender, hero };
+    const scene = () => JSON.stringify([Object.keys(one).sort().map(k => [k, one[k].style]), Object.keys(all).sort().map(k => [k, all[k].map(e => e.style)]), hero.style]);
+    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender, render: sb.window.__itRender, hero, scene };
   };
   const first = run({ reduce: false }), second = run({ reduce: false });
   check(!first.cls.includes('still') && !second.cls.includes('still') && first.listens >= 2 && second.listens >= 2 && first.hasRender && Object.keys(store).length === 0,
     '같은 세션 두 번 열어도 두 번 다 스크롤 연출 (저장 없음)');
-  check(run({ reduce: true }).cls.includes('still') && /\.it\.still\{height:60vh\}/.test(it) && /\.it\.still \.it-stage\{position:relative;height:100%\}/.test(it) && /render\(0\.85\);   \/\/ 정지 장면/.test(js),
-    'prefers-reduced-motion 만 정지 장면 (높이 60vh · 사라지기 직전 완성 장면)');
+  check(run({ reduce: true }).cls.includes('still') && /\.it\.still\{height:60vh\}/.test(it) && /\.it\.still \.it-stage\{position:relative;height:100%\}/.test(it) && /render\(0\.7\);   \/\/ 정지 장면/.test(js),
+    'prefers-reduced-motion 만 정지 장면 (높이 60vh · 머무는 구간의 완성 장면)');
   {
-    // 인트로가 남아 있는 동안(p 0.85~0.93) #top 내용 opacity 0 — 실제 render 를 p 별로 돌려 본다
+    // 머무는 구간(p 0.62~0.84) — 장면 전체 style 이 하나도 안 바뀐다 (실제 render 를 p 별로 돌려 본다)
+    const m = run({ reduce: false }), snap = (p) => { m.render(p); return m.scene(); };
+    const s62 = snap(0.62), same = [0.66, 0.7, 0.75, 0.8, 0.84].every(p => snap(p) === s62), moved = snap(0.86) !== s62 && snap(0.6) !== s62;
+    check(same && moved, '머무는 구간 p 0.62~0.84 장면 불변 (0.62·0.66·0.7·0.75·0.8·0.84 style 동일, 0.6·0.86 은 다름) · 서울 맥박은 CSS 애니메이션');
+    // 인트로가 남아 있는 동안(p<0.92) #top 내용 opacity 0
     const r = run({ reduce: false }), at = (p) => { r.render(p); return { o: r.hero.style.opacity, t: r.hero.style.transform }; };
-    const hidden = [0, 0.5, 0.85, 0.87, 0.9, 0.92, 0.93].every(p => Number(at(p).o) === 0);
-    const mid = at(0.965), done = at(1), back = at(0.9);
+    const hidden = [0, 0.5, 0.7, 0.84, 0.86, 0.88, 0.9, 0.92].every(p => Number(at(p).o) === 0);
+    const mid = at(0.96), done = at(1), back = at(0.88);
     check(hidden && Number(mid.o) > 0 && Number(mid.o) < 1 && /translate3d\(0,8\.0px,0\)/.test(mid.t) && done.o === '' && done.t === '' && Number(back.o) === 0,
-      `p 0.85~0.93 사이 #top 내용 opacity 0 · 0.965 → ${mid.o} · p=1 다 보임(style 비움) · 다시 0.9 로 돌아가면 0`);
+      `p 0.84~0.92 사이 #top 내용 opacity 0 · 0.96 → ${mid.o} · p=1 다 보임(style 비움) · 다시 0.88 로 돌아가면 0`);
     const s = run({ reduce: true });
     s.render(0.9); s.render(1);
-    check(s.hero.style.opacity === undefined && s.hero.style.transform === undefined, 'reduced-motion 에서 #top 내용 항상 보임 (opacity·transform 을 건드리지 않음)');
+    // snap 은 시험 결과 휠 한 칸으로 못 벗어나 뺐다 — 페이지 어디에도 snap 없음 (reduced-motion 포함)
+    const css = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    check(s.hero.style.opacity === undefined && s.hero.style.transform === undefined && !/scroll-snap-(type|align)/.test(css),
+      'reduced-motion 에서 #top 내용 항상 보임 (opacity·transform 을 건드리지 않음) · snap 없음 (페이지 전체)');
   }
   const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
