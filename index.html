@@ -58,7 +58,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:fl
 .nav-links{display:flex;gap:32px;align-items:center}
 .nav-links a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:15px;font-weight:400;letter-spacing:0px;transition:color 0.2s}
 .nav-links a:hover{color:#5DE0BC}
-.nav-cta{background:#16B894;color:#fff;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;white-space:nowrap}
+.nav-cta{background:#16B894;color:#06202f;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;white-space:nowrap}
 .nav-cta:hover{background:#5DE0BC;color:#0F2540}
 .nav-hamburger{display:none;background:none;border:none;color:#C9D2DC;font-size:22px;cursor:pointer;padding:4px}
 .nav-mobile-menu{display:none;position:fixed;top:58px;left:0;right:0;background:#0A1628;border-bottom:1px solid rgba(255,255,255,0.08);z-index:99;padding:18px 24px;flex-direction:column;gap:14px}
@@ -501,7 +501,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
   footer{flex-direction:column;gap:16px;text-align:center;padding:32px 20px !important}
   footer > div:first-child{flex-direction:column !important;align-items:center !important;gap:20px !important;text-align:center}
   footer > div:first-child > div:first-child{text-align:center}
-  footer > div:nth-child(2){text-align:center;font-size:10px !important;line-height:1.9 !important}
+  footer > div:nth-child(2){text-align:center;font-size:12px !important;line-height:1.9 !important}
   footer > div:nth-child(2) p{word-break:keep-all}
   footer > div:nth-child(2) span:nth-child(even){display:none !important}
   .footer-links{flex-wrap:wrap;justify-content:center;gap:16px !important}
@@ -852,7 +852,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');handleAI();return false">전문 번역</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');showPage('faq');return false">FAQ</a>
   <a href="#" id="nav-login-link-mobile" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
-  <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary')">번역공증 신청</button>
+  <button style="background:#16B894;color:#06202f;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary')">번역공증 신청</button>
 </div>
 
 <!-- 전문가 소개 페이지 -->
@@ -1807,7 +1807,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <style>
 .lp{max-width:1080px;margin:0 auto;padding:0 20px}
 .lp-sec{padding:64px 0;border-top:1px solid rgba(255,255,255,0.08)}
-.lp-label{font-size:13px;letter-spacing:3px;color:var(--mint-light);font-weight:700;margin:0 0 10px}
+.lp-label{font-size:13px;letter-spacing:1px;color:var(--mint-light);font-weight:700;margin:0 0 10px}
+.lp-label .en{letter-spacing:3px}
 .lp-h2{font-size:clamp(26px,3.6vw,34px);font-weight:700;color:#fff;letter-spacing:-0.5px;margin:0 0 22px;line-height:1.35}
 .lp-hero{padding:132px 0 56px;background:var(--black)}
 .lp-hero h1{font-size:clamp(34px,6vw,64px);font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.2;margin:0 0 22px;word-break:keep-all}
@@ -1815,10 +1816,10 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-cards{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
 .lp-card{display:flex;flex-direction:column;gap:16px;padding:32px 30px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);transition:border-color .15s,background .15s}
 .lp-card:hover{border-color:rgba(93,224,188,0.6)}
-.lp-card.main{border:2px solid var(--mint);background:rgba(22,184,148,0.07)}
+.lp-card.main{border:2px solid var(--mint);background:rgba(22,184,148,0.09)}
 .lp-card.main:hover{background:rgba(22,184,148,0.11);border-color:var(--mint-light)}
 /* 전문 번역 카드 — 공증 카드와 같은 무게(2px 테두리·채운 버튼), 색만 하늘색 계열 */
-.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}
+.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.06)}
 .lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}
 .lp-card.pro li::before{background:#9ACDF5}
 .lp-card.pro .lp-big .n{color:#9ACDF5}
@@ -1906,7 +1907,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <!-- ── 첫 화면 + 입구 2개 ──────────────────────────────────── -->
 <section class="lp-hero" id="top">
   <div class="lp">
-    <p class="lp-label">SINCE 2009 · 번역·공증·아포스티유</p>
+    <p class="lp-label"><span class="en">SINCE 2009</span> · 번역·공증·아포스티유</p>
     <h1>공증 받으러<br>멀리 가지 마세요</h1>
     <p class="lp-lead">서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다.</p>
 
@@ -1982,7 +1983,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 <section class="lp-sec lp-faq" id="faq-summary">
   <div class="lp">
-    <p class="lp-label">FAQ</p>
+    <p class="lp-label"><span class="en">FAQ</span></p>
     <h2 class="lp-h2">자주 묻는 질문</h2>
     <details><summary>정말 직접 가지 않아도 되나요?</summary><p>네. 서류를 올리고 결제하시면 번역·공증·아포스티유까지 진행해 등기로 보내드립니다. 방문하실 필요가 없습니다. 온라인 발급본이 없는 서류는 카카오톡으로 문의해 주시면 진행 방법을 안내해 드립니다. 신분증·여권 사본공증은 원본을 빠른등기로 보내 주시면 공증 후 함께 돌려드립니다.</p></details>
     <details><summary>비용은 얼마인가요?</summary><p>번역 비용은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 1페이지 9,000원입니다. 공증·아포스티유를 포함한 금액은 서류를 올리시면 바로 확인하실 수 있습니다.</p></details>
@@ -2805,20 +2806,20 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
   </div>
   
   <!-- 하단: 사업자 정보 (한 영역으로 통합, 흐릿하게) -->
-  <div style="font-size:11px;color:rgba(255,255,255,0.28);line-height:1.85;font-weight:300;letter-spacing:0.2px">
+  <div class="footer-biz" style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.85;font-weight:300;letter-spacing:0.2px">
     <p style="margin:0 0 4px 0">
-      <strong style="color:rgba(255,255,255,0.45);font-weight:500">주식회사 마하글로벌</strong>
-      <span style="margin:0 8px;color:rgba(255,255,255,0.15)">|</span>대표 임정한
-      <span style="margin:0 8px;color:rgba(255,255,255,0.15)">|</span>사업자등록번호 894-88-00873
-      <span style="margin:0 8px;color:rgba(255,255,255,0.15)">|</span>통신판매업신고 2018-안양동안-0458
+      <strong style="color:rgba(255,255,255,0.7);font-weight:500">주식회사 마하글로벌</strong>
+      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">|</span>대표 임정한
+      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">|</span>사업자등록번호 894-88-00873
+      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">|</span>통신판매업신고 2018-안양동안-0458
     </p>
     <p style="margin:0 0 4px 0">
       경기도 안양시 동안구 시민대로 181, 243
-      <span style="margin:0 8px;color:rgba(255,255,255,0.15)">|</span>대표전화 010-2390-5647
-      <span style="margin:0 8px;color:rgba(255,255,255,0.15)">|</span>이메일 iumm.master@gmail.com
-      <span style="margin:0 8px;color:rgba(255,255,255,0.15)">|</span>개인정보보호책임자 임정한
+      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">|</span>대표전화 010-2390-5647
+      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">|</span>이메일 iumm.master@gmail.com
+      <span style="margin:0 8px;color:rgba(255,255,255,0.25)">|</span>개인정보보호책임자 임정한
     </p>
-    <p style="margin:12px 0 0 0;color:rgba(255,255,255,0.22)">© 2026 주식회사 마하글로벌. All rights reserved.</p>
+    <p style="margin:12px 0 0 0;color:rgba(255,255,255,0.5)">© 2026 주식회사 마하글로벌. All rights reserved.</p>
   </div>
 </footer>
 

@@ -24,7 +24,7 @@ const sandbox = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }
   document: { getElementById: (id) => (els[id] = els[id] || { textContent: '' }) } };
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
-check(/<p class="lp-label">SINCE 2009 · 번역·공증·아포스티유<\/p>\s*<h1>/.test(land), 'h1 위 라벨 "SINCE 2009 · 번역·공증·아포스티유"');
+check(/<p class="lp-label"><span class="en">SINCE 2009<\/span> · 번역·공증·아포스티유<\/p>\s*<h1>/.test(land), 'h1 위 라벨 "SINCE 2009 · 번역·공증·아포스티유"');
 check(!/lp-since|lpYears|년째/.test(land), '옛 문장(N년째)·lpYears 스크립트 없음');
 
 // ── 2. 전문 번역 단가 — PLAN_PRICE 한 곳 ──
@@ -41,7 +41,7 @@ check(land.includes('<p class="lp-lead">서류만 올려 주시면 번역부터 
 check((land.match(/class="lp-card[ "]/g) || []).length === 2 && land.includes('lp-card main'), '카드 2개 · 1번 강조');
 check(land.includes("<button type=\"button\" class=\"lp-btn\" onclick=\"lpGo('notary')\">번역공증 · 아포스티유 신청하기</button>"), '1번 버튼 → 위저드');
 check(land.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>') && land.includes('<div class="lp-card pro">'), '2번 카드 pro · 버튼 → 전문 번역 모달 (채운 버튼)');
-check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}', '.lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}',
+check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.06)}', '.lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}',
        '.lp-card.pro li::before{background:#9ACDF5}', '.lp-card.pro .lp-big .n{color:#9ACDF5}',
        '.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}', '.lp-btn.pro-btn:hover{background:#9ACDF5'].every(x => land.includes(x)),
   '전문 번역 카드 색 (#6FB8F0 / #9ACDF5) · 점·가격·채운 버튼');
@@ -204,6 +204,17 @@ console.log('\n[13] 쪽 → 페이지');
   }
   check(hits.length === 0, `손님 화면 '쪽당'·'N쪽' 0건${hits.length ? ' — ' + hits.join(', ') : ''}`);
 }
+
+// ── 14. 디자인·색감 ──
+console.log('\n[14] 디자인·색감');
+check(/\.nav-cta\{background:#16B894;color:#06202f;/.test(html) && html.includes('<button style="background:#16B894;color:#06202f;'), 'nav 번역공증 신청 버튼 글자 #06202f (PC·모바일 메뉴)');
+check(land.includes('.lp-card.main{border:2px solid var(--mint);background:rgba(22,184,148,0.09)}'), '공증 카드 배경 0.09 · 전문 번역 0.06');
+check(land.includes('.lp-label{font-size:13px;letter-spacing:1px;') && land.includes('.lp-label .en{letter-spacing:3px}') &&
+      land.includes('<p class="lp-label"><span class="en">FAQ</span></p>') && land.includes('<p class="lp-label">번역공증 · 아포스티유</p>') && land.includes('<p class="lp-label">전문 번역</p>'),
+  '라벨 자간 — 기본 1px, 영문(SINCE 2009·FAQ)만 3px');
+check(html.includes('<div class="footer-biz" style="font-size:12px;color:rgba(255,255,255,0.5);') &&
+      (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">\|<\/span>/g) || []).length === 6 &&
+      /footer > div:nth-child\(2\)\{text-align:center;font-size:12px !important/.test(html), '푸터 사업자 정보 12px · 흰 50% · 구분선 25% (모바일도 12px)');
 
 // ── 8. FAQ 낡은 문구 ──
 console.log('\n[8] FAQ 문구 정리');
