@@ -1897,10 +1897,26 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp{padding:0 16px}
   .lp-hero h1{font-size:36px}
   .lp-card{padding:24px 20px}
-  .lp-bigs{grid-template-columns:1fr;gap:12px}
+  /* 신청 카드 가격 두 개 나란히 — 첫 화면 안에 신청 버튼까지 들어오게 */
+  .lp-bigs{grid-template-columns:1fr 1fr;gap:10px}
+  .lp-bigs .lp-big .s{font-size:14px;margin-bottom:4px}
+  .lp-bigs .lp-big .n{font-size:clamp(24px,7.4vw,30px)}
   .lp-btn{width:100%}
   .lp-steps.four{grid-template-columns:1fr}
-  .lp-plans{grid-template-columns:1fr}
+  /* 3단계·4단계 카드 — 번호 + 제목 한 줄, 설명 14px, padding 16px */
+  .lp-steps{gap:10px}
+  .lp-step{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline;padding:16px}
+  .lp-step .no{font-size:12px}
+  .lp-step .t{font-size:17px;margin:0}
+  .lp-step .d{grid-column:1 / -1;font-size:14px;line-height:1.6;margin-top:6px}
+  /* 플랜 박스 2개 나란히 */
+  .lp-plans{grid-template-columns:1fr 1fr;gap:10px}
+  .lp-plan{padding:14px 14px}
+  .lp-plan .nm{font-size:15px}
+  .lp-plan .nm span{display:block;font-size:13px}
+  .lp-plan .pr{font-size:14px;margin-top:6px}
+  .lp-plan .pr b{font-size:clamp(20px,6vw,24px)}
+  .lp-plan .go{font-size:13px;margin-top:6px}
   .lp-pro-act{flex-direction:column;align-items:stretch;padding:18px 18px}
   .lp-pro-act .lp-btn{width:100%}
 }
@@ -2323,7 +2339,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
         </div>
         <ul>
           <li>그 외 서류 1페이지 9,000원</li>
-          <li>급행 접수 시 다음 영업일 수령</li>
+          <li id="lp-eta-card">급행 접수 시 다음 영업일 수령</li>
           <li>신분증·여권 사본공증 및 아포스티유</li>
         </ul>
         <div class="act">
@@ -2435,7 +2451,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
       <div class="lp-step"><div class="no">STEP 3</div><div class="t">댁에서 수령</div><div class="d">공증 서류 스캔본을 마이페이지로 먼저 보내 드리고, 실물은 등기로 발송합니다.</div></div>
     </div>
     <div class="lp-pro-act">
-      <p class="lp-trust">급행 접수 시 다음 영업일에 받아 보실 수 있습니다.</p>
+      <p class="lp-trust" id="lp-eta-cta">급행 접수 시 다음 영업일에 받아 보실 수 있습니다.</p>
       <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 신청하기</button>
     </div>
   </div>
@@ -2503,6 +2519,21 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
     var k = el.getAttribute('data-plan');
     if (PLAN_PRICE[k] != null) el.textContent = PLAN_PRICE[k];
   });
+  // 수령일 실시간 — 신청 카드 한 줄 · 3단계 CTA 띠 왼쪽. 번역공증(T2) 급행 기준, 서버(/api/notary/eta)가 영업일·공휴일·휴무일로 계산한 날짜.
+  //   실패(네트워크·형식 오류·4초 초과)면 아무것도 바꾸지 않는다 = 기존 고정 문구 그대로.
+  lpEta(function(day){
+    var W = ['일', '월', '화', '수', '목', '금', '토'], d = new Date(day + 'T00:00:00Z');
+    var txt = '지금 급행 접수하면 ' + (d.getUTCMonth() + 1) + '월 ' + d.getUTCDate() + '일(' + W[d.getUTCDay()] + ') 수령';
+    ['lp-eta-card', 'lp-eta-cta'].forEach(function(id){ var el = document.getElementById(id); if (el) el.textContent = txt; });
+  });
+  function lpEta(done){
+    if (typeof fetch !== 'function') return;
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null, to = setTimeout(function(){ if (ctl) ctl.abort(); }, 4000);
+    fetch('https://iumm-pipeline-production.up.railway.app/api/notary/eta', ctl ? { signal: ctl.signal } : {})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ clearTimeout(to); var day = j && j.express && j.express.T2; if (/^\d{4}-\d{2}-\d{2}$/.test(day || '')) done(day); })
+      .catch(function(){ clearTimeout(to); });
+  }
 })();
 </script>
 

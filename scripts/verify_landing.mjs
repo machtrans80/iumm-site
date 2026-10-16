@@ -164,7 +164,7 @@ console.log('\n[7] 전문 번역 과정 섹션');
 console.log('\n[9] 공증 3단계 — 시작 버튼');
 {
   const ps = land.slice(land.indexOf('id="process"'), land.indexOf('id="process-pro"'));
-  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust">급행 접수 시 다음 영업일에 받아 보실 수 있습니다\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 신청하기<\/button>\s*<\/div>/.test(ps),
+  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust" id="lp-eta-cta">급행 접수 시 다음 영업일에 받아 보실 수 있습니다\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 신청하기<\/button>\s*<\/div>/.test(ps),
     'CTA 띠 — "급행 접수 시…" + [번역공증 · 아포스티유 신청하기] → lpGo(notary)');
   check(html.includes(`<button class="nav-cta" id="nav-order-btn" onclick="lpGo('notary')">번역공증 신청</button>`) &&
         html.includes(`onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary')">번역공증 신청</button`) &&
@@ -548,7 +548,7 @@ console.log('\n[6] 로고');
 }
 
 // ── 통합-2. 해외 서류 메뉴 ──
-console.log('\n[7] 상단 메뉴 "해외 서류"');
+console.log('\n[통합-2] 상단 메뉴 "해외 서류"');
 {
   const dk = html.slice(html.indexOf('id="nav-links-desktop"'), html.indexOf('</div>', html.indexOf('id="nav-links-desktop"')));
   const mb = html.slice(html.indexOf('id="nav-mobile-menu"'), html.indexOf('</div>', html.indexOf('id="nav-mobile-menu"')));
@@ -559,7 +559,7 @@ console.log('\n[7] 상단 메뉴 "해외 서류"');
 }
 
 // ── 통합-3. 메인 FAQ — 해외 서류 ──
-console.log('\n[8] 메인 FAQ — 해외 서류');
+console.log('\n[통합-3] 메인 FAQ — 해외 서류');
 {
   const fq = html.slice(html.indexOf('id="faq-summary"'), html.indexOf('</section>', html.indexOf('id="faq-summary"')));
   const qs = [...fq.matchAll(/<summary>([^<]+)<\/summary>/g)].map(m => m[1]);
@@ -569,7 +569,7 @@ console.log('\n[8] 메인 FAQ — 해외 서류');
 }
 
 // ── 통합-4. 밝은 본문 ──
-console.log('\n[9] 밝은 본문 — #process · #process-pro · #faq-summary (· #proof)');
+console.log('\n[통합-4] 밝은 본문 — #process · #process-pro · #faq-summary (· #proof)');
 {
   const secTag = (id) => (html.match(new RegExp('<section[^>]*id="' + id + '"[^>]*>')) || [''])[0];
   check(['process', 'process-pro', 'faq-summary'].every(id => /class="[^"]*\blp-light\b/.test(secTag(id))) && !/lp-light/.test(secTag('top') + secTag('intro')) &&
@@ -600,7 +600,7 @@ console.log('\n[9] 밝은 본문 — #process · #process-pro · #faq-summary (�
 }
 
 // ── 통합-6. 신뢰 섹션 #proof ──
-console.log('\n[10] 신뢰 섹션 #proof — 사진 있으면 켜고, 없으면 hidden');
+console.log('\n[통합-6] 신뢰 섹션 #proof — 사진 있으면 켜고, 없으면 hidden');
 {
   const tag = (html.match(/<section[^>]*id="proof"[^>]*>/) || [''])[0];
   const pr = html.slice(html.indexOf(tag), html.indexOf('</section>', html.indexOf(tag)));
@@ -618,6 +618,39 @@ console.log('\n[10] 신뢰 섹션 #proof — 사진 있으면 켜고, 없으면 
     'cover · radius 14px · 모바일 세로 쌓기');
   check(has && opt ? !/\bhidden\b/.test(tag) : /\shidden>$/.test(tag) && /\.lp-proof\[hidden\]\{display:none !important\}/.test(html),
     has && opt ? '사진 있음 → 켠 상태' : '사진 없음(assets/sample-*.jpg) → 플래그(hidden)로 섹션 전체 숨김');
+}
+
+// ── 통합-7. 수령일 실시간 · 모바일 압축 ──
+console.log('\n[통합-7] 수령일 실시간(/api/notary/eta) · 모바일 압축');
+{
+  check(land.includes('<li id="lp-eta-card">급행 접수 시 다음 영업일 수령</li>') && land.includes('<p class="lp-trust" id="lp-eta-cta">급행 접수 시 다음 영업일에 받아 보실 수 있습니다.</p>'),
+    '고정 문구(실패 시 그대로) — 신청 카드 한 줄 · 3단계 CTA 띠 왼쪽');
+  const FIX = { 'lp-eta-card': '급행 접수 시 다음 영업일 수령', 'lp-eta-cta': '급행 접수 시 다음 영업일에 받아 보실 수 있습니다.' };
+  const runEta = async (fetchImpl) => {
+    const e = {}; const get = (id) => (e[id] = e[id] || { textContent: FIX[id] || '' });
+    const sb = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }, showPage(){}, location: {}, fetch: fetchImpl, AbortController,
+      setTimeout, clearTimeout, Date, document: { getElementById: get } };
+    vm.createContext(sb); vm.runInContext(script, sb);
+    await new Promise(r => setTimeout(r, 20));
+    return [get('lp-eta-card').textContent, get('lp-eta-cta').textContent];
+  };
+  const ok = await runEta(async (u) => ({ ok: /\/api\/notary\/eta$/.test(u), json: async () => ({ express: { T2: '2026-10-19', T3: '2026-10-21' }, normal: { T2: '2026-10-21', T3: '2026-10-23' } }) }));
+  check(ok[0] === '지금 급행 접수하면 10월 19일(월) 수령' && ok[1] === ok[0], `API 성공 → "${ok[0]}" (카드 · CTA 띠 같은 문구, T2 기준 · 요일 포함)`);
+  const fails = await Promise.all([
+    runEta(async () => { throw new Error('network'); }),
+    runEta(async () => ({ ok: false, json: async () => ({}) })),
+    runEta(async () => ({ ok: true, json: async () => ({ express: { T2: '10/19' } }) })),
+    runEta(async () => ({ ok: true, json: async () => null })),
+  ]);
+  check(fails.every(([a, b]) => a === FIX['lp-eta-card'] && b === FIX['lp-eta-cta']), 'API 실패(네트워크 · 5xx · 형식 오류 · 빈 응답) → 기존 고정 문구 그대로');
+  check(/setTimeout\(function\(\)\{ if \(ctl\) ctl\.abort\(\); \}, 4000\)/.test(script) && script.includes("'https://iumm-pipeline-production.up.railway.app/api/notary/eta'"),
+    '4초 넘게 걸리면 중단(고정 문구 유지) · 파이프라인 주소 직접(MEMBER_API_BASE 는 뒤쪽 스크립트라 아직 없음)');
+  const m640 = (html.match(/@media\(max-width:640px\)\{\s*\.lp\{padding:0 16px\}[\s\S]*?\n\}/) || [''])[0];
+  check(/\.lp-bigs\{grid-template-columns:1fr 1fr;gap:10px\}/.test(m640) && /\.lp-bigs \.lp-big \.n\{font-size:clamp\(/.test(m640),
+    '모바일 — 신청 카드 가격 두 개 나란히 2열 · 숫자 clamp 축소');
+  check(/\.lp-step\{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline;padding:16px\}/.test(m640) &&
+        /\.lp-step \.d\{grid-column:1 \/ -1;font-size:14px;/.test(m640), '모바일 — 3·4단계 카드 번호 + 제목 한 줄 · 설명 14px · padding 16px');
+  check(/\.lp-plans\{grid-template-columns:1fr 1fr;gap:10px\}/.test(m640), '모바일 — 플랜 박스 2개 나란히 2열');
 }
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
