@@ -203,6 +203,10 @@ console.log('\n[12] 검색·공유 문구 · 카카오 버튼');
 {
   const D = '공증 받으러 멀리 가지 마세요. 서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다. 가족관계·기본·혼인증명서 번역 5,000원, 생활기록부 1페이지 9,000원.';
   check(html.includes('<title>IUMM 아이움 — 온라인 번역공증 · 아포스티유</title>'), 'title');
+  // ★네이버 서치어드바이저 소유확인 — 확인이 끝난 뒤에도 지우지 말 것
+  { const head = html.slice(0, html.indexOf('</head>')), m = head.match(/<meta name="naver-site-verification" content="([^"]*)" \/>/g) || [];
+    check(m.length === 1 && m[0] === '<meta name="naver-site-verification" content="17fc290db2afb148dcf2efe0da9224550c09d4f8" />',
+      'naver-site-verification 태그 존재 · 값 일치 (<head> 안 1개)'); }
   check(['name="description"', 'property="og:description"', 'name="twitter:description"'].every(k => html.includes('<meta ' + k + ' content="' + D + '">')), 'meta·OG·twitter 설명 3곳 같은 문구 (부가세·쪽당 없음)');
   const kf = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
   check(kf.includes('#iumm-kakao-fab a{width:52px;height:52px;padding:0;border-radius:50%;gap:0}') && kf.includes('#iumm-kakao-fab a span{display:none}') && kf.includes('aria-label="카카오톡 문의"'), '모바일 카카오 — 52px 원형 아이콘 · aria-label 카카오톡 문의');
