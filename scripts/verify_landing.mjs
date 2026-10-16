@@ -67,12 +67,16 @@ check(!/lp-in|lpApplyLogin|lp-member|lp-join|카카오로 시작하기/.test(lan
 console.log('\n[4] 금지 표현');
 const visible = land.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/\bAI\b|인공지능|스마트/.test(visible.replace(/PLAN_PRICE\.ai|ai\s*:|handleAI|'ai'/g, '')), 'AI·인공지능·스마트 없음');
-// 인트로(#intro)는 맥박·스크롤 안내 움직임이 요구 사항이라 제외하고 본다 (그라데이션·글로우는 인트로도 금지)
-const introStart = land.indexOf('<!-- ════'), introEnd = land.indexOf('<section class="lp-hero" id="top">');
+// 인트로(#intro)는 맥박·스크롤 안내 움직임이 요구 사항이라 제외하고 본다
+// (인트로 그라데이션은 "아 · 이 · 움" 뒤 바탕 1개만 허용 — 글로우·그림자는 인트로도 금지)
+const introEnd = land.indexOf('<section class="lp-hero" id="top">');
+const introStart = land.lastIndexOf('<!-- ════', land.indexOf('<section class="it" id="intro"'));
 const introPart = introStart >= 0 && introEnd > introStart ? land.slice(introStart, introEnd) : '';
 check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible.replace(introPart.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, ''), '')),
   '그라데이션·글로우·자동 애니메이션 없음 (인트로 제외)');
-check(!/gradient|box-shadow|glow/.test(introPart), '인트로도 그라데이션·글로우 없음');
+check(!/box-shadow|glow|linear-gradient/.test(introPart) && (introPart.match(/gradient\(/g) || []).length === 1 &&
+      introPart.includes('background:radial-gradient(closest-side,rgba(15,37,64,0.85),rgba(15,37,64,0))'),
+  '인트로 — 그라데이션은 글자 뒤 바탕(radial 남색 0.85 → 투명) 1개뿐 · 글로우·그림자 없음');
 check(!/✦|[\u{1F300}-\u{1FAFF}]|[☀-➿]/u.test(visible), '✦·이모지 없음');
 check(!html.includes('✦'), 'index.html 전체 ✦ 없음');
 check(!/최고|최저|최초|유일|1위|완벽/.test(visible), '최상급 표현 없음');
@@ -240,9 +244,20 @@ console.log('\n[15] 인트로');
   check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음 (transform·opacity·clip-path·SVG 만)');
   check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js), 'rAF + passive 스크롤');
   // 재방문·움직임 줄이기 → static (고정 없음, 완성 장면)
-  const mkEl = () => ({ style: {}, setAttribute(){}, classList: { add(c){ this.c = c; } } });
+  // 글자 뒤 바탕 — 부제까지 한 바탕 안, 폭 1.6배
+  check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신을 세계로 이어 드립니다<\/p>\s*<\/div>/.test(it) &&
+        it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"아 · 이 · 움"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
+  check(/<g id="continents"><\/g>/.test(it), 'SVG #continents 빈 그룹 자리');
+  // 인트로 끝 ~ #top 빈 남색 — 지구 아래 빈 곳(--it-tail)만큼 #top 이 올라오고, #top 위 여백 ≤ 32px (8px 여유 포함 40px 이하)
+  {
+    const pcPad = +(land.match(/\.lp-hero\{[^}]*padding:(\d+)px /) || [])[1], moPad = +(land.match(/section\.lp-hero\{padding:(\d+)px /) || [])[1];
+    check(pcPad + 8 <= 40 && moPad + 8 <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) &&
+          /\.lp-hero\{position:relative;z-index:1;/.test(land) && /\.it-stage\{[^}]*z-index:0\}/.test(it),
+      `인트로 끝 → #top 빈 구간 PC ${pcPad + 8}px / 모바일 ${moPad + 8}px (≤ 40) · #top 이 무대 위로`);
+  }
+  const mkEl = () => ({ style: {}, setAttribute(){}, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(c){ this.c = c; } } });
   const run = ({ seen, reduce }) => {
-    const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }),
+    const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }), style: { setProperty(){} },
       querySelector: (q) => q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => mkEl() } : mkEl(),
       querySelectorAll: (q) => q === '.rt' || q === '.dst' ? Array.from({ length: 6 }, mkEl) : Array.from({ length: 5 }, mkEl) };
     const store = {}; if (seen) store.iumm_intro_seen = '1';
