@@ -56,8 +56,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:fl
 .nav-logo .lg-en,.footer-logo .lg-en{color:var(--mint-light);font-weight:800;letter-spacing:0.14em}
 .nav-logo .lg-ko,.footer-logo .lg-ko{color:rgba(255,255,255,0.9);font-weight:500;font-size:calc(1em - 2px);letter-spacing:0;margin-left:8px}
 .nav-links{display:flex;gap:32px;align-items:center}
-.nav-links a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:15px;font-weight:400;letter-spacing:0px;transition:color 0.2s}
+.nav-links a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:15px;font-weight:400;letter-spacing:0px;white-space:nowrap;transition:color 0.2s}
 .nav-links a:hover{color:#5DE0BC}
+@media(min-width:769px) and (max-width:1100px){.nav-links{gap:18px}.nav-links a{font-size:14px}}  /* 메뉴 6개 — 좁은 PC 에서 한 줄 유지 */
 .nav-cta{background:#16B894;color:#06202f;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;white-space:nowrap}
 .nav-cta:hover{background:#5DE0BC;color:#0F2540}
 .nav-hamburger{display:none;background:none;border:none;color:#C9D2DC;font-size:22px;cursor:pointer;padding:4px}
@@ -838,6 +839,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <div class="nav-links" id="nav-links-desktop">
       <a href="#" onclick="lpGo('notary');return false">번역공증</a>
       <a href="#" onclick="lpGo('apostille');return false">아포스티유</a>
+      <a href="/notary/?overseas=1">해외 서류</a>  <!-- 해외 발급 서류(한국 제출용) — lpGo 없이 바로, 로그인 없이 카카오톡 상담 안내 -->
       <!-- 전문번역(번역만)은 보조 서비스 — 내비 링크 + 랜딩 한 줄 두 곳에서만 진입한다 -->
       <a href="#" onclick="handleAI();return false">전문 번역</a>
       <a href="#" onclick="showPage('faq');return false">FAQ</a>
@@ -850,6 +852,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <div class="nav-mobile-menu" id="nav-mobile-menu">
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary');return false">번역공증</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('apostille');return false">아포스티유</a>
+  <a href="/notary/?overseas=1">해외 서류</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');handleAI();return false">전문 번역</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');showPage('faq');return false">FAQ</a>
   <a href="#" id="nav-login-link-mobile" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>

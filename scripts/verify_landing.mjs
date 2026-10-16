@@ -545,5 +545,16 @@ console.log('\n[6] 로고');
     '로고 그라데이션·애니메이션 없음');
 }
 
+// ── 7. 해외 서류 메뉴 ──
+console.log('\n[7] 상단 메뉴 "해외 서류"');
+{
+  const dk = html.slice(html.indexOf('id="nav-links-desktop"'), html.indexOf('</div>', html.indexOf('id="nav-links-desktop"')));
+  const mb = html.slice(html.indexOf('id="nav-mobile-menu"'), html.indexOf('</div>', html.indexOf('id="nav-mobile-menu"')));
+  const order = (blk) => ['>아포스티유<', '>해외 서류<', '>전문 번역<'].map(t => blk.indexOf(t));
+  const ok = (blk) => { const o = order(blk); return o[0] >= 0 && o[0] < o[1] && o[1] < o[2] && blk.includes('<a href="/notary/?overseas=1">해외 서류</a>'); };
+  check(ok(dk) && ok(mb), 'PC·모바일 메뉴 — 아포스티유와 전문 번역 사이 · /notary/?overseas=1 (lpGo·로그인 없이 바로)');
+  check(/\.nav-links a\{[^}]*white-space:nowrap/.test(html) && /@media\(min-width:769px\) and \(max-width:1100px\)\{\.nav-links\{gap:18px\}/.test(html), '메뉴 줄바꿈 없음 (좁은 PC 는 간격 18px)');
+}
+
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);
