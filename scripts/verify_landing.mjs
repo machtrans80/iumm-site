@@ -285,9 +285,9 @@ console.log('\n[15] 인트로');
 
   // 정리 — 움직이는 속성·용량·외부 리소스
   check(!/<script[^>]+src=|https?:\/\/(?!www\.w3\.org)/.test(it), '외부 라이브러리·외부 리소스 없음');
-  check(Buffer.byteLength(it, 'utf8') < 100 * 1024, `추가 용량 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (< 100KB)`);
+  check(Buffer.byteLength(it, 'utf8') <= 60 * 1024, `인트로 전체 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (지도 포함, ≤ 60KB)`);
   check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음 (transform·opacity·clip-path·stroke-dashoffset 만)');
-  check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js), 'rAF + passive 스크롤');
+  check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js) && !/setTimeout|setInterval/.test(js), 'rAF + passive 스크롤 · 자동 재생 없음');
   check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 삭제)');
   // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
   const mkEl = () => ({ style: {}, setAttribute(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
