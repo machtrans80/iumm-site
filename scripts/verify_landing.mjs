@@ -248,7 +248,7 @@ console.log('\n[15] 인트로');
   check(it.includes('.it-map .land{fill:none;stroke:rgba(255,255,255,0.42);stroke-width:2.4px;stroke-linecap:round;vector-effect:non-scaling-stroke}'),
     '점 = 둥근 선끝 · 지름 2.4px · 흰색 42% (줌해도 굵기 그대로)');
   check(/^M[\d.]+ [\d.]+l/.test(kd) && (kd.match(/z/g) || []).length === 12 && Buffer.byteLength(kd, 'utf8') <= 6 * 1024 &&
-        it.includes('.it-map .korea{fill:rgba(93,224,188,0.12);stroke:#5DE0BC;stroke-width:1.5px;'),
+        it.includes('.it-map .korea{fill:rgba(93,224,188,0.15);stroke:#5DE0BC;stroke-width:1.5px;'),
     `한반도 = 50m 남·북 윤곽 path (고리 ${(kd.match(/z/g) || []).length}개 · ${(Buffer.byteLength(kd, 'utf8') / 1024).toFixed(1)}KB) · 민트 선 1.5px + 민트 12%`);
   const mapBytes = Buffer.byteLength(d + kd, 'utf8');
   check(mapBytes <= 40 * 1024, `지도 용량 ${(mapBytes / 1024).toFixed(1)}KB (점 ${(Buffer.byteLength(d, 'utf8') / 1024).toFixed(1)} + 한반도 ${(Buffer.byteLength(kd, 'utf8') / 1024).toFixed(1)}, ≤ 40KB)`);
@@ -300,7 +300,15 @@ console.log('\n[15] 인트로');
     '선 1.2px · 민트 70% · 도착 점 지름 4px');
   check(/E2 = Z0 \* F > 2 \? 1 - Math\.log\(2 \/ F\) \/ Math\.log\(Z0\) : 0/.test(js) && /var q = E2 < 1 \? c01\(\(e - E2\) \/ \(1 - E2\)\)/.test(js),
     '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.5 에 모두 도착');
-  check(/'Q' \+ f\(Q\[0\]\) \+ ' ' \+ f\(Q\[1\]\)/.test(js) && /% 360\) - 180/.test(js), '중심 경도(127°E) 기준 좌표');
+  check(/'C' \+ f\(P1\[0\]\)/.test(js) && /% 360\) - 180/.test(js), '중심 경도(127°E) 기준 좌표 · 곡선 = 3차 베지어');
+  check(/<g class="lens"><circle class="halo"\/><circle class="lf"\/><circle class="lr"\/><\/g>/.test(it) && it.indexOf('class="lens"') > it.indexOf('class="g-sp"') && it.indexOf('class="lens"') < it.indexOf('class="pulse"') &&
+        it.includes('.it-map .lf{fill:#0F2540}') && it.includes('.it-map .lr{fill:none;stroke:#5DE0BC;stroke-width:1px;vector-effect:non-scaling-stroke}') &&
+        it.includes('.it-map .halo{fill:url(#itHalo)}') && /<radialGradient id="itHalo"><stop offset="0" stop-color="#5DE0BC" stop-opacity="0\.25"\/>[^]*?<stop offset="1" stop-color="#5DE0BC" stop-opacity="0"\/><\/radialGradient>/.test(it) &&
+        /LC\.k = korea\.cloneNode\(false\); LC\.k\.removeAttribute\('id'\); lens\.insertBefore\(LC\.k, LC\.r\);/.test(js) && (it.match(/id="korea"/g) || []).length === 1 &&
+        /LR = mob \? 32 : 46;/.test(js) && /c === LC\.h \? LR \+ 12 : LR/.test(js),
+    '한반도 렌즈 — 지름 PC 92 · 모바일 64px · 남색(#0F2540) 불투명 채움 · 한반도 path 복제(마크업 한 번) · 민트 1px 테두리 + 바깥 12px 민트 25% → 투명 · 곡선 위 · 서울 점 아래');
+  check(/lens\.style\.opacity = \(c01\(\(2 - z \* F\) \/ 0\.3\) \* keep\)/.test(js) && /home\.setAttribute\('y', f\(C\[1\] \+ LR \+ 15\)\)/.test(js),
+    '렌즈 — 실제 배율 2배 이하에서 0→1 · 끝에서는 지도와 같이 0.14 (첫 화면 제목 뒤에도 같은 모양) · SEOUL 은 렌즈 바로 아래');
   check(/ARR\[i\] = d >= 0\.999;/.test(js) && /dots\[i\]\.style\.opacity = ARR\[i\] \? '1' : '0';/.test(js) && /sparks\[i\]\.style\.opacity = ARR\[i\] \? gone : '0';/.test(js) && /lb\.style\.opacity = ARR\[i\] \? gone : '0';/.test(js) && /lb\.style\.transform = 'translate\(/.test(js),
     '선이 도착하면 도시 점·이름·빛 점이 켜짐 (줌 중에는 도시 점을 따라감)');
   {
@@ -351,7 +359,7 @@ console.log('\n[15] 인트로');
   check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js) && !/setTimeout|setInterval/.test(js), 'rAF + passive 스크롤 · 자동 재생 없음');
   check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 없음)');
   // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
-  const mkEl = () => ({ style: {}, attr: {}, setAttribute(k, x){ this.attr[k] = x; }, insertBefore(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
+  const mkEl = () => ({ style: {}, attr: {}, setAttribute(k, x){ this.attr[k] = x; }, removeAttribute(){}, cloneNode(){ return mkEl(); }, insertBefore(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
   const store = {};
   const run = ({ reduce }) => {
     const one = {}, all = {};
@@ -405,15 +413,18 @@ console.log('\n[15] 인트로');
       check(!st('.it-card').maskImage && st('.it-zoom').opacity === '1.000', '머무는 구간·연출 중에는 mask 없음 · 지도 그대로');
     }
     {
-      // 방사형 — 모든 곡선의 조절점이 서울→도착지 방향 왼쪽 수직 · 실제 휨 18% · 도착 방향이 사방(동·남·서·북)에 퍼짐
-      const r = run({ reduce: false }), rts = r.all['made rt'] || [];
-      const geo = rts.map(e => (e.attr.d || '').match(/-?[\d.]+/g).map(Number)).map(([sx, sy, qx, qy, dx, dy]) => {
-        const vx = dx - sx, vy = dy - sy, L = Math.hypot(vx, vy), mx = (sx + dx) / 2, my = (sy + dy) / 2;
-        return { cross: vx * (qy - sy) - vy * (qx - sx), bend: Math.hypot(qx - mx, qy - my) / 2 / L, along: Math.abs(((qx - mx) * vx + (qy - my) * vy) / L), ang: Math.atan2(vy, vx) * 180 / Math.PI };
-      });
-      const quad = [g => Math.abs(g.ang) < 90, g => g.ang > 0, g => Math.abs(g.ang) > 90, g => g.ang < 0].map(t => geo.filter(t).length);   // 화면 기준 동·남·서·북 쪽 (반평면)
-      check(geo.length === 27 && geo.every(g => g.cross < 0 && Math.abs(g.bend - 0.18) < 0.002 && g.along < 0.2) && quad.every(n => n > 0),
-        `방사형 휨 — 27개 모두 진행 방향 왼쪽 수직으로 부풂(같은 회전 방향 = 시계 방향 소용돌이) · 휨 = 직선거리의 ${(geo.reduce((s, g) => s + g.bend, 0) / (geo.length || 1) * 100).toFixed(1)}% · 도착 방향 동/남/서/북 반쪽 ${quad.join('/')}`);
+      // 렌즈 테두리 출발 — 출발점 27개가 서로 다른 각도(360°/27 간격) · 곡선이 렌즈 안으로 들어오지 않음
+      const r = run({ reduce: false }), rts = r.all['made rt'] || [], lr = r.one['.it-map .lr'].attr, cx = +lr.cx, cy = +lr.cy, R = +lr.r;
+      const cv = rts.map(e => (e.attr.d || '').match(/-?[\d.]+/g).map(Number)).map(n => [[n[0], n[1]], [n[2], n[3]], [n[4], n[5]], [n[6], n[7]]]);
+      const ang = cv.map(P => ((Math.atan2(P[0][1] - cy, P[0][0] - cx) * 180 / Math.PI) + 360) % 360).sort((x, y) => x - y);
+      const gaps = ang.map((x, i) => ((i ? x - ang[i - 1] : x + 360 - ang[ang.length - 1]) + 360) % 360);
+      const onRim = cv.every(P => Math.abs(Math.hypot(P[0][0] - cx, P[0][1] - cy) - R) < 0.2);
+      let minIn = 1e9;
+      for (const P of cv) for (let s = 0; s <= 200; s++) { const t = s / 200, u = 1 - t, x = u*u*u*P[0][0] + 3*u*u*t*P[1][0] + 3*u*t*t*P[2][0] + t*t*t*P[3][0], y = u*u*u*P[0][1] + 3*u*u*t*P[1][1] + 3*u*t*t*P[2][1] + t*t*t*P[3][1]; minIn = Math.min(minIn, Math.hypot(x - cx, y - cy) - R); }
+      const first = cv.every(P => { const d0 = Math.hypot(P[3][0] - P[0][0], P[3][1] - P[0][1]), d1 = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]);
+        const ox = (P[0][0] - cx) / R, oy = (P[0][1] - cy) / R; return Math.abs(d1 - 0.3 * d0) < 0.3 && Math.abs((P[1][0] - P[0][0]) * oy - (P[1][1] - P[0][1]) * ox) / d1 < 0.05; });
+      check(cv.length === 27 && R === 46 && onRim && new Set(ang.map(x => x.toFixed(1))).size === 27 && gaps.every(g => Math.abs(g - 360 / 27) < 0.2) && minIn > -0.3 && first,
+        `렌즈 테두리 출발 — 출발점 27개 서로 다른 각도 (간격 ${Math.min(...gaps).toFixed(2)}~${Math.max(...gaps).toFixed(2)}° = 360°/27) · 첫 제어점 = 출발 방향 거리 30% · 렌즈 안 침범 없음 (테두리와 가장 가까운 곳 ${minIn.toFixed(2)}px)`);
       const lbs = (r.all['made lb to'] || []).concat(r.all['made lb to m-hide'] || []);
       check((r.all['made spark'] || []).length === 27 && (r.all['made dst'] || []).length === 27 && lbs.length === 14 && rts.every(e => e.attr.pathLength === '1'),
         '곡선 · 도시 점 · 빛 점 27개씩, 라벨 14개 생성');
