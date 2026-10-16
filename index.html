@@ -1908,34 +1908,36 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 <!-- ── 첫 화면 + 입구 2개 ──────────────────────────────────── -->
 <!-- ════════════════════════════════════════════════════════════════
-     인트로 — 스크롤로 한국에서 세계로 선이 이어지는 연출 (2026-10-16)
+     인트로 — 스크롤로 서울에서 세계로 선이 이어지는 연출 (2026-10-16 · 2차: 한국 중심 점 세계지도)
      ★바깥 섹션(PC 250vh / 모바일 220vh) 안에서 무대(100vh·100dvh)를 sticky 로 고정하고,
-       진행도 p(0~1) = 섹션을 지나간 비율로 장면을 그린다. 외부 라이브러리 없음.
-     ★움직이는 것은 transform·opacity·clip-path·SVG stroke 뿐 — 레이아웃 속성은 건드리지 않는다.
-       (예외: --it-tail(#top 이 올라오는 거리)은 size() 에서만, 즉 처음·화면 크기 바뀔 때만 잰다)
-     ★"아 · 이 · 움"·부제 뒤에만 radial 바탕(남색 0.85 → 투명, 글자 폭 1.6배) — 지구 선 위에서도 글자가 읽히게.
-     ★<g id="continents"> 는 대륙 윤곽 자리 — 아직 비워 둔다.
+       진행도 p(0~1) = 섹션을 지나간 비율로 장면을 그린다. 외부 라이브러리 없음. 자동 재생 없음(스크롤로만).
      ★같은 세션 재방문·prefers-reduced-motion → 고정 없이 100vh, 완성 장면(p=1)만.
-     ★지구는 추상 도형(경위선)이다 — 지도 데이터·지명 없음.
+     ★움직이는 것은 transform·opacity·clip-path·stroke-dashoffset 뿐 — 레이아웃 속성은 건드리지 않는다.
+       지도 배치·곡선·도시 점·라벨 좌표와 --it-tail(#top 이 올라오는 거리)은 size() 에서만(처음·화면 크기 바뀔 때) 정한다.
+     ★지도: Natural Earth 110m land(퍼블릭 도메인)를 scripts/build_intro_map.mjs 로 한 번 변환한 점 격자 (원본은 저장소에 없음).
+       등장방형 · 중심 경도 127°E(서울이 가로 정가운데) · 75°N ~ 54.6°S · 1.8° 간격 200열×72행 · 점 = 둥근 선끝 "h0".
+       지도 크기는 고정(화면 가로 폭에 맞춤 — 런던·뉴욕까지 가로로 넘치지 않게). 카드는 잘린 범위만 넓어진다.
+     ★"아 · 이 · 움"·부제 뒤에만 radial 바탕(남색 0.85 → 투명, 글자 폭 1.6배) — 선 위에서도 글자가 읽히게.
      ════════════════════════════════════════════════════════════════ -->
 <style>
-.it{position:relative;height:250vh;background:var(--black);margin-bottom:calc(-1 * var(--it-tail, 0px))}  /* 지구 아래 빈 곳만큼 #top 이 겹쳐 올라온다 (size() 가 잰다) */
+.it{position:relative;height:250vh;background:var(--black);margin-bottom:calc(-1 * var(--it-tail, 0px))}  /* 지도·부제 아래 빈 곳만큼 #top 이 겹쳐 올라온다 (size() 가 잰다) */
 .it-stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;z-index:0}
-.it-head{position:absolute;left:0;right:0;top:calc(13vh + 30px);margin:0;padding:0 16px;text-align:center;color:#fff;
+.it-head{position:absolute;left:0;right:0;top:calc(8vh + 40px);margin:0;padding:0 16px;text-align:center;color:#fff;
   font-size:clamp(28px,4.4vw,52px);font-weight:700;letter-spacing:-0.5px;line-height:1.3;word-break:keep-all;z-index:3;will-change:transform,opacity}
-.it-card{position:absolute;inset:0;background:rgba(255,255,255,0.025);z-index:1;will-change:clip-path;
-  clip-path:inset(30vh 20vw 9vh 20vw round 20px)}
+.it-card{position:absolute;inset:0;background:rgba(255,255,255,0.025);z-index:1;will-change:clip-path;clip-path:inset(50%)}
 .it-frame{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
 .it-frame rect{fill:none;stroke:rgba(93,224,188,0.25);stroke-width:1}
-.it-globe{position:absolute;inset:0;width:100%;height:100%;will-change:transform,opacity;transform-origin:50% 50%}
-.it-globe .gr{fill:none;stroke:rgba(255,255,255,0.1);stroke-width:1;vector-effect:non-scaling-stroke}
-.it-globe .ball{fill:rgba(93,224,188,0.035);stroke:rgba(255,255,255,0.14);stroke-width:1;vector-effect:non-scaling-stroke}
-.it-globe .rt{fill:none;stroke:#5DE0BC;stroke-width:2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}  /* ★non-scaling-stroke 를 쓰면 pathLength 기준 대시가 깨진다 */
-.it-globe .dst{fill:#5DE0BC;opacity:0;transition:opacity .35s ease}
-.it-globe .kr{fill:#5DE0BC}
-.it-globe .pulse{fill:none;stroke:#5DE0BC;stroke-width:1.5;transform-box:fill-box;transform-origin:center;animation:itPulse 2.4s ease-out infinite}
+.it-map{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+.it-map .land{fill:none;stroke:rgba(255,255,255,0.18);stroke-linecap:round}
+.it-map .veil{fill:rgba(10,22,40,0.55);opacity:0}  /* 지도 위 남색 막 — p 0→0.6 동안 0 → 0.55 */
+.it-map .rt{fill:none;stroke:#5DE0BC;stroke-width:1.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:0}  /* ★pathLength=1 기준 대시 — non-scaling-stroke 금지 */
+.it-map .dst{fill:#5DE0BC;opacity:0;transition:opacity .35s ease}
+.it-map .kr{fill:#5DE0BC}
+.it-map .pulse{fill:none;stroke:#5DE0BC;stroke-width:1.5;transform-box:fill-box;transform-origin:center;animation:itPulse 2.4s ease-out infinite}
 @keyframes itPulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(3.2);opacity:0}}
-.it-word{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:3;text-align:center;pointer-events:none}
+.it-map .lb{fill:rgba(255,255,255,0.7);font-size:11px;letter-spacing:2px;font-weight:600}
+.it-map .lb.to{opacity:0;transition:opacity .35s ease}
+.it-word{position:absolute;left:0;right:0;top:66%;transform:translateY(-50%);z-index:3;text-align:center;pointer-events:none}
 .it-word .w{margin:0;color:#5DE0BC;font-size:clamp(40px,7vw,96px);font-weight:800;letter-spacing:0.18em;line-height:1.1;white-space:nowrap}
 .it-word .w span{display:inline-block;opacity:0;will-change:transform,opacity}
 .it-word .s{margin:14px 0 0;color:rgba(255,255,255,0.8);font-size:clamp(15px,1.6vw,19px);opacity:0;word-break:keep-all}
@@ -1946,50 +1948,37 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .it-hint{position:absolute;left:50%;bottom:22px;margin-left:-22px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;
   color:rgba(255,255,255,0.7);font-size:22px;z-index:3;animation:itBob 1.8s ease-in-out infinite}
 @keyframes itBob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
-/* 재방문·움직임 줄이기 — 고정 없이 한 화면, 완성 장면 */
 section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 무대를 밀지 않게 */
-.it.static{height:100vh;height:100dvh}
-.it.static .it-stage{position:relative}
-.it.static .it-hint{display:none}
+/* 재방문·움직임 줄이기 — 고정 없이 한 화면, 완성 장면 */
+.it.still{height:100vh;height:100dvh}
+.it.still .it-stage{position:relative;height:100%}
+.it.still .it-hint{display:none}
 @media(max-width:640px){
   .it{height:220vh}
-  .it-card{clip-path:inset(30vh 6vw 12vh 6vw round 20px)}
+  .it-map .lb.m-hide{display:none}  /* 모바일 라벨은 BEIJING · LONDON · NEW YORK 만 */
 }
 @media(prefers-reduced-motion:reduce){
-  .it-globe .pulse,.it-hint{animation:none}
-  .it-globe .dst{transition:none}
+  .it-map .pulse,.it-hint{animation:none}
+  .it-map .dst,.it-map .lb.to{transition:none}
 }
 </style>
 <section class="it" id="intro" aria-label="IUMM 아이움 소개">
   <div class="it-stage">
     <p class="it-head">당신을 세계로 이어 드립니다</p>
     <div class="it-card">
-      <svg class="it-globe" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
-        <circle class="ball" cx="500" cy="300" r="240"/>
-        <g class="gr">
-          <ellipse cx="500" cy="300" rx="62" ry="240"/><ellipse cx="500" cy="300" rx="120" ry="240"/>
-          <ellipse cx="500" cy="300" rx="170" ry="240"/><ellipse cx="500" cy="300" rx="208" ry="240"/>
-          <line x1="500" y1="60" x2="500" y2="540"/>
-          <line x1="260" y1="300" x2="740" y2="300"/>
-          <line x1="292" y1="180" x2="708" y2="180"/><line x1="292" y1="420" x2="708" y2="420"/>
-          <line x1="380" y1="92" x2="620" y2="92"/><line x1="380" y1="508" x2="620" y2="508"/>
-        </g>
-        <g id="continents"></g><!-- 대륙 윤곽 자리 (아직 비워 둠) -->
-        <!-- 한국 → 북미·남미·유럽·중동·동남아·오세아니아 (pathLength=1 로 진행률 = dashoffset) -->
-        <path class="rt" pathLength="1" d="M588 228 Q440 120 300 210"/>
-        <path class="rt" pathLength="1" d="M588 228 Q420 270 372 440"/>
-        <path class="rt" pathLength="1" d="M588 228 Q690 110 712 168"/>
-        <path class="rt" pathLength="1" d="M588 228 Q690 220 686 296"/>
-        <path class="rt" pathLength="1" d="M588 228 Q640 290 590 352"/>
-        <path class="rt" pathLength="1" d="M588 228 Q700 330 650 462"/>
-        <circle class="dst" cx="300" cy="210" r="5"/><circle class="dst" cx="372" cy="440" r="5"/>
-        <circle class="dst" cx="712" cy="168" r="5"/><circle class="dst" cx="686" cy="296" r="5"/>
-        <circle class="dst" cx="590" cy="352" r="5"/><circle class="dst" cx="650" cy="462" r="5"/>
-        <circle class="pulse" cx="588" cy="228" r="6"/>
-        <circle class="kr" cx="588" cy="228" r="6"/>
+      <svg class="it-map" aria-hidden="true" focusable="false">
+        <g id="continents"><path id="land" class="land" d="M0 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m43 0h0m1 0h0m17 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m70 0h0m1 0h0m1 0h0m1 0h0m14 0h0m21 0h0m1 0h0M0 1h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m44 0h0m9 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0m1 0h0m1 0h0m1 0h0m1 0h0m49 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m3 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m13 0h0M0 2h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m27 0h0m1 0h0m1 0h0m1 0h0m21 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m23 0h0m1 0h0m1 0h0m1 0h0m1 0h0m22 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m9 0h0M1 3h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m26 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0m4 0h0m1 0h0m1 0h0m3 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m8 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m7 0h0m1 0h0m1 0h0m3 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0M0 4h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m27 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 5h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m11 0h0m1 0h0m1 0h0m1 0h0m1 0h0m15 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M1 6h0m1 0h0m1 0h0m1 0h0m1 0h0m29 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m11 0h0m1 0h0m1 0h0m1 0h0M2 7h0m1 0h0m1 0h0m1 0h0m27 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m12 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0m1 0h0m1 0h0m1 0h0M32 8h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m20 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m6 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0M26 9h0m10 0h0m1 0h0m1 0h0m5 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m11 0h0m1 0h0m24 0h0m2 0h0m11 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M26 10h0m1 0h0m7 0h0m2 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m11 0h0m1 0h0m1 0h0m1 0h0m21 0h0m16 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 11h0m1 0h0m3 0h0m6 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m11 0h0m1 0h0m1 0h0m39 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 12h0m1 0h0m2 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m8 0h0m42 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M27 13h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m51 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M29 14h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m52 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m4 0h0m1 0h0m1 0h0M28 15h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m52 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0M29 16h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m56 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M25 17h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m8 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m1 0h0m51 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 18h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m2 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m5 0h0m1 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m53 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 19h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m4 0h0m3 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m2 0h0m8 0h0m54 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M25 20h0m1 0h0m1 0h0m1 0h0m8 0h0m1 0h0m4 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m1 0h0m7 0h0m54 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M26 21h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m13 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m5 0h0m1 0h0m1 0h0m55 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M26 22h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m15 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0m1 0h0m1 0h0m1 0h0m58 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 23h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m8 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m62 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 24h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m69 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 25h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m71 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0M22 26h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m71 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0M21 27h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m72 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0M21 28h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m72 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0M20 29h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m80 0h0m1 0h0m1 0h0m1 0h0m8 0h0m3 0h0M20 30h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m9 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m84 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m1 0h0m6 0h0m1 0h0M20 31h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m9 0h0m76 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0m2 0h0m1 0h0m1 0h0m2 0h0M20 32h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m12 0h0m1 0h0m1 0h0m1 0h0m1 0h0m8 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m8 0h0m79 0h0m1 0h0m1 0h0m1 0h0m1 0h0M20 33h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m1 0h0m1 0h0m1 0h0m15 0h0m1 0h0m1 0h0m11 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m89 0h0m1 0h0m1 0h0m1 0h0m1 0h0M20 34h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m2 0h0m17 0h0m1 0h0m1 0h0m11 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m92 0h0m1 0h0M21 35h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m15 0h0m1 0h0m11 0h0m3 0h0m1 0h0m1 0h0m8 0h0m85 0h0m6 0h0m1 0h0m1 0h0M22 36h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m15 0h0m12 0h0m15 0h0m84 0h0m2 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M22 37h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m18 0h0m23 0h0m1 0h0m1 0h0m85 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M24 38h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m29 0h0m1 0h0m8 0h0m92 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 39h0m34 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m28 0h0m2 0h0m1 0h0m7 0h0m1 0h0m93 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 40h0m35 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m30 0h0m2 0h0m5 0h0m1 0h0m1 0h0m1 0h0m6 0h0m86 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 41h0m35 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m33 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m85 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 42h0m1 0h0m1 0h0m1 0h0m31 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m33 0h0m1 0h0m5 0h0m1 0h0m1 0h0m3 0h0m6 0h0m1 0h0m82 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 43h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m28 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m35 0h0m1 0h0m6 0h0m6 0h0m2 0h0m2 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m77 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 44h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m28 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m37 0h0m10 0h0m9 0h0m1 0h0m1 0h0m1 0h0m4 0h0m71 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 45h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m28 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m38 0h0m1 0h0m1 0h0m1 0h0m15 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m69 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 46h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m28 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m44 0h0m1 0h0m1 0h0m3 0h0m9 0h0m3 0h0m75 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 47h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m29 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m68 0h0m67 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 48h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m30 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m51 0h0m1 0h0m1 0h0m1 0h0m3 0h0m79 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 49h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m29 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m45 0h0m1 0h0m1 0h0m1 0h0m4 0h0m79 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 50h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m29 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m1 0h0m43 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m3 0h0m1 0h0m79 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 51h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m29 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m5 0h0m1 0h0m1 0h0m41 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m18 0h0m62 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 52h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m31 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m1 0h0m41 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m80 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 53h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m31 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m39 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m10 0h0m70 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 54h0m1 0h0m1 0h0m1 0h0m1 0h0m33 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m6 0h0m1 0h0m38 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m78 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 55h0m1 0h0m1 0h0m36 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m7 0h0m1 0h0m38 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m77 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 56h0m1 0h0m37 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m46 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m76 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 57h0m1 0h0m37 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m47 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m76 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 58h0m1 0h0m38 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m48 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m77 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M0 59h0m40 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m49 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m4 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m77 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M40 60h0m1 0h0m52 0h0m1 0h0m1 0h0m1 0h0m1 0h0m9 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m78 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M107 61h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m77 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M107 62h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m77 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M126 63h0m1 0h0m62 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M110 64h0m1 0h0m14 0h0m63 0h0m1 0h0m1 0h0m1 0h0m1 0h0M110 65h0m1 0h0m13 0h0m1 0h0m63 0h0m1 0h0m1 0h0m1 0h0m1 0h0m1 0h0M123 66h0m1 0h0m64 0h0m1 0h0m1 0h0m1 0h0m1 0h0M123 67h0m65 0h0m1 0h0m1 0h0m1 0h0M188 68h0m1 0h0m1 0h0m1 0h0m1 0h0M187 69h0m1 0h0m1 0h0m1 0h0M188 70h0m1 0h0m1 0h0m5 0h0m1 0h0M189 71h0m1 0h0m1 0h0"/></g>
+        <rect class="veil" x="0" y="0" width="100%" height="100%"/>
+        <!-- 서울 → 그려지는 순서(가까운 곳부터): BEIJING → FRANKFURT · LONDON → LOS ANGELES · NEW YORK (좌표는 size() 가 계산) -->
+        <path class="rt" pathLength="1"/><path class="rt" pathLength="1"/><path class="rt" pathLength="1"/><path class="rt" pathLength="1"/><path class="rt" pathLength="1"/>
+        <circle class="dst" r="3.5"/><circle class="dst" r="3.5"/><circle class="dst" r="3.5"/><circle class="dst" r="3.5"/><circle class="dst" r="3.5"/>
+        <text class="lb to">BEIJING</text><text class="lb to m-hide">FRANKFURT</text><text class="lb to">LONDON</text><text class="lb to m-hide">LOS ANGELES</text><text class="lb to">NEW YORK</text>
+        <circle class="pulse" r="5"/>
+        <circle class="kr" r="5"/>
+        <text class="lb home m-hide" text-anchor="middle">SEOUL</text>
       </svg>
     </div>
-    <svg class="it-frame" aria-hidden="true" focusable="false"><rect x="0" y="0" width="0" height="0" rx="20"/></svg>
+    <svg class="it-frame" aria-hidden="true" focusable="false"><rect x="0" y="0" width="0" height="0" rx="0"/></svg>
     <div class="it-word">
       <div class="it-plate">
         <i class="it-bg" aria-hidden="true"></i>
@@ -2007,54 +1996,80 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   var reduce = false, seen = false;
   try { reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
   try { seen = sessionStorage.getItem('iumm_intro_seen') === '1'; sessionStorage.setItem('iumm_intro_seen', '1'); } catch(e){}
-  var isStatic = reduce || seen;
-  if (isStatic) sec.classList.add('static');
+  var still = reduce || seen;
+  if (still) sec.classList.add('still');
 
-  var head = sec.querySelector('.it-head'), card = sec.querySelector('.it-card'), globe = sec.querySelector('.it-globe');
+  var stage = sec.querySelector('.it-stage'), head = sec.querySelector('.it-head'), card = sec.querySelector('.it-card');
+  var map = sec.querySelector('.it-map'), land = sec.querySelector('.it-map .land'), veil = sec.querySelector('.it-map .veil');
+  var kr = sec.querySelector('.it-map .kr'), pulse = sec.querySelector('.it-map .pulse'), home = sec.querySelector('.it-map .home');
+  var routes = sec.querySelectorAll('.it-map .rt'), dots = sec.querySelectorAll('.it-map .dst'), labels = sec.querySelectorAll('.it-map .lb.to');
   var frame = sec.querySelector('.it-frame'), rect = frame.querySelector('rect');
-  var routes = sec.querySelectorAll('.rt'), dots = sec.querySelectorAll('.dst');
   var letters = sec.querySelectorAll('.it-word .w span'), sub = sec.querySelector('.it-word .s'), bg = sec.querySelector('.it-bg'), hint = sec.querySelector('.it-hint');
-  var stage = sec.querySelector('.it-stage'), W = 0, H = 0, mob = false, VB = [0, 0, 1000, 600];
+  // 지도 격자 — scripts/build_intro_map.mjs 와 같은 값
+  var LON0 = 127, STEP = 1.8, LAT_TOP = 75, COLS = 200, LAST_ROW = 71, SEOUL = [126.98, 37.57];
+  // 도시 — 마크업(.rt · .dst · .lb.to)과 같은 순서. at = 곡선을 그리는 p 구간, 라벨 위치(dx, dy, 정렬 · m = 모바일)
+  var CITY = [
+    { ll: [116.4, 39.9],  at: [0.04, 0.16], dx: -6, dy: -9, an: 'end' },     // BEIJING
+    { ll: [8.7, 50.1],    at: [0.16, 0.32], dx: 6,  dy: 16, an: 'start' },   // FRANKFURT
+    { ll: [-0.1, 51.5],   at: [0.20, 0.36], dx: -8, dy: 4,  an: 'end', m: { dx: -4, dy: 17, an: 'start' } },   // LONDON (모바일은 화면 끝이라 점 아래)
+    { ll: [-118.2, 34.1], at: [0.34, 0.52], dx: 0,  dy: 20, an: 'middle' },  // LOS ANGELES
+    { ll: [-74.0, 40.7],  at: [0.40, 0.58], dx: 0,  dy: 20, an: 'middle' }   // NEW YORK
+  ];
+  var W = 0, H = 0, mob = false, cy = 0, r0 = 0;
   function c01(x){ return x < 0 ? 0 : x > 1 ? 1 : x; }
   function ease(x){ return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
   function lerp(a, b, t){ return a + (b - a) * t; }
+  function f(x){ return x.toFixed(1); }
   function size(){
     // 무대 자체 크기(스크롤바 제외)로 계산해야 테두리와 카드가 어긋나지 않는다
     W = stage.clientWidth || window.innerWidth; H = stage.clientHeight || window.innerHeight; mob = W <= 640;
-    frame.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-    // 세로 화면은 지구 둘레만 잘라 보여 준다 (폭을 채우도록)
-    VB = mob ? [240, 40, 520, 520] : [0, 0, 1000, 600];
-    globe.setAttribute('viewBox', VB.join(' '));
-    // 완성 장면에서 지구 원(r=240)·부제 아래로 남는 빈 곳 — 그만큼 #top 을 끌어올린다 (8px 여유)
-    var low = Math.max(H / 2 + 240 * Math.min(W / VB[2], H / VB[3]), sub.getBoundingClientRect().bottom - stage.getBoundingClientRect().top);
+    map.setAttribute('viewBox', '0 0 ' + W + ' ' + H); frame.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    // 지도 — 가로 폭에 맞춘 고정 크기, 서울을 가로 가운데 · 세로 42% 에 둔다
+    var k = W / COLS, oy = H * 0.42 - (LAT_TOP - SEOUL[1]) / STEP * k;
+    function pt(ll){ var rel = ((ll[0] - LON0 + 540) % 360) - 180; return [(rel + 180) / STEP * k, oy + (LAT_TOP - ll[1]) / STEP * k]; }
+    land.setAttribute('transform', 'translate(' + (k / 2).toFixed(2) + ' ' + (oy + k / 2).toFixed(2) + ') scale(' + k.toFixed(4) + ')');
+    land.setAttribute('stroke-width', ((mob ? 1.2 : 1.6) / k).toFixed(3));   // 점 지름 PC 1.6px · 모바일 1.2px
+    var s = pt(SEOUL); cy = s[1];
+    kr.setAttribute('cx', f(s[0])); kr.setAttribute('cy', f(s[1]));
+    pulse.setAttribute('cx', f(s[0])); pulse.setAttribute('cy', f(s[1]));
+    home.setAttribute('x', f(s[0])); home.setAttribute('y', f(s[1] + 20));
+    // 시작 카드 — 서울을 가운데 둔 원 (한국 주변이 보이는 크기)
+    r0 = mob ? Math.min(W * 0.3, H * 0.15) : Math.min(W * 0.12, H * 0.18);
+    for (var i = 0; i < CITY.length; i++) {
+      var c = CITY[i], L = mob && c.m ? c.m : c, d = pt(c.ll), dist = Math.sqrt(Math.pow(d[0] - s[0], 2) + Math.pow(d[1] - s[1], 2));
+      // 위로 휘는 호 — 가운데에서 거리의 0.38 만큼 위로 당긴 2차 곡선
+      routes[i].setAttribute('d', 'M' + f(s[0]) + ' ' + f(s[1]) + 'Q' + f((s[0] + d[0]) / 2) + ' ' + f((s[1] + d[1]) / 2 - dist * 0.38) + ' ' + f(d[0]) + ' ' + f(d[1]));
+      dots[i].setAttribute('cx', f(d[0])); dots[i].setAttribute('cy', f(d[1]));
+      // 라벨 — 화면 좌우 끝(8px)을 넘지 않게 민다
+      var lb = labels[i], x = d[0] + L.dx, w = lb.getComputedTextLength ? lb.getComputedTextLength() : 0;
+      var left = L.an === 'end' ? x - w : L.an === 'middle' ? x - w / 2 : x;
+      x += Math.max(0, 8 - left) + Math.min(0, W - 8 - (left + w));
+      lb.setAttribute('text-anchor', L.an); lb.setAttribute('x', f(x)); lb.setAttribute('y', f(d[1] + L.dy));
+    }
+    // 마지막 장면에서 지도(맨 아랫줄 점)·부제 아래로 남는 빈 곳 — 그만큼 #top 을 끌어올린다 (8px 여유)
+    var low = Math.max(oy + (LAST_ROW + 0.5) * k + 1, sub.getBoundingClientRect().bottom - stage.getBoundingClientRect().top);
     sec.style.setProperty('--it-tail', Math.max(0, Math.floor(H - low - 8)) + 'px');
   }
   function render(p){
     var e = ease(c01(p / 0.6));
-    // 카드 — 처음 크기(PC 폭 60%, 모바일 88%)에서 화면 가득으로 (clip-path 만 바꾼다)
-    var t = lerp(H * 0.30, 0, e), b = lerp(H * (mob ? 0.12 : 0.09), 0, e), s = lerp(W * (mob ? 0.06 : 0.20), 0, e), R = lerp(20, 0, e);
-    card.style.clipPath = 'inset(' + t.toFixed(1) + 'px ' + s.toFixed(1) + 'px ' + b.toFixed(1) + 'px ' + s.toFixed(1) + 'px round ' + R.toFixed(1) + 'px)';
-    var cw = W - 2 * s, ch = H - t - b;
-    rect.setAttribute('x', s.toFixed(1)); rect.setAttribute('y', t.toFixed(1));
-    rect.setAttribute('width', Math.max(0, cw).toFixed(1)); rect.setAttribute('height', Math.max(0, ch).toFixed(1)); rect.setAttribute('rx', R.toFixed(1));
+    // 카드 — 서울 둘레 원에서 화면 가득으로 (clip-path 만 바꾼다, 지도는 그대로)
+    var t = lerp(cy - r0, 0, e), b = lerp(H - cy - r0, 0, e), s = lerp(W / 2 - r0, 0, e), R = lerp(r0, 0, e);
+    card.style.clipPath = 'inset(' + f(t) + 'px ' + f(s) + 'px ' + f(b) + 'px ' + f(s) + 'px round ' + f(R) + 'px)';
+    rect.setAttribute('x', f(s)); rect.setAttribute('y', f(t));
+    rect.setAttribute('width', f(Math.max(0, W - 2 * s))); rect.setAttribute('height', f(Math.max(0, H - t - b))); rect.setAttribute('rx', f(R));
     frame.style.opacity = (1 - e).toFixed(3);
-    // 지구 — 카드 가운데에 맞춰 크기·위치 (transform)
-    // 지구(viewBox, meet)가 카드 안에 들어가는 배율 ÷ 화면 전체에 들어가는 배율
-    var k = Math.min(cw / VB[2], ch / VB[3]) / Math.min(W / VB[2], H / VB[3]), dy = (t - b) / 2;
-    globe.style.transform = 'translate3d(0,' + dy.toFixed(1) + 'px,0) scale(' + k.toFixed(4) + ')';
-    globe.style.opacity = (p < 0.9 ? 1 : lerp(1, 0.35, c01((p - 0.9) / 0.1))).toFixed(3);
+    map.style.opacity = (p < 0.9 ? 1 : lerp(1, 0.35, c01((p - 0.9) / 0.1))).toFixed(3);
     // 위 문구 — 위로 올라가며 사라짐
     head.style.opacity = (1 - c01(p / 0.3)).toFixed(3);
     head.style.transform = 'translate3d(0,' + (-c01(p / 0.6) * 140).toFixed(1) + 'px,0)';
-    // 곡선 — 차례로 그려지고 도착하면 점이 켜진다 (첫 곡선은 처음부터 15%)
+    // 곡선 — 가까운 곳부터 차례로, 도착하면 도시 점·이름이 켜진다
     for (var i = 0; i < routes.length; i++) {
-      var d = c01((p - i * 0.07) / 0.18);
-      if (i === 0) d = Math.max(d, 0.15);
+      var a = CITY[i].at, d = c01((p - a[0]) / (a[1] - a[0]));
       routes[i].style.strokeDashoffset = (1 - d).toFixed(4);
       routes[i].style.opacity = d > 0.001 ? '1' : '0';   // 0% 일 때 둥근 선끝이 점으로 보이지 않게
-      dots[i].style.opacity = d >= 0.999 ? '1' : '0';
+      dots[i].style.opacity = labels[i].style.opacity = d >= 0.999 ? '1' : '0';
     }
-    // 아 · 이 · 움 — 하나씩
+    // 아 · 이 · 움 — 하나씩, 그 뒤 부제
     var at = [0.6, 0.66, 0.68, 0.74, 0.76];
     for (var j = 0; j < letters.length; j++) {
       var o = c01((p - at[j]) / 0.06);
@@ -2066,7 +2081,8 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     hint.style.opacity = (1 - c01(p / 0.05)).toFixed(3);
   }
   size();
-  if (isStatic) {
+  window.__itRender = render;   // 확인용 (캡처·성능 점검에서 p 를 직접 그린다)
+  if (still) {
     render(1);
     window.addEventListener('resize', function(){ size(); render(1); });
     return;
@@ -2081,7 +2097,6 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', function(){ size(); onScroll(); });
   update();
-  window.__itRender = render;   // 확인용 (캡처·성능 점검에서 p 를 직접 그린다)
 })();
 </script>
 

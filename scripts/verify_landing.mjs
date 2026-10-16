@@ -226,7 +226,7 @@ check(html.includes('<div class="footer-biz" style="font-size:12px;color:rgba(25
       (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">\|<\/span>/g) || []).length === 6 &&
       /footer > div:nth-child\(2\)\{text-align:center;font-size:12px !important/.test(html), '푸터 사업자 정보 12px · 흰 50% · 구분선 25% (모바일도 12px)');
 
-// ── 15. 인트로 — 스크롤로 선이 이어지는 연출 ──
+// ── 15. 인트로 — 서울에서 세계로 선이 이어지는 연출 (한국 중심 점 세계지도) ──
 console.log('\n[15] 인트로');
 {
   const i0 = html.indexOf('<section class="it" id="intro"'), top = html.indexOf('<section class="lp-hero" id="top">');
@@ -236,45 +236,71 @@ console.log('\n[15] 인트로');
   check(/\.it-stage\{position:sticky;top:0;height:100vh;height:100dvh;/.test(it), '무대 sticky · 100vh → 100dvh (iOS 주소창 높이 변화)');
   check(it.includes('<p class="it-head">당신을 세계로 이어 드립니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
   check(land.includes('<h1>공증 받으러<br>멀리 가지 마세요</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "공증 받으러 멀리 가지 마세요" 그대로 · 메인 화면에 하나뿐');
-  check((it.match(/class="rt"/g) || []).length === 6 && (it.match(/class="dst"/g) || []).length === 6 && it.includes('class="pulse"'), '한국 → 6곳 곡선·도착 점 · 한국 맥박');
-  check(it.includes('<span>아</span><span> · </span><span>이</span><span> · </span><span>움</span>') && /color:#5DE0BC;font-size:clamp\(40px,7vw,96px\)/.test(it), '"아 · 이 · 움" 민트 clamp(40px,7vw,96px)');
-  check(!/<script[^>]+src=|https?:\/\/(?!www\.w3\.org)/.test(it), '외부 라이브러리·외부 리소스 없음');
-  check(Buffer.byteLength(it, 'utf8') < 100 * 1024, `추가 용량 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (< 100KB)`);
-  const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
-  check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음 (transform·opacity·clip-path·SVG 만)');
-  check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js), 'rAF + passive 스크롤');
-  // 재방문·움직임 줄이기 → static (고정 없음, 완성 장면)
-  // 글자 뒤 바탕 — 부제까지 한 바탕 안, 폭 1.6배
+
+  // 지도 — 점 격자 path 하나
+  const dm = it.match(/<g id="continents"><path id="land" class="land" d="([^"]*)"\/><\/g>/);
+  const d = dm ? dm[1] : '';
+  check(!!dm && /^M\d/.test(d) && /^[Mmh0-9 \-]+$/.test(d) && (d.match(/h0/g) || []).length > 3000,
+    `점 지도 = <g id="continents"> 안 path 하나 · "h0" 점 ${(d.match(/h0/g) || []).length}개`);
+  check(Buffer.byteLength(d, 'utf8') <= 40 * 1024, `지도 용량 ${(Buffer.byteLength(d, 'utf8') / 1024).toFixed(1)}KB (≤ 40KB)`);
+  check(it.includes('.it-map .land{fill:none;stroke:rgba(255,255,255,0.18);stroke-linecap:round}') && /'stroke-width', \(\(mob \? 1\.2 : 1\.6\) \/ k\)/.test(it),
+    '점 = 둥근 선끝 · 흰색 18% · 지름 PC 1.6px (모바일 1.2px)');
+  {
+    const bm = fs.readFileSync(path.resolve(HERE, 'build_intro_map.mjs'), 'utf8');
+    check(/STEP = 1\.8, LON0 = 127, LAT_TOP = 75, COLS = 200, ROWS = 72/.test(bm) && /LON0 = 127, STEP = 1\.8, LAT_TOP = 75, COLS = 200, LAST_ROW = 71/.test(it),
+      '투영 값 일치 — 변환 스크립트 ↔ 인트로 (중심 127°E · 1.8° · 75°N부터 72행)');
+    check(!fs.existsSync(path.resolve(HERE, '../ne_110m_land.geojson')) && !fs.existsSync(path.resolve(HERE, 'ne_110m_land.geojson')), 'Natural Earth 원본 파일은 저장소에 없음');
+  }
+
+  // 서울 · 도시 · 라벨
+  check(it.includes('<circle class="pulse" r="5"/>') && it.includes('<circle class="kr" r="5"/>') && it.includes('>SEOUL</text>') && it.includes('.it-map .kr{fill:#5DE0BC}'),
+    '서울 = 민트 점 + 맥박 + "SEOUL"');
+  const names = [...it.matchAll(/<text class="lb to( m-hide)?">([A-Z ]+)<\/text>/g)].map(m => [m[2], !!m[1]]);
+  check(names.map(n => n[0]).join('|') === 'BEIJING|FRANKFURT|LONDON|LOS ANGELES|NEW YORK' && (it.match(/class="rt"/g) || []).length === 5 && (it.match(/class="dst"/g) || []).length === 5,
+    '곡선·도시 점·라벨 5개 — BEIJING · FRANKFURT · LONDON · LOS ANGELES · NEW YORK');
+  check(names.filter(n => !n[1]).map(n => n[0]).join('|') === 'BEIJING|LONDON|NEW YORK' && /\.it-map \.lb\.m-hide\{display:none\}/.test(it),
+    '모바일 라벨 = BEIJING · LONDON · NEW YORK 만');
+  check(it.includes('.it-map .lb{fill:rgba(255,255,255,0.7);font-size:11px;letter-spacing:2px;'), '라벨 11px · 자간 2px · 흰색 70%');
+  const cities = [...it.matchAll(/\{ ll: \[(-?[\d.]+), (-?[\d.]+)\],\s*at: \[([\d.]+), ([\d.]+)\]/g)].map(m => m.slice(1).map(Number));
+  const want = [[116.4, 39.9], [8.7, 50.1], [-0.1, 51.5], [-118.2, 34.1], [-74.0, 40.7]];
+  check(cities.length === 5 && cities.every((c, i) => c[0] === want[i][0] && c[1] === want[i][1]), '도시 좌표 (BEIJING 116.4E 39.9N … NEW YORK 74.0W 40.7N)');
+  check(cities.length === 5 && cities[0][3] <= Math.min(cities[1][2], cities[2][2]) + 0.001 && Math.max(cities[1][2], cities[2][2]) < Math.min(cities[3][2], cities[4][2]) &&
+        cities.every(c => c[3] <= 0.6), '그리는 순서 BEIJING → FRANKFURT·LONDON → LOS ANGELES·NEW YORK, 모두 p 0.6 안');
+  check(/'Q' \+ f\(\(s\[0\] \+ d\[0\]\) \/ 2\) \+ ' ' \+ f\(\(s\[1\] \+ d\[1\]\) \/ 2 - dist \* 0\.38\)/.test(it) && /% 360\) - 180/.test(it), '위로 휘는 호 · 중심 경도 기준 좌표 (좌우 끝 안)');
+  check(/dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = d >= 0\.999/.test(it), '선이 도착하면 도시 점·이름이 켜짐');
+
+  // 장면
   check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신을 세계로 이어 드립니다<\/p>\s*<\/div>/.test(it) &&
         it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"아 · 이 · 움"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
-  check(/<g id="continents"><\/g>/.test(it), 'SVG #continents 빈 그룹 자리');
-  // 인트로 끝 ~ #top 빈 남색 — 지구 아래 빈 곳(--it-tail)만큼 #top 이 올라오고, #top 위 여백 ≤ 32px (8px 여유 포함 40px 이하)
+  check(it.includes('<span>아</span><span> · </span><span>이</span><span> · </span><span>움</span>') && /color:#5DE0BC;font-size:clamp\(40px,7vw,96px\)/.test(it), '"아 · 이 · 움" 민트 clamp(40px,7vw,96px)');
+  const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
   {
     const pcPad = +(land.match(/\.lp-hero\{[^}]*padding:(\d+)px /) || [])[1], moPad = +(land.match(/section\.lp-hero\{padding:(\d+)px /) || [])[1];
     check(pcPad + 8 <= 40 && moPad + 8 <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) &&
           /\.lp-hero\{position:relative;z-index:1;/.test(land) && /\.it-stage\{[^}]*z-index:0\}/.test(it),
       `인트로 끝 → #top 빈 구간 PC ${pcPad + 8}px / 모바일 ${moPad + 8}px (≤ 40) · #top 이 무대 위로`);
   }
-  const mkEl = () => ({ style: {}, setAttribute(){}, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(c){ this.c = c; } } });
-  const run = ({ seen, reduce }) => {
+
+  // 정리 — 움직이는 속성·용량·외부 리소스
+  check(!/<script[^>]+src=|https?:\/\/(?!www\.w3\.org)/.test(it), '외부 라이브러리·외부 리소스 없음');
+  check(Buffer.byteLength(it, 'utf8') < 100 * 1024, `추가 용량 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (< 100KB)`);
+  check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음 (transform·opacity·clip-path·stroke-dashoffset 만)');
+  check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js), 'rAF + passive 스크롤');
+  // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
+  const mkEl = () => ({ style: {}, setAttribute(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
+  const store = {};
+  const run = ({ reduce }) => {
     const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }), style: { setProperty(){} },
       querySelector: (q) => q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => mkEl() } : mkEl(),
-      querySelectorAll: (q) => q === '.rt' || q === '.dst' ? Array.from({ length: 6 }, mkEl) : Array.from({ length: 5 }, mkEl) };
-    const store = {}; if (seen) store.iumm_intro_seen = '1';
-    let rafs = 0;
-    const sb = { document: { getElementById: () => sec }, window: { innerWidth: 1280, innerHeight: 800, addEventListener(){}, matchMedia: () => ({ matches: reduce }) },
+      querySelectorAll: () => Array.from({ length: 5 }, mkEl) };
+    let rafs = 0, listens = 0;
+    const sb = { document: { getElementById: () => sec }, window: { innerWidth: 1280, innerHeight: 800, addEventListener(){ listens++; }, matchMedia: () => ({ matches: reduce }) },
       matchMedia: () => ({ matches: reduce }), sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } },
       requestAnimationFrame: () => { rafs++; }, Math, Number };
-    sb.window.sessionStorage = sb.sessionStorage;
     vm.createContext(sb); vm.runInContext(js, sb);
-    return { cls: sec.classList.list, store, hasRender: !!sb.window.__itRender };
+    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender };
   };
-  const first = run({ seen: false, reduce: false });
-  check(!first.cls.includes('static') && first.store.iumm_intro_seen === '1' && first.hasRender, '첫 방문 — 스크롤 연출 · 방문 표시 저장');
-  check(run({ seen: true, reduce: false }).cls.includes('static'), '같은 세션 재방문 — static (고정 없음 · 완성 장면)');
-  check(run({ seen: false, reduce: true }).cls.includes('static'), 'prefers-reduced-motion — static');
-  check(/\.it\.static\{height:100vh;height:100dvh\}/.test(it) && /\.it\.static \.it-stage\{position:relative\}/.test(it), 'static = 높이 100vh·100dvh, 고정 없음');
-  check(/try \{ seen = sessionStorage/.test(js), 'sessionStorage 는 try/catch 안에서만');
+  const first = run({ reduce: false }), second = run({ reduce: false });
   const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
 }
