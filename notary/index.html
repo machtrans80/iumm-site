@@ -677,7 +677,7 @@ function renderQuoteLine(){
   if (!QUOTE) { box.innerHTML = ''; return; }
   // 고정가 상품(APO·CPA)은 장수와 무관하다 — 쪽 기준 문구를 붙이지 않는다
   var fixed = !!(TIER && (TIER.code === 'APO' || TIER.code === 'CPA'));
-  var basis = fixed ? '' : PRECHECK_OK ? (QUOTE.pages + '쪽 기준') : '1쪽 기준 · 업로드 후 확정';
+  var basis = fixed ? '' : PRECHECK_OK ? (QUOTE.pages + '페이지 기준') : '1페이지 기준 · 업로드 후 확정';
   box.innerHTML = '예상 금액 <b>' + won(QUOTE.supply) + '</b> (부가세 별도' + (basis ? ' · ' + esc(basis) : '') + ')';
 }
 
@@ -1501,7 +1501,7 @@ function buildSummary(){
   if (!apoOnly) rows.push(['영문 이름', $('englishName').value.replace(/\s+/g, ' ').trim()]);
   if (!apoOnly && d && d.familyNames && $('familyNames').value.trim())
     rows.push(['가족 영문 이름', $('familyNames').value.trim().split(/\n+/).length + '명 입력']);
-  rows.push(['파일', FILES.main.length + '개 · ' + (QUOTE ? QUOTE.pages : PAGES) + '쪽']);
+  rows.push(['파일', FILES.main.length + '개 · ' + (QUOTE ? QUOTE.pages : PAGES) + '페이지']);
   var sc = QUOTE && QUOTE.schedule;
   if (sc && sc.awaitingOriginal) {
     rows.push(['받으실 날짜', '원본 도착 후 계산 (원본을 빠른등기로 보내 주세요)']);
@@ -1896,7 +1896,7 @@ function renderFileList(kind){
   if (!box) return;
   var main = kind === 'main';
   box.innerHTML = arr.map(function(f, i){
-    var pg = main ? (FILE_PAGES[i] != null ? FILE_PAGES[i] + '쪽 · ' : '') : '';
+    var pg = main ? (FILE_PAGES[i] != null ? FILE_PAGES[i] + '페이지 · ' : '') : '';
     return '<li class="ntr-file"><span class="no">' + (i + 1) + '</span>' +
       '<span class="nm">' + esc(f.name) + '<em>' + pg + fmtSize(f.size) + '</em></span>' +
       '<span class="act">' +
@@ -1951,7 +1951,7 @@ async function precheck(){
       PRECHECK_OK = true;
       PAGES = d.pages || 1;
       var w = (d.warnings||[]).length ? '<br><span style="color:var(--warn)">'+d.warnings.map(esc).join('<br>')+'</span>' : '';
-      msg('precheck-msg','✓ 확인 완료 — ' + FILES.main.length + '개 파일 · 전체 '+PAGES+'쪽'+w,'ok');
+      msg('precheck-msg','✓ 확인 완료 — ' + FILES.main.length + '개 파일 · 전체 '+PAGES+'페이지'+w,'ok');
       /* ★장수가 정해졌으니 금액을 다시 뽑는다 */
       refreshQuote();
     } else {

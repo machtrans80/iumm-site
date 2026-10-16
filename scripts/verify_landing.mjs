@@ -46,7 +46,7 @@ check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}
        '.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}', '.lp-btn.pro-btn:hover{background:#9ACDF5'].every(x => land.includes(x)),
   '전문 번역 카드 색 (#6FB8F0 / #9ACDF5) · 번호 원·점·가격·채운 버튼');
 check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
-check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 쪽당</span><span class="n">9,000원', '<li>그 외 서류 쪽당 9,000원</li>', '<li>급행이면 다음 영업일 수령</li>',
+check(['가족관계·기본·혼인 번역', '5,000원', '생활기록부 번역 · 1페이지</span><span class="n">9,000원', '<li>그 외 서류 1페이지 9,000원</li>', '<li>급행이면 다음 영업일 수령</li>',
        '신분증·여권 사본공증 + 아포스티유도 가능'].every(t => land.includes(t)), '1번 카드 문구');
 check(['번역의 기준이 바뀌었습니다', '분야별 용어집으로 번역하고, 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성도를 높여 납품합니다.',
        '<span class="n" id="lp-plan-price">25원부터</span></p>'].every(t => land.includes(t)), '2번 카드 문구 (가격 옆 부가세 문구 없음)');
@@ -150,9 +150,9 @@ console.log('\n[11] 메인 — 부가세 문구 없음');
   check(!/부가세/.test(vis), `메인 보이는 영역 "부가세" 0건 (${(vis.match(/부가세/g) || []).length}건)`);
   const faqSum = land.slice(land.indexOf('id="faq-summary"'));
   check(/얼마나 걸리나요\?<\/summary><p>[^<]*\(영업일 기준 예정\)/.test(faqSum), '메인 FAQ "얼마나 걸리나요?"의 (영업일 기준 예정)은 유지');
-  check(/비용은 얼마인가요\?<\/summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 쪽당 9,000원입니다\./.test(faqSum), '메인 FAQ "비용은" 답변 — 부가세 문구 없음');
+  check(/비용은 얼마인가요\?<\/summary><p>번역은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 1페이지 9,000원입니다\./.test(faqSum), '메인 FAQ "비용은" 답변 — 부가세 문구 없음');
   const pageFaq = html.slice(html.indexOf('id="page-faq"'), html.indexOf('id="page-faq"') + 60000);
-  check(/쪽당 9,000원\(부가세 별도\)/.test(pageFaq), '전체 FAQ 페이지의 (부가세 별도)는 그대로');
+  check(/1페이지 9,000원\(부가세 별도\)/.test(pageFaq), '전체 FAQ 페이지의 (부가세 별도)는 그대로');
 }
 
 // ── 12. 검색·공유 문구 · 모바일 카카오 원형 ──
@@ -163,6 +163,22 @@ console.log('\n[12] 검색·공유 문구 · 카카오 버튼');
   check(['name="description"', 'property="og:description"', 'name="twitter:description"'].every(k => html.includes('<meta ' + k + ' content="' + D + '">')), 'meta·OG·twitter 설명 3곳 같은 문구 (부가세·쪽당 없음)');
   const kf = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
   check(kf.includes('#iumm-kakao-fab a{width:52px;height:52px;padding:0;border-radius:50%;gap:0}') && kf.includes('#iumm-kakao-fab a span{display:none}') && kf.includes('aria-label="카카오톡 문의"'), '모바일 카카오 — 52px 원형 아이콘 · aria-label 카카오톡 문의');
+}
+
+// ── 13. '쪽' → '페이지' (손님에게 보이는 곳) ──
+console.log('\n[13] 쪽 → 페이지');
+{
+  // 주석을 뺀 줄에서 "쪽당"·"N쪽"·"'쪽'" 표기를 찾는다 (오른쪽·이쪽·한쪽 같은 낱말은 제외)
+  const files = ['../index.html', '../notary/index.html', '../notary/edit.html'];
+  const hits = [];
+  for (const f of files) {
+    fs.readFileSync(path.resolve(HERE, f), 'utf8').split(/\r?\n/).forEach((l, i) => {
+      const t = l.replace(/<!--.*?-->/g, '').replace(/\/\/.*$/, '').replace(/\/\*.*?\*\//g, '').trim();
+      if (/^(\*|<!--)/.test(t)) return;
+      if (/쪽당|\d\s*쪽|\+\s*'쪽|'쪽 /.test(t)) hits.push(f.replace('../', '') + ':' + (i + 1));
+    });
+  }
+  check(hits.length === 0, `손님 화면 '쪽당'·'N쪽' 0건${hits.length ? ' — ' + hits.join(', ') : ''}`);
 }
 
 // ── 8. FAQ 낡은 문구 ──

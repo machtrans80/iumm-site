@@ -460,12 +460,12 @@ console.log('\n[16] 신분증·여권 사본 → 사본공증 + 아포스티유 
   check($id('done-sub').textContent.includes('원본이 도착하면 사본공증'), '완료 화면 — CPA 문구');
   // 고정가 — 예상 금액에 "쪽 기준" 문구 없음
   sandbox.QUOTE = { supply: 65000, pages: 1 }; sandbox.PRECHECK_OK = false; sandbox.renderQuoteLine();
-  check($id('quote-line').innerHTML.includes('65,000') && !/쪽 기준/.test($id('quote-line').innerHTML) &&
-        $id('quote-line').innerHTML.includes('(부가세 별도)'), 'CPA 예상 금액 — "1쪽 기준" 없음');
+  check($id('quote-line').innerHTML.includes('65,000') && !/(쪽|페이지) 기준/.test($id('quote-line').innerHTML) &&
+        $id('quote-line').innerHTML.includes('(부가세 별도)'), 'CPA 예상 금액 — "1페이지 기준" 없음');
   toApo('crime_record'); sandbox.QUOTE = { supply: 40000, pages: 1 }; sandbox.renderQuoteLine();
-  check(sandbox.TIER.code === 'APO' && !/쪽 기준/.test($id('quote-line').innerHTML), 'APO 예상 금액 — "1쪽 기준" 없음');
+  check(sandbox.TIER.code === 'APO' && !/(쪽|페이지) 기준/.test($id('quote-line').innerHTML), 'APO 예상 금액 — "1페이지 기준" 없음');
   pick('school_record'); sandbox.QUOTE = { supply: 60000, pages: 1 }; sandbox.renderQuoteLine();
-  check(/1쪽 기준 · 업로드 후 확정/.test($id('quote-line').innerHTML), '쪽당 상품은 "1쪽 기준" 유지');
+  check(/1페이지 기준 · 업로드 후 확정/.test($id('quote-line').innerHTML), '페이지 단가 상품은 "1페이지 기준" 유지');
   check(html.includes('<a href="/" class="logo"><span class="lg-en">IUMM</span><span class="lg-ko">아이움</span></a>'), '위저드 로고 = IUMM(lg-en) + 아이움(lg-ko)');
   check($id('mail-box').innerHTML.includes('출국 일정'), '완료 화면 — 여권 출국 일정 안내');
   check($id('docs-box').style.display === '', '완료 화면 — 아포스티유 준비 서류');
@@ -497,7 +497,7 @@ console.log('\n[17] 여러 파일 업로드 — 누적 · 순서 · 삭제 · 10
   check(calls === 0, '고르는 즉시 사전검증을 쏘지 않는다 (디바운스)');
   await wait(900);
   check(calls === 1 && lastFiles.join(',') === 'a.pdf,b.pdf,c.png', `목록이 바뀐 뒤 사전검증 1회 (${calls}회) · 목록 순서대로 전송`);
-  check(sandbox.PAGES === 4 && /2쪽/.test($id('file-list').innerHTML) && /전체 4쪽/.test($id('precheck-msg').innerHTML),
+  check(sandbox.PAGES === 4 && /2페이지/.test($id('file-list').innerHTML) && /전체 4페이지/.test($id('precheck-msg').innerHTML),
     `PDF 2쪽 + 1쪽 + 이미지 = ${sandbox.PAGES}쪽 · 파일별 쪽수 표시`);
   check(/공증본은 이 순서대로 묶입니다/.test($id('file-list').innerHTML) && /삭제/.test($id('file-list').innerHTML) &&
         /aria-label="위로"/.test($id('file-list').innerHTML), '목록 — 순서 안내 · 위/아래 · 삭제 버튼');
