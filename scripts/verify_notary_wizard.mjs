@@ -529,6 +529,49 @@ console.log('\n[17] 여러 파일 업로드 — 누적 · 순서 · 삭제 · 10
   sandbox.fetch = async () => ({ json: async () => ({ ok: false }) });
   await wait(900);
 }
+// ── 해외 서류(한국 제출용) — 화면 전용 탭 · 카카오톡 상담만 · 가격 없음 ──
+console.log('\n[해외 서류] 탭 · 나라 선택 · 카카오톡 상담 · 로그인 없이');
+{
+  sandbox.DOC_CAT = ''; $id('docType').value = ''; sandbox.renderDocPicker();
+  const c = $id('doc-cats').innerHTML, at = (s) => c.indexOf('>' + s + '<');
+  check(at('개인') >= 0 && at('개인') < at('유학') && at('유학') < at('기업') && at('기업') < at('해외 서류') && at('해외 서류') < at('기타'),
+    '탭 순서 개인 · 유학 · 기업 · 해외 서류 · 기타');
+  check(!JSON.stringify(cfg).includes('해외 서류'), '해외 서류 탭은 화면에서만 만든다 (파이프라인 설정에 없음)');
+  sandbox.pickCat('해외 서류');
+  const list = $id('doc-list').innerHTML;
+  check((list.match(/class="ntr-docbtn/g) || []).length === 1 && list.includes(">해외에서 발급받은 서류 (한국 제출용)</button>"), '탭 안 버튼 1개 — 해외에서 발급받은 서류 (한국 제출용)');
+  pick('__overseas__');
+  check(sandbox.TIER === null && steps() === 'doc' && $id('overseas-box').style.display === '' && $id('other-doc-box').style.display === 'none',
+    '고르면 TIER=null · 결제 단계 없음 · 해외 서류 안내만');
+  check(/카카오톡 상담/.test(sandbox.stepBlockReason()), '다음 단계로 넘어가지 않음 (카카오톡 상담 안내)');
+  check(html.includes('<strong>해외 서류 아포스티유 + 한국어 번역공증</strong>') &&
+        html.includes('해외에서 발급받은 서류를 한국에 제출해야 할 때, 현지 공증·아포스티유부터 한국어 번역공증까지 한 번에 진행합니다.') &&
+        html.includes('아포스티유 증명서까지 함께 번역해 제출처에서 바로 쓰실 수 있게 보내 드립니다. 나라와 서류에 따라 절차와 비용이 달라 상담 후 안내해 드립니다.'),
+    '제목·설명 문구');
+  const radios = $id('overseas-radios').innerHTML, names = [...radios.matchAll(/\)">([^<]+)<\/button>/g)].map(m => m[1]);
+  check(names.join() === '미국,일본,중국,베트남,캐나다,호주,영국,기타' && $id('overseas-guide').innerHTML === '', '나라 8개(미국·일본·중국·베트남·캐나다·호주·영국·기타) · 고르기 전 안내 없음');
+  sandbox.pickOverseas('일본');
+  const g = $id('overseas-guide').innerHTML;
+  check(g.includes('① 나라: 일본<br>② 서류 종류<br>③ 제출할 곳(예: 운전면허 교환, 출입국, 학교)<br>④ 한국어 번역공증 필요 여부<br>⑤ 서류 사진') &&
+        g.includes('href="https://pf.kakao.com/_BlpKX/chat" target="_blank"') && g.includes('카카오톡으로 상담하기</a>') && g.includes('iumm.master@gmail.com') &&
+        /class="ntr-radio sel" role="radio" aria-checked="true" onclick="pickOverseas\('일본'\)"/.test($id('overseas-radios').innerHTML),
+    '나라 선택 후 — ① 나라: 일본 … ⑤ 서류 사진 + [카카오톡으로 상담하기](새 창) + 이메일');
+  const box = html.slice(html.indexOf('id="overseas-box"'), html.indexOf('id="other-doc-box"'));
+  check(!/\d원|금액|가격|₩/.test(box + g), '해외 서류 — 가격 표시 없음');
+  // 로그인 없이 — ?overseas=1 일 때만
+  sandbox.OVERSEAS_ENTRY = true; sandbox.ME.kakaoId = ''; sandbox.checkLogin();
+  check(sandbox.GUEST === true && $id('form-area').style.display === '' && $id('card-login').style.display === 'none', '/notary/?overseas=1 — 로그인 없이 해외 서류 화면');
+  sandbox.pickOverseas('미국'); const g2 = $id('overseas-guide').innerHTML;
+  sandbox.pickCat('개인');
+  check(sandbox.DOC_CAT === '해외 서류' && $id('form-area').style.display === 'none' && $id('card-login').style.display === '' && /① 나라: 미국/.test(g2),
+    '로그인 없이 보던 손님이 다른 탭을 누르면 → 기존 로그인 화면');
+  sandbox.OVERSEAS_ENTRY = false; sandbox.checkLogin();
+  check(sandbox.GUEST === false && $id('card-login').style.display === '' && $id('form-area').style.display === 'none', 'overseas=1 이 아니면 기존대로 로그인부터');
+  check(/if \(OVERSEAS_ENTRY\) \{ DOC_CAT = OVERSEAS_CAT; \$\('docType'\)\.value = OVERSEAS_CODE; \}/.test(html) &&
+        /OVERSEAS_ENTRY = new URLSearchParams\(location\.search\)\.get\('overseas'\) === '1'/.test(html),
+    '?overseas=1 — 해외 서류 탭·버튼이 미리 선택된 채 열림');
+  sandbox.GUEST = false; sandbox.OVERSEAS_COUNTRY = ''; sandbox.DOC_CAT = ''; $id('docType').value = ''; $id('form-area').style.display = '';
+}
 const visible2 =html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 check(!/협력|대행사|업체/.test(visible2), '협력업체·대행 표현 없음');
 

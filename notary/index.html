@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=38">
+<link rel="stylesheet" href="/notary/notary.css?v=39">
 <!-- ★메인(index.html)과 같은 v1 SDK. 버전이 다르면 토큰 저장 형식이 달라
      같은 브라우저에서도 로그인 세션을 공유하지 못해 재로그인을 요구하게 된다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -89,6 +89,19 @@
       <!-- 목록에 없는 서류 → 결제 없이 담당자 문의 -->
       <!-- ★온라인 발급본이 없는 서류(서버 kakaoOnly) — 결제 흐름 없이 카카오톡 문의 안내만 -->
       <div id="kakao-doc-box" style="display:none;margin-top:16px"></div>
+      <!-- ★해외 서류(한국 제출용) — 가격 없이 나라 선택 → 카카오톡 상담 안내 (결제 흐름 없음) -->
+      <div id="overseas-box" style="display:none;margin-top:16px">
+        <div class="ntr-note">
+          <strong>해외 서류 아포스티유 + 한국어 번역공증</strong><br>
+          해외에서 발급받은 서류를 한국에 제출해야 할 때, 현지 공증·아포스티유부터 한국어 번역공증까지 한 번에 진행합니다.
+          아포스티유 증명서까지 함께 번역해 제출처에서 바로 쓰실 수 있게 보내 드립니다. 나라와 서류에 따라 절차와 비용이 달라 상담 후 안내해 드립니다.
+        </div>
+        <div class="ntr-field" style="margin-top:14px">
+          <label class="ntr-lbl">서류를 발급받은 나라</label>
+          <div class="ntr-radios" id="overseas-radios" role="radiogroup" aria-label="서류를 발급받은 나라"></div>
+        </div>
+        <div id="overseas-guide"></div>
+      </div>
       <div id="other-doc-box" style="display:none;margin-top:16px">
         <div class="ntr-note warn">
           <strong>목록에 없는 서류는 담당자가 직접 확인합니다</strong><br>
@@ -496,14 +509,34 @@ var KAKAO_PAPER_MSG = '종이로만 받으신 서류는 원본 확인이 필요�
   '확인 후 금액과 진행 방법을 안내해 드립니다.';
 /** 카카오톡 문의 안내 상자 — [카카오톡 문의] 버튼 + 이메일 */
 function kakaoBox(msgText){
-  return '<div class="ntr-note warn"><strong>카카오톡으로 문의해 주세요</strong><br>' + esc(msgText) +
-    '<div class="ntr-kakao-ask" style="text-align:left;margin-top:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">' +
+  return '<div class="ntr-note warn"><strong>카카오톡으로 문의해 주세요</strong><br>' + esc(msgText) + kakaoAsk('카카오톡 문의') + '</div>';
+}
+/** [카카오톡 버튼] + 이메일 한 줄 */
+function kakaoAsk(label){
+  return '<div class="ntr-kakao-ask" style="text-align:left;margin-top:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">' +
     '<a href="' + KAKAO_URL + '" target="_blank" rel="noopener noreferrer" style="min-height:44px;padding:0 18px">' +
     '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C6.98 3 2.9 6.24 2.9 10.24c0 2.55 1.68 4.79 4.21 6.06-.19.68-.67 2.43-.77 2.81-.12.47.17.47.36.34.15-.1 2.42-1.64 3.4-2.31.61.09 1.24.14 1.9.14 5.02 0 9.1-3.24 9.1-7.04S17.02 3 12 3z"/></svg>' +
-    '카카오톡 문의</a>' +
+    esc(label) + '</a>' +
     '<span style="font-size:13px;color:var(--text-muted)">또는 <a href="mailto:iumm.master@gmail.com" style="all:revert;color:var(--gold)">iumm.master@gmail.com</a></span>' +
-    '</div></div>';
+    '</div>';
 }
+
+// ─── 해외 서류 (한국 제출용) — 카카오톡 상담 접수 전용, 가격 표시 없음 ─────────
+// ★파이프라인 설정에 없는 화면 전용 탭('기타'와 같은 방식). 고르면 TIER=null · 결제 흐름 없음.
+var OVERSEAS_CAT = '해외 서류', OVERSEAS_CODE = '__overseas__', OVERSEAS_COUNTRY = '';
+var OVERSEAS_LIST = ['미국', '일본', '중국', '베트남', '캐나다', '호주', '영국', '기타'];
+function renderOverseas(){
+  $('overseas-radios').innerHTML = OVERSEAS_LIST.map(function(c){
+    var on = OVERSEAS_COUNTRY === c;
+    return '<button type="button" class="ntr-radio' + (on ? ' sel' : '') + '" role="radio" aria-checked="' + on + '"' +
+           ' onclick="pickOverseas(\'' + esc(c) + '\')">' + esc(c) + '</button>';
+  }).join('');
+  $('overseas-guide').innerHTML = !OVERSEAS_COUNTRY ? '' :
+    '<div class="ntr-note warn" style="margin-top:14px"><strong>카카오톡으로 아래 내용을 보내 주세요</strong><br>' +
+    '① 나라: ' + esc(OVERSEAS_COUNTRY) + '<br>② 서류 종류<br>③ 제출할 곳(예: 운전면허 교환, 출입국, 학교)<br>④ 한국어 번역공증 필요 여부<br>⑤ 서류 사진' +
+    kakaoAsk('카카오톡으로 상담하기') + '</div>';
+}
+function pickOverseas(c){ OVERSEAS_COUNTRY = c; renderOverseas(); }
 /** 온라인 결제로 받지 않는 서류인가 (서버 isKakaoOnlyDoc 과 같은 기준 — 서버가 내려준 값 우선) */
 function isKakaoDoc(d){ return !!(d && (d.kakaoOnly || (d.uploadRule === 'mailOriginal' && !d.copyNotary))); }
 /** 이 주문에 적용되는 업로드 규칙 — 서버 effectiveUploadRule 과 같은 기준 */
@@ -1067,7 +1100,7 @@ function chooseApo(on){
 /** 서류 선택 화면 — 카테고리 탭 + 서류 버튼 */
 function renderDocPicker(){
   if (!CFG) return;
-  var cats = (CFG.docCategoryOrder || ['개인','유학','기업']).concat(['기타']);
+  var cats = (CFG.docCategoryOrder || ['개인','유학','기업']).concat([OVERSEAS_CAT, '기타']);   // 해외 서류·기타 = 화면에서만 만드는 탭
   if (!DOC_CAT) DOC_CAT = cats[0];
   $('doc-cats').innerHTML = cats.map(function(c){
     return '<button type="button" class="ntr-cat' + (c === DOC_CAT ? ' sel' : '') +
@@ -1081,6 +1114,12 @@ function renderDocPicker(){
       '" onclick="pickDoc(\'__other__\')">목록에 없는 서류<span class="tag">담당자 확인 · 결제 전 문의</span></button>';
     return;
   }
+  if (DOC_CAT === OVERSEAS_CAT) {
+    $('doc-list').innerHTML =
+      '<button type="button" class="ntr-docbtn' + (cur === OVERSEAS_CODE ? ' sel' : '') +
+      '" onclick="pickDoc(\'' + OVERSEAS_CODE + '\')">해외에서 발급받은 서류 (한국 제출용)</button>';
+    return;
+  }
   var list = (CFG.documents || []).filter(function(d){ return d.category === DOC_CAT; });
   $('doc-list').innerHTML = list.map(function(d){
     // ★서류 버튼에는 서류 이름만 — 처리 방식 태그(번역공증·아포스티유만 등)를 달지 않는다. '준비 중'만 표시
@@ -1090,8 +1129,9 @@ function renderDocPicker(){
            ' onclick="pickDoc(\'' + esc(d.code) + '\')">' + esc(d.label) + tag + '</button>';
   }).join('');
 }
-function pickCat(c){ DOC_CAT = c; renderDocPicker(); }
+function pickCat(c){ if (needLogin(c !== OVERSEAS_CAT)) return; DOC_CAT = c; renderDocPicker(); }
 function pickDoc(code){
+  if (needLogin(code !== OVERSEAS_CODE)) return;
   $('docType').value = code;
   renderDocPicker();
   onDocType();
@@ -1115,11 +1155,14 @@ function onDocType(){
   var d = docByCode(code);
   var quote = !!(d && d.uploadRule === 'quote');   // 견적 전용 서류 — 공개 설정에는 내려오지 않는다
   var kakao = isKakaoDoc(d);                       // 온라인 발급본 없는 서류 — 카카오톡 문의만
-  var other = (code === '__other__') || quote || kakao;
+  var overseas = (code === OVERSEAS_CODE);           // 해외 서류(한국 제출용) — 카카오톡 상담만
+  var other = (code === '__other__') || quote || kakao || overseas;
 
   $('other-doc-box').style.display = (code === '__other__') ? '' : 'none';
   $('kakao-doc-box').style.display = kakao ? '' : 'none';
   $('kakao-doc-box').innerHTML = kakao ? kakaoBox(KAKAO_DOC_MSG) : '';
+  $('overseas-box').style.display = overseas ? '' : 'none';
+  if (overseas) renderOverseas();
   PAPER_ASK = false;
   $('form-area').classList.toggle('other-mode', other);
   $('submit-use-note').style.display = (d && d.submitUse) ? '' : 'none';
@@ -1276,6 +1319,8 @@ function showLoggedIn(){
 }
 /** ★기존 IUMM과 같은 세션을 읽는다 — 저장 위치(localStorage 'iumm_user')도,
  *  7일 만료 규칙도 메인의 restoreLogin() 과 동일하게 맞춘다. */
+var GUEST = false, OVERSEAS_ENTRY = false;
+try { OVERSEAS_ENTRY = new URLSearchParams(location.search).get('overseas') === '1'; } catch(e){}
 function checkLogin(){
   initKakao();
   try {
@@ -1293,8 +1338,21 @@ function checkLogin(){
   } catch(e){}
   // 서버가 카카오 access_token 을 직접 검증하므로 토큰까지 살아 있어야 진행할 수 있다.
   // 메인과 같은 v1 SDK 를 쓰므로 로그인돼 있으면 여기서도 그대로 읽힌다.
-  if (ME.kakaoId && kakaoToken()) { showLoggedIn(); }
-  else { $('card-login').style.display=''; $('form-area').style.display='none'; }
+  if (ME.kakaoId && kakaoToken()) { GUEST = false; showLoggedIn(); }
+  else if (OVERSEAS_ENTRY) {
+    // ★/notary/?overseas=1 — 해외 서류 안내는 결제·개인정보 입력이 없어 로그인 없이 보여 준다.
+    //   다른 탭·서류로 옮기려 하면 needLogin() 이 기존 로그인 화면으로 돌린다.
+    GUEST = true; $('card-login').style.display='none'; $('form-area').style.display='';
+  }
+  else { GUEST = false; $('card-login').style.display=''; $('form-area').style.display='none'; }
+}
+/** 로그인 없이 보던 손님이 해외 서류 밖으로 나가려 하면 — 기존 로그인 화면을 보여 주고 true */
+function needLogin(leaving){
+  if (!GUEST || !leaving) return false;
+  $('form-area').style.display = 'none';
+  $('card-login').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  return true;
 }
 
 
@@ -1327,6 +1385,7 @@ async function loadConfig(){
   var pd = docByCode(pre);
   if (pd && pd.ready) { DOC_CAT = pd.category || ''; $('docType').value = pd.code; }
   else if (pre === 'other') { DOC_CAT = '기타'; $('docType').value = '__other__'; }
+  if (OVERSEAS_ENTRY) { DOC_CAT = OVERSEAS_CAT; $('docType').value = OVERSEAS_CODE; }   // 상단 메뉴 "해외 서류" → /notary/?overseas=1
 
   renderDocPicker();
   renderStep();        // 첫 화면 = 서류 선택
@@ -1427,6 +1486,8 @@ function stepBlockReason(){
       if (!code) return '서류를 선택해 주세요.';
       if (code === '__other__')
         return '목록에 없는 서류는 위 문의 폼으로 접수해 주세요 (결제 단계로 진행하지 않습니다).';
+      if (code === OVERSEAS_CODE)
+        return '해외 서류는 카카오톡 상담으로 접수해 주세요 (결제 단계로 진행하지 않습니다).';
       if (isKakaoDoc(docByCode(code)))
         return '이 서류는 카카오톡 문의로 접수해 주세요 (결제 단계로 진행하지 않습니다).';
       var d = docByCode(code);

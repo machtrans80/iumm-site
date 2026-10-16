@@ -643,6 +643,8 @@ body.editing .ntr-doc .ntr-f[data-warn="office"]{
 .ntr-radios{display:flex;gap:8px;flex-wrap:wrap}
 .ntr-radio{padding:9px 16px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:13.5px;color:#fff}
 .ntr-radio.sel{border-color:var(--gold);background:rgba(22,184,148,0.1)}
+button.ntr-radio{background:transparent;font:inherit;font-size:13.5px;min-height:40px}  /* 해외 서류 나라 선택 — 버튼으로 그려 키보드로도 고른다 */
+button.ntr-radio.sel{background:rgba(22,184,148,0.1)}
 .ntr-quote{margin-top:10px;font-size:13px;color:var(--text-muted)}
 .ntr-quote b{color:var(--gold);font-size:15px}
 .ntr-g-danger{margin:10px 0;padding:11px 13px;border-left:3px solid var(--danger);
