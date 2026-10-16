@@ -270,10 +270,12 @@ console.log('\n[15] 인트로');
   check(/dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = d >= 0\.999/.test(it), '선이 도착하면 도시 점·이름이 켜짐');
 
   // 장면
+  check(it.includes('.it-map .veil{fill:rgba(10,22,40,0.55);opacity:0}') && /veil\.style\.opacity = e\.toFixed/.test(it), '지도 위 남색 막 0 → 0.55 (p 0→0.6)');
   check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신을 세계로 이어 드립니다<\/p>\s*<\/div>/.test(it) &&
         it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"아 · 이 · 움"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
   check(it.includes('<span>아</span><span> · </span><span>이</span><span> · </span><span>움</span>') && /color:#5DE0BC;font-size:clamp\(40px,7vw,96px\)/.test(it), '"아 · 이 · 움" 민트 clamp(40px,7vw,96px)');
   const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
+  check(!/0\.35/.test(js), '끝 장면 흐리게(0.35) 없음 — 마지막 장면 그대로 위로 밀려 올라감');
   {
     const pcPad = +(land.match(/\.lp-hero\{[^}]*padding:(\d+)px /) || [])[1], moPad = +(land.match(/section\.lp-hero\{padding:(\d+)px /) || [])[1];
     check(pcPad + 8 <= 40 && moPad + 8 <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) &&
@@ -286,6 +288,7 @@ console.log('\n[15] 인트로');
   check(Buffer.byteLength(it, 'utf8') < 100 * 1024, `추가 용량 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (< 100KB)`);
   check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음 (transform·opacity·clip-path·stroke-dashoffset 만)');
   check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js), 'rAF + passive 스크롤');
+  check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 삭제)');
   // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
   const mkEl = () => ({ style: {}, setAttribute(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
   const store = {};
@@ -301,6 +304,10 @@ console.log('\n[15] 인트로');
     return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender };
   };
   const first = run({ reduce: false }), second = run({ reduce: false });
+  check(!first.cls.includes('still') && !second.cls.includes('still') && first.listens >= 2 && second.listens >= 2 && first.hasRender && Object.keys(store).length === 0,
+    '같은 세션 두 번 열어도 두 번 다 스크롤 연출 (저장 없음)');
+  check(run({ reduce: true }).cls.includes('still') && /\.it\.still\{height:60vh\}/.test(it) && /\.it\.still \.it-stage\{position:relative;height:100%\}/.test(it),
+    'prefers-reduced-motion 만 정지 장면 (높이 60vh · 고정 없음)');
   const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
 }

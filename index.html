@@ -1911,7 +1911,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
      인트로 — 스크롤로 서울에서 세계로 선이 이어지는 연출 (2026-10-16 · 2차: 한국 중심 점 세계지도)
      ★바깥 섹션(PC 250vh / 모바일 220vh) 안에서 무대(100vh·100dvh)를 sticky 로 고정하고,
        진행도 p(0~1) = 섹션을 지나간 비율로 장면을 그린다. 외부 라이브러리 없음. 자동 재생 없음(스크롤로만).
-     ★같은 세션 재방문·prefers-reduced-motion → 고정 없이 100vh, 완성 장면(p=1)만.
+     ★같은 세션이어도 매번 스크롤 연출(재방문 생략 없음). prefers-reduced-motion 만 정지 장면(높이 60vh, p=1).
      ★움직이는 것은 transform·opacity·clip-path·stroke-dashoffset 뿐 — 레이아웃 속성은 건드리지 않는다.
        지도 배치·곡선·도시 점·라벨 좌표와 --it-tail(#top 이 올라오는 거리)은 size() 에서만(처음·화면 크기 바뀔 때) 정한다.
      ★지도: Natural Earth 110m land(퍼블릭 도메인)를 scripts/build_intro_map.mjs 로 한 번 변환한 점 격자 (원본은 저장소에 없음).
@@ -1949,8 +1949,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   color:rgba(255,255,255,0.7);font-size:22px;z-index:3;animation:itBob 1.8s ease-in-out infinite}
 @keyframes itBob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 무대를 밀지 않게 */
-/* 재방문·움직임 줄이기 — 고정 없이 한 화면, 완성 장면 */
-.it.still{height:100vh;height:100dvh}
+/* 움직임 줄이기 — 고정 없이 60vh 한 장면 (완성 장면) */
+.it.still{height:60vh}
 .it.still .it-stage{position:relative;height:100%}
 .it.still .it-hint{display:none}
 @media(max-width:640px){
@@ -1993,10 +1993,8 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 /* 인트로 장면 — 진행도 p 하나로 모든 요소를 그린다 */
 (function(){
   var sec = document.getElementById('intro'); if (!sec) return;
-  var reduce = false, seen = false;
-  try { reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
-  try { seen = sessionStorage.getItem('iumm_intro_seen') === '1'; sessionStorage.setItem('iumm_intro_seen', '1'); } catch(e){}
-  var still = reduce || seen;
+  var still = false;
+  try { still = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch(e){}
   if (still) sec.classList.add('still');
 
   var stage = sec.querySelector('.it-stage'), head = sec.querySelector('.it-head'), card = sec.querySelector('.it-card');
@@ -2058,7 +2056,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     rect.setAttribute('x', f(s)); rect.setAttribute('y', f(t));
     rect.setAttribute('width', f(Math.max(0, W - 2 * s))); rect.setAttribute('height', f(Math.max(0, H - t - b))); rect.setAttribute('rx', f(R));
     frame.style.opacity = (1 - e).toFixed(3);
-    map.style.opacity = (p < 0.9 ? 1 : lerp(1, 0.35, c01((p - 0.9) / 0.1))).toFixed(3);
+    veil.style.opacity = e.toFixed(3);
     // 위 문구 — 위로 올라가며 사라짐
     head.style.opacity = (1 - c01(p / 0.3)).toFixed(3);
     head.style.transform = 'translate3d(0,' + (-c01(p / 0.6) * 140).toFixed(1) + 'px,0)';
