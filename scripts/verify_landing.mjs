@@ -488,14 +488,21 @@ console.log('\n[15] 인트로');
       `착지 구간 계산 — 섹션 2640 · 화면 800 · 내비 70 → T = 1840, 구간 1545.6~2120 · p 0.92(1700)에서 멈추면 0.4초에 걸쳐 T 로 (${m.calls.length}프레임, 도착 ${m.y.toFixed(1)})`);
     const ease = (() => { const k = mk(); k.set(1600); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(160); const ys = k.calls.map(c => c.top); return ys.length > 5 && ys[1] - ys[0] > ys[ys.length - 1] - ys[ys.length - 2]; })();
     check(ease, '착지 이동 = ease-out (처음 빠르고 끝이 느림)');
-    const outs = [0, 1000, 1540, 2130, 3000].map(p => { const k = mk(); k.stopAt(p); return k.calls.length; });
-    check(outs.every(n => n === 0), `구간 밖 무개입 — 0 · 1000 · 1540(p 0.84 위) · 2130 · 3000 에서 멈추면 이동 0회 (${outs.join('/')})`);
+    const outs = [0, 1000, 1540, 2130, 3000].map(p => { const k = mk(); if (p === 2130) k.stopAt(1700); const c = k.calls.length; k.stopAt(p); return k.calls.length - c; });
+    check(outs.every(n => n === 0), `구간 밖 무개입 — 0 · 1000 · 1540(p 0.84 위) · 2130(T 에서 출발) · 3000 에서 멈추면 이동 0회 (${outs.join('/')})`);
     { const k = mk(); k.stopAt(1700); const c0 = k.calls.length; k.stopAt(2000); const down = k.calls.length - c0;
       const k2 = mk(); k2.stopAt(1700); const c1 = k2.calls.length; k2.stopAt(1650); const up = k2.calls.length - c1;
       const k3 = mk(); k3.stopAt(1200); const c2 = k3.calls.length; k3.stopAt(2050); const over = k3.calls.length - c2;
       check(down === 0 && up > 0 && Math.abs(k2.y - T) < 0.5 && over > 0 && Math.abs(k3.y - T) < 0.5,
         `T 에서 아래로 내린 스크롤은 되돌리지 않음(이동 ${down}회) · T 에서 위로 살짝 → T 복귀 · 인트로에서 T 를 지나쳐 2050 → T 복귀`); }
     { const k = mk(); k.stopAt(4000); k.stopAt(1846); check(Math.abs(k.y - T) < 0.5, '아래(카드 쪽)에서 위로 올라와 T + 6px(앵커 #top) 에 멈추면 → T 착지'); }
+    // 인트로에서 빠르게 지나친 경우만 아래 끝 T + 70% (화면 800 → 2400). T 에서 시작한 아래 스크롤은 그대로 무개입
+    { const k = mk(); k.stopAt(1200); const c0 = k.calls.length; k.stopAt(T + 0.6 * 800); const fromIntro = k.calls.length - c0, yi = k.y;
+      const k2 = mk(); k2.stopAt(1700); const c1 = k2.calls.length; k2.stopAt(T + 0.6 * 800); const fromT = k2.calls.length - c1, yt = k2.y;
+      const k3 = mk(); k3.stopAt(1200); const c3 = k3.calls.length; k3.stopAt(T + 0.75 * 800); const beyond = k3.calls.length - c3;
+      const k4 = mk(); k4.stopAt(2600); k4.stopAt(T + 0.6 * 800); const fromBelow = k4.calls.length;
+      check(fromIntro > 0 && Math.abs(yi - T) < 0.5 && fromT === 0 && Math.abs(yt - (T + 480)) < 0.5 && beyond === 0 && fromBelow === 0,
+        `인트로(1200)에서 시작해 T+60%(2320)에 멈추면 T 로 착지 · T 에서 시작해 T+60% 에 멈추면 개입 없음 · 인트로에서 T+75% 는 구간 밖 · 아래(2600)에서 올라와 T+60% 는 개입 없음`); }
     { const k = mk(); k.set(1600); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(150); const mid = k.y; k.fire('wheel'); const c = k.calls.length; k.tick(100);
       const k2 = mk(); k2.set(1600); k2.fire('scroll'); k2.tick(200); k2.fire('scrollend'); k2.tick(100); k2.fire('touchstart'); const c2 = k2.calls.length; k2.tick(100);
       const k3 = mk(); k3.set(1600); k3.fire('scroll'); k3.tick(200); k3.fire('scrollend'); k3.tick(100); k3.fire('keydown'); const c3 = k3.calls.length; k3.tick(100);

@@ -2362,6 +2362,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 /* 인트로 → 첫 화면 경계 자동 착지 (scroll-snap 없이 JS, 2026-10-16)
    T = #top 맨 위가 고정 내비 바로 아래에 오는 스크롤 위치(고정이 풀리는 지점 = 첫 화면 도착).
    경계 구간 = 인트로 p 0.84 지점 ~ T + 화면 높이 35% (움직임 줄이기는 T ± 35%).
+     단, 스크롤을 T 보다 위(인트로 쪽)에서 시작해 빠르게 지나친 경우만 아래 끝을 T + 70% 로 넓힌다 (2026-10-16).
    스크롤이 완전히 멈추면(scrollend 또는 마지막 scroll 뒤 140ms, 손가락이 닿아 있는 동안은 기다림) 구간 안일 때만 T 로 0.4초 ease-out.
    휠·터치·키·마우스 입력이 오면 즉시 멈춘다(손님 조작 우선). 구간 밖은 절대 건드리지 않는다.
    단, 첫 화면(T)에 머물다 아래로 내려가며 시작한 스크롤은 되돌리지 않는다 — 카드를 읽으려는 조작이라서.
@@ -2375,11 +2376,11 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   function now(){ return performance.now(); }
   function Y(){ return window.pageYOffset || 0; }
   function navH(){ var n = document.querySelector('nav'); return n ? n.offsetHeight : 0; }
-  // [시작, 끝, T] — 문서 기준 스크롤 위치
+  // [시작, 끝, T, 넓힌 끝] — 문서 기준 스크롤 위치. 넓힌 끝 = 인트로 쪽에서 출발해 지나친 경우에만 쓴다
   function zone(){
     var y = Y(), H = window.innerHeight, T = Math.round(top.getBoundingClientRect().top + y - navH());
     var start = sec.classList.contains('still') ? T - 0.35 * H : sec.getBoundingClientRect().top + y + 0.84 * (sec.offsetHeight - H);
-    return [start, T + 0.35 * H, T];
+    return [start, T + 0.35 * H, T, T + 0.7 * H];
   }
   function go(y){ window.scrollTo({ top: y, behavior: 'instant' }); }
   function stop(){ if (anim) { cancelAnimationFrame(anim); anim = 0; } }
@@ -2401,7 +2402,8 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     if (anim || touching) return;
     if (now() - lastScroll < 130 || now() - lastInput < 130) { later(); return; }   // 관성·연속 입력이 끝날 때까지
     var y = Y(), z = zone(), from = rest; rest = y;
-    if (y < z[0] - 0.5 || y > z[1]) return;      // 구간 밖 — 개입 없음
+    var end = from < z[2] - 2 ? z[3] : z[1];     // 인트로 쪽(T 위)에서 출발 → 아래 끝 T + 70%, 그 밖은 T + 35%
+    if (y < z[0] - 0.5 || y > end) return;      // 구간 밖 — 개입 없음
     if (y > z[2] && from >= z[2] - 2 && y >= from) return;   // 첫 화면에서 아래로 내려가는 중 — 되돌리지 않음 (아래에서 올라온 것은 착지)
     land(z[2]);
   }
