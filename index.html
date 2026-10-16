@@ -1907,6 +1907,37 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   section.lp-hero{padding:24px 0 40px !important}
   section.lp-sec{padding:44px 0 !important}
 }
+/* ── 밝은 본문 (2026-10-16) — #proof · #process · #process-pro · #faq-summary 에 .lp-light. 인트로·첫 화면(#top)·푸터는 남색 그대로.
+   첫 화면 ↔ 밝은 본문 경계는 직선(그라데이션·물결 없음).
+   ★색: 바탕 #F5F8FB(전문 번역 #EEF6FD) · 글자 남색 #0F2540 · 보조 남색 70% · 카드 흰색 + 남색 10% 테두리 · 그림자 아주 약하게.
+   ★민트 #0E9A7B · 하늘 #2F86D6 은 밝은 바탕 대비 3.3~3.8 (AA 큰 글자·그래픽 3:1 통과, 작은 글자 4.5 미달)
+     → 점·테두리·큰 숫자에만 쓰고, 작은 글자(라벨·STEP·링크)는 같은 색상의 한 단계 진한 값 #0A7A61(4.96) · #1F6FB8(4.78). */
+.lp-light{--lt-ink:#0F2540;--lt-sub:rgba(15,37,64,0.7);--lt-line:rgba(15,37,64,0.1);--lt-dot:#0E9A7B;--lt-txt:#0A7A61;
+  position:relative;z-index:1;background:#F5F8FB;color:var(--lt-ink);border-top:0}
+.lp-light.pro-sec{--lt-dot:#2F86D6;--lt-txt:#1F6FB8;background:#EEF6FD}
+.lp-light + .lp-light{border-top:1px solid var(--lt-line)}
+.lp-light .lp-label,.lp-sec.pro-sec.lp-light .lp-label{color:var(--lt-txt)}
+.lp-light .lp-h2{color:var(--lt-ink)}
+.lp-light .lp-step,.pro-sec.lp-light .lp-step{background:#fff;border:1px solid var(--lt-line);box-shadow:0 1px 3px rgba(15,37,64,0.04)}
+.lp-light .lp-step .no,.pro-sec.lp-light .lp-step .no{color:var(--lt-txt)}
+.lp-light .lp-step .t{color:var(--lt-ink)}
+.lp-light .lp-step .d{color:var(--lt-sub)}
+.lp-light .lp-pro-act,.pro-sec.lp-light .lp-pro-act{background:#fff;border:1px solid var(--lt-line);box-shadow:0 1px 3px rgba(15,37,64,0.04)}
+.lp-light .lp-pro-act .lp-trust{color:var(--lt-ink)}
+.lp-light .lp-pro-note{color:var(--lt-sub)}
+.lp-light .lp-plan{background:#fff;border:1.5px solid rgba(47,134,214,0.45);box-shadow:0 1px 3px rgba(15,37,64,0.04)}
+.lp-light .lp-plan:hover{background:#fff;border-color:#2F86D6}
+.lp-light .lp-plan:focus-visible{outline-color:#2F86D6}
+.lp-light .lp-plan .nm{color:var(--lt-ink)}
+.lp-light .lp-plan .nm span,.lp-light .lp-plan .pr{color:var(--lt-sub)}
+.lp-light .lp-plan .pr b{color:#2F86D6}   /* 24~30px 800 = 큰 글자(3:1) */
+.lp-light .lp-plan .go{color:var(--lt-txt)}
+.lp-light.lp-faq details{border-bottom:1px solid rgba(15,37,64,0.12)}
+.lp-light.lp-faq summary{color:var(--lt-ink)}
+.lp-light.lp-faq summary::before,.lp-light.lp-faq summary::after{color:var(--lt-txt)}
+.lp-light.lp-faq details[open]{background:transparent}
+.lp-light.lp-faq details p{color:var(--lt-ink)}
+.lp-light .lp-note a{color:var(--lt-txt)}
 </style>
 
 <!-- ── 첫 화면 + 입구 2개 ──────────────────────────────────── -->
@@ -2357,7 +2388,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 })();
 </script>
 
-<section class="lp-sec" id="process">
+<section class="lp-sec lp-light" id="process">
   <div class="lp">
     <p class="lp-label">번역공증 · 아포스티유</p>
     <h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다</h2>
@@ -2376,7 +2407,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 <!-- ── 전문 번역 과정 ─────────────────────────────────────────
      ★금액은 PLAN_PRICE 에서 읽는다(data-plan) — 하드코딩 금지.
      ★내부 공정(단계 수·처리 방식·도구·용어집 내용·검수자 구조)은 쓰지 않는다. -->
-<section class="lp-sec pro-sec" id="process-pro">
+<section class="lp-sec pro-sec lp-light" id="process-pro">
   <div class="lp">
     <p class="lp-label">전문 번역</p>
     <h2 class="lp-h2">용어는 끝까지 같게, 숫자는 하나도 틀리지 않게</h2>
@@ -2398,7 +2429,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   </div>
 </section>
 
-<section class="lp-sec lp-faq" id="faq-summary">
+<section class="lp-sec lp-faq lp-light" id="faq-summary">
   <div class="lp">
     <p class="lp-label"><span class="en">FAQ</span></p>
     <h2 class="lp-h2">자주 묻는 질문</h2>

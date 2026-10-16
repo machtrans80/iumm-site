@@ -72,8 +72,9 @@ check(!/\bAI\b|인공지능|스마트/.test(visible.replace(/PLAN_PRICE\.ai|ai\s
 const introEnd = land.indexOf('<section class="lp-hero" id="top">');
 const introStart = land.lastIndexOf('<!-- ════', land.indexOf('<section class="it" id="intro"'));
 const introPart = introStart >= 0 && introEnd > introStart ? land.slice(introStart, introEnd) : '';
-check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible.replace(introPart.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, ''), '')),
-  '그라데이션·글로우·자동 애니메이션 없음 (인트로 제외)');
+// 밝은 본문 카드의 아주 약한 그림자(남색 4%) 한 가지만 허용 (2026-10-16 지시)
+check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible.replace(introPart.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, ''), '').split('box-shadow:0 1px 3px rgba(15,37,64,0.04)').join('')),
+  '그라데이션·글로우·자동 애니메이션 없음 (인트로 제외 · 밝은 본문 카드 그림자 남색 4% 만 허용)');
 check(!/box-shadow|glow/.test(introPart) && (introPart.match(/gradient\(/g) || []).length === 3 &&
       introPart.includes('background:radial-gradient(closest-side,rgba(15,37,64,0.85),rgba(15,37,64,0))') &&
       introPart.includes('background:linear-gradient(to right,rgba(15,37,64,0.8),rgba(15,37,64,0) 60%)') &&
@@ -564,6 +565,37 @@ console.log('\n[8] 메인 FAQ — 해외 서류');
   check(qs.length <= 6 && qs[qs.length - 1] === '해외에서 발급받은 서류도 맡길 수 있나요?' &&
         fq.includes('<p>네. 미국·일본·중국 등 해외에서 발급받은 서류를 한국에 제출해야 할 때, 현지 공증·아포스티유부터 한국어 번역공증까지 한 번에 진행합니다. 나라와 서류에 따라 절차와 비용이 달라 카카오톡으로 상담 후 안내해 드립니다.</p>'),
     `메인 FAQ 맨 아래 "해외에서 발급받은 서류도 맡길 수 있나요?" (질문 ${qs.length}개 · 6개 이하)`);
+}
+
+// ── 9. 밝은 본문 ──
+console.log('\n[9] 밝은 본문 — #process · #process-pro · #faq-summary (· #proof)');
+{
+  const secTag = (id) => (html.match(new RegExp('<section[^>]*id="' + id + '"[^>]*>')) || [''])[0];
+  check(['process', 'process-pro', 'faq-summary'].every(id => /class="[^"]*\blp-light\b/.test(secTag(id))) && !/lp-light/.test(secTag('top') + secTag('intro')) &&
+        /<footer style="[^"]*background:#0A1628">/.test(html),
+    '밝은 바탕 = #process · #process-pro · #faq-summary / 인트로 · 첫 화면 · 푸터는 남색 그대로');
+  const lt = (html.match(/\.lp-light[^{]*\{[^}]*\}/g) || []).join('\n');
+  check(/\.lp-light\{--lt-ink:#0F2540;--lt-sub:rgba\(15,37,64,0\.7\);--lt-line:rgba\(15,37,64,0\.1\);--lt-dot:#0E9A7B;--lt-txt:#0A7A61;\s*position:relative;z-index:1;background:#F5F8FB;/.test(lt) &&
+        /\.lp-light\.pro-sec\{--lt-dot:#2F86D6;--lt-txt:#1F6FB8;background:#EEF6FD\}/.test(lt) &&
+        lt.includes('.lp-light.lp-faq details{border-bottom:1px solid rgba(15,37,64,0.12)}') && lt.includes('.lp-light.lp-faq details p{color:var(--lt-ink)}') &&
+        /\.lp-light \.lp-step,[^{]*\{background:#fff;border:1px solid var\(--lt-line\);box-shadow:0 1px 3px rgba\(15,37,64,0\.04\)\}/.test(lt),
+    '바탕 #F5F8FB · 글자 #0F2540 · 보조 70% · 흰 카드 + 10% 테두리 · 전문 번역 #EEF6FD · FAQ 구분선 12% · 열린 답변 남색');
+  check(!/gradient|wave|clip-path|mask/i.test(lt), '경계 직선 — 밝은 본문 규칙에 그라데이션·물결 없음');
+  // 대비 (WCAG AA) — 작은 글자 4.5 · 큰 글자 3
+  const hx = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const ln = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const Lm = c => 0.2126 * ln(c[0]) + 0.7152 * ln(c[1]) + 0.0722 * ln(c[2]);
+  const cr = (a, b) => { const x = Lm(a), y = Lm(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const mix = (f, a, b) => f.map((v, i) => v * a + b[i] * (1 - a));
+  const N = hx('#0F2540'), BG = [hx('#F5F8FB'), hx('#EEF6FD'), [255, 255, 255]];
+  const rows = [['라벨·STEP 민트 #0A7A61', hx('#0A7A61'), 4.5, [0, 2]], ['라벨·STEP 하늘 #1F6FB8', hx('#1F6FB8'), 4.5, [1, 2]],
+    ['보조 글자 남색 70%', null, 4.5, [0, 1, 2]], ['본문 남색', N, 4.5, [0, 1, 2]], ['플랜 가격 #2F86D6 (큰 글자)', hx('#2F86D6'), 3, [2]],
+    ['버튼 민트 + 남색 글자', hx('#06202f'), 4.5, 'm'], ['버튼 하늘 + 남색 글자', hx('#06202f'), 4.5, 's']];
+  const res = rows.map(([n, c, min, bgs]) => {
+    const pairs = bgs === 'm' ? [[c, hx('#16B894')]] : bgs === 's' ? [[c, hx('#6FB8F0')]] : bgs.map(i => [c || mix(N, 0.7, BG[i]), BG[i]]);
+    const lo = Math.min(...pairs.map(([a, b]) => cr(a, b))); return [n, lo, min];
+  });
+  check(res.every(([, lo, min]) => lo >= min), '대비 AA — ' + res.map(([n, lo]) => n + ' ' + lo.toFixed(2)).join(' · '));
 }
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
