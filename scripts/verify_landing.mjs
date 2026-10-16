@@ -316,7 +316,7 @@ console.log('\n[15] 인트로');
     check(/var t = \(now \/ 2400 \+ PH\[i\]\) % 1/.test(tick) && /PH\[i\] = \(i \* 0\.377\) % 1/.test(js) && [...tick.matchAll(/\.style\.(\w+)/g)].every(m => m[1] === 'transform') &&
           /requestAnimationFrame\(tick\)/.test(tick) && it.includes('.it-map .spark{fill:none;stroke:#5DE0BC;stroke-width:3px;'),
       '빛 점 — 지름 3px 민트 · 서울 → 도착지 2.4초 주기 · 선마다 시작 어긋남 · rAF 루프 하나 · transform 만');
-    check(/setLive\(!still && ARR\.some\(Boolean\) && p < 0\.92\)/.test(js) && /\.it\.still \.it-hint,\.it\.still \.it-map \.spark,\.it\.still \.it-shade\{display:none\}/.test(it),
+    check(/setLive\(!still && ARR\.some\(Boolean\) && p < 0\.92\)/.test(js) && /\.it\.still \.it-map \.spark,\.it\.still \.it-shade\{display:none\}/.test(it),
       'reduced-motion — 빛 점 없음 (루프 안 돌고 숨김)');
   }
 
@@ -359,7 +359,7 @@ console.log('\n[15] 인트로');
   check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js) && !/setTimeout|setInterval/.test(js), 'rAF + passive 스크롤 · 자동 재생 없음');
   check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 없음)');
   // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
-  const mkEl = () => ({ style: {}, attr: {}, setAttribute(k, x){ this.attr[k] = x; }, removeAttribute(){}, cloneNode(){ return mkEl(); }, insertBefore(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { add(){} } });
+  const mkEl = () => ({ style: {}, attr: {}, setAttribute(k, x){ this.attr[k] = x; }, removeAttribute(){}, cloneNode(){ return mkEl(); }, insertBefore(){}, getComputedTextLength: () => 60, getBoundingClientRect: () => ({ top: 0, bottom: 0 }), classList: { on: {}, add(){}, toggle(c, x){ this.on[c] = !!x; } } });
   const store = {};
   const run = ({ reduce }) => {
     const one = {}, all = {};
@@ -438,6 +438,74 @@ console.log('\n[15] 인트로');
     const css = html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
     check(s.hero.style.opacity === undefined && s.hero.style.transform === undefined && !/scroll-snap-(type|align)/.test(css),
       'reduced-motion 에서 #top 내용 항상 보임 (opacity·transform 을 건드리지 않음) · snap 없음 (페이지 전체)');
+  }
+  // ── "바로 신청하기 ↓" 버튼 · 경계 자동 착지
+  check(it.includes('<button type="button" class="it-hint">바로 신청하기 <i aria-hidden="true">↓</i></button>') &&
+        /\.it-hint\{[^}]*pointer-events:auto;[^}]*font-size:14px;[^}]*color:rgba\(255,255,255,0\.75\);[^}]*border:1px solid rgba\(255,255,255,0\.25\);border-radius:999px;/.test(it) &&
+        /hint\.classList\.toggle\('off', p >= 0\.62\);/.test(js) && /\.it-hint\.off\{opacity:0;visibility:hidden;pointer-events:none\}/.test(it),
+    '"바로 신청하기 ↓" — 무대 하단 가운데 · 흰색 75% 14px · 테두리 1px 흰색 25% · radius 999px · p 0.62 부터 숨김');
+  {
+    const r = run({ reduce: false }), hint = r.one['.it-hint'];
+    r.render(0.3); const a = hint.classList.on.off; r.render(0.62); const b = hint.classList.on.off;
+    check(a === false && b === true, '버튼 — p 0.3 보임 · p 0.62 숨김 (모의 실행)');
+  }
+  {
+    const tEnd = html.indexOf('</section>', top) + 10, ls = html.slice(tEnd, tEnd + 6000).match(/^\s*<script>([\s\S]*?)<\/script>/);
+    const lj = ls ? ls[1] : '';
+    check(!!lj && /인트로 → 첫 화면 경계 자동 착지/.test(lj) && !/scroll-snap-(type|align)/.test(html.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '')) && !/lpGo/.test(lj),
+      '경계 자동 착지 = #top 바로 뒤 별도 스크립트 · scroll-snap 없음 · 버튼은 lpGo 아닌 스크롤 이동');
+    // 모의 브라우저 — 섹션 0~2640px, 화면 800, 내비 70 → T = 2640 - (800 - 70) - 70 = 1840 · 구간 1545.6 ~ 2120
+    const mk = ({ reduce = false, still = false, scrollend = true } = {}) => {
+      let y = 0, t = 0, raf = [], timers = [], calls = [];
+      const L = {}, on = (n, fn) => (L[n] = L[n] || []).push(fn), fire = (n) => (L[n] || []).forEach(fn => fn({}));
+      const secH = still ? 480 : 2640, topTop = still ? 480 : 2640 - (800 - 70);
+      const btnL = {};
+      const sec = { offsetHeight: secH, getBoundingClientRect: () => ({ top: 0 - y }), classList: { contains: (c) => c === 'still' && still },
+        querySelector: () => ({ addEventListener: (n, fn) => { btnL[n] = fn; } }) };
+      const topEl = { getBoundingClientRect: () => ({ top: topTop - y }) };
+      const win = { innerHeight: 800, get pageYOffset(){ return y; }, addEventListener: on, matchMedia: () => ({ matches: reduce }),
+        scrollTo: (o) => { calls.push(o); y = o.top; } };
+      if (scrollend) win.onscrollend = null;
+      const sb = { window: win, document: { getElementById: (id) => id === 'intro' ? sec : id === 'top' ? topEl : null, querySelector: (q) => q === 'nav' ? { offsetHeight: 70 } : null },
+        performance: { now: () => t }, matchMedia: win.matchMedia, Math,
+        requestAnimationFrame: (fn) => { raf.push(fn); return raf.length; }, cancelAnimationFrame: () => { raf = []; },
+        setTimeout: (fn, ms) => { timers.push([t + ms, fn]); return timers.length; }, clearTimeout: () => {} };
+      sb.window.pageYOffset; vm.createContext(sb); vm.runInContext(lj, sb);
+      const api = {
+        get y(){ return y; }, calls, L, btnL,
+        set(v){ y = v; },
+        tick(ms){ const end = t + ms; while (t < end) { t += 16; const q = raf; raf = []; q.forEach(fn => fn(t)); const due = timers.filter(x => x[0] <= t); timers = timers.filter(x => x[0] > t); due.forEach(x => x[1]()); } },
+        stopAt(v){ y = v; fire('scroll'); t += 200; fire(scrollend ? 'scrollend' : 'scroll'); api.tick(700); },
+        fire
+      };
+      return api;
+    };
+    const T = 1840;
+    let m = mk(); m.stopAt(1700);
+    check(Math.abs(m.y - T) < 0.5 && m.calls.length > 10 && m.calls.every(c => c.behavior === 'instant'),
+      `착지 구간 계산 — 섹션 2640 · 화면 800 · 내비 70 → T = 1840, 구간 1545.6~2120 · p 0.92(1700)에서 멈추면 0.4초에 걸쳐 T 로 (${m.calls.length}프레임, 도착 ${m.y.toFixed(1)})`);
+    const ease = (() => { const k = mk(); k.set(1600); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(160); const ys = k.calls.map(c => c.top); return ys.length > 5 && ys[1] - ys[0] > ys[ys.length - 1] - ys[ys.length - 2]; })();
+    check(ease, '착지 이동 = ease-out (처음 빠르고 끝이 느림)');
+    const outs = [0, 1000, 1540, 2130, 3000].map(p => { const k = mk(); k.stopAt(p); return k.calls.length; });
+    check(outs.every(n => n === 0), `구간 밖 무개입 — 0 · 1000 · 1540(p 0.84 위) · 2130 · 3000 에서 멈추면 이동 0회 (${outs.join('/')})`);
+    { const k = mk(); k.stopAt(1700); const c0 = k.calls.length; k.stopAt(2000); const down = k.calls.length - c0;
+      const k2 = mk(); k2.stopAt(1700); const c1 = k2.calls.length; k2.stopAt(1650); const up = k2.calls.length - c1;
+      const k3 = mk(); k3.stopAt(1200); const c2 = k3.calls.length; k3.stopAt(2050); const over = k3.calls.length - c2;
+      check(down === 0 && up > 0 && Math.abs(k2.y - T) < 0.5 && over > 0 && Math.abs(k3.y - T) < 0.5,
+        `T 에서 아래로 내린 스크롤은 되돌리지 않음(이동 ${down}회) · T 에서 위로 살짝 → T 복귀 · 인트로에서 T 를 지나쳐 2050 → T 복귀`); }
+    { const k = mk(); k.set(1600); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(150); const mid = k.y; k.fire('wheel'); const c = k.calls.length; k.tick(100);
+      const k2 = mk(); k2.set(1600); k2.fire('scroll'); k2.tick(200); k2.fire('scrollend'); k2.tick(100); k2.fire('touchstart'); const c2 = k2.calls.length; k2.tick(100);
+      const k3 = mk(); k3.set(1600); k3.fire('scroll'); k3.tick(200); k3.fire('scrollend'); k3.tick(100); k3.fire('keydown'); const c3 = k3.calls.length; k3.tick(100);
+      check(mid > 1600 && mid < T && k.calls.length === c && k2.calls.length === c2 && k3.calls.length === c3,
+        `이동 중 휠·터치·키 입력 → 즉시 중단 (중단 위치 ${mid.toFixed(0)}px, 그 뒤 이동 0)`); }
+    { const k = mk(); k.set(1700); k.fire('touchstart'); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(300); const held = k.calls.length; k.fire('touchend'); k.tick(800);
+      check(held === 0 && Math.abs(k.y - T) < 0.5, '손가락이 닿아 있는 동안은 기다리고, 뗀 뒤(관성 끝) 착지'); }
+    { const k = mk({ scrollend: false }); k.set(1700); k.fire('scroll'); k.tick(100); const early = k.calls.length; k.tick(900);
+      check(early === 0 && Math.abs(k.y - T) < 0.5, 'scrollend 없는 브라우저 — 마지막 scroll 뒤 140ms 무입력이면 착지'); }
+    { const k = mk({ reduce: true }); k.stopAt(1700);
+      check(k.calls.length === 1 && k.calls[0].top === T && k.calls[0].behavior === 'instant', 'reduced-motion — 애니메이션 없이 즉시 T (scrollTo 1회, behavior instant)'); }
+    { const k = mk(); k.set(300); k.btnL.click(); k.tick(500); const k2 = mk({ reduce: true }); k2.set(300); k2.btnL.click();
+      check(Math.abs(k.y - T) < 0.5 && k.calls.length > 10 && k2.calls.length === 1 && k2.y === T, '"바로 신청하기 ↓" 클릭 → T 로 부드럽게 (reduced-motion 은 즉시)'); }
   }
   const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
