@@ -265,24 +265,38 @@ console.log('\n[15] 인트로');
     '서울 = 민트 점 + 맥박 + "SEOUL" (모바일도 표시)');
   const names = [...it.matchAll(/<text class="lb to( m-hide)?">([A-Z ]+)<\/text>/g)].map(m => [m[2], !!m[1]]);
   const dirs = [...it.matchAll(/<text class="lb dir pc-hide"[^>]*>([^<]+)<\/text>/g)].map(m => m[1]);
-  check(names.map(n => n[0]).join('|') === 'BEIJING|FRANKFURT|LONDON|LOS ANGELES|NEW YORK' && (it.match(/class="rt"/g) || []).length === 5 && (it.match(/class="dst"/g) || []).length === 5,
-    '곡선·도시 점·라벨 5개 — BEIJING · FRANKFURT · LONDON · LOS ANGELES · NEW YORK');
-  check(names.filter(n => !n[1]).map(n => n[0]).join('|') === 'BEIJING' && !/class="lb home[^"]*m-hide/.test(it) && dirs.join('|') === '← EUROPE|USA →' &&
+  const NAMES = ['TOKYO', 'BEIJING', 'HO CHI MINH', 'SINGAPORE', 'DUBAI', 'FRANKFURT', 'PARIS', 'LONDON', 'VANCOUVER', 'LOS ANGELES', 'NEW YORK', 'SYDNEY'];
+  check(names.map(n => n[0]).join('|') === NAMES.join('|') && ['rt', 'dst', 'spark'].every(c => (it.match(new RegExp(`class="${c}"`, 'g')) || []).length === 12),
+    '연결 도시 12곳 — 곡선·도시 점·빛 점·라벨 12개씩 (TOKYO … SYDNEY)');
+  check(names.filter(n => !n[1]).map(n => n[0]).join('|') === 'TOKYO|BEIJING|SYDNEY' && !/class="lb home[^"]*m-hide/.test(it) && dirs.join('|') === '← EUROPE|USA →' &&
         /\.it-map \.lb\.m-hide\{display:none\}/.test(it) && /min-width:641px\)\{\s*\.it-map \.lb\.pc-hide\{display:none\}/.test(it),
-    '모바일 라벨 = SEOUL · BEIJING · ← EUROPE · USA → 만 (방향 라벨은 모바일만)');
-  check(/if \(i === 2 \|\| i === 4\)/.test(js) && /dirs\[0\]\.style\.opacity = dd\[2\] >= DIR\[0\]/.test(js) && /dirs\[1\]\.style\.opacity = dd\[4\] >= DIR\[1\]/.test(js) && /\.it-map\{[^}]*overflow:hidden/.test(it),
-    '모바일 — 화면 밖 곡선은 끝까지 그리고, 곡선이 화면 끝에 닿으면 방향 라벨');
-  check(it.includes('.it-map .lb{fill:rgba(255,255,255,0.7);font-size:11px;letter-spacing:2px;'), '라벨 11px · 자간 2px · 흰색 70%');
-  const cities = [...it.matchAll(/\{ ll: \[(-?[\d.]+), (-?[\d.]+)\],\s*q: \[([\d.]+), ([\d.]+)\]/g)].map(m => m.slice(1).map(Number));
-  const want = [[116.4, 39.9], [8.7, 50.1], [-0.1, 51.5], [-118.2, 34.1], [-74.0, 40.7]];
-  check(cities.length === 5 && cities.every((c, i) => c[0] === want[i][0] && c[1] === want[i][1]), '도시 좌표 (BEIJING 116.4E 39.9N … NEW YORK 74.0W 40.7N)');
-  check(cities.length === 5 && cities[0][2] < Math.min(cities[1][2], cities[2][2]) && Math.max(cities[1][2], cities[2][2]) < Math.min(cities[3][2], cities[4][2]) && cities.every(c => c[3] <= 1),
-    '그리는 순서 BEIJING → FRANKFURT·LONDON → LOS ANGELES·NEW YORK');
+    '라벨 — PC 12곳 모두 · 모바일 SEOUL · TOKYO · BEIJING · SYDNEY · ← EUROPE · USA → 만');
+  check(/var EU = 7, US = 10;/.test(js) && /dirs\[0\]\.style\.opacity = dd\[EU\] >= DIR\[0\]/.test(js) && /dirs\[1\]\.style\.opacity = dd\[US\] >= DIR\[1\]/.test(js) && /\.it-map\{[^}]*overflow:hidden/.test(it),
+    '모바일 — 화면 밖 곡선은 끝까지 그리고, LONDON·NEW YORK 곡선이 화면 끝에 닿으면 방향 라벨');
+  check(it.includes('.it-map .lb{fill:rgba(255,255,255,0.7);font-size:11px;letter-spacing:2px;') && /function hit\(bx\)/.test(js) && /SPOT_UP = \[/.test(js) && /SPOT_DN = \[/.test(js),
+    '라벨 11px · 자간 2px · 흰색 70% · 겹치면 다음 후보 자리로 (FRANKFURT·PARIS·LONDON)');
+  const cities = [...it.matchAll(/\{ ll: \[(-?[\d.]+), (-?[\d.]+)\],\s*q: \[([\d.]+), ([\d.]+)\](, dn: 1)?/g)].map(m => [...m.slice(1, 5).map(Number), !!m[5]]);
+  const want = [[139.7, 35.7], [116.4, 39.9], [106.7, 10.8], [103.8, 1.35], [55.3, 25.2], [8.7, 50.1], [2.35, 48.9], [-0.1, 51.5], [-123.1, 49.3], [-118.2, 34.1], [-74.0, 40.7], [151.2, -33.9]];
+  check(cities.length === 12 && cities.every((c, i) => c[0] === want[i][0] && c[1] === want[i][1]), '도시 좌표 12곳 (TOKYO 139.7E 35.7N … SYDNEY 151.2E 33.9S)');
+  const wave = (a, b) => cities.slice(a, b);
+  check(cities.length === 12 && Math.max(...wave(0, 4).map(c => c[3])) < Math.min(...wave(4, 8).map(c => c[2])) &&
+        Math.max(...wave(4, 8).map(c => c[3])) < Math.min(...wave(8, 12).map(c => c[2])) && cities.every(c => c[3] <= 1),
+    '물결 순서 ① TOKYO·BEIJING·HO CHI MINH·SINGAPORE → ② DUBAI·FRANKFURT·PARIS·LONDON → ③ VANCOUVER·LOS ANGELES·NEW YORK·SYDNEY');
+  check(cities.filter(c => c[4]).map((c, i) => c.slice(0, 2).join()).join('|') === '106.7,10.8|103.8,1.35|151.2,-33.9' && /\(c\.dn \? 1 : -1\) \* dist \* 0\.38\]/.test(js),
+    '곡선 높이 = 거리 × 0.38 · 남쪽 도시(HO CHI MINH·SINGAPORE·SYDNEY)는 아래로');
   check(/E2 = Z0 \* F > 2 \? 1 - Math\.log\(2 \/ F\) \/ Math\.log\(Z0\) : 0/.test(js) && /var q = E2 < 1 \? c01\(\(e - E2\) \/ \(1 - E2\)\)/.test(js),
     '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.5 에 모두 도착');
-  check(/'Q' \+ f\(Q\[0\]\) \+ ' ' \+ f\(Q\[1\]\)/.test(js) && /dist \* 0\.38\]/.test(js) && /% 360\) - 180/.test(js), '위로 휘는 호 · 중심 경도 기준 좌표');
-  check(/dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = d >= 0\.999/.test(js) && /labels\[i\]\.style\.transform = 'translate\(/.test(js),
-    '선이 도착하면 도시 점·이름이 켜짐 (줌 중에는 도시 점을 따라감)');
+  check(/'Q' \+ f\(Q\[0\]\) \+ ' ' \+ f\(Q\[1\]\)/.test(js) && /% 360\) - 180/.test(js), '중심 경도(127°E) 기준 좌표');
+  check(/ARR\[i\] = d >= 0\.999;/.test(js) && /dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = sparks\[i\]\.style\.opacity = ARR\[i\]/.test(js) && /labels\[i\]\.style\.transform = 'translate\(/.test(js),
+    '선이 도착하면 도시 점·이름·빛 점이 켜짐 (줌 중에는 도시 점을 따라감)');
+  {
+    const tick = (js.match(/function tick\(now\)\{[\s\S]*?\n  \}/) || [''])[0];
+    check(/var t = \(now \/ 2400 \+ PH\[i\]\) % 1/.test(tick) && /PH\[i\] = \(i \* 0\.377\) % 1/.test(js) && [...tick.matchAll(/\.style\.(\w+)/g)].every(m => m[1] === 'transform') &&
+          /requestAnimationFrame\(tick\)/.test(tick) && it.includes('.it-map .spark{fill:none;stroke:#5DE0BC;stroke-width:3px;'),
+      '빛 점 — 지름 3px 민트 · 서울 → 도착지 2.4초 주기 · 선마다 시작 어긋남 · rAF 루프 하나 · transform 만');
+    check(/setLive\(!still && ARR\.some\(Boolean\) && p < 0\.92\)/.test(js) && /\.it\.still \.it-hint,\.it\.still \.it-map \.spark\{display:none\}/.test(it),
+      'reduced-motion — 빛 점 없음 (루프 안 돌고 숨김)');
+  }
 
   // ── 줌아웃
   check(/F = mob \? 1\.6 : 1;/.test(js) && /Z0 = kh > 0 \? Math\.max\(1\.5, r0 \* 2 \* 0\.74 \/ kh\) : 6 \/ F;/.test(js) && /var z = Math\.pow\(Z0, 1 - e\);/.test(js) &&
@@ -325,7 +339,7 @@ console.log('\n[15] 인트로');
     const one = {}, all = {};
     const sec = { classList: { list: [], add(c){ this.list.push(c); } }, offsetHeight: 2000, getBoundingClientRect: () => ({ top: 0 }), style: { setProperty(){} },
       querySelector: (q) => one[q] = one[q] || (q === '.it-frame' ? { setAttribute(){}, style: {}, querySelector: () => (one['frame rect'] = one['frame rect'] || mkEl()) } : mkEl()),
-      querySelectorAll: (q) => all[q] = all[q] || Array.from({ length: 5 }, mkEl) };
+      querySelectorAll: (q) => all[q] = all[q] || Array.from({ length: 12 }, mkEl) };
     let listens = 0;
     const hero = { style: {} };   // #top > .lp
     const sb = { document: { getElementById: () => sec, querySelector: (q) => q === '#top > .lp' ? hero : q === 'nav' ? { offsetHeight: 70 } : null },
