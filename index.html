@@ -842,7 +842,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <a href="#" onclick="showPage('faq');return false">FAQ</a>
       <a href="#" id="nav-login-link" onclick="showPage('login');return false">로그인 / 가입</a>
     </div>
-    <button class="nav-cta" id="nav-order-btn" onclick="location.href='/notary/'">번역공증 신청</button>
+    <button class="nav-cta" id="nav-order-btn" onclick="lpGo('notary')">번역공증 신청</button>
     <button class="nav-hamburger" id="nav-hamburger-btn" onclick="document.getElementById('nav-mobile-menu').classList.toggle('open')">☰</button>
   </div>
 </nav>
@@ -852,7 +852,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');handleAI();return false">전문 번역</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');showPage('faq');return false">FAQ</a>
   <a href="#" id="nav-login-link-mobile" onclick="showPage('login');document.getElementById('nav-mobile-menu').classList.remove('open');return false">로그인 / 가입</a>
-  <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="location.href='/notary/'">번역공증 신청</button>
+  <button style="background:#16B894;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary')">번역공증 신청</button>
 </div>
 
 <!-- 전문가 소개 페이지 -->
@@ -1863,14 +1863,21 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .pro-sec .lp-step{border-color:rgba(111,184,240,0.28);background:rgba(111,184,240,0.05)}
 .pro-sec .lp-step .no{color:#9ACDF5}
 .lp-plans{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
-.lp-plan{padding:20px 22px;border-radius:12px;border:1.5px solid rgba(111,184,240,0.45);background:rgba(111,184,240,0.06)}
-.lp-plan .nm{margin:0;font-size:17px;font-weight:700;color:#fff}
+/* 플랜 박스 = 버튼 (스탠다드 → handleAI · 프리미엄 플러스 → handleStandard) */
+.lp-plan{display:block;width:100%;text-align:left;font-family:inherit;cursor:pointer;padding:20px 22px;border-radius:12px;border:1.5px solid rgba(111,184,240,0.45);background:rgba(111,184,240,0.06);color:inherit;transition:border-color .15s,background .15s}
+.lp-plan:hover{border-color:#9ACDF5;background:rgba(111,184,240,0.1)}
+.lp-plan:focus-visible{outline:2px solid #9ACDF5;outline-offset:3px}
+.lp-plan .nm{display:block;margin:0;font-size:17px;font-weight:700;color:#fff}
 .lp-plan .nm span{font-weight:500;color:rgba(255,255,255,0.75)}
-.lp-plan .pr{margin:8px 0 0;font-size:17px;color:rgba(255,255,255,0.82)}
+.lp-plan .pr{display:block;margin:8px 0 0;font-size:17px;color:rgba(255,255,255,0.82)}
+.lp-plan .go{display:block;margin-top:10px;font-size:14px;font-weight:600;color:#9ACDF5}
 .lp-plan .pr b{font-size:clamp(24px,3vw,30px);font-weight:800;color:#9ACDF5;margin:0 2px}
 .lp-pro-note{margin:14px 0 0;font-size:15px;color:rgba(255,255,255,0.75);line-height:1.7;word-break:keep-all}
-.lp-pro-act{margin-top:22px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
-.lp-pro-act .lp-trust{margin:0;font-size:15px;color:rgba(255,255,255,0.82);word-break:keep-all}
+/* 섹션 끝 CTA 띠 — 좌: 신뢰 문구 / 우: 큰 버튼. 배경은 섹션 색 6% 틴트 */
+.lp-pro-act{margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:16px 24px;padding:20px 24px;border-radius:12px;border:1px solid rgba(22,184,148,0.35);background:rgba(22,184,148,0.06)}
+.pro-sec .lp-pro-act{border-color:rgba(111,184,240,0.35);background:rgba(111,184,240,0.06)}
+.lp-pro-act .lp-trust{margin:0;font-size:16px;color:rgba(255,255,255,0.85);line-height:1.6;word-break:keep-all}
+.lp-pro-act .lp-btn{flex:0 0 auto;min-height:56px;padding:16px 30px;font-size:18px}
 @media(max-width:1024px){
   .lp-steps.four{grid-template-columns:repeat(2,1fr)}
 }
@@ -1886,7 +1893,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp-btn{width:100%}
   .lp-steps.four{grid-template-columns:1fr}
   .lp-plans{grid-template-columns:1fr}
-  .lp-pro-act{align-items:stretch}
+  .lp-pro-act{flex-direction:column;align-items:stretch;padding:18px 18px}
+  .lp-pro-act .lp-btn{width:100%}
 }
 /* ★전역 모바일 규칙(section{padding:… !important})이 랜딩 여백을 덮어 제목이 고정 내비 뒤로 숨는다 — 랜딩 구역만 되돌린다 */
 @media(max-width:768px){
@@ -1941,8 +1949,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <div class="lp-step"><div class="no">STEP 3</div><div class="t">댁에서 수령</div><div class="d">공증 서류 스캔본을 마이페이지로 먼저 보내 드리고, 실물은 등기로 발송합니다.</div></div>
     </div>
     <div class="lp-pro-act">
-      <p class="lp-trust">급행이면 다음 영업일에 받아 보실 수 있습니다.</p>
-      <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 시작</button>
+      <p class="lp-trust">급행 접수 시 다음 영업일에 받아 보실 수 있습니다.</p>
+      <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 신청하기</button>
     </div>
   </div>
 </section>
@@ -1961,13 +1969,13 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <div class="lp-step"><div class="no">STEP 4</div><div class="t">휴먼터치 · 납품</div><div class="d">최종 휴먼터치로 자연스럽게 다듬어 마이페이지로 납품하고, 알림톡으로 알려 드립니다.</div></div>
     </div>
     <div class="lp-plans">
-      <div class="lp-plan"><p class="nm">스탠다드 <span>(일반 검수)</span></p><p class="pr">글자당 <b><span data-plan="ai"></span>원</b></p></div>
-      <div class="lp-plan"><p class="nm">프리미엄 플러스 <span>(전문가 검수)</span></p><p class="pr">글자당 <b><span data-plan="standard"></span>원</b></p></div>
+      <button type="button" class="lp-plan" onclick="handleAI()"><span class="nm">스탠다드 <span>(일반 검수)</span></span><span class="pr">글자당 <b><span data-plan="ai"></span>원</b></span><span class="go">이 플랜으로 의뢰 →</span></button>
+      <button type="button" class="lp-plan" onclick="handleStandard()"><span class="nm">프리미엄 플러스 <span>(전문가 검수)</span></span><span class="pr">글자당 <b><span data-plan="standard"></span>원</b></span><span class="go">이 플랜으로 의뢰 →</span></button>
     </div>
     <p class="lp-pro-note">공식 제출·계약 문서에는 프리미엄 플러스를 권해 드립니다.</p>
     <div class="lp-pro-act">
-      <p class="lp-trust">명백한 오역은 납품 후 5일 이내 무료로 다시 번역해 드립니다.</p>
-      <button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>
+      <p class="lp-trust">납품 후 5일 이내, 명백한 오역은 무상으로 재번역해 드립니다.</p>
+      <button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>
     </div>
   </div>
 </section>
@@ -2792,7 +2800,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
       <a href="#" onclick="showPage('terms');return false">이용약관</a>
       <a href="#" onclick="showPage('privacy');return false">개인정보처리방침</a>
       <a href="#" onclick="openTermsAtAnchor('article-5');return false">환불정책</a>
-      <a href="#" onclick="openPrivacyAtAnchor('article-10');return false">고객센터</a>
+      <a href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener noreferrer">고객센터</a>
     </div>
   </div>
   

@@ -39,8 +39,8 @@ console.log('\n[3] 구성 — 누구에게나 같은 화면');
 check(land.includes('공증 받으러<br>멀리 가지 마세요') && !html.includes('서울까지'), '제목');
 check(land.includes('<p class="lp-lead">서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다.</p>'), '부제');
 check((land.match(/class="lp-card[ "]/g) || []).length === 2 && land.includes('lp-card main'), '카드 2개 · 1번 강조');
-check(land.includes("onclick=\"lpGo('notary')\">번역공증 · 아포스티유 시작<"), '1번 버튼 → 위저드');
-check(land.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>') && land.includes('<div class="lp-card pro">'), '2번 카드 pro · 버튼 → 전문 번역 모달 (채운 버튼)');
+check(land.includes("<button type=\"button\" class=\"lp-btn\" onclick=\"lpGo('notary')\">번역공증 · 아포스티유 신청하기</button>"), '1번 버튼 → 위저드');
+check(land.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>') && land.includes('<div class="lp-card pro">'), '2번 카드 pro · 버튼 → 전문 번역 모달 (채운 버튼)');
 check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.08)}', '.lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}',
        '.lp-card.pro li::before{background:#9ACDF5}', '.lp-card.pro .lp-big .n{color:#9ACDF5}',
        '.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}', '.lp-btn.pro-btn:hover{background:#9ACDF5'].every(x => land.includes(x)),
@@ -127,10 +127,20 @@ console.log('\n[7] 전문 번역 과정 섹션');
   check(plans[0].t === sb2.PLAN_PRICE.ai && plans[1].t === sb2.PLAN_PRICE.standard, `플랜 금액 = PLAN_PRICE (${plans[0].t} / ${plans[1].t})`);
   check(sec.includes('스탠다드 <span>(일반 검수)</span>') && sec.includes('프리미엄 플러스 <span>(전문가 검수)</span>') &&
         sec.includes('<p class="lp-pro-note">공식 제출·계약 문서에는 프리미엄 플러스를 권해 드립니다.</p>'), '플랜 이름·권장 문구 (부가세 문구 없음)');
-  check(sec.includes('명백한 오역은 납품 후 5일 이내 무료로 다시 번역해 드립니다.') &&
+  check(sec.includes('<p class="lp-trust">납품 후 5일 이내, 명백한 오역은 무상으로 재번역해 드립니다.</p>') &&
         /무료 재번역 또는 A\/S\(품질수정\)/.test(html) && /납품일로부터 <span class="highlight">5일 이내<\/span>/.test(html),
     '신뢰 문구 — 약관 제7조(5일 이내 무료 재번역)와 일치');
-  check(sec.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 시작</button>'), '버튼 → handleAI() · 첫 화면 전문 번역 버튼과 같은 스타일');
+  check(sec.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>'), 'CTA 띠 버튼 → handleAI() · 첫 화면 전문 번역 버튼과 같은 스타일');
+  check(sec.includes('<button type="button" class="lp-plan" onclick="handleAI()"><span class="nm">스탠다드') &&
+        sec.includes('<button type="button" class="lp-plan" onclick="handleStandard()"><span class="nm">프리미엄 플러스') &&
+        (sec.match(/<span class="go">이 플랜으로 의뢰 →<\/span>/g) || []).length === 2 &&
+        land.includes('.lp-plan:hover{border-color:#9ACDF5') && land.includes('.lp-plan:focus-visible{outline:2px solid #9ACDF5') && /\.lp-plan\{[^}]*cursor:pointer/.test(land),
+    '플랜 박스 = 버튼 (스탠다드 → handleAI · 프리미엄 플러스 → handleStandard) · "이 플랜으로 의뢰 →" · hover·키보드');
+  check(land.includes('.lp-pro-act{margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:16px 24px;padding:20px 24px;border-radius:12px;border:1px solid rgba(22,184,148,0.35);background:rgba(22,184,148,0.06)}') &&
+        land.includes('.pro-sec .lp-pro-act{border-color:rgba(111,184,240,0.35);background:rgba(111,184,240,0.06)}') &&
+        land.includes('.lp-pro-act .lp-trust{margin:0;font-size:16px;color:rgba(255,255,255,0.85)') &&
+        /\.lp-pro-act\{flex-direction:column;align-items:stretch/.test(land) && land.includes('.lp-pro-act .lp-btn{width:100%}'),
+    'CTA 띠 — 섹션 색 6% · 1px · 12px · 20px 24px · 문구 16px 흰 85% · 모바일 세로 · 버튼 전체 폭');
   check(land.includes('.lp-sec.pro-sec .lp-label{color:#9ACDF5}') && land.includes('.pro-sec .lp-step .no{color:#9ACDF5}'), '하늘색 계열 — 라벨·STEP 번호');
   const vis = sec.replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|자동\s?번역|엔진|모델|인공지능|최고|최저|유일|협력|검수자|단계 수/.test(vis), '금지 표현 없음 (AI·자동번역·엔진·모델·최상급·협력·내부 공정)');
@@ -140,8 +150,12 @@ console.log('\n[7] 전문 번역 과정 섹션');
 console.log('\n[9] 공증 3단계 — 시작 버튼');
 {
   const ps = land.slice(land.indexOf('id="process"'), land.indexOf('id="process-pro"'));
-  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust">급행이면 다음 영업일에 받아 보실 수 있습니다\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 시작<\/button>\s*<\/div>/.test(ps),
-    '.lp-steps 아래 안내 한 줄 + [번역공증 · 아포스티유 시작] → lpGo(notary), 민트 채운 버튼');
+  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust">급행 접수 시 다음 영업일에 받아 보실 수 있습니다\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 신청하기<\/button>\s*<\/div>/.test(ps),
+    'CTA 띠 — "급행 접수 시…" + [번역공증 · 아포스티유 신청하기] → lpGo(notary)');
+  check(html.includes(`<button class="nav-cta" id="nav-order-btn" onclick="lpGo('notary')">번역공증 신청</button>`) &&
+        html.includes(`onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary')">번역공증 신청</button`) &&
+        !html.includes("location.href='/notary/'"), '상단 번역공증 신청(PC·모바일) → lpGo(notary)');
+  check(html.includes('<a href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener noreferrer">고객센터</a>'), '푸터 고객센터 → 카카오 채널 새 창');
 }
 
 // ── 10. 금색 '번역공증 신청' 떠 있는 버튼 삭제 ──
