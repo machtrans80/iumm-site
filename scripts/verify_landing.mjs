@@ -74,9 +74,11 @@ const introStart = land.lastIndexOf('<!-- ════', land.indexOf('<section 
 const introPart = introStart >= 0 && introEnd > introStart ? land.slice(introStart, introEnd) : '';
 check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible.replace(introPart.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, ''), '')),
   '그라데이션·글로우·자동 애니메이션 없음 (인트로 제외)');
-check(!/box-shadow|glow|linear-gradient/.test(introPart) && (introPart.match(/gradient\(/g) || []).length === 1 &&
-      introPart.includes('background:radial-gradient(closest-side,rgba(15,37,64,0.85),rgba(15,37,64,0))'),
-  '인트로 — 그라데이션은 글자 뒤 바탕(radial 남색 0.85 → 투명) 1개뿐 · 글로우·그림자 없음');
+check(!/box-shadow|glow/.test(introPart) && (introPart.match(/gradient\(/g) || []).length === 3 &&
+      introPart.includes('background:radial-gradient(closest-side,rgba(15,37,64,0.85),rgba(15,37,64,0))') &&
+      introPart.includes('background:linear-gradient(to right,rgba(15,37,64,0.8),rgba(15,37,64,0) 60%)') &&
+      introPart.includes("'linear-gradient(to bottom,#000 0px,#000 '"),
+  '인트로 — 그라데이션은 3개뿐: 글자 뒤 바탕(radial) · 끝 제목 쪽 남색(linear) · 카드 줄 아래 지우는 mask · 글로우·그림자 없음');
 check(!/✦|[\u{1F300}-\u{1FAFF}]|[☀-➿]/u.test(visible), '✦·이모지 없음');
 check(!html.includes('✦'), 'index.html 전체 ✦ 없음');
 check(!/최고|최저|최초|유일|1위|완벽/.test(visible), '최상급 표현 없음');
@@ -287,14 +289,14 @@ console.log('\n[15] 인트로');
   check(/E2 = Z0 \* F > 2 \? 1 - Math\.log\(2 \/ F\) \/ Math\.log\(Z0\) : 0/.test(js) && /var q = E2 < 1 \? c01\(\(e - E2\) \/ \(1 - E2\)\)/.test(js),
     '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.5 에 모두 도착');
   check(/'Q' \+ f\(Q\[0\]\) \+ ' ' \+ f\(Q\[1\]\)/.test(js) && /% 360\) - 180/.test(js), '중심 경도(127°E) 기준 좌표');
-  check(/ARR\[i\] = d >= 0\.999;/.test(js) && /dots\[i\]\.style\.opacity = labels\[i\]\.style\.opacity = sparks\[i\]\.style\.opacity = ARR\[i\]/.test(js) && /labels\[i\]\.style\.transform = 'translate\(/.test(js),
+  check(/ARR\[i\] = d >= 0\.999;/.test(js) && /dots\[i\]\.style\.opacity = ARR\[i\] \? '1' : '0';/.test(js) && /labels\[i\]\.style\.opacity = sparks\[i\]\.style\.opacity = ARR\[i\] \? gone : '0';/.test(js) && /labels\[i\]\.style\.transform = 'translate\(/.test(js),
     '선이 도착하면 도시 점·이름·빛 점이 켜짐 (줌 중에는 도시 점을 따라감)');
   {
     const tick = (js.match(/function tick\(now\)\{[\s\S]*?\n  \}/) || [''])[0];
     check(/var t = \(now \/ 2400 \+ PH\[i\]\) % 1/.test(tick) && /PH\[i\] = \(i \* 0\.377\) % 1/.test(js) && [...tick.matchAll(/\.style\.(\w+)/g)].every(m => m[1] === 'transform') &&
           /requestAnimationFrame\(tick\)/.test(tick) && it.includes('.it-map .spark{fill:none;stroke:#5DE0BC;stroke-width:3px;'),
       '빛 점 — 지름 3px 민트 · 서울 → 도착지 2.4초 주기 · 선마다 시작 어긋남 · rAF 루프 하나 · transform 만');
-    check(/setLive\(!still && ARR\.some\(Boolean\) && p < 0\.92\)/.test(js) && /\.it\.still \.it-hint,\.it\.still \.it-map \.spark\{display:none\}/.test(it),
+    check(/setLive\(!still && ARR\.some\(Boolean\) && p < 0\.92\)/.test(js) && /\.it\.still \.it-hint,\.it\.still \.it-map \.spark,\.it\.still \.it-shade\{display:none\}/.test(it),
       'reduced-motion — 빛 점 없음 (루프 안 돌고 숨김)');
   }
 
@@ -310,26 +312,30 @@ console.log('\n[15] 인트로');
         /color:#5DE0BC;font-size:clamp\(48px,8vw,112px\);font-weight:800;letter-spacing:0\.18em;/.test(it) && /\.it-word \.s\{[^}]*color:rgba\(255,255,255,0\.8\)/.test(it) &&
         /var e = ease\(c01\(p \/ 0\.5\)\);/.test(js) && /var at = \[0\.5, 0\.525, 0\.55, 0\.575\];/.test(js) && /c01\(\(p - at\[j\]\) \/ 0\.03\)/.test(js) && /sub\.style\.opacity = c01\(\(p - 0\.585\) \/ 0\.035\)/.test(js),
     '줌아웃·곡선 p 0→0.5 · "IUMM" I·U·M·M 하나씩 + 부제 (p 0.5→0.62) · 민트 clamp(48px,8vw,112px) · 자간 0.18em · 800 · 부제 흰색 80%');
-  check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.84\) \/ 0\.08\), lift = \(-24 \* g\)/.test(js) && /stage\.style\.opacity = \(1 - g\)/.test(js) &&
-        /card\.style\.transform = 'translate3d\(0,' \+ lift/.test(js) && /word\.style\.transform = 'translate3d\(0,calc\(-50% \+ ' \+ lift/.test(js),
-    '끝 ① p 0.84→0.92 지도·선·도시명·IUMM·부제가 함께 사라짐(살짝 위로) — 0.92 이후 무대 완전히 투명');
+  check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.84\) \/ 0\.08\), gone = \(1 - g\)\.toFixed\(3\), keep = lerp\(1, 0\.14, g\)\.toFixed\(3\);/.test(js) &&
+        /word\.style\.opacity = gone;/.test(js) && /word\.style\.transform = 'translate3d\(0,calc\(-50% \+ ' \+ lift/.test(js) && /home\.style\.opacity = gone;/.test(js) &&
+        /zoom\.style\.opacity = kr\.style\.opacity = pulse\.style\.opacity = keep;/.test(js) && !/stage\.style\.opacity/.test(js),
+    '끝 ① p 0.84→0.92 IUMM·부제·도시명·빛 점은 0(살짝 위로) · 지도 점·한반도·곡선은 0.14 까지만 흐려져 남음');
+  check(/map\.style\.transform = 'translate3d\(' \+ f\(W \/ 6 \* g\)/.test(js) && /shade\.style\.opacity = g\.toFixed\(3\)/.test(js) && /tint\.style\.opacity = gone;/.test(js) &&
+        /card\.style\.maskImage = card\.style\.webkitMaskImage = m;/.test(js) && (it.match(/class="it-map"/g) || []).length === 1 && (it.match(/id="land"/g) || []).length === 1,
+    '남은 지도 — 서울이 오른쪽 1/3(W/6 이동) · 제목 쪽 남색 그라데이션 · 카드 줄 아래 mask · 지도 SVG 하나만(재사용)');
   check(/heroIn = heroIn \|\| document\.querySelector\('#top > \.lp'\)/.test(js) && /var h = c01\(\(p - 0\.92\) \/ 0\.08\)/.test(js) &&
         /'translate3d\(0,' \+ \(16 \* \(1 - h\)\)/.test(js) && /DOMContentLoaded', update/.test(js),
     '끝 ② p 0.92→1 #top 내용(라벨·h1·lead·카드) opacity 0→1 · 16px→0 (위로 돌아가면 역순)');
   {
     const pcPad = +(land.match(/\.lp-hero\{[^}]*padding:(\d+)px /) || [])[1], moPad = +(land.match(/section\.lp-hero\{padding:(\d+)px /) || [])[1];
     check(pcPad <= 40 && moPad <= 40 && /\.it\{[^}]*margin-bottom:calc\(-1 \* var\(--it-tail, 0px\)\)/.test(it) && /Math\.max\(0, Math\.floor\(H - navH\)\)/.test(js) &&
-          /\.lp-hero\{position:relative;z-index:1;[^}]*background:var\(--black\)/.test(land) &&
-          /\.it-stage\{[^}]*z-index:2;background:var\(--black\);pointer-events:none\}/.test(it) && /\.it\{[^}]*background:var\(--black\)/.test(it),
-      `인트로 ↔ #top 배경 같은 남색 · 장면이 사라지면 #top 이 내비 바로 아래 (빈 구간 0, 첫 줄까지 PC ${pcPad}px / 모바일 ${moPad}px)`);
+          /\.lp-hero\{position:relative;z-index:1;[^}]*background:transparent\}/.test(land) && /body\{[^}]*background:#0F2540/.test(html) && /--black:#0F2540/.test(html) &&
+          /\.it-stage\{[^}]*z-index:0;background:var\(--black\);pointer-events:none\}/.test(it) && /\.it\{[^}]*background:var\(--black\)/.test(it),
+      `인트로·#top·body 같은 남색(#0F2540) · 무대는 #top 아래(z 0), #top 배경 투명 · #top 이 내비 바로 아래 (빈 구간 0, 첫 줄까지 PC ${pcPad}px / 모바일 ${moPad}px)`);
   }
 
   // ── 정리 — 움직이는 속성·용량·외부 리소스
   check(!/<script[^>]+src=|https?:\/\/(?!www\.w3\.org)/.test(it), '외부 라이브러리·외부 리소스 없음');
   check(Buffer.byteLength(it, 'utf8') <= 60 * 1024, `인트로 전체 ${(Buffer.byteLength(it, 'utf8') / 1024).toFixed(1)}KB (지도 포함, ≤ 60KB)`);
   check(!/\.style\.(width|height|top|left|right|bottom|margin|padding)\b/.test(js), '레이아웃 속성 변경 없음');
-  check([...js.matchAll(/\.style\.(\w+) =/g)].every(m => ['clipPath', 'opacity', 'transform', 'strokeDashoffset'].includes(m[1])),
-    '움직이는 style = clip-path · opacity · transform · stroke-dashoffset 뿐');
+  check([...js.matchAll(/\.style\.(\w+) =/g)].every(m => ['clipPath', 'opacity', 'transform', 'strokeDashoffset', 'maskImage', 'webkitMaskImage'].includes(m[1])),
+    '움직이는 style = clip-path · opacity · transform · stroke-dashoffset · mask 뿐');
   check(/requestAnimationFrame/.test(js) && /passive:\s*true/.test(js) && !/setTimeout|setInterval/.test(js), 'rAF + passive 스크롤 · 자동 재생 없음');
   check(!/sessionStorage|iumm_intro_seen|static/.test(js) && !/\.it\.static/.test(it), '재방문 생략 규칙 없음 (sessionStorage·static 없음)');
   // 같은 세션 두 번 → 두 번 다 연출 · 움직임 줄이기만 정지 장면
@@ -342,13 +348,15 @@ console.log('\n[15] 인트로');
       querySelectorAll: (q) => all[q] = all[q] || Array.from({ length: 12 }, mkEl) };
     let listens = 0;
     const hero = { style: {} };   // #top > .lp
-    const sb = { document: { getElementById: () => sec, querySelector: (q) => q === '#top > .lp' ? hero : q === 'nav' ? { offsetHeight: 70 } : null },
+    const topEl = { id: 'top' }, cards = { offsetTop: 300, offsetParent: topEl };   // #top · 카드 줄(#lp-entry) — p=1 에서 무대 기준 70 + 300 = 370px
+    const sb = { document: { getElementById: (id) => id === 'top' ? topEl : id === 'lp-entry' ? cards : sec,
+      querySelector: (q) => q === '#top > .lp' ? hero : q === 'nav' ? { offsetHeight: 70 } : null },
       window: { innerWidth: 1280, innerHeight: 800, addEventListener(){ listens++; }, matchMedia: () => ({ matches: reduce }) },
       matchMedia: () => ({ matches: reduce }), sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } },
       requestAnimationFrame: () => {}, Math, Number };
     vm.createContext(sb); vm.runInContext(js, sb);
     const scene = () => JSON.stringify([Object.keys(one).sort().map(k => [k, one[k].style]), Object.keys(all).sort().map(k => [k, all[k].map(e => e.style)]), hero.style]);
-    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender, render: sb.window.__itRender, hero, scene };
+    return { cls: sec.classList.list, listens, hasRender: !!sb.window.__itRender, render: sb.window.__itRender, hero, scene, one, all };
   };
   const first = run({ reduce: false }), second = run({ reduce: false });
   check(!first.cls.includes('still') && !second.cls.includes('still') && first.listens >= 2 && second.listens >= 2 && first.hasRender && Object.keys(store).length === 0,
@@ -366,6 +374,22 @@ console.log('\n[15] 인트로');
     const mid = at(0.96), done = at(1), back = at(0.88);
     check(hidden && Number(mid.o) > 0 && Number(mid.o) < 1 && /translate3d\(0,8\.0px,0\)/.test(mid.t) && done.o === '' && done.t === '' && Number(back.o) === 0,
       `p 0.84~0.92 사이 #top 내용 opacity 0 · 0.96 → ${mid.o} · p=1 다 보임(style 비움) · 다시 0.88 로 돌아가면 0`);
+    {
+      // 끝난 뒤(p=1) — 남는 지도 0.14 · 사라지는 것 0 · 카드 줄(370px)에서 mask 0
+      const e = run({ reduce: false }); e.render(0.5); e.render(1);
+      const o = e.one, a = e.all, st = (k) => (o[k] || {}).style || {};
+      const keep = ['.it-zoom', '.it-map .kr', '.it-map .pulse'].every(k => st(k).opacity === '0.140');
+      const gone = ['.it-word', '.it-map .home', '.it-tint'].every(k => st(k).opacity === '0.000') &&
+                   a['.it-map .lb.to'].every(x => x.style.opacity === '0.000') && a['.it-map .spark'].every(x => x.style.opacity === '0.000') &&
+                   a['.it-map .lb.dir'].slice(0, 2).every(x => x.style.opacity === '0.000' || x.style.opacity === '0');
+      check(keep && gone && st('.it-shade').opacity === '1.000' && /translate3d\(213\.3px,0,0\)/.test(st('.it-map').transform),
+        `#top 배경 지도 — 지도 점·한반도·곡선·서울 ${st('.it-zoom').opacity} · IUMM·부제·도시명·빛 점 0 · 제목 쪽 남색 1 · 서울 오른쪽 1/3 (+W/6)`);
+      const m = st('.it-card').maskImage || '';
+      check(m === 'linear-gradient(to bottom,#000 0px,#000 250.0px,rgba(0,0,0,0.000) 370.0px)' && st('.it-card').webkitMaskImage === m,
+        `카드 뒤 지도 0 — mask 가 카드 줄 위쪽 끝(370px)에서 0, 그 위 120px 동안 서서히 (${m.slice(0, 60)}…)`);
+      e.render(0.7);
+      check(!st('.it-card').maskImage && st('.it-zoom').opacity === '1.000', '머무는 구간·연출 중에는 mask 없음 · 지도 그대로');
+    }
     const s = run({ reduce: true });
     s.render(0.9); s.render(1);
     // snap 은 시험 결과 휠 한 칸으로 못 벗어나 뺐다 — 페이지 어디에도 snap 없음 (reduced-motion 포함)
