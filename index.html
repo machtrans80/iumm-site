@@ -2037,6 +2037,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
       var d = c01((p - i * 0.07) / 0.18);
       if (i === 0) d = Math.max(d, 0.15);
       routes[i].style.strokeDashoffset = (1 - d).toFixed(4);
+      routes[i].style.opacity = d > 0.001 ? '1' : '0';   // 0% 일 때 둥근 선끝이 점으로 보이지 않게
       dots[i].style.opacity = d >= 0.999 ? '1' : '0';
     }
     // 아 · 이 · 움 — 하나씩
