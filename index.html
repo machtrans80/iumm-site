@@ -1940,6 +1940,20 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-light.lp-faq details[open]{background:transparent}
 .lp-light.lp-faq details p{color:var(--lt-ink)}
 .lp-light .lp-note a{color:var(--lt-txt)}
+/* 신뢰 섹션 — 좌 사진 2장(radius 14 · cover) · 우 3줄. 모바일은 세로로 쌓는다 */
+.lp-proof[hidden]{display:none !important}
+.lp-proof .pf{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:center}
+.lp-proof .ph{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lp-proof figure{margin:0}
+.lp-proof img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;border-radius:14px;border:1px solid var(--lt-line);background:#fff}
+.lp-proof figcaption{margin-top:8px;font-size:15px;color:var(--lt-sub)}
+.lp-proof ul{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.lp-proof li{position:relative;padding-left:18px;font-size:18px;font-weight:600;color:var(--lt-ink);line-height:1.6;word-break:keep-all}
+.lp-proof li::before{content:'';position:absolute;left:0;top:.7em;width:7px;height:7px;border-radius:50%;background:var(--lt-dot)}
+@media(max-width:640px){
+  .lp-proof .pf{grid-template-columns:1fr;gap:22px}
+  .lp-proof .ph{grid-template-columns:1fr}
+}
 </style>
 
 <!-- ── 첫 화면 + 입구 2개 ──────────────────────────────────── -->
@@ -2389,6 +2403,27 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   if (btn) btn.addEventListener('click', function(){ lastInput = 0; land(zone()[2]); });
 })();
 </script>
+
+<!-- ── 신뢰 섹션 "이렇게 받으십니다" (2026-10-16) ──────────────────
+     ★플래그 = 아래 section 의 hidden 속성 하나. 사진 2장(assets/sample-notary.jpg · assets/sample-school-record.jpg)이 없어 숨겨 둔다.
+       사진이 생기면: 원본은 그대로 두고 가로 1200px 이하 사본(*-1200.jpg)을 만든 뒤 hidden 만 지운다.
+     ★실제 완료본 사진만 쓴다(스톡 사진 금지). 개인정보는 가린 사진으로. -->
+<section class="lp-sec lp-light lp-proof" id="proof" hidden>
+  <div class="lp">
+    <h2 class="lp-h2">이렇게 받으십니다</h2>
+    <div class="pf">
+      <div class="ph">
+        <figure><img src="assets/sample-notary-1200.jpg" alt="번역공증 완료본" width="1200" height="1600" loading="lazy" decoding="async"><figcaption>번역공증 완료본</figcaption></figure>
+        <figure><img src="assets/sample-school-record-1200.jpg" alt="생활기록부 번역본" width="1200" height="1600" loading="lazy" decoding="async"><figcaption>생활기록부 번역본</figcaption></figure>
+      </div>
+      <ul>
+        <li>공증 완료본은 스캔으로 먼저, 실물은 등기로</li>
+        <li>2009년부터 누적 처리 1만 건 이상</li>
+        <li>급행 접수 시 다음 영업일 수령</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
 <section class="lp-sec lp-light" id="process">
   <div class="lp">

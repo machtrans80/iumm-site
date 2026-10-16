@@ -547,7 +547,7 @@ console.log('\n[6] 로고');
     '로고 그라데이션·애니메이션 없음');
 }
 
-// ── 7. 해외 서류 메뉴 ──
+// ── 통합-2. 해외 서류 메뉴 ──
 console.log('\n[7] 상단 메뉴 "해외 서류"');
 {
   const dk = html.slice(html.indexOf('id="nav-links-desktop"'), html.indexOf('</div>', html.indexOf('id="nav-links-desktop"')));
@@ -558,7 +558,7 @@ console.log('\n[7] 상단 메뉴 "해외 서류"');
   check(/\.nav-links a\{[^}]*white-space:nowrap/.test(html) && /@media\(min-width:769px\) and \(max-width:1100px\)\{\.nav-links\{gap:18px\}/.test(html), '메뉴 줄바꿈 없음 (좁은 PC 는 간격 18px)');
 }
 
-// ── 8. 메인 FAQ — 해외 서류 ──
+// ── 통합-3. 메인 FAQ — 해외 서류 ──
 console.log('\n[8] 메인 FAQ — 해외 서류');
 {
   const fq = html.slice(html.indexOf('id="faq-summary"'), html.indexOf('</section>', html.indexOf('id="faq-summary"')));
@@ -568,7 +568,7 @@ console.log('\n[8] 메인 FAQ — 해외 서류');
     `메인 FAQ 맨 아래 "해외에서 발급받은 서류도 맡길 수 있나요?" (질문 ${qs.length}개 · 6개 이하)`);
 }
 
-// ── 9. 밝은 본문 ──
+// ── 통합-4. 밝은 본문 ──
 console.log('\n[9] 밝은 본문 — #process · #process-pro · #faq-summary (· #proof)');
 {
   const secTag = (id) => (html.match(new RegExp('<section[^>]*id="' + id + '"[^>]*>')) || [''])[0];
@@ -597,6 +597,27 @@ console.log('\n[9] 밝은 본문 — #process · #process-pro · #faq-summary (�
     const lo = Math.min(...pairs.map(([a, b]) => cr(a, b))); return [n, lo, min];
   });
   check(res.every(([, lo, min]) => lo >= min), '대비 AA — ' + res.map(([n, lo]) => n + ' ' + lo.toFixed(2)).join(' · '));
+}
+
+// ── 통합-6. 신뢰 섹션 #proof ──
+console.log('\n[10] 신뢰 섹션 #proof — 사진 있으면 켜고, 없으면 hidden');
+{
+  const tag = (html.match(/<section[^>]*id="proof"[^>]*>/) || [''])[0];
+  const pr = html.slice(html.indexOf(tag), html.indexOf('</section>', html.indexOf(tag)));
+  const has = ['sample-notary.jpg', 'sample-school-record.jpg'].every(f => fs.existsSync(path.resolve(HERE, '../assets/' + f)));
+  const opt = ['sample-notary-1200.jpg', 'sample-school-record-1200.jpg'].every(f => fs.existsSync(path.resolve(HERE, '../assets/' + f)));
+  check(!!tag && /class="lp-sec lp-light lp-proof"/.test(tag) && html.indexOf('id="proof"') < html.indexOf('id="process"') &&
+        html.slice(html.indexOf('</section>', html.indexOf('id="proof"')), html.indexOf('id="process"')).indexOf('<section') === html.slice(html.indexOf('</section>', html.indexOf('id="proof"')), html.indexOf('id="process"')).lastIndexOf('<section'),
+    '#proof — #process 바로 위 · 밝은 바탕');
+  check(pr.includes('<h2 class="lp-h2">이렇게 받으십니다</h2>') &&
+        /src="assets\/sample-notary-1200\.jpg" alt="번역공증 완료본"[^>]*loading="lazy"[^>]*><figcaption>번역공증 완료본<\/figcaption>/.test(pr) &&
+        /src="assets\/sample-school-record-1200\.jpg" alt="생활기록부 번역본"[^>]*loading="lazy"[^>]*><figcaption>생활기록부 번역본<\/figcaption>/.test(pr) &&
+        ['공증 완료본은 스캔으로 먼저, 실물은 등기로', '2009년부터 누적 처리 1만 건 이상', '급행 접수 시 다음 영업일 수령'].every(t => pr.includes('<li>' + t + '</li>')),
+    '제목 · 사진 2장(가로 1200 사본 · lazy · 캡션) · 3줄');
+  check(/\.lp-proof img\{[^}]*object-fit:cover;border-radius:14px/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-proof \.pf\{grid-template-columns:1fr;[^}]*\}\s*\.lp-proof \.ph\{grid-template-columns:1fr\}/.test(html),
+    'cover · radius 14px · 모바일 세로 쌓기');
+  check(has && opt ? !/\bhidden\b/.test(tag) : /\shidden>$/.test(tag) && /\.lp-proof\[hidden\]\{display:none !important\}/.test(html),
+    has && opt ? '사진 있음 → 켠 상태' : '사진 없음(assets/sample-*.jpg) → 플래그(hidden)로 섹션 전체 숨김');
 }
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
