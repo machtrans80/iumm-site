@@ -2335,7 +2335,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     if (now() - lastScroll < 130 || now() - lastInput < 130) { later(); return; }   // 관성·연속 입력이 끝날 때까지
     var y = Y(), z = zone(), from = rest; rest = y;
     if (y < z[0] - 0.5 || y > z[1]) return;      // 구간 밖 — 개입 없음
-    if (y > z[2] && from >= z[2] - 2) return;   // 첫 화면에서 아래로 내려가는 중 — 되돌리지 않음
+    if (y > z[2] && from >= z[2] - 2 && y >= from) return;   // 첫 화면에서 아래로 내려가는 중 — 되돌리지 않음 (아래에서 올라온 것은 착지)
     land(z[2]);
   }
   var hasEnd = 'onscrollend' in window;

@@ -493,6 +493,7 @@ console.log('\n[15] 인트로');
       const k3 = mk(); k3.stopAt(1200); const c2 = k3.calls.length; k3.stopAt(2050); const over = k3.calls.length - c2;
       check(down === 0 && up > 0 && Math.abs(k2.y - T) < 0.5 && over > 0 && Math.abs(k3.y - T) < 0.5,
         `T 에서 아래로 내린 스크롤은 되돌리지 않음(이동 ${down}회) · T 에서 위로 살짝 → T 복귀 · 인트로에서 T 를 지나쳐 2050 → T 복귀`); }
+    { const k = mk(); k.stopAt(4000); k.stopAt(1846); check(Math.abs(k.y - T) < 0.5, '아래(카드 쪽)에서 위로 올라와 T + 6px(앵커 #top) 에 멈추면 → T 착지'); }
     { const k = mk(); k.set(1600); k.fire('scroll'); k.tick(200); k.fire('scrollend'); k.tick(150); const mid = k.y; k.fire('wheel'); const c = k.calls.length; k.tick(100);
       const k2 = mk(); k2.set(1600); k2.fire('scroll'); k2.tick(200); k2.fire('scrollend'); k2.tick(100); k2.fire('touchstart'); const c2 = k2.calls.length; k2.tick(100);
       const k3 = mk(); k3.set(1600); k3.fire('scroll'); k3.tick(200); k3.fire('scrollend'); k3.tick(100); k3.fire('keydown'); const c3 = k3.calls.length; k3.tick(100);
