@@ -54,7 +54,7 @@ check(['<span class="s">가족관계·기본·혼인증명서 번역</span><span
        ">번역공증 · 아포스티유 신청하기</button>"].every(t => land.includes(t)), '1번 카드 문구 · 버튼 "번역공증 · 아포스티유 신청하기"');
 check(['<h3>비즈니스·학술 문서를 위한 전문 번역</h3>', '분야별 전용 용어집으로 번역하고 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성해 납품합니다.',
        '<span class="n" id="lp-plan-price">25원부터</span></p>', 'onclick="handleAI()">전문 번역 의뢰하기</button>'].every(t => land.includes(t)), '2번 카드 문구 · 버튼 "전문 번역 의뢰하기"');
-check((land.match(/<details>/g) || []).length === 5 && land.includes("showPage('faq')"), 'FAQ 5개 + 전체 보기');
+check((land.match(/<details>/g) || []).length === 6 && land.includes("showPage('faq')"), 'FAQ 6개(해외 서류 포함) + 전체 보기');
 check(land.includes('<h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다</h2>') &&
       ['<div class="t">서류 업로드</div><div class="d">필요한 서류를 선택하고 정부 사이트에서 발급받은 PDF를 올려 주세요. 발급 방법도 함께 안내해 드립니다.</div>',
        '<div class="t">일정 확인 · 결제</div><div class="d">받으실 날짜를 선택하시면 일정과 금액을 바로 확인하실 수 있습니다.</div>',
