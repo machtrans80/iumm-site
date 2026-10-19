@@ -1416,7 +1416,9 @@ async function loadFailedOrders() {
             '<div style="font-size:12px;color:rgba(255,255,255,0.5)">' + (o.receivedAt ? new Date(o.receivedAt).toLocaleDateString('ko-KR') : '') + '</div>' +
             '<div style="display:flex;gap:6px">' +
               '<button onclick="loadFailedToBypassForm(' + idx + ')" style="padding:6px 14px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap"><i class="ti ti-external-link" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>폼에 불러오기</button>' +
-              ((o.orderStatus === '확인필요' && (o.gptFinalReview || o.aiTranslation))
+              ((o.orderStatus === '확인필요' && /^API 잔액 부족/.test(reason))
+                ? '<button onclick="resumeCreditHalted(' + idx + ')" style="padding:6px 14px;background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.35);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">충전 완료 → 이어서 처리</button>'
+                : (o.orderStatus === '확인필요' && (o.gptFinalReview || o.aiTranslation))
                 ? '<button onclick="downloadHeldTranslation(' + idx + ')" style="padding:6px 14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">번역본 받기</button>' +
                   '<button onclick="releaseHeldOrder(' + idx + ')" style="padding:6px 14px;background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">확인 완료 → 납품대기</button>'
                 : '') +
@@ -1447,6 +1449,19 @@ async function releaseHeldOrder(idx) {
     showToast('✅ ' + o.orderNumber + ' 납품대기로 이동');
     loadFailedOrders();
   } catch (e) { showToast('⚠️ 해제 실패: ' + e.message, 'error'); }
+}
+
+// ── API 잔액 부족으로 멈춘 주문 → 충전 후 멈춘 단계부터 이어서 처리 ──
+async function resumeCreditHalted(idx) {
+  var o = (window._failedOrders || [])[idx];
+  if (!o) return;
+  if (!confirm(o.orderNumber + '\n\nAPI 잔액을 충전하셨나요?\n멈춘 단계부터 이어서 처리합니다.')) return;
+  try {
+    var r = await adminFetch('/api/admin/orders/' + o.orderId + '/resume', { method: 'POST', body: '{}' });
+    if (!r || !r.ok) { showToast('⚠️ 이어서 처리 실패: ' + ((r && r.error) || '알 수 없음'), 'error'); return; }
+    showToast('✅ ' + o.orderNumber + ' 이어서 처리 시작 (' + (r.from || '') + ')', 'success');
+    loadFailedOrders();
+  } catch (e) { showToast('⚠️ 이어서 처리 실패: ' + e.message, 'error'); }
 }
 
 // ── 번역실패 → 우회폼 불러오기 + 재실행 ─────────────────────
@@ -3599,6 +3614,21 @@ async function loadNotaryShipping() {
   }
 }
 
+/** API 잔액 부족으로 멈춘 공증 주문 — 충전 후 매핑부터 이어서 처리 */
+async function ntrResumeCredit(orderNumber){
+  if (!confirm(orderNumber + '\n\nAPI 잔액을 충전하셨나요?\n용어 매핑부터 이어서 처리합니다.')) return;
+  var el = document.getElementById('ntr-rs-' + orderNumber);
+  if (el) { el.style.color = 'rgba(255,255,255,0.5)'; el.textContent = '처리 중…'; }
+  try {
+    var r = await fetch(API_BASE + '/api/notary/admin/orders/' + encodeURIComponent(orderNumber) + '/resume',
+      { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' }, body: '{}' });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '실패');
+    if (el) { el.style.color = '#4ade80'; el.textContent = '이어서 처리 시작'; }
+    setTimeout(loadNotaryShipping, 3000);
+  } catch (e) { if (el) { el.style.color = '#f87171'; el.textContent = e.message; } }
+}
+
 /** 원본 도착 — 원본 우편 주문의 접수 기준을 지금 시각으로 다시 계산 */
 async function ntrOriginalArrived(orderNumber){
   var el = document.getElementById('ntr-ar-' + orderNumber);
@@ -3676,6 +3706,12 @@ function renderNotaryShipping() {
         + '<button class="tab-btn" style="color:#60a5fa" onclick="ntrOriginalArrived(\'' + _ne(o.orderNumber) + '\')">원본 도착</button>'
         + '<span style="font-size:11px;color:rgba(255,255,255,0.4)">누르면 지금 시각을 접수 기준으로 공증 일정·예정수령일을 다시 계산하고 고객에게 알립니다</span>'
         + '<span id="ntr-ar-' + _ne(o.orderNumber) + '" style="font-size:12px"></span></div>' : '';
+    // API 잔액 부족으로 멈춘 주문 — 충전 후 매핑(용어)부터 이어서 처리
+    var creditRow = o.creditHalt
+      ? '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;margin-bottom:10px;background:rgba(248,113,113,0.08);border-left:3px solid #f87171;border-radius:0 4px 4px 0">'
+        + '<span style="font-size:12px;color:#fca5a5">⛔ ' + _ne(o.failReason || 'API 잔액 부족') + '</span>'
+        + '<button class="tab-btn" style="color:#4ade80" onclick="ntrResumeCredit(\'' + _ne(o.orderNumber) + '\')">충전 완료 → 이어서 처리</button>'
+        + '<span id="ntr-rs-' + _ne(o.orderNumber) + '" style="font-size:12px"></span></div>' : '';
     var memoRow = (o.inquiry && o.customerMemo) || o.scanNote
       ? '<div style="grid-column:1/-1;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:4px;white-space:pre-line">'
         + _ne(o.inquiry ? o.customerMemo : o.scanNote) + '</div>' : '';
@@ -3724,7 +3760,7 @@ function renderNotaryShipping() {
     +   (o.inquiry ? ''
       : o.stageKey === 'shipped'
       ? '<div style="font-size:13px;color:#22c55e">✔ 발송완료 — 발송번호 <strong>' + _ne(o.trackingNo) + '</strong></div>'
-      : arriveBtn + translationRow
+      : creditRow + arriveBtn + translationRow
         // 번역만(T1)에는 공증·등기가 없다 — 스캔본·발송 줄을 그리지 않는다
         + (o.tier === 'T1' ? '' : ''
         + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)">'
