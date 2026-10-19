@@ -77,7 +77,7 @@
         acts = '<span style="font-size:11px;color:rgba(255,255,255,0.5)">→ ' + esc(t.replacedByTerm && t.replacedByTerm.target || '') + '</span> ' +
           '<button style="' + btn + ';border-color:#a78bfa;color:#a78bfa" onclick="termsAct(\'revert\',\'' + t.id + '\')">되돌리기</button>';
       }
-      if (t.scope !== '공용' && t.status !== '대체됨') acts += '<button style="' + btn + ';color:rgba(255,255,255,0.6)" onclick="termsToPublic(\'' + t.id + '\',\'' + esc(t.scope) + '\')">공용 전환</button>';
+      if (t.scope === '기업전용' && t.status !== '대체됨') acts += '<button style="' + btn + ';color:rgba(255,255,255,0.6)" onclick="termsToPublic(\'' + t.id + '\',\'' + esc(t.scope) + '\')">공용 전환</button>';
       var canBulk = t.status === '후보';
       return '<tr style="' + (t.status === '충돌' ? 'background:rgba(248,113,113,0.06)' : '') + '">' +
         '<td>' + (canBulk ? '<input type="checkbox" onchange="termsPick(\'' + t.id + '\',this.checked)">' : '') + '</td>' +
