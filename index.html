@@ -1217,6 +1217,12 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>이용자가 통화 환산을 필요로 하는 경우, 별도 회계·재무 전문가의 검토를 받으시기 바랍니다.</li>
     </ul>
 
+    <h2 id="article-11-2">제11조의2 (번역 용어의 정리 및 기업 전용 용어집)</h2>
+    <ul>
+      <li id="article-11-2-public">① 회사는 번역 품질과 용어 일관성을 위해 문서 속 일반·전문 용어(개인정보·고유명사 제외)를 정리하여 <span class="highlight">오직 번역에만 사용하며, 외부에 제공하지 않습니다.</span></li>
+      <li id="article-11-2-corp">② (기업 전용 용어집) <span class="highlight">용어만 저장하며 개인정보는 저장하지 않습니다.</span> 기업 고객이 전용 용어집 이용에 동의한 경우, 귀사 문서의 용어(개인정보·고유명사 제외)는 귀사의 번역에만 사용하며 외부에 제공하지 않습니다. 회사명과 사업자등록번호는 용어집을 구분하는 식별용으로만 사용합니다. 요청 시 언제든 삭제합니다.</li>
+    </ul>
+
     <h2>제12조 (서비스 중단 및 변경)</h2>
     <ul>
       <li>회사는 천재지변, 서버 장애, 시스템 점검, 기술적 문제 등으로 서비스를 일시 중단할 수 있습니다.</li>
@@ -1377,6 +1383,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>번역 의뢰 문서 및 텍스트 (번역 처리 목적에 한함, 21일 이내 삭제)</li>
       <li>이미지·스캔본·PDF 등 문서 파일 및 해당 파일에서 자동 추출된 텍스트(OCR 문자인식 결과)</li>
       <li>용어집 정보 (번역 품질 향상 목적)</li>
+      <li>기업 고객 선택 시: 회사명, 사업자등록번호 (전용 용어집 구분 식별용)</li>
     </ul>
     <p><strong style="color:rgba(255,255,255,0.8)">④ 공증서류 번역 서비스 이용 시 수집 항목 (민감정보 포함)</strong></p>
     <ul>
@@ -1395,6 +1402,12 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>무료 체험 1회 제한 관리 (중복 사용 방지)</li>
       <li>서비스 품질 개선 및 통계 분석</li>
       <li>법령 준수 및 분쟁 해결</li>
+    </ul>
+
+    <h2 id="privacy-2-2">제2조의2 (번역 용어의 정리 및 기업 전용 용어집)</h2>
+    <ul>
+      <li>① 회사는 번역 품질과 용어 일관성을 위해 문서 속 일반·전문 용어(개인정보·고유명사 제외)를 정리하여 <span class="highlight">오직 번역에만 사용하며, 외부에 제공하지 않습니다.</span></li>
+      <li id="privacy-2-2-corp">② (기업 전용 용어집) <span class="highlight">용어만 저장하며 개인정보는 저장하지 않습니다.</span> 기업 고객이 전용 용어집 이용에 동의한 경우, 귀사 문서의 용어(개인정보·고유명사 제외)는 귀사의 번역에만 사용하며 외부에 제공하지 않습니다. 회사명과 사업자등록번호는 용어집을 구분하는 식별용으로만 사용합니다. 요청 시 언제든 삭제합니다.</li>
     </ul>
 
     <h2>제3조 (개인정보 보유 및 이용 기간)</h2>
@@ -2824,6 +2837,35 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
         </div>
       </details>
 
+      <!-- 기업 고객 — 전용 용어집 (체크 안 하면 아무것도 묻지 않는다) -->
+      <div id="corp-box" style="margin-top:16px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:6px">
+        <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;margin:0">
+          <input type="checkbox" id="corpCheck" onchange="toggleCorpBox(this.checked)" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:#16B894">
+          <span style="line-height:1.55">
+            <strong style="font-size:14px;color:var(--white);font-weight:500">기업 고객입니다 — 귀사 전용 용어집을 만들어 드립니다</strong>
+            <span style="display:block;font-size:12px;color:rgba(255,255,255,0.62);margin-top:3px">번역할수록 귀사의 용어가 쌓여, 다음 번역부터 같은 표현으로 통일됩니다.</span>
+            <span style="display:block;font-size:11px;color:rgba(255,255,255,0.45);margin-top:3px">용어만 저장하며, 개인정보는 저장하지 않습니다. <a href="/index.html#article-11-2-corp" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--gold);text-decoration:underline;white-space:nowrap">약관 보기</a></span>
+          </span>
+        </label>
+        <div id="corpFields" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08)">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
+            <div>
+              <label class="lbl" for="corpName" style="color:rgba(255,255,255,0.65)">회사명</label>
+              <input type="text" id="corpName" maxlength="100" autocomplete="organization" placeholder="예: 주식회사 이음" style="width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;outline:none;box-sizing:border-box">
+            </div>
+            <div>
+              <label class="lbl" for="corpBizNo" style="color:rgba(255,255,255,0.65)">사업자등록번호</label>
+              <input type="text" id="corpBizNo" inputmode="numeric" maxlength="12" placeholder="000-00-00000" oninput="formatCorpBizNo(this)" style="width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;outline:none;box-sizing:border-box;letter-spacing:0.5px">
+              <div id="corpBizHint" style="font-size:11px;margin-top:4px;min-height:14px;color:rgba(255,255,255,0.4)"></div>
+            </div>
+          </div>
+          <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-top:10px;font-size:12.5px;color:rgba(255,255,255,0.8)">
+            <input type="checkbox" id="corpConsent" style="margin-top:2px;accent-color:#16B894">
+            <span>전용 용어집 이용에 동의합니다 <span style="color:rgba(255,107,107,0.8)">(필수)</span> <a href="/index.html#article-11-2-corp" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--gold);text-decoration:underline;font-size:11px;white-space:nowrap">약관 보기</a></span>
+          </label>
+        </div>
+      </div>
+
       <button onclick="goToPayment()" class="btn-primary" style="width:100%;padding:16px;font-size:15px;margin-top:16px">선택 완료 → 최종 결제하기</button>
       <p style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;margin-top:12px;font-weight:300">결제 후 번역 작업 프로세스가 바로 시작되므로 취소 및 환불이 불가합니다.</p>
 
@@ -3028,7 +3070,7 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
     <button onclick="closeModal('bizinquiry')" style="position:absolute;top:20px;right:24px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <div id="biz-form">
       <h3 style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:700;margin-bottom:8px;color:#85b7eb">비즈니스 문의</h3>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;font-weight:300">연간 · 월간 계약 단위로 제공됩니다. 담당자가 빠르게 연락드립니다.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;font-weight:300">대량 주문·단가 협의(연간 · 월간 계약)를 도와드립니다. 담당자가 빠르게 연락드립니다.<br><span style="font-size:12px;color:rgba(255,255,255,0.5)">귀사 전용 용어집은 문의 없이 주문 화면에서 '기업 고객'을 체크하시면 바로 시작됩니다.</span></p>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div><label class="lbl">회사명 <span style="color:#e05555">*</span></label><input type="text" id="biz-company" class="inp" placeholder="회사명"></div>
@@ -3728,6 +3770,9 @@ function handleInitialHash(){
     openTermsAtAnchor(anchorId);
     return;
   }
+  // 번역 용어 정리·기업 전용 용어집 조항 (주문 화면 '약관 보기'가 새 탭으로 연다)
+  if (anchorId.indexOf('article-11-2') === 0) { openTermsAtAnchor(anchorId); return; }
+  if (anchorId.indexOf('privacy-2-2') === 0) { openPrivacyAtAnchor(anchorId); return; }
   /* ★/privacy·/terms 경로는 Pages 에 라우팅이 없어 404 가 난다(_redirects 없음).
      하위 페이지(/notary/ 등)에서 약관·처리방침으로 보낼 때는
      반드시 실제 파일인 /index.html#privacy 형태로 링크할 것. */
@@ -4395,12 +4440,59 @@ function getSourceText(){
   var pt = document.getElementById('pasteText');
   return pt ? pt.value : '';
 }
+// ─── 기업 고객 (전용 용어집) ───────────────────────────────
+function toggleCorpBox(on){
+  document.getElementById('corpFields').style.display=on?'block':'none';
+  document.getElementById('corp-box').style.borderColor=on?'rgba(22,184,148,0.45)':'rgba(255,255,255,0.10)';
+}
+// 사업자등록번호: 10자리 + 국세청 검증번호 (서버 term_bank.isValidBizNo 와 같은 규칙)
+function validCorpBizNo(s){
+  var d=String(s||'').replace(/\D/g,'');
+  if(!/^\d{10}$/.test(d)) return false;
+  var w=[1,3,7,1,3,7,1,3,5],sum=0;
+  for(var i=0;i<9;i++) sum+=Number(d[i])*w[i];
+  sum+=Math.floor(Number(d[8])*5/10);
+  return (10-(sum%10))%10===Number(d[9]);
+}
+function formatCorpBizNo(el){
+  var d=el.value.replace(/\D/g,'').slice(0,10);
+  el.value=d.length>5?d.slice(0,3)+'-'+d.slice(3,5)+'-'+d.slice(5):d.length>3?d.slice(0,3)+'-'+d.slice(3):d;
+  var hint=document.getElementById('corpBizHint');
+  if(d.length<10){hint.textContent='';return;}
+  var ok=validCorpBizNo(d);
+  hint.textContent=ok?'확인되었습니다':'번호를 다시 확인해 주세요';
+  hint.style.color=ok?'#16B894':'#ff6b6b';
+}
+/** 결제 전 확인 — 기업 고객 체크 시 회사명·번호·동의 필수. 문제 없으면 true */
+function checkCorpBeforePayment(){
+  if(!document.getElementById('corpCheck').checked) return true;
+  var name=document.getElementById('corpName').value.trim();
+  var biz=document.getElementById('corpBizNo').value;
+  if(!name){alert('회사명을 입력해 주세요.');document.getElementById('corpName').focus();return false;}
+  if(!validCorpBizNo(biz)){alert('사업자등록번호를 확인해 주세요. (000-00-00000)');document.getElementById('corpBizNo').focus();return false;}
+  if(!document.getElementById('corpConsent').checked){alert('전용 용어집 이용에 동의해 주세요.');return false;}
+  return true;
+}
+/** 주문 접수 데이터에 붙일 기업 고객 값 + 문서유형 분류용 제목(파일명, 저장 안 함) */
+function corpOrderPayload(){
+  var out={};
+  var f=(window._iummSourceFiles||[])[0];
+  if(f&&f.name) out.문서제목=f.name;
+  if(!document.getElementById('corpCheck').checked) return out;
+  out.기업고객=true;
+  out.기업회사명=document.getElementById('corpName').value.trim();
+  out.사업자등록번호=document.getElementById('corpBizNo').value.replace(/\D/g,'');
+  out.기업용어집동의=document.getElementById('corpConsent').checked;
+  return out;
+}
+
 function goToPayment(){
   // [J-19c] 원문 입력 검증
   if(!getSourceText().trim()){
     alert('번역할 원문을 입력해주세요.\n(파일 추출 또는 직접 입력)');
     return;
   }
+  if(!checkCorpBeforePayment()) return;
   // estimate-amount에 이미 최종 금액이 계산되어 있음
   // (showEstimate, updatePagePrice, selectReviewer 에서 모두 업데이트)
   var amtText=document.getElementById('estimate-amount').textContent.replace(/[^0-9]/g,'');
@@ -5471,6 +5563,7 @@ async function completePayment(){
     고객선택검수자목록: JSON.stringify(selectedReviewers.map(function(r){return {id:r.id,name:r.name};})),
     배정방식: selectedOrderMode||''
   };
+  Object.assign(data, corpOrderPayload()); // 기업 고객(전용 용어집)·문서 제목
   // 서버 단독 접수 (Make 폴백 없음 — 서버가 실패 시 최소필드 복구를 자체 수행)
   var createResult=await submitOrderToServer(data);
   if(!createResult.ok){
@@ -5603,6 +5696,7 @@ async function confirmBankTransfer(){
     고객선택검수자목록: JSON.stringify(selectedReviewers.map(function(r){return {id:r.id,name:r.name};})),
     배정방식: selectedOrderMode||''
   };
+  Object.assign(data, corpOrderPayload()); // 기업 고객(전용 용어집)·문서 제목
   // 서버 단독 접수 (Make 폴백 없음 — 입금대기는 결제 전이라 유실 위험은 낮지만 동일 경로)
   var createResult=await submitOrderToServer(data);
   if(!createResult.ok){
