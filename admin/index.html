@@ -349,6 +349,8 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button data-mode="tx" class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
       <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
       <button data-mode="tx" class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
+      <button data-mode="tx" class="tab-btn" id="tab-terms" onclick="switchTab('terms')" style="color:#16B894"><i class="ti ti-language" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>용어 관리</button>
+      <button data-mode="tx" class="tab-btn" id="tab-corp" onclick="switchTab('corp')" style="color:#60a5fa"><i class="ti ti-building" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>기업고객</button>
       <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')" style="color:#D4AF37"><i class="ti ti-package" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>공증 배송 관리<span id="ntr-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#b8860b;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
       <button data-mode="ntr" class="tab-btn" id="tab-ntrd" onclick="switchTab('notary_direct')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>직접 번역 (결제 없이)</button>
     </div>
@@ -454,6 +456,24 @@ body.admin-focus .focus-exit-hint{display:inline}
         </div>
         <div id="ntrd-list"><p style="color:rgba(255,255,255,0.35);font-size:13px">탭 클릭 시 로드됩니다</p></div>
       </div>
+    </div>
+
+    <!-- 용어 관리 탭 (전문번역 용어 축적 — 번역에만 사용, 고객 비공개) — admin/terms.js -->
+    <div id="terms-wrap" style="display:none;padding:4px 0 32px">
+      <div id="terms-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center"></div>
+      <div id="terms-list"><p style="color:rgba(255,255,255,0.35);font-size:13px">탭 클릭 시 로드됩니다</p></div>
+    </div>
+
+    <!-- 기업고객 탭 (주문 화면 '기업 고객' 체크 → 사업자등록번호별 전용 용어집) — admin/terms.js -->
+    <div id="corp-wrap" style="display:none;padding:4px 0 32px">
+      <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center">
+        <input type="text" placeholder="회사명·사업자등록번호 검색" style="flex:1;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:13px;outline:none" onchange="corpFilter('q',this.value.trim())">
+        <select style="padding:9px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:13px" onchange="corpFilter('sort',this.value)">
+          <option value="recent">최근 주문순</option><option value="orders">주문 건수순</option>
+        </select>
+      </div>
+      <div id="corp-list"><p style="color:rgba(255,255,255,0.35);font-size:13px">탭 클릭 시 로드됩니다</p></div>
+      <div id="corp-detail" style="display:none;margin-top:20px;padding:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px"></div>
     </div>
 
     <!-- [E-2] 회원 관리 탭 -->
@@ -776,6 +796,24 @@ body.admin-focus .focus-exit-hint{display:inline}
             </div>
           </div>
         </div>
+
+        <!-- 용어 범위 — 내부전용 / 기업 고객 (전문번역 용어 축적) -->
+        <div class="bp-row" style="margin-top:4px">
+          <div class="bp-col" style="max-width:220px">
+            <label class="bp-label">용어 범위</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,0.85);cursor:pointer;padding:9px 0">
+              <input type="checkbox" id="bp-internal" onchange="bpScopeChanged()" style="accent-color:#9ca3af"> 내부전용
+            </label>
+          </div>
+          <div class="bp-col">
+            <label class="bp-label">기업 고객 <span style="color:rgba(255,255,255,0.3);font-size:11px">(사업자등록번호 — 입력하면 그 기업 전용 용어집)</span></label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="bp-corp-bizno" class="bp-inp" placeholder="000-00-00000" inputmode="numeric" maxlength="12" style="margin:0;max-width:150px">
+              <input type="text" id="bp-corp-name" class="bp-inp" placeholder="회사명" style="margin:0">
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:rgba(255,255,255,0.4);margin:-4px 0 4px">내부전용: 이 주문의 용어는 내부전용으로만 쌓이고 내부전용 주문에만 쓰입니다. 체크하면 기업 고객 입력은 무시됩니다.</div>
 
         <!-- 참고자료 미저장 경고 (실패 건 불러오기 시, 참고자료가 비어있을 때만) -->
         <div id="bp-noref-warning" style="display:none;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;background:rgba(248,113,113,0.09);border:1px solid rgba(248,113,113,0.35);border-radius:6px;font-size:12.5px;color:#fca5a5;line-height:1.55">
@@ -1187,6 +1225,11 @@ function switchTab(tab) {
   document.getElementById('tab-bypass').className = 'tab-btn' + (tab==='bypass' ? ' active' : '');
   document.getElementById('tab-gpt').className = 'tab-btn' + (tab==='gpt_review' ? ' active' : '');
   document.getElementById('tab-members').className = 'tab-btn' + (tab==='members' ? ' active' : '');
+  document.getElementById('tab-terms').className = 'tab-btn' + (tab==='terms' ? ' active' : '');
+  document.getElementById('tab-corp').className = 'tab-btn' + (tab==='corp' ? ' active' : '');
+  var isTerms = tab === 'terms', isCorp = tab === 'corp';
+  document.getElementById('terms-wrap').style.display = isTerms ? 'block' : 'none';
+  document.getElementById('corp-wrap').style.display = isCorp ? 'block' : 'none';
   document.getElementById('tab-ntr').className = 'tab-btn' + (tab==='notary_ship' ? ' active' : '');
   document.getElementById('tab-ntrd').className = 'tab-btn' + (tab==='notary_direct' ? ' active' : '');
   var isBypass = tab === 'bypass';
@@ -1200,7 +1243,7 @@ function switchTab(tab) {
   document.getElementById('members-wrap').style.display = isMembers ? 'block' : 'none';
   document.getElementById('ntr-wrap').style.display = isNtr ? 'block' : 'none';
   document.getElementById('ntrd-wrap').style.display = isNtrd ? 'block' : 'none';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isNtrd) ? 'none' : 'block';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isNtrd || isTerms || isCorp) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
@@ -1229,6 +1272,10 @@ function switchTab(tab) {
     ntrdInit();
   } else if (tab === 'members') {
     loadMembers('');
+  } else if (tab === 'terms') {
+    loadTerms();
+  } else if (tab === 'corp') {
+    loadCorps();
   } else {
     loadOrders();
   }
@@ -1457,7 +1504,7 @@ function exitReprocessMode() {
   var btn = document.getElementById('btn-bp-submit');
   if (btn) btn.innerHTML = '<i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>우회 주문 시작 (결제 없이 파이프라인 실행)';
   var warn = document.getElementById('bp-noref-warning'); if (warn) warn.style.display = 'none';
-  ['bp-text','bp-email','bp-notes','bp-reference-text','bp-reference-glossary','bp-reference-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  ['bp-text','bp-email','bp-notes','bp-reference-text','bp-reference-glossary','bp-reference-notes','bp-corp-bizno','bp-corp-name'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
   if (typeof bpUpdateCharCount === 'function') bpUpdateCharCount();
   showToast('재실행 모드 해제 — 일반 우회주문 모드로 전환', '');
 }
@@ -3116,6 +3163,34 @@ function bpPlanChanged() {
   document.getElementById('bp-plan-hint').style.display = plan === 'premium_plus' ? 'block' : 'none';
 }
 
+// 용어 범위: 내부전용이면 기업 고객 입력을 잠근다(서버도 내부전용 우선)
+function bpScopeChanged() {
+  var internal = document.getElementById('bp-internal').checked;
+  ['bp-corp-bizno', 'bp-corp-name'].forEach(function (id) {
+    var el = document.getElementById(id); el.disabled = internal; el.style.opacity = internal ? '0.4' : '1';
+  });
+}
+// 사업자등록번호 검증(10자리 + 검증번호) — 서버(term_bank.isValidBizNo)와 같은 규칙
+function bpValidBizNo(s) {
+  var d = String(s || '').replace(/\D/g, '');
+  if (!/^\d{10}$/.test(d)) return false;
+  var w = [1, 3, 7, 1, 3, 7, 1, 3, 5], sum = 0;
+  for (var i = 0; i < 9; i++) sum += Number(d[i]) * w[i];
+  sum += Math.floor(Number(d[8]) * 5 / 10);
+  return (10 - (sum % 10)) % 10 === Number(d[9]);
+}
+/** 우회 주문 용어 범위 값 — 오류면 null(토스트 표시) */
+function bpTermScope() {
+  var internal = document.getElementById('bp-internal').checked;
+  var bizNo = (document.getElementById('bp-corp-bizno').value || '').trim();
+  var corpName = (document.getElementById('bp-corp-name').value || '').trim();
+  if (internal) return { internalOnly: true };
+  if (!bizNo) return {};
+  if (!bpValidBizNo(bizNo)) { showToast('⚠️ 사업자등록번호 형식이 맞지 않습니다', 'error'); return null; }
+  if (!corpName) { showToast('⚠️ 기업 고객 회사명을 입력하세요', 'error'); return null; }
+  return { corpBizNo: bizNo, corpName: corpName };
+}
+
 async function submitBypassOrder() {
   var text = (document.getElementById('bp-text').value || '').trim();
   var direction = document.getElementById('bp-direction').value;
@@ -3160,6 +3235,9 @@ async function submitBypassOrder() {
     return;
   }
 
+  var termScope = bpTermScope();
+  if (termScope === null) return;
+
   var btn = document.getElementById('btn-bp-submit');
   btn.disabled = true;
   btn.textContent = '⏳ 주문 처리 중…';
@@ -3188,6 +3266,10 @@ async function submitBypassOrder() {
     if (referenceText)     payload.referenceText     = referenceText;
     if (referenceGlossary) payload.referenceGlossary = referenceGlossary;
     if (referenceNotes)    payload.referenceNotes    = referenceNotes;
+    Object.assign(payload, termScope);
+    // 문서유형 분류용 제목(파일명) — 내부전용이면 보내지 않는다(분류 안 함)
+    var srcFile = (window._iummBypassSourceFiles || [])[0];
+    if (!termScope.internalOnly && srcFile && srcFile.name) payload.docTitle = srcFile.name;
 
     var res = await fetch(API_BASE + '/api/admin/translate-bypass', {
       method: 'POST',
@@ -3240,6 +3322,8 @@ async function submitBypassOrder() {
 
     // 폼 초기화 (텍스트만 유지)
     document.getElementById('bp-notes').value = '';
+    document.getElementById('bp-corp-bizno').value = ''; document.getElementById('bp-corp-name').value = '';
+    document.getElementById('bp-internal').checked = false; bpScopeChanged();
 
   } catch(e) {
     showToast('⚠️ ' + e.message, 'error');
@@ -3912,5 +3996,7 @@ async function loadNotaryDirect() {
   }
 }
 </script>
+<!-- 용어 관리·기업고객 탭 -->
+<script src="/admin/terms.js?v=1"></script>
 </body>
 </html>
