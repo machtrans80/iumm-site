@@ -2024,7 +2024,19 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 #process-pro .lp-pro-act .lp-trust{font-size:16px;font-weight:600;color:var(--lt-ink)}
 #process-pro .lp-btn.pro-btn{background:#16B894;border-color:#16B894;color:#06202f;font-weight:800;box-shadow:0 6px 16px rgba(22,184,148,0.3)}
 #process-pro .lp-btn.pro-btn:hover{background:#5DE0BC;border-color:#5DE0BC;color:#0F2540}
-@media(prefers-reduced-motion:reduce){.lp-field{transition:none}.lp-field:hover{transform:none}}
+/* 분야 카드 접기 — grid-template-rows 0fr↔1fr 로 부드럽게. 접힌 동안은 visibility:hidden(키보드·낭독기도 건너뜀) */
+.lp-fold{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .45s ease,visibility 0s linear .45s}
+.lp-fold.open{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .45s ease,visibility 0s}
+.lp-fold-in{min-height:0;overflow:hidden;margin:0 -8px;padding:0 8px}
+.lp-fold-in > .lp-fields{padding:14px 0 10px}
+.lp-more-bar{display:flex;justify-content:center;margin-top:16px}
+.lp-more-btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:12px 26px;border-radius:999px;background:#fff;border:1.5px solid #0F2540;color:#0F2540;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
+.lp-more-btn:hover{background:#0F2540;color:#fff}
+.lp-more-btn:focus-visible{outline:2px solid #2F86D6;outline-offset:3px}
+.lp-more-btn .ar{width:18px;height:18px;transition:transform .3s ease}
+.lp-more-btn[aria-expanded="true"] .ar{transform:rotate(180deg)}
+@media(max-width:640px){.lp-fold-in > .lp-fields{padding-top:8px}.lp-more-bar{margin-top:12px}.lp-more-btn{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.lp-field{transition:none}.lp-field:hover{transform:none}.lp-fold,.lp-fold.open,.lp-more-btn .ar{transition:none}}
 /* ── 번역공증 · 아포스티유 3단계 (2026-10-20) — 전문번역과 같은 타임라인(.lp-flow.three), 바탕 #F5F8FB.
    STEP 작은 배지 · 제목 앞 아이콘 · 서류/수령 배지 · 시계 강조 띠(날짜 굵게) · 신청 버튼 = .nav-cta 조합 */
 #process .lp-h2{font-weight:800;letter-spacing:-0.8px}
@@ -2638,6 +2650,9 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M5 6h14"/><path d="M5 6l-3 6a3 3 0 006 0zM19 6l-3 6a3 3 0 006 0z"/></svg></span><p class="f">법률 · 계약</p></div><ul><li>법제처 국가법령정보센터 영문 법령 (한국법제연구원 번역)</li><li>Black's Law Dictionary</li></ul><p class="ex">예: 근로계약서 · 비밀유지계약서 · MOU·협약서 · 판결문·소송서류</p></div>
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5M9 9h4"/><circle cx="13" cy="15" r="3"/></svg></span><p class="f">공문서 · 증명서</p></div><ul><li>「공공용어의 외국어 번역 및 표기 지침」 (문화체육관광부)</li><li>국어의 로마자 표기법</li><li>도로명주소 영문 표기</li></ul><p class="ex">예: 가족·신분 증명서 · 졸업·성적증명서 · 재직·경력증명서 · 법인등기부등본</p></div>
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 3z"/></svg></span><p class="f">기술 · 특허</p></div><ul><li>ISO · IEC 국제 표준 용어</li><li>WIPO 특허 용어</li></ul><p class="ex">예: 특허명세서 · 기술사양서 · 제품설명서·매뉴얼</p></div>
+    </div>
+    <!-- 나머지 7개 — 기본 접힘(CSS 로만 숨김, 검색엔진이 읽을 수 있게 HTML 그대로). 버튼 동작은 아래 lpFieldsToggle -->
+    <div class="lp-fold" id="lp-fields-more"><div class="lp-fold-in"><div class="lp-fields">
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg></span><p class="f">의료</p></div><ul><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류 (KCD)</li></ul><p class="ex">예: 진단서·의료기록 · 임상·의약 문서</p></div>
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 16v-4M10 16V8M14 16v-6M18 16V5"/></svg></span><p class="f">금융 · 회계</p></div><ul><li>한국채택국제회계기준 (K-IFRS) 용어</li></ul><p class="ex">예: 재무제표 · 감사보고서 · 견적서·인보이스</p></div>
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h8M7 3v2M5 5c0 4 2 7 6 8M9 5c0 4-2 7-6 8"/><path d="M13 21l4-10 4 10M14.5 17h5"/></svg></span><p class="f">외국어 → 한국어</p></div><ul><li>국립국어원 외래어 표기법</li></ul><p class="ex">예: 회사소개서 · 마케팅·홍보물 · 이메일·서신</p></div>
@@ -2645,7 +2660,8 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4C10 4 4 10 4 18c0 1 0 2 .5 2.5C12 20 20 14 20 4z"/><path d="M4.5 20.5L13 12"/></svg></span><p class="f">환경 · ESG</p></div><ul><li>GRI Standards 용어</li></ul></div>
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h6a4 4 0 014 4v12a3 3 0 00-3-3H2zM22 5h-6a4 4 0 00-4 4v12a3 3 0 013-3h7z"/></svg></span><p class="f">학술 · 논문</p></div><ul><li>APA</li><li>MLA</li><li>Chicago</li><li>IEEE</li></ul><p class="note">인용 양식은 원문 그대로 유지합니다.</p><p class="ex">예: 논문 · 졸업·성적증명서 · 이력서·자기소개서</p></div>
       <div class="lp-field wide"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><p class="f">그 밖의 분야</p></div><ul><li>비즈니스</li><li>마케팅 · 광고</li><li>이민 · 비자</li><li>문학 · 출판</li><li>예술 · 문화</li><li>게임 · 엔터테인먼트</li></ul><p class="note">분야별 전용 용어집 기준으로 번역합니다.</p></div>
-    </div>
+    </div></div></div>
+    <div class="lp-more-bar"><button type="button" class="lp-more-btn" id="lp-fields-btn" aria-expanded="false" aria-controls="lp-fields-more"><span class="lb">모든 분야 기준 보기 (+7)</span><svg class="ar" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>
     <div class="lp-plans">
       <button type="button" class="lp-plan" onclick="handleAI()"><span class="nm">스탠다드 <span>(일반 검수)</span></span><span class="pr">글자당 <b><span data-plan="ai"></span>원</b></span><span class="go">이 플랜으로 의뢰 →</span></button>
       <button type="button" class="lp-plan" onclick="handleStandard()"><span class="nm">프리미엄 플러스 <span>(전문가 검수)</span></span><span class="pr">글자당 <b><span data-plan="standard"></span>원</b></span><span class="go">이 플랜으로 의뢰 →</span></button>
@@ -2690,6 +2706,24 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
   };
   var pp = document.getElementById('lp-plan-price');
   if (pp) pp.textContent = PLAN_PRICE.ai + '원부터';
+  // 분야별 번역 기준 접기 — 기본 접힘, 접을 때 버튼이 화면의 같은 자리에 머문다
+  (function(){
+    var btn = document.getElementById('lp-fields-btn'), box = document.getElementById('lp-fields-more');
+    if (!btn || !box) return;
+    btn.addEventListener('click', function(){
+      var open = btn.getAttribute('aria-expanded') !== 'true';
+      var top0 = btn.getBoundingClientRect().top, t0 = Date.now();
+      box.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.querySelector('.lb').textContent = open ? '접기' : '모든 분야 기준 보기 (+7)';
+      if (open) return;
+      (function keep(){
+        var d = btn.getBoundingClientRect().top - top0;
+        if (d) window.scrollTo({ top: window.pageYOffset + d, behavior: 'instant' });
+        if (Date.now() - t0 < 600) requestAnimationFrame(keep);
+      })();
+    });
+  })();
   // 전문 번역 과정 섹션 — 플랜 단가 (PLAN_PRICE 단일 출처)
   Array.prototype.forEach.call(document.querySelectorAll ? document.querySelectorAll('[data-plan]') : [], function(el){
     var k = el.getAttribute('data-plan');
