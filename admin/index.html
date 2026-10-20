@@ -1012,7 +1012,7 @@ body.admin-focus .focus-exit-hint{display:inline}
             <div class="score-badge-sub">/ 100점</div>
           </div>
           <div class="score-badge">
-            <div class="score-badge-label">역번역 일치도</div>
+            <div class="score-badge-label" id="ai-score-reverse-label">역번역 일치도</div>
             <div id="ai-score-reverse" class="score-badge-num">—</div>
             <div class="score-badge-sub">/ 100점</div>
           </div>
@@ -2940,8 +2940,13 @@ function populateAiScoreSection(order) {
 
   var totalEl = document.getElementById('ai-score-total');
   var revEl   = document.getElementById('ai-score-reverse');
+  // 번역 방식 V1/V2 — V2 는 AI품질상세.v2 가 있다(점수 = 교차 검수·코드 검사·일관성 감점, 공식은 v2.score.formula)
+  var v2 = order.aiQualityDetail && order.aiQualityDetail.v2 ? order.aiQualityDetail.v2 : null;
+  if (refBadgeRow) refBadgeRow.innerHTML = '<span class="ref-badge" title="' + (v2 ? 'V2: 번역(Claude) → 교차 검수(GPT) → 반론 → 코드 검사' : 'V1: 9.5단계') + '" style="background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.35);margin-right:6px">' + (v2 ? 'V2' : 'V1') + '</span>' + refBadgeRow.innerHTML;
+  var revLabel = document.getElementById('ai-score-reverse-label');
+  if (revLabel) revLabel.textContent = v2 ? '교차 검수' : '역번역 일치도';
   totalEl.textContent = order.aiScore != null ? order.aiScore : '—';
-  revEl.textContent   = order.aiReverseScore != null ? order.aiReverseScore : '—';
+  revEl.textContent   = v2 ? (v2.score && v2.score.crossReview != null ? v2.score.crossReview : '—') : (order.aiReverseScore != null ? order.aiReverseScore : '—');
   var sc = order.aiScore;
   totalEl.style.color = sc >= 90 ? 'var(--green)' : sc >= 75 ? 'var(--gold)' : sc != null ? 'var(--red)' : 'var(--gold)';
 
@@ -2950,7 +2955,17 @@ function populateAiScoreSection(order) {
   ];
   var detailEl = document.getElementById('ai-score-detail');
   var detail = order.aiQualityDetail;
-  if (detail && typeof detail === 'object' && !Array.isArray(detail)) {
+  var corrSection = document.querySelector('#ai-score-section .corr-section');
+  if (corrSection) corrSection.style.display = v2 ? 'none' : '';
+  if (v2) {
+    var vs = v2.score || {}, d = vs.deductions || {}, n = vs.issues || {};
+    var row = function(k, v) { return '<div class="score-row"><span>' + k + '</span><span class="score-val">' + v + '</span></div>'; };
+    detailEl.innerHTML = vs.total == null ? '<div style="font-size:11px;color:rgba(255,255,255,0.3)">V2 점수 없음(이전 주문)</div>' :
+      row('교차 검수 감점', '−' + (d['교차검수'] || 0) + ' <span style="color:rgba(255,255,255,0.3)">(치명 ' + (n['치명'] || 0) + ' · 중대 ' + (n['중대'] || 0) + ' · 경미 ' + (n['경미'] || 0) + (vs.rejectedByRebuttal ? ' · 반론 기각 ' + vs.rejectedByRebuttal : '') + ')</span>') +
+      row('코드 검사 감점', '−' + (d['코드검사'] || 0) + (vs.codeCheckFailed ? ' <span style="color:rgba(255,255,255,0.3)">(실패 ' + vs.codeCheckFailed + ')</span>' : '')) +
+      row('일관성 감점', '−' + (d['일관성'] || 0)) +
+      '<div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;line-height:1.4">' + String(vs.formula || '').replace(/[<>&]/g, '') + '</div>';
+  } else if (detail && typeof detail === 'object' && !Array.isArray(detail)) {
     detailEl.innerHTML = DETAIL_KEYS.map(function(pair) {
       var key = pair[0], weight = pair[1];
       var item = detail[key] || {};
