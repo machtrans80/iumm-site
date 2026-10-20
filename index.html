@@ -2014,7 +2014,54 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-field.wide{grid-column:1/-1}
 .lp-field.wide li{background:#E7F7F2;border-color:rgba(14,154,123,0.25)}
 .lp-field .note{margin:12px 0 0;font-size:16px;font-weight:600;color:#0A7A61}
+.lp-field .ex{margin:12px 0 0;padding-top:12px;border-top:1px dashed rgba(47,134,214,0.28);font-size:16px;font-weight:500;color:#1D3352;line-height:1.55;word-break:keep-all}
+/* 섹션 아래쪽(가격 카드·안내·의뢰 띠) — 본문과 같은 기준: 진한 남색, 500~700, 16px(모바일 15px) 이상. 버튼 = 상단 .nav-cta 와 같은 조합(#16B894 바탕·#06202f 글씨, 올리면 #5DE0BC·#0F2540) */
+#process-pro .lp-plan .nm{font-size:18px;font-weight:700;color:var(--lt-ink)}
+#process-pro .lp-plan .nm span{font-weight:500;color:#1D3352}
+#process-pro .lp-plan .pr{font-size:16px;font-weight:600;color:#1D3352}
+#process-pro .lp-plan .go{font-size:16px;font-weight:700;color:#1F6FB8}
+#process-pro .lp-pro-note{font-size:16px;font-weight:500;color:#1D3352}
+#process-pro .lp-pro-act .lp-trust{font-size:16px;font-weight:600;color:var(--lt-ink)}
+#process-pro .lp-btn.pro-btn{background:#16B894;border-color:#16B894;color:#06202f;font-weight:800;box-shadow:0 6px 16px rgba(22,184,148,0.3)}
+#process-pro .lp-btn.pro-btn:hover{background:#5DE0BC;border-color:#5DE0BC;color:#0F2540}
 @media(prefers-reduced-motion:reduce){.lp-field{transition:none}.lp-field:hover{transform:none}}
+/* ── 번역공증 · 아포스티유 3단계 (2026-10-20) — 전문번역과 같은 타임라인(.lp-flow.three), 바탕 #F5F8FB.
+   STEP 작은 배지 · 제목 앞 아이콘 · 서류/수령 배지 · 시계 강조 띠(날짜 굵게) · 신청 버튼 = .nav-cta 조합 */
+#process .lp-h2{font-weight:800;letter-spacing:-0.8px}
+.lp-flow.three{grid-template-columns:repeat(3,1fr);gap:18px}
+.lp-flow.three::before{left:16.6%;right:16.6%}
+#process .lp-flow .no{box-shadow:0 0 0 6px #F5F8FB,0 6px 16px rgba(31,111,184,0.28)}
+#process .lp-flow .bx{padding:20px 20px 22px}
+.lp-flow .stp{display:inline-block;margin:0 0 10px;padding:3px 10px;border-radius:999px;background:#E7F7F2;color:#0A7A61;font-size:13px;font-weight:800;letter-spacing:1px}
+#process .lp-flow .t{display:flex;align-items:center;justify-content:center;gap:8px;font-size:20px}
+#process .lp-flow .t .ic{flex:none;width:24px;height:24px;color:#1F6FB8}
+#process .lp-flow .d{font-size:16px;font-weight:500;color:#1D3352}
+.lp-flow .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:14px}
+.lp-flow .chips span{padding:4px 11px;border-radius:999px;background:#EAF3FC;border:1px solid rgba(47,134,214,0.22);font-size:15px;font-weight:600;color:#0F2540;line-height:1.45;white-space:nowrap}
+#process .ntr-act{margin-top:22px;background:#fff;border:1px solid rgba(47,134,214,0.18);box-shadow:0 4px 16px rgba(15,37,64,0.06)}
+.ntr-act .eta{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:12px 16px;border-radius:12px;background:linear-gradient(90deg,rgba(22,184,148,0.12),rgba(47,134,214,0.1));border:1px solid rgba(22,184,148,0.3)}
+.ntr-act .eta .ck{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#16B894;color:#06202f}
+.ntr-act .eta .ic{width:22px;height:22px}
+#process .ntr-act .lp-trust{font-size:17px;font-weight:600;color:var(--lt-ink)}
+#process .ntr-act .lp-trust b{font-weight:800;color:#0A7A61}
+#process .lp-btn.ntr-btn{min-height:60px;padding:16px 34px;font-size:19px;font-weight:800;background:#16B894;border-color:#16B894;color:#06202f;box-shadow:0 6px 16px rgba(22,184,148,0.3)}
+#process .lp-btn.ntr-btn:hover{background:#5DE0BC;border-color:#5DE0BC;color:#0F2540}
+@media(max-width:1024px){
+  .lp-flow.three{grid-template-columns:1fr;gap:12px}
+  .lp-flow.three::before{left:23px;right:auto}
+  .lp-flow .stp{margin-bottom:6px}
+  #process .lp-flow .t{justify-content:flex-start;font-size:18px}
+  .lp-flow .chips{justify-content:flex-start;margin-top:10px}
+}
+@media(max-width:640px){
+  #process .lp-flow .bx{padding:14px 14px 14px}
+  #process .lp-flow .d{font-size:15px}
+  .lp-flow .chips span{font-size:15px;padding:3px 10px}
+  .ntr-act .eta{padding:10px 12px}
+  .ntr-act .eta .ck{width:34px;height:34px}
+  #process .ntr-act .lp-trust{font-size:16px}
+  #process .lp-btn.ntr-btn{font-size:18px}
+}
 @media(max-width:1024px){
   .lp-flow{grid-template-columns:1fr;gap:12px}
   .lp-flow::before{left:23px;right:auto;top:24px;bottom:24px;width:3px;height:auto;background:linear-gradient(180deg,#2F86D6,#16B894)}
@@ -2028,11 +2075,29 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp-h3{font-size:19px;margin-top:30px}
   .lp-flow .t{font-size:17px;margin-bottom:4px}
   .lp-flow .d{font-size:15px}
-  .lp-fields{grid-template-columns:1fr;gap:12px}
-  .lp-field{padding:18px 16px 16px}
+  .lp-fields{grid-template-columns:1fr;gap:8px}
+  .lp-field{padding:14px 14px 12px}
+  .lp-field .hd{gap:10px;margin-bottom:10px}
+  .lp-field .ib{width:36px;height:36px;border-radius:10px}
+  .lp-field .ic{width:20px;height:20px}
   .lp-field .f{font-size:18px}
-  .lp-field li{font-size:15px;padding:5px 11px}
-  .lp-field .note{font-size:15px}
+  .lp-field ul{gap:6px}
+  .lp-field li{font-size:15px;padding:4px 10px}
+  .lp-field .note{font-size:15px;margin-top:8px}
+  .lp-field .ex{font-size:15px;margin-top:8px;padding-top:8px}
+  .lp-sub{margin-bottom:18px}
+  .lp-h3{margin:24px 0 12px}
+  #process-pro .lp-flow{gap:8px}
+  #process-pro .lp-flow::before{top:20px;bottom:20px}
+  #process-pro .lp-flow .bx{padding:10px 14px}
+  #process-pro .lp-flow .d{line-height:1.5}
+  .lp-field{padding:12px 14px 10px}
+  .lp-field .hd{margin-bottom:8px}
+  .lp-field .ib{width:32px;height:32px;border-radius:9px}
+  .lp-field .ic{width:19px;height:19px}
+  .lp-field .note{margin-top:6px}
+  .lp-field .ex{margin-top:6px;padding-top:6px;line-height:1.5}
+  #process-pro .lp-plan .nm,#process-pro .lp-plan .nm span,#process-pro .lp-plan .pr,#process-pro .lp-plan .go,#process-pro .lp-pro-note,#process-pro .lp-pro-act .lp-trust{font-size:15px}
 }
 .lp-light.lp-faq details{border-bottom:1px solid rgba(15,37,64,0.12)}
 .lp-light.lp-faq summary{color:var(--lt-ink)}
@@ -2532,14 +2597,15 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   <div class="lp">
     <p class="lp-label">번역공증 · 아포스티유</p>
     <h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다</h2>
-    <div class="lp-steps">
-      <div class="lp-step"><div class="no">STEP 1</div><div class="t">서류 업로드</div><div class="d">필요한 서류를 선택하고 정부 사이트에서 발급받은 PDF를 올려 주세요. 발급 방법도 함께 안내해 드립니다.</div></div>
-      <div class="lp-step"><div class="no">STEP 2</div><div class="t">일정 확인 · 결제</div><div class="d">받으실 날짜를 선택하시면 일정과 금액을 바로 확인하실 수 있습니다.</div></div>
-      <div class="lp-step"><div class="no">STEP 3</div><div class="t">댁에서 수령</div><div class="d">공증 서류 스캔본을 마이페이지로 먼저 보내 드리고, 실물은 등기로 발송합니다.</div></div>
-    </div>
-    <div class="lp-pro-act">
-      <p class="lp-trust" id="lp-eta-cta">급행 접수 시 다음 영업일에 받아 보실 수 있습니다.</p>
-      <button type="button" class="lp-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 신청하기</button>
+    <!-- ★STEP 1 배지 = 번역공증 주문 화면 서류 목록(iumm-pipeline notary/pricing.js DOCS)에 있는 이름만. 전문번역 전용 내용(교차 검수·1:1 대조·분야 기준) 금지 -->
+    <ol class="lp-flow three">
+      <li><span class="no">1</span><span class="bx"><span class="stp">STEP 1</span><span class="t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>서류 업로드</span><span class="d">필요한 서류를 선택하고 정부 사이트에서 발급받은 PDF를 올려 주세요. 발급 방법도 함께 안내해 드립니다.</span><span class="chips"><span>가족관계증명서</span><span>기본증명서</span><span>혼인관계증명서</span><span>생활기록부</span><span>졸업증명서</span><span>법인등기부등본</span></span></span></li>
+      <li><span class="no">2</span><span class="bx"><span class="stp">STEP 2</span><span class="t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 15.5l2 2 4-4"/></svg>일정 확인 · 결제</span><span class="d">받으실 날짜를 선택하시면 일정과 금액을 바로 확인하실 수 있습니다.</span></span></li>
+      <li><span class="no">3</span><span class="bx"><span class="stp">STEP 3</span><span class="t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>댁에서 수령</span><span class="d">공증 서류 스캔본을 마이페이지로 먼저 보내 드리고, 실물은 등기로 발송합니다.</span><span class="chips"><span>마이페이지 스캔본 먼저</span><span>등기로 실물 발송</span></span></span></li>
+    </ol>
+    <div class="lp-pro-act ntr-act">
+      <div class="eta"><span class="ck"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><p class="lp-trust" id="lp-eta-cta">급행 접수 시 다음 영업일에 받아 보실 수 있습니다.</p></div>
+      <button type="button" class="lp-btn ntr-btn" onclick="lpGo('notary')">번역공증 · 아포스티유 신청하기</button>
     </div>
   </div>
 </section>
@@ -2550,6 +2616,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
      ★언어 수 32 = 주문 창 '한국어 → ○○' 목록(한국어 제외, 중국어 간체·번체 각각). 언어를 더하면 이 숫자도 고친다.
      ★분야별 기준 카드 = 스타일시트(iumm-pipeline iumm_guidelines/**/stylesheet.md)에 실제로 들어간 기준만.
        기준을 빼거나 더하면 스타일시트를 먼저 고친다(scripts/stylesheet_field_standards_2026_10.mjs).
+     ★카드 '예:' = Airtable 문서유형(tblFhJqjfhEOQgO2b)에 있는 고객용 유형 이름만(수사·법률 서류·내부전용·기타 금지). ESG 는 맞는 유형이 없어 예시 없음.
      ★'그 밖의 분야' = 공식 기준이 없는 스타일시트 분야(전용 용어집 기준). 범죄수사공문은 고객 화면 금지, 일반은 기본 분야라 쓰지 않는다. -->
 <section class="lp-sec pro-sec lp-light" id="process-pro">
   <div class="lp">
@@ -2568,15 +2635,15 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 
     <h3 class="lp-h3">분야별 번역 기준</h3>
     <div class="lp-fields">
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M5 6h14"/><path d="M5 6l-3 6a3 3 0 006 0zM19 6l-3 6a3 3 0 006 0z"/></svg></span><p class="f">법률 · 계약</p></div><ul><li>법제처 국가법령정보센터 영문 법령 (한국법제연구원 번역)</li><li>Black's Law Dictionary</li></ul></div>
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5M9 9h4"/><circle cx="13" cy="15" r="3"/></svg></span><p class="f">공문서 · 증명서</p></div><ul><li>「공공용어의 외국어 번역 및 표기 지침」 (문화체육관광부)</li><li>국어의 로마자 표기법</li><li>도로명주소 영문 표기</li></ul></div>
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 3z"/></svg></span><p class="f">기술 · 특허</p></div><ul><li>ISO · IEC 국제 표준 용어</li><li>WIPO 특허 용어</li></ul></div>
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg></span><p class="f">의료</p></div><ul><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류 (KCD)</li></ul></div>
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 16v-4M10 16V8M14 16v-6M18 16V5"/></svg></span><p class="f">금융 · 회계</p></div><ul><li>한국채택국제회계기준 (K-IFRS) 용어</li></ul></div>
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h8M7 3v2M5 5c0 4 2 7 6 8M9 5c0 4-2 7-6 8"/><path d="M13 21l4-10 4 10M14.5 17h5"/></svg></span><p class="f">외국어 → 한국어</p></div><ul><li>국립국어원 외래어 표기법</li></ul></div>
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V5h8v16M14 9h4v12M9 9h2M9 13h2M9 17h2"/></svg></span><p class="f">건설 · 엔지니어링</p></div><ul><li>국가건설기준 KDS 설계기준</li><li>KCS 표준시방서</li></ul></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M5 6h14"/><path d="M5 6l-3 6a3 3 0 006 0zM19 6l-3 6a3 3 0 006 0z"/></svg></span><p class="f">법률 · 계약</p></div><ul><li>법제처 국가법령정보센터 영문 법령 (한국법제연구원 번역)</li><li>Black's Law Dictionary</li></ul><p class="ex">예: 근로계약서 · 비밀유지계약서 · MOU·협약서 · 판결문·소송서류</p></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5M9 9h4"/><circle cx="13" cy="15" r="3"/></svg></span><p class="f">공문서 · 증명서</p></div><ul><li>「공공용어의 외국어 번역 및 표기 지침」 (문화체육관광부)</li><li>국어의 로마자 표기법</li><li>도로명주소 영문 표기</li></ul><p class="ex">예: 가족·신분 증명서 · 졸업·성적증명서 · 재직·경력증명서 · 법인등기부등본</p></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 3z"/></svg></span><p class="f">기술 · 특허</p></div><ul><li>ISO · IEC 국제 표준 용어</li><li>WIPO 특허 용어</li></ul><p class="ex">예: 특허명세서 · 기술사양서 · 제품설명서·매뉴얼</p></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg></span><p class="f">의료</p></div><ul><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류 (KCD)</li></ul><p class="ex">예: 진단서·의료기록 · 임상·의약 문서</p></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 16v-4M10 16V8M14 16v-6M18 16V5"/></svg></span><p class="f">금융 · 회계</p></div><ul><li>한국채택국제회계기준 (K-IFRS) 용어</li></ul><p class="ex">예: 재무제표 · 감사보고서 · 견적서·인보이스</p></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h8M7 3v2M5 5c0 4 2 7 6 8M9 5c0 4-2 7-6 8"/><path d="M13 21l4-10 4 10M14.5 17h5"/></svg></span><p class="f">외국어 → 한국어</p></div><ul><li>국립국어원 외래어 표기법</li></ul><p class="ex">예: 회사소개서 · 마케팅·홍보물 · 이메일·서신</p></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V5h8v16M14 9h4v12M9 9h2M9 13h2M9 17h2"/></svg></span><p class="f">건설 · 엔지니어링</p></div><ul><li>국가건설기준 KDS 설계기준</li><li>KCS 표준시방서</li></ul><p class="ex">예: 기술사양서 · 용역·업무계약서 · 공문·안내문</p></div>
       <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4C10 4 4 10 4 18c0 1 0 2 .5 2.5C12 20 20 14 20 4z"/><path d="M4.5 20.5L13 12"/></svg></span><p class="f">환경 · ESG</p></div><ul><li>GRI Standards 용어</li></ul></div>
-      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h6a4 4 0 014 4v12a3 3 0 00-3-3H2zM22 5h-6a4 4 0 00-4 4v12a3 3 0 013-3h7z"/></svg></span><p class="f">학술 · 논문</p></div><ul><li>APA · MLA · Chicago · IEEE 인용 양식 그대로</li></ul></div>
+      <div class="lp-field"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h6a4 4 0 014 4v12a3 3 0 00-3-3H2zM22 5h-6a4 4 0 00-4 4v12a3 3 0 013-3h7z"/></svg></span><p class="f">학술 · 논문</p></div><ul><li>APA</li><li>MLA</li><li>Chicago</li><li>IEEE</li></ul><p class="note">인용 양식은 원문 그대로 유지합니다.</p><p class="ex">예: 논문 · 졸업·성적증명서 · 이력서·자기소개서</p></div>
       <div class="lp-field wide"><div class="hd"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><p class="f">그 밖의 분야</p></div><ul><li>비즈니스</li><li>마케팅 · 광고</li><li>이민 · 비자</li><li>문학 · 출판</li><li>예술 · 문화</li><li>게임 · 엔터테인먼트</li></ul><p class="note">분야별 전용 용어집 기준으로 번역합니다.</p></div>
     </div>
     <div class="lp-plans">
@@ -2632,8 +2699,10 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
   //   실패(네트워크·형식 오류·4초 초과)면 아무것도 바꾸지 않는다 = 기존 고정 문구 그대로.
   lpEta(function(day){
     var W = ['일', '월', '화', '수', '목', '금', '토'], d = new Date(day + 'T00:00:00Z');
-    var txt = '지금 급행 접수하면 ' + (d.getUTCMonth() + 1) + '월 ' + d.getUTCDate() + '일(' + W[d.getUTCDay()] + ') 수령';
-    ['lp-eta-card', 'lp-eta-cta'].forEach(function(id){ var el = document.getElementById(id); if (el) el.textContent = txt; });
+    var day2 = (d.getUTCMonth() + 1) + '월 ' + d.getUTCDate() + '일(' + W[d.getUTCDay()] + ')', txt = '지금 급행 접수하면 ' + day2 + ' 수령';
+    var card = document.getElementById('lp-eta-card'), cta = document.getElementById('lp-eta-cta');
+    if (card) card.textContent = txt;
+    if (cta) cta.innerHTML = '지금 급행 접수하면 <b>' + day2 + '</b> 수령';
   });
   function lpEta(done){
     if (typeof fetch !== 'function') return;
