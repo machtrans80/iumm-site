@@ -349,7 +349,7 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button data-mode="tx" class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
       <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
       <button data-mode="tx" class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
-      <button data-mode="tx" class="tab-btn" id="tab-terms" onclick="switchTab('terms')" style="color:#16B894"><i class="ti ti-language" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>용어 관리</button>
+      <button data-mode="tx" class="tab-btn" id="tab-terms" onclick="switchTab('terms')" style="color:#60a5fa"><i class="ti ti-language" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>용어 관리</button>
       <button data-mode="tx" class="tab-btn" id="tab-corp" onclick="switchTab('corp')" style="color:#60a5fa"><i class="ti ti-building" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>기업고객</button>
       <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')" style="color:#D4AF37"><i class="ti ti-package" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>공증 배송 관리<span id="ntr-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#b8860b;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
       <button data-mode="ntr" class="tab-btn" id="tab-ntrd" onclick="switchTab('notary_direct')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>직접 번역 (결제 없이)</button>
@@ -1211,6 +1211,7 @@ function restoreAdminMode() {
 
 function switchTab(tab) {
   currentTab = tab;
+  if (tab !== 'terms' && (location.hash || '').indexOf('#terms') === 0) history.replaceState(null, '', location.pathname + location.search);
   selectedOrder = null;
   document.getElementById('confirm-panel').style.display = 'none';
   document.getElementById('tab-ai').className = 'tab-btn' + (tab==='ai_premium' ? ' active' : '');
@@ -2779,8 +2780,9 @@ window.addEventListener('DOMContentLoaded', function() {
   if (tok) {
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('admin-view').style.display = 'flex';
-    restoreAdminMode();
-    loadOrders();
+    // 용어 관리 화면 주소(#terms…)로 새로 고침하면 그 탭·페이지·필터로 돌아간다(admin/terms.js)
+    if ((location.hash || '').indexOf('#terms') === 0) { setAdminMode('tx', true); switchTab('terms'); }
+    else { restoreAdminMode(); loadOrders(); }
     refreshBpBadge();
   }
 });
@@ -4049,6 +4051,6 @@ async function loadNotaryDirect() {
 </script>
 <!-- 용어 관리·기업고객 탭 -->
 <script src="/admin/terms_old_commits.js?v=1"></script>
-<script src="/admin/terms.js?v=3"></script>
+<script src="/admin/terms.js?v=4"></script>
 </body>
 </html>
