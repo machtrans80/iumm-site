@@ -345,7 +345,7 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button data-mode="tx" class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
       <button data-mode="tx" class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
       <button data-mode="tx" class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>미배정</button>
-      <button data-mode="tx" class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#f87171"><i class="ti ti-ban" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>번역실패</button>
+      <button data-mode="tx" class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#60a5fa"><i class="ti ti-alert-circle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>확인필요·번역실패</button>
       <button data-mode="tx" class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
       <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
       <button data-mode="tx" class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
@@ -868,9 +868,9 @@ body.admin-focus .focus-exit-hint{display:inline}
     <!-- ── 미배정 탭 콘텐츠 ── -->
     <!-- ── 번역실패 탭 콘텐츠 ── -->
     <div id="failed-wrap" style="display:none;padding:4px 0 32px">
-      <div style="margin-bottom:16px;padding:12px 16px;background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.3);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
-        <i class="ti ti-ban" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:#f87171"></i><strong style="color:#f87171">번역 실패</strong> — 길이 초과(max_tokens) 또는 잘림 감지로 납품이 차단된 주문입니다.<br>
-        원문 축약 후 우회 주문으로 재처리하거나, 고객에게 분할 의뢰를 안내하세요.
+      <div style="margin-bottom:16px;padding:12px 16px;background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.35);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
+        <strong style="color:#93c5fd">확인필요</strong> — 번역은 끝나 저장됐고, 자동 검사가 표시한 문단만 확인하면 되는 주문입니다. <strong style="color:#dbeafe">번역문 열기</strong>로 열어 확인·수정·최종 납품하세요.<br>
+        <strong style="color:#93c5fd">파이프라인 오류</strong> — 번역 자체가 실패한 주문입니다(API 오류·길이 초과 등). 폼에 불러와 재실행하거나, 고객에게 분할 의뢰를 안내하세요.
       </div>
       <div id="failed-list" style="display:flex;flex-direction:column;gap:12px">
         <div style="color:rgba(255,255,255,0.4);text-align:center;padding:32px">로딩 중…</div>
@@ -970,6 +970,8 @@ body.admin-focus .focus-exit-hint{display:inline}
         <span class="search-count" id="sc-tr">번역 —</span>
         <button onclick="closeAdminSearch()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">✕</button>
       </div>
+      <!-- 확인필요(납품 보류) 사유 — held.js holdShowPanel -->
+      <div id="hold-notice"></div>
       <div class="panel-body">
         <div class="panel-pane">
           <div class="panel-pane-label">원문 (읽기 전용)</div>
@@ -1292,8 +1294,22 @@ async function loadOrders() {
   try {
     var res = await adminFetch('/api/admin/orders?tab=' + currentTab);
     if (!res.success) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">로드 실패: ' + (res.error||'') + '</td></tr>'; return; }
-    window._orders = res.orders || [];
+    var orders = res.orders || [];
+    // 확인필요(납품 보류) 주문도 같은 탭에서 번역문 확인·다운로드·최종 납품 — 서버 목록은 관리자대기만 주므로 번역실패 목록에서 가져와 앞에 붙인다
+    if (currentTab === 'ai_premium' || currentTab === 'premium_plus') {
+      var tabNow = currentTab;
+      var held = await adminFetch('/api/admin/orders?tab=failed').catch(function(){ return null; });
+      if (tabNow !== currentTab) return;
+      var have = {}; orders.forEach(function(o){ have[o.orderId] = 1; });
+      orders = ((held && held.orders) || []).filter(function(o){ return !have[o.orderId] && holdDeliverable(o, tabNow); }).concat(orders);
+    }
+    window._orders = orders;
     renderOrderTable();
+    if (window._holdOpenId) {
+      var pid = window._holdOpenId; window._holdOpenId = null;
+      var prow = document.querySelector('#orders-tbody tr[data-id="' + pid + '"]');
+      if (prow) { selectOrder(pid, prow); document.getElementById('confirm-panel').scrollIntoView({ block: 'start' }); }
+    }
   } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>'; }
 }
 
@@ -1326,6 +1342,7 @@ function renderOrderTable() {
     rowsHtml = pageOrders.map(function(o) {
       var planTag = (o.plan||'').includes('plus') || (o.plan||'').includes('플러스') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
       var statusTag = o.status === '납품완료' ? ' <span class="tag" style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">납품완료</span>' : '';
+      statusTag += holdTagHtml(o);
       var ratingCell = o.isEvaluated && o.customerRating != null ? '⭐ ' + o.customerRating + '.0' + (o.isReviewConfirmed ? ' ✅' : '') : '—';
       var checkCell = showBatch
         ? '<td onclick="event.stopPropagation()" style="padding:12px 8px"><input type="checkbox" class="order-check" value="' + o.orderId + '" onchange="updateSelectedCount()"></td>'
@@ -1397,31 +1414,36 @@ async function loadFailedOrders() {
     var res = await adminFetch('/api/admin/orders?tab=failed');
     var orders = res.orders || [];
     if (!orders.length) {
-      listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:48px;border:1px solid rgba(255,255,255,0.06);border-radius:4px">✅ 번역 실패 주문 없음</div>';
+      listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:48px;border:1px solid rgba(255,255,255,0.06);border-radius:4px">확인필요·번역실패 주문 없음</div>';
       return;
     }
     window._failedOrders = orders;
     listEl.innerHTML = orders.map(function(o, idx) {
       var reason = o.failReason || '';
-      return '<div style="padding:16px 20px;border:1px solid rgba(248,113,113,0.25);border-radius:6px;background:rgba(248,113,113,0.04)">' +
+      var h = holdInfo(o);
+      // 색은 파란색 계열로만 구분: 확인필요 = 연한 파랑 테두리, 파이프라인 오류 = 진한 파랑 배지
+      var badge = h
+        ? '<span style="display:inline-block;margin-top:5px;padding:2px 9px;border-radius:10px;font-size:11.5px;color:#93c5fd;border:1px solid rgba(59,130,246,0.55);background:rgba(59,130,246,0.1)">' + _bpEsc(h.label) + '</span>'
+        : '<span style="display:inline-block;margin-top:5px;padding:2px 9px;border-radius:10px;font-size:11.5px;color:#fff;background:#1d4ed8;border:1px solid #3b82f6">파이프라인 오류' + (o.status && o.status !== '번역실패' ? ' · ' + _bpEsc(o.status) : '') + '</span>';
+      return '<div style="padding:16px 20px;border:1px solid ' + (h ? 'rgba(59,130,246,0.4)' : 'rgba(29,78,216,0.75)') + ';border-radius:6px;background:rgba(59,130,246,' + (h ? '0.04' : '0.08') + ')">' +
         '<div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">' +
           '<div style="flex:1;min-width:200px">' +
-            '<div style="font-size:13px;font-weight:600;color:#f87171">' + _bpEsc(o.orderNumber || o.orderId.slice(0,12)) + '</div>' +
+            '<div style="font-size:13px;font-weight:600;color:#dbeafe">' + _bpEsc(o.orderNumber || o.orderId.slice(0,12)) + '</div>' +
             '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">' +
               _bpEsc(o.customerEmail || '이메일 없음') + ' · ' + (o.charCount || 0).toLocaleString() + '자 · ' + _bpEsc(o.direction || '') +
-              ' <span style="color:' + (o.orderStatus === '확인필요' ? '#fbbf24' : '#f87171') + '">(' + _bpEsc(o.orderStatus === '확인필요' ? '확인필요 · 납품 보류' : (o.status || '번역실패')) + ')</span>' +
-            '</div>' +
-            (reason ? '<div style="font-size:11px;color:#fca5a5;margin-top:6px;padding:5px 9px;background:rgba(248,113,113,0.09);border-radius:4px;font-family:ui-monospace,monospace;word-break:break-all">⚠ 실패사유: ' + _bpEsc(reason) + '</div>' : '') +
+            '</div>' + badge +
+            (reason ? '<div style="font-size:11px;color:#bfdbfe;margin-top:6px;padding:5px 9px;background:rgba(59,130,246,0.09);border-radius:4px;font-family:ui-monospace,monospace;word-break:break-all;white-space:pre-wrap">' + (h ? '사유: ' : '실패사유: ') + _bpEsc(reason) + '</div>' : '') +
           '</div>' +
           '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">' +
             '<div style="font-size:12px;color:rgba(255,255,255,0.5)">' + (o.receivedAt ? new Date(o.receivedAt).toLocaleDateString('ko-KR') : '') + '</div>' +
             '<div style="display:flex;gap:6px">' +
               '<button onclick="loadFailedToBypassForm(' + idx + ')" style="padding:6px 14px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap"><i class="ti ti-external-link" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>폼에 불러오기</button>' +
               ((o.orderStatus === '확인필요' && /^API 잔액 부족/.test(reason))
-                ? '<button onclick="resumeCreditHalted(' + idx + ')" style="padding:6px 14px;background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.35);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">충전 완료 → 이어서 처리</button>'
+                ? '<button onclick="resumeCreditHalted(' + idx + ')" style="padding:6px 14px;background:rgba(59,130,246,0.14);color:#93c5fd;border:1px solid rgba(59,130,246,0.45);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">충전 완료 → 이어서 처리</button>'
                 : (o.orderStatus === '확인필요' && (o.gptFinalReview || o.aiTranslation))
-                ? '<button onclick="downloadHeldTranslation(' + idx + ')" style="padding:6px 14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">번역본 받기</button>' +
-                  '<button onclick="releaseHeldOrder(' + idx + ')" style="padding:6px 14px;background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">확인 완료 → 납품대기</button>'
+                ? '<button onclick="openHeldOrder(' + idx + ')" style="padding:6px 14px;background:#3b82f6;color:#fff;border:1px solid #3b82f6;border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap">번역문 열기</button>' +
+                  '<button onclick="downloadHeldTranslation(' + idx + ')" style="padding:6px 14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">번역본 받기</button>' +
+                  '<button onclick="releaseHeldOrder(' + idx + ')" style="padding:6px 14px;background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.4);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">확인 완료 → 납품대기</button>'
                 : '') +
             '</div>' +
             '<div style="font-size:10px;color:rgba(255,255,255,0.35);white-space:nowrap">폼에서 확인 후 재실행</div>' +
@@ -1435,6 +1457,13 @@ async function loadFailedOrders() {
 }
 
 // ── 확인필요(납품 보류) → 번역본 확인 · 해제 ─────────────────
+// 번역문 열기: 플랜 탭(AI 프리미엄·프리미엄 플러스)으로 가서 그 주문을 연다 — 최종검토중 주문과 같은 화면
+function openHeldOrder(idx) {
+  var o = (window._failedOrders || [])[idx];
+  if (!o) return;
+  window._holdOpenId = o.orderId;
+  switchTab(/플러스|premium_plus/i.test(o.plan || '') ? 'premium_plus' : 'ai_premium');
+}
 function downloadHeldTranslation(idx) {
   var o = (window._failedOrders || [])[idx];
   if (!o) return;
@@ -1731,6 +1760,7 @@ function selectOrder(id, row) {
   setTimeout(function() { setupPanelScrollSync(); updateCounters(); initProgressBars(); }, 50);
   _lastSavedText = document.getElementById('panel-translation')?.value || '';
   initAutoSave();
+  holdShowPanel(order);
 }
 
 // ── 글자수/단어수 카운터 ─────────────────────────────────────
@@ -1865,6 +1895,7 @@ function toggleAdminDiff(){
     ta.style.display=''; dv.style.display='none';
     btn.textContent='📋 Diff'; btn.style.background='';
   }
+  holdApplyOverlay();
 }
 
 // ── 검색 하이라이트 ──────────────────────────────────────────
@@ -1883,6 +1914,7 @@ function closeAdminSearch(){
   if(inp)inp.value='';
   _clearAdminOverlays();
   _adminSearchActive=false;
+  holdApplyOverlay();
 }
 function _clearAdminOverlays(){
   ['ov-src','ov-tr'].forEach(function(id){
@@ -1959,6 +1991,7 @@ function onTranslationEdit() {
   if (el) el.textContent = '● 미저장';
   updateCounters();
   scheduleAutoSave();
+  holdApplyOverlay();
 }
 
 // 임시저장 (silent=true이면 자동저장 — 토스트 없이 조용히)
@@ -4052,5 +4085,7 @@ async function loadNotaryDirect() {
 <!-- 용어 관리·기업고객 탭 -->
 <script src="/admin/terms_old_commits.js?v=1"></script>
 <script src="/admin/terms.js?v=4"></script>
+<!-- 확인필요(납품 보류) 주문 표시 -->
+<script src="/admin/held.js?v=1"></script>
 </body>
 </html>
