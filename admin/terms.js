@@ -22,9 +22,11 @@
   window.loadTerms = async function () {
     var wrap = document.getElementById('terms-list');
     wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">로딩 중…</p>';
-    var r = await adminFetch('/api/admin/terms?' + qs(TF));
+    // 묶음이 잘리지 않게 전체를 받는다(서버 기본 500건)
+    var r = await adminFetch('/api/admin/terms?' + qs(Object.assign({ limit: 10000 }, TF)));
     if (!r.ok) { wrap.innerHTML = '<p style="color:#f87171">로드 실패: ' + esc(r.error) + '</p>'; return; }
     _terms = r.terms || []; _sel = {};
+    await checkServer();
     renderTermFilters(r.facets || {}, r.counts || {});
     renderTerms(r.total);
   };
@@ -50,54 +52,177 @@
   function metaLine(t) {
     return '등장 ' + t.count + ' · ' + esc(t.docType) + ' · ' + day(t.lastAt);
   }
+
+  // ── 서버 버전 확인 — 되돌리기 고침(33dd2b9) 이전 서버에선 되돌리기·충돌 해결을 끈다 ──
+  // 이전 서버는 되돌린 용어를 '충돌'로 남겨 다시 원상복구되기 쉬웠다. /health 의 commit 이 이전 목록(terms_old_commits.js)에 없으면 켠다.
+  // commit 이 비어 있으면(CLI 직접 배포) 용어 응답에 새 서버만 주는 locked 값이 있는지로 판단한다.
+  var _srv = { checked: false, ready: false, commit: '' };
+  var _srvTimer = null;
+  async function checkServer() {
+    try {
+      var h = await fetch(API_BASE + '/health', { cache: 'no-store' }).then(function (r) { return r.json(); });
+      var c = String(h.commit || '').slice(0, 7);
+      var old = window.TERMS_PRE_FIX_COMMITS || [];
+      _srv.commit = c;
+      _srv.ready = c ? old.indexOf(c) < 0 : _terms.some(function (t) { return 'locked' in t; });
+    } catch (e) { _srv.ready = false; }
+    _srv.checked = true;
+    // 꺼져 있는 동안은 1분마다 다시 확인 — 배포되면 새로고침 없이 켜진다
+    if (!_srv.ready && !_srvTimer) _srvTimer = setInterval(async function () {
+      var wrap = document.getElementById('terms-wrap');
+      if (!wrap || wrap.style.display === 'none') return;
+      await checkServer();
+      if (_srv.ready) { clearInterval(_srvTimer); _srvTimer = null; renderTerms(_total); showToast('서버 업데이트 확인 — 되돌리기·충돌 해결을 다시 쓸 수 있습니다', 'success'); }
+    }, 60000);
+  }
+  var _total = 0;
+  var _open = {};   // 예전 번역(대체됨·거절)을 펼친 묶음
+
+  var GROUP_CSS =
+    '.tg{border:1px solid rgba(255,255,255,0.12);border-radius:6px;margin-bottom:10px;background:rgba(255,255,255,0.02)}' +
+    '.tg.cf{border-color:rgba(248,113,113,0.5)}' +
+    '.tg-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.08)}' +
+    '.tg-h strong{font-size:14.5px;word-break:break-all}' +
+    '.tg-h .m{font-size:12px;color:rgba(255,255,255,0.45)}' +
+    '.tr{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:flex-start;padding:8px 12px;border-top:1px solid rgba(255,255,255,0.05)}' +
+    '.tr:first-child{border-top:0}' +
+    '.tr .t{flex:1 1 220px;min-width:0;word-break:break-word}' +
+    '.tr .t b{font-size:13.5px}' +
+    '.tr .s{font-size:11.5px;color:rgba(255,255,255,0.5);margin-top:2px}' +
+    '.tr .a{flex:0 1 auto;display:flex;flex-wrap:wrap;gap:2px;align-items:center}' +
+    '.tr.used{background:rgba(22,184,148,0.07)}' +
+    '.tr.past{opacity:0.75}' +
+    '.tbadge{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:9px;border:1px solid currentColor;margin-left:4px;vertical-align:1px;white-space:nowrap}' +
+    '.tg-more{display:block;width:100%;text-align:left;padding:7px 12px;background:transparent;border:0;border-top:1px dashed rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);font-size:12px;cursor:pointer}' +
+    '.tg-cmp{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}' +
+    '.tg-cmp>div{flex:1 1 200px;padding:6px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:4px}' +
+    '.tbtn[disabled]{opacity:0.35;cursor:not-allowed}' +
+    '.tmodal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}' +
+    '.tmodal>div{background:#1a1a1a;border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:18px;max-width:420px;width:100%;font-size:14px;line-height:1.6;color:#fafaf8}' +
+    '.tmodal .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}' +
+    '@media (max-width:640px){.tr .a{width:100%}.tr .a button{flex:1 1 auto;padding:8px 10px}}';
+  function ensureCss() {
+    if (document.getElementById('terms-group-css')) return;
+    var s = document.createElement('style'); s.id = 'terms-group-css'; s.textContent = GROUP_CSS; document.head.appendChild(s);
+  }
+
+  // 같은 원어·같은 언어 방향을 한 묶음으로. 묶음 순서 = 충돌 있는 묶음 먼저, 그다음 묶음 안 모든 번역의 등장 합계순
+  var HIDDEN = { '대체됨': 1, '거절': 1 };
+  var IN_GROUP = { '승인': 0, '충돌': 1, '후보': 2, '대체됨': 3, '거절': 4 };
+  function groupTerms(list) {
+    var map = {}, order = [];
+    list.forEach(function (t) {
+      var k = t.pair + '\u0000' + t.source;
+      if (!map[k]) { map[k] = { key: k, source: t.source, pair: t.pair, items: [], sum: 0, conflict: false }; order.push(map[k]); }
+      var g = map[k];
+      g.items.push(t); g.sum += Number(t.count) || 0;
+      if (t.status === '충돌') g.conflict = true;
+    });
+    order.forEach(function (g) { g.items.sort(function (a, b) { return (IN_GROUP[a.status] - IN_GROUP[b.status]) || (b.count - a.count); }); });
+    return order.sort(function (a, b) { return (b.conflict - a.conflict) || (b.sum - a.sum); });
+  }
+
+  var LOCK_MSG = '서버 업데이트 후 사용 가능';
+  function lockedBtn(style, onclick, label) {
+    return _srv.ready
+      ? '<button class="tbtn" style="' + btn + style + '" onclick="' + onclick + '">' + label + '</button>'
+      : '<button class="tbtn" style="' + btn + style + '" disabled title="' + LOCK_MSG + '">' + label + '</button>';
+  }
+
+  function termRow(t, g) {
+    var badges = '';
+    if (t.status === '승인') badges += '<span class="tbadge" style="color:#16B894">사용 중</span>';
+    else badges += '<span class="tbadge" style="color:' + (STATUS_COLOR[t.status] || '#fff') + '">' + esc(t.status) + '</span>';
+    badges += '<span class="tbadge" style="color:' + SCOPE_COLOR[t.scope] + '">' + esc(t.scope) + (t.company ? ' · ' + esc(t.company) : '') + '</span>';
+    if (t.locked) badges += '<span class="tbadge" style="color:rgba(255,255,255,0.55)" title="관리자가 직접 고른 결정 — 수정본 자동 승인이 바꾸지 않음">직접 결정</span>';
+    var sub = '등장 ' + t.count + ' · ' + esc(t.field || '분야 없음') + ' · ' + esc(t.docType || '') + ' · ' + day(t.lastAt) + (t.sourceType ? ' · ' + esc(t.sourceType) : '');
+    var acts = '', extra = '';
+    if (t.status === '충돌') {
+      var olds = (t.counterparts || []).map(function (o) {
+        return '<div><span style="font-size:11px;color:rgba(255,255,255,0.45)">기존</span> <strong>' + esc(o.target) + '</strong><br><span style="font-size:11px;color:rgba(255,255,255,0.5)">' + metaLine(o) + '</span></div>';
+      }).join('');
+      extra = '<div class="tg-cmp">' + olds + '<div style="border-color:rgba(248,113,113,0.5)"><span style="font-size:11px;color:#f87171">신규</span> <strong>' + esc(t.target) + '</strong><br><span style="font-size:11px;color:rgba(255,255,255,0.5)">' + metaLine(t) + '</span></div></div>';
+      acts = lockedBtn(';border-color:#f87171;color:#f87171', 'termsResolve(\'' + t.id + '\',\'new\')', '신규로 대체') +
+        lockedBtn('', 'termsResolve(\'' + t.id + '\',\'old\')', '기존 유지');
+    } else if (t.status === '후보' || t.status === '거절') {
+      acts = (t.status === '후보' ? '<input type="checkbox" title="일괄 승인 선택" style="margin:0 4px" onchange="termsPick(\'' + t.id + '\',this.checked)">' : '') +
+        '<button style="' + btn + ';border-color:#16B894;color:#16B894" onclick="termsAct(\'approve\',\'' + t.id + '\')">승인</button>' +
+        '<button style="' + btn + '" onclick="termsEditApprove(\'' + t.id + '\')">수정 후 승인</button>' +
+        (t.status === '후보' ? '<button style="' + btn + '" onclick="termsAct(\'reject\',\'' + t.id + '\')">거절</button>' : '');
+    } else if (t.status === '승인') {
+      acts = '<button style="' + btn + '" onclick="termsEditApprove(\'' + t.id + '\')">번역어 수정</button>' +
+        '<button style="' + btn + '" onclick="termsAct(\'reject\',\'' + t.id + '\')">거절</button>';
+    } else if (t.status === '대체됨') {
+      var by = t.replacedByTerm && t.replacedByTerm.target;
+      sub += '<br><span style="color:' + (by ? 'rgba(255,255,255,0.5)' : '#f87171') + '">→ ' + (by ? esc(by) + '(으)로 대체됨' : '대체 대상 없음') + '</span>';
+      acts = lockedBtn(';border-color:#a78bfa;color:#a78bfa', 'termsRevertAsk(\'' + t.id + '\')', '예전 번역으로 되돌리기');
+    }
+    if (t.scope === '기업전용' && t.status !== '대체됨') acts += '<button style="' + btn + ';color:rgba(255,255,255,0.6)" onclick="termsToPublic(\'' + t.id + '\',\'' + esc(t.scope) + '\')">공용 전환</button>';
+    var cls = 'tr' + (t.status === '승인' ? ' used' : HIDDEN[t.status] ? ' past' : '');
+    return '<div class="' + cls + '"><div class="t"><b>' + (t.status === '충돌' ? '<span style="color:#f87171">충돌 — 아래에서 고르세요</span>' : esc(t.target)) + '</b>' + badges +
+      '<div class="s">' + sub + '</div>' + extra + '</div><div class="a">' + acts + '</div></div>';
+  }
+
   function renderTerms(total) {
+    _total = total;
+    ensureCss();
     var wrap = document.getElementById('terms-list');
     if (!_terms.length) { wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">해당하는 용어가 없습니다.</p>'; return; }
-    var rows = _terms.map(function (t) {
-      var scope = '<span style="color:' + SCOPE_COLOR[t.scope] + '">' + esc(t.scope) + '</span>' + (t.company ? '<br><span style="font-size:11px;color:#60a5fa">' + esc(t.company) + '</span>' : '');
-      var st = '<span style="color:' + (STATUS_COLOR[t.status] || '#fff') + ';font-weight:600">' + esc(t.status) + '</span>' +
-        (t.locked ? '<br><span style="font-size:10px;color:rgba(255,255,255,0.5)" title="관리자가 직접 고른 결정 — 수정본 자동 승인이 바꾸지 않음">직접 결정</span>' : '');
-      var acts = '';
-      if (t.status === '충돌') {
-        var olds = (t.counterparts || []).map(function (o) {
-          return '<div style="padding:6px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:4px;margin-bottom:4px"><span style="font-size:11px;color:rgba(255,255,255,0.45)">기존</span> <strong>' + esc(o.target) + '</strong><br><span style="font-size:11px;color:rgba(255,255,255,0.5)">' + metaLine(o) + '</span></div>';
-        }).join('');
-        acts = '<div style="display:flex;gap:8px;align-items:stretch">' +
-          '<div style="flex:1">' + olds + '</div>' +
-          '<div style="flex:1;padding:6px 8px;border:1px solid rgba(248,113,113,0.5);border-radius:4px"><span style="font-size:11px;color:#f87171">신규</span> <strong>' + esc(t.target) + '</strong><br><span style="font-size:11px;color:rgba(255,255,255,0.5)">' + metaLine(t) + '</span></div>' +
-          '</div><div style="margin-top:4px"><button style="' + btn + ';border-color:#f87171;color:#f87171" onclick="termsResolve(\'' + t.id + '\',\'new\')">신규로 대체</button>' +
-          '<button style="' + btn + '" onclick="termsResolve(\'' + t.id + '\',\'old\')">기존 유지</button></div>';
-      } else if (t.status === '후보' || t.status === '거절') {
-        acts = '<button style="' + btn + ';border-color:#16B894;color:#16B894" onclick="termsAct(\'approve\',\'' + t.id + '\')">승인</button>' +
-          '<button style="' + btn + '" onclick="termsEditApprove(\'' + t.id + '\')">수정 후 승인</button>' +
-          (t.status === '후보' ? '<button style="' + btn + '" onclick="termsAct(\'reject\',\'' + t.id + '\')">거절</button>' : '');
-      } else if (t.status === '승인') {
-        acts = '<button style="' + btn + '" onclick="termsEditApprove(\'' + t.id + '\')">번역어 수정</button>' +
-          '<button style="' + btn + '" onclick="termsAct(\'reject\',\'' + t.id + '\')">거절</button>';
-      } else if (t.status === '대체됨') {
-        var by = t.replacedByTerm && t.replacedByTerm.target;
-        acts = '<span style="font-size:11px;color:' + (by ? 'rgba(255,255,255,0.5)' : '#f87171') + '">→ ' + (by ? esc(by) : '대체 대상 없음') + '</span> ' +
-          '<button style="' + btn + ';border-color:#a78bfa;color:#a78bfa" onclick="termsAct(\'revert\',\'' + t.id + '\')">되돌리기</button>';
+    // 상태 필터로 대체됨·거절을 고른 경우엔 접지 않는다(접으면 빈 화면)
+    var showAll = !!HIDDEN[TF.status];
+    var groups = groupTerms(_terms);
+    var html = groups.map(function (g) {
+      var vis = g.items.filter(function (t) { return showAll || !HIDDEN[t.status]; });
+      var past = showAll ? [] : g.items.filter(function (t) { return HIDDEN[t.status]; });
+      var open = !!_open[g.key];
+      var body = vis.map(function (t) { return termRow(t, g); }).join('');
+      if (!vis.length) body = '<div class="tr"><div class="t s">사용 중인 번역 없음</div></div>';
+      if (past.length) {
+        body += '<button class="tg-more" onclick="termsTogglePast(\'' + encodeURIComponent(g.key) + '\')">' + (open ? '예전 번역 접기' : '예전 번역 보기 (' + past.length + ')') + '</button>';
+        if (open) body += past.map(function (t) { return termRow(t, g); }).join('');
       }
-      if (t.scope === '기업전용' && t.status !== '대체됨') acts += '<button style="' + btn + ';color:rgba(255,255,255,0.6)" onclick="termsToPublic(\'' + t.id + '\',\'' + esc(t.scope) + '\')">공용 전환</button>';
-      var canBulk = t.status === '후보';
-      return '<tr style="' + (t.status === '충돌' ? 'background:rgba(248,113,113,0.06)' : '') + '">' +
-        '<td>' + (canBulk ? '<input type="checkbox" onchange="termsPick(\'' + t.id + '\',this.checked)">' : '') + '</td>' +
-        '<td><strong>' + esc(t.source) + '</strong></td>' +
-        '<td>' + (t.status === '충돌' ? '' : esc(t.target)) + '</td>' +
-        '<td style="font-size:12px">' + esc(t.pair) + '<br><span style="color:rgba(255,255,255,0.45)">' + esc(t.field || '') + '</span></td>' +
-        '<td style="font-size:12px">' + esc(t.docType) + '</td>' +
-        '<td style="font-size:12px">' + scope + '</td>' +
-        '<td>' + st + '</td>' +
-        '<td style="text-align:right">' + t.count + '</td>' +
-        '<td style="font-size:12px">' + day(t.lastAt) + '<br><span style="color:rgba(255,255,255,0.4)">' + esc(t.sourceType || '') + '</span></td>' +
-        '<td style="min-width:' + (t.status === '충돌' ? '360' : '180') + 'px">' + acts + '</td></tr>';
+      return '<div class="tg' + (g.conflict ? ' cf' : '') + '"><div class="tg-h"><strong>' + esc(g.source) + '</strong>' +
+        '<span class="m">' + esc(g.pair) + ' · 등장 합계 ' + g.sum + ' · 번역 ' + g.items.length + '개</span></div>' + body + '</div>';
     }).join('');
-    wrap.innerHTML =
-      '<div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><button style="' + btn + ';border-color:#16B894;color:#16B894" onclick="termsBulk()">선택 일괄 승인</button>' +
-      '<span style="font-size:12px;color:rgba(255,255,255,0.45)">' + total + '건 · 충돌 맨 위, 그다음 등장횟수순</span></div>' +
-      '<table class="orders-table" style="font-size:13px"><thead><tr><th></th><th>원어</th><th>번역어</th><th>언어쌍/분야</th><th>문서유형</th><th>범위</th><th>상태</th><th>등장</th><th>최근/출처</th><th>작업</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var notice = _srv.ready ? '' :
+      '<div style="padding:8px 12px;margin-bottom:10px;border:1px solid rgba(250,204,21,0.5);border-radius:6px;color:#facc15;font-size:12.5px">' +
+      '⚠️ \'예전 번역으로 되돌리기\'·\'충돌 해결\'은 ' + LOCK_MSG + '입니다' + (_srv.checked ? ' (현재 서버 ' + esc(_srv.commit || '확인 불가') + ')' : '') +
+      '. 서버가 바뀌면 자동으로 켜집니다.</div>';
+    wrap.innerHTML = notice +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:10px"><button style="' + btn + ';border-color:#16B894;color:#16B894" onclick="termsBulk()">선택 일괄 승인</button>' +
+      '<span style="font-size:12px;color:rgba(255,255,255,0.45)">' + groups.length + '묶음 · ' + total + '건 · 충돌 묶음 먼저, 그다음 등장 합계순</span></div>' + html;
   }
+  window.termsTogglePast = function (k) {
+    k = decodeURIComponent(k);
+    if (_open[k]) delete _open[k]; else _open[k] = 1;
+    renderTerms(_total);
+  };
+
+  // 화면 안 확인 상자(브라우저 기본 알림창 대신)
+  function askBox(html, okLabel) {
+    return new Promise(function (resolve) {
+      var m = document.createElement('div'); m.className = 'tmodal';
+      m.innerHTML = '<div role="dialog" aria-modal="true"><div>' + html + '</div><div class="btns">' +
+        '<button style="' + btn + ';padding:7px 14px" data-v="0">취소</button>' +
+        '<button style="' + btn + ';padding:7px 14px;border-color:#a78bfa;color:#a78bfa" data-v="1">' + okLabel + '</button></div></div>';
+      var done = function (v) { m.remove(); document.removeEventListener('keydown', onKey); resolve(v); };
+      var onKey = function (e) { if (e.key === 'Escape') done(false); };
+      m.addEventListener('click', function (e) { if (e.target === m) done(false); var v = e.target.getAttribute && e.target.getAttribute('data-v'); if (v != null) done(v === '1'); });
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(m);
+      m.querySelector('[data-v="1"]').focus();
+    });
+  }
+  window.termsRevertAsk = async function (id) {
+    if (!_srv.ready) { showToast(LOCK_MSG, 'error'); return; }
+    var t = _terms.find(function (x) { return x.id === id; }); if (!t) return;
+    var cur = _terms.filter(function (x) { return x.status === '승인' && x.source === t.source && x.pair === t.pair; }).map(function (x) { return x.target; });
+    if (!cur.length && t.replacedByTerm && t.replacedByTerm.target) cur = [t.replacedByTerm.target];
+    var ok = await askBox('<strong>' + esc(t.source) + '</strong><br>' +
+      (cur.length ? '지금 사용 중인 <strong>' + cur.map(esc).join(', ') + '</strong> 대신 ' : '') +
+      '<strong style="color:#a78bfa">' + esc(t.target) + '</strong>를 다시 쓰게 됩니다. 계속할까요?', '되돌리기');
+    if (ok) termsAct('revert', id);
+  };
   window.termsPick = function (id, on) { if (on) _sel[id] = 1; else delete _sel[id]; };
 
   // 서버 오류·응답이 JSON 이 아닌 경우(게이트웨이 오류 등)·네트워크 오류도 화면에 실패로 알린다
@@ -125,6 +250,7 @@
     if (r.ok) { showToast('✅ 저장', 'success'); loadTerms(); } else if (r.code === 'CONFLICT') loadTerms();
   };
   window.termsResolve = async function (id, choice) {
+    if (!_srv.ready) { showToast(LOCK_MSG, 'error'); return; }
     var r = await post('/api/admin/terms/' + id + '/resolve', { choice: choice });
     if (r.ok) { showToast(choice === 'new' ? '신규로 대체 (기존은 대체됨)' : '기존 유지 (신규 거절)', 'success'); loadTerms(); }
   };
