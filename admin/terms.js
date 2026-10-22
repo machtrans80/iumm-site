@@ -55,7 +55,8 @@
     if (!_terms.length) { wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">해당하는 용어가 없습니다.</p>'; return; }
     var rows = _terms.map(function (t) {
       var scope = '<span style="color:' + SCOPE_COLOR[t.scope] + '">' + esc(t.scope) + '</span>' + (t.company ? '<br><span style="font-size:11px;color:#60a5fa">' + esc(t.company) + '</span>' : '');
-      var st = '<span style="color:' + (STATUS_COLOR[t.status] || '#fff') + ';font-weight:600">' + esc(t.status) + '</span>';
+      var st = '<span style="color:' + (STATUS_COLOR[t.status] || '#fff') + ';font-weight:600">' + esc(t.status) + '</span>' +
+        (t.locked ? '<br><span style="font-size:10px;color:rgba(255,255,255,0.5)" title="관리자가 직접 고른 결정 — 수정본 자동 승인이 바꾸지 않음">직접 결정</span>' : '');
       var acts = '';
       if (t.status === '충돌') {
         var olds = (t.counterparts || []).map(function (o) {
@@ -74,7 +75,8 @@
         acts = '<button style="' + btn + '" onclick="termsEditApprove(\'' + t.id + '\')">번역어 수정</button>' +
           '<button style="' + btn + '" onclick="termsAct(\'reject\',\'' + t.id + '\')">거절</button>';
       } else if (t.status === '대체됨') {
-        acts = '<span style="font-size:11px;color:rgba(255,255,255,0.5)">→ ' + esc(t.replacedByTerm && t.replacedByTerm.target || '') + '</span> ' +
+        var by = t.replacedByTerm && t.replacedByTerm.target;
+        acts = '<span style="font-size:11px;color:' + (by ? 'rgba(255,255,255,0.5)' : '#f87171') + '">→ ' + (by ? esc(by) : '대체 대상 없음') + '</span> ' +
           '<button style="' + btn + ';border-color:#a78bfa;color:#a78bfa" onclick="termsAct(\'revert\',\'' + t.id + '\')">되돌리기</button>';
       }
       if (t.scope === '기업전용' && t.status !== '대체됨') acts += '<button style="' + btn + ';color:rgba(255,255,255,0.6)" onclick="termsToPublic(\'' + t.id + '\',\'' + esc(t.scope) + '\')">공용 전환</button>';
@@ -98,15 +100,22 @@
   }
   window.termsPick = function (id, on) { if (on) _sel[id] = 1; else delete _sel[id]; };
 
+  // 서버 오류·응답이 JSON 이 아닌 경우(게이트웨이 오류 등)·네트워크 오류도 화면에 실패로 알린다
   async function post(path, body, method) {
-    var r = await adminFetch(path, { method: method || 'POST', body: JSON.stringify(body || {}) });
-    if (!r.ok) showToast('⚠️ ' + (r.error || '실패'), 'error');
+    var r;
+    try { r = await adminFetch(path, { method: method || 'POST', body: JSON.stringify(body || {}) }); }
+    catch (e) { r = { ok: false, error: '서버 응답을 받지 못했습니다 — 반영되지 않았을 수 있으니 목록을 다시 확인하세요' }; }
+    if (!r || !r.ok) { r = r || { ok: false }; showToast('⚠️ 실패: ' + (r.error || '알 수 없는 오류'), 'error'); }
     return r;
   }
   window.termsAct = async function (act, id) {
     var r = await post('/api/admin/terms/' + id + '/' + act);
-    if (r.ok) { showToast(act === 'approve' ? '✅ 승인' : act === 'reject' ? '거절' : '되돌림', 'success'); loadTerms(); }
-    else if (r.code === 'CONFLICT') loadTerms();
+    if (r.ok) {
+      var msg = act === 'approve' ? '✅ 승인' : act === 'reject' ? '거절' :
+        '되돌림 — ' + r.term.target + ' 사용 중' + ((r.replaced || []).length ? ' · ' + r.replaced.map(function (x) { return x.target; }).join(', ') + ' 대체됨' : '');
+      showToast(msg, 'success');
+    }
+    loadTerms();
   };
   window.termsEditApprove = async function (id) {
     var t = _terms.find(function (x) { return x.id === id; }); if (!t) return;
