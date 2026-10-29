@@ -21,8 +21,9 @@ check(a > 0 && b > a, '랜딩 구역 찾음');
 console.log('\n[1] 첫 화면');
 const script = [...land.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(x => x.includes('PLAN_PRICE'));
 const els = {}, planEls = [{ k: 'ai', textContent: '' }, { k: 'standard', textContent: '' }];
-const sandbox = { window: {}, handleAI(){}, document: { getElementById: (id) => (els[id] = els[id] || { textContent: '' }),
-  querySelectorAll: () => planEls.map(e => ({ getAttribute: () => e.k, set textContent(v){ e.textContent = v; } })) } };
+const sandbox = { window: {}, handleAI(){}, location: { hostname: 'iumm.kr', protocol: 'https:', search: '' },
+  document: { documentElement: { setAttribute(){} }, getElementById: (id) => (els[id] = els[id] || { textContent: '' }),
+  querySelectorAll: (q) => q.startsWith('template') ? [] : planEls.map(e => ({ getAttribute: () => e.k, set textContent(v){ e.textContent = v; } })) } };
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
 check(land.includes('<p class="lp-lead">아이움 AI는 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>'), '서브 문구');
@@ -45,7 +46,7 @@ console.log('\n[4] 공증·아포스티유 제거');
 const vis = html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
 const mainVis = vis.slice(0, vis.indexOf('id="page-terms"') > 0 ? vis.indexOf('id="page-terms"') : vis.length);
 check(!/lpGo\('(notary|apostille)'\)/.test(html), '메뉴·버튼의 공증 위저드 입구 없음');
-const landVis = land.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+const landVis = land.replace(/<template[\s\S]*?<\/template>/g, '').replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
 check(!/공증|아포스티유|등기|급행|수령일/.test(landVis), '메인 랜딩 화면 글자에 공증·아포스티유·등기·급행·수령일 없음');
 const headMeta = html.slice(0, html.indexOf('</head>'));
 check(!/공증|아포스티유/.test(headMeta.replace(/<style[\s\S]*?<\/style>/g, '')), '제목·검색 설명·공유 문구에 공증 없음');
@@ -363,6 +364,34 @@ console.log('\n[15] 인트로');
   }
   const vis = it.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
+}
+
+// ── V3 공개 스위치 (2026-10-29) ──
+console.log('\n[V3] 공개 스위치');
+{
+  check(/var SHOW_V3 = false;/.test(land), 'SHOW_V3 = false (이번 작업은 꺼 둠)');
+  const tpls = [...land.matchAll(/<template data-v3="(replace|insert)">([\s\S]*?)<\/template>/g)];
+  check(tpls.length === 4, 'V3 template 4개 (번역팀 카드 1 · 10단계 · 회사 기억 · FAQ 1)');
+  const inT = tpls.map(m => m[2]).join('\n');
+  const outT = land.replace(/<template[\s\S]*?<\/template>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+  for (const w of ['10단계', '귀사를 기억', '용어를 기억하고', '별의 기사', '전용 용어집', '역번역', '판정'])
+    check(inT.includes(w) && !outT.includes(w), `V3 문구 '${w}' — template 안에만 (스위치 꺼짐 = 화면·검색 미노출)`);
+  check((inT.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, 'V3 공정 10단계');
+  check(/<span class="tag">예시<\/span>/.test(inT), "V3 가상 예시에 '예시' 표시");
+  check(!/제출/.test(outT) && !/제출/.test(inT), "'제출' 표현 없음 (대상 독자·대상 시장)");
+  check(outT.includes('분야와 문체, 대상 독자를 먼저 파악합니다. 영국 시장은 영국식, 미국 시장은 미국식 표기로 맞춥니다.'), '현재 버전 1단계 문구');
+  // 켜지는 조건 — 운영 주소는 ?v3=1 이 있어도 꺼짐, 브랜치 미리보기만 켜짐
+  const sw = script.slice(script.indexOf('var SHOW_V3'), script.indexOf('/* 메인 랜딩 v2'));
+  const run = (hostname, search, flag) => {
+    let n = 0; const t = { getAttribute: () => 'insert', content: { cloneNode: () => ({}) }, parentNode: { replaceChild(){ n++; } } };
+    const ctx = { location: { hostname, protocol: 'https:', search }, document: { documentElement: { setAttribute(){} }, querySelectorAll: () => [t] } };
+    vm.createContext(ctx); vm.runInContext(flag ? sw.replace('SHOW_V3 = false', 'SHOW_V3 = true') : sw, ctx); return n;
+  };
+  check(run('iumm.kr', '?v3=1') === 0, '운영 iumm.kr + ?v3=1 → 꺼짐');
+  check(run('iumm-site.pages.dev', '?v3=1') === 0, '운영 pages.dev + ?v3=1 → 꺼짐');
+  check(run('site-v2-two-experts.iumm-site.pages.dev', '?v3=1') === 1, '미리보기 브랜치 + ?v3=1 → 켜짐');
+  check(run('site-v2-two-experts.iumm-site.pages.dev', '') === 0, '미리보기 브랜치 기본 → 꺼짐');
+  check(run('iumm.kr', '', true) === 1, 'SHOW_V3 = true → 운영에서 켜짐');
 }
 
 // ── 8. FAQ 낡은 문구 ──
