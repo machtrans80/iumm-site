@@ -336,6 +336,11 @@ body.admin-focus .focus-exit-hint{display:inline}
       <button class="mode-btn active" id="mode-tx"  onclick="setAdminMode('tx')">전문 번역 업무<span class="mode-sub">주문 · 검수 · 정산 · 회원</span></button>
       <button class="mode-btn"        id="mode-ntr" onclick="setAdminMode('ntr')">번역공증 업무<span class="mode-sub">공증 배송 · 직접 번역</span></button>
     </div>
+    <!-- 업종별 주문 수 (2026-10-29) — 주문 화면 '업종'(선택 입력)이 들어간 주문만 센다. GET /api/admin/stats/industry -->
+    <div id="industry-stats" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px;font-size:12.5px;color:rgba(255,255,255,0.75)">
+      <button type="button" onclick="loadIndustryStats()" style="padding:5px 12px;border-radius:4px;border:1px solid rgba(157,183,245,0.45);background:rgba(31,79,209,0.15);color:#C9D7FB;cursor:pointer;font-size:12px;font-family:inherit">업종별 주문 수</button>
+      <span id="industry-stats-out" style="color:rgba(255,255,255,0.6)"></span>
+    </div>
     <div class="tabs">
       <button class="tab-btn" data-mode="tx" id="tab-bp" onclick="switchTab('bank_pending')" style="color:#f59e0b"><i class="ti ti-wallet" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>입금대기<span id="bp-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#d97706;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
       <button data-mode="tx" class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
@@ -1186,6 +1191,17 @@ function doAdminLogout() {
 var ADMIN_MODE = 'tx';
 var MODE_HOME = { tx: 'ai_premium', ntr: 'notary_ship' };
 
+async function loadIndustryStats() {
+  var out = document.getElementById('industry-stats-out');
+  out.textContent = '불러오는 중…';
+  try {
+    var r = await adminFetch('/api/admin/stats/industry');
+    if (!r.success) { out.textContent = '불러오기 실패: ' + (r.error || ''); return; }
+    out.innerHTML = Object.keys(r.counts).map(function(k){
+      return '<span style="display:inline-block;margin-right:10px">' + k + ' <b style="color:#fff">' + r.counts[k] + '</b></span>';
+    }).join('') + '<span style="color:rgba(255,255,255,0.45)">합계 ' + r.total + '건 · 결제완료·입금대기, 업종 입력된 주문만</span>';
+  } catch(e) { out.textContent = '오류: ' + e.message; }
+}
 function setAdminMode(mode, keepTab) {
   ADMIN_MODE = mode;
   document.getElementById('mode-tx').className  = 'mode-btn' + (mode==='tx'  ? ' active' : '');
