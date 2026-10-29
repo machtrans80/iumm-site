@@ -1774,6 +1774,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <p style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.9">카카오 계정으로 1초 만에 시작하세요<br><span style="color:var(--gold-light);font-size:13px">가입 즉시 300글자 무료 번역 제공</span></p>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
+      <p id="login-notice" role="alert" style="display:none;margin:0 0 14px;padding:12px 14px;border-radius:6px;background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.35);color:#ffb4b4;font-size:13px;line-height:1.6;text-align:center"></p>
       <button onclick="kakaoLogin()" style="width:100%;padding:18px;background:#FEE500;color:#191919;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(254,229,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 3C6.48 3 2 6.58 2 11c0 2.85 1.84 5.36 4.62 6.81L5.5 21.5l4.46-2.93C10.62 18.85 11.3 19 12 19c5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191919"/>
@@ -3985,6 +3986,7 @@ function kakaoLogin(){
     scope:'profile_nickname,account_email',
     success:function(authObj){
       console.log('카카오 로그인 성공');
+      var ln=document.getElementById('login-notice'); if(ln) ln.style.display='none';
       Kakao.API.request({
         url:'/v2/user/me',
         success:function(res){
@@ -4003,35 +4005,27 @@ function kakaoLogin(){
               kakaoId:kakaoId,name:nickname,email:email,loginTime:Date.now()
             }));
           }catch(e){}
-          // 회원 상태 동기화 + 가입 미완료 시 관리자 알림 (fire-and-forget, 실패해도 UX 영향 없음)
-          // ★signup은 약관 동의가 필수라 빈 body로 부르면 항상 400 → 전용 엔드포인트 사용
-          if(authObj && authObj.access_token){
-            fetch(MEMBER_API_BASE+'/api/member/login-sync',{
-              method:'POST',
-              headers:{'Authorization':'Bearer '+authObj.access_token,'Content-Type':'application/json'},
-              body:JSON.stringify({})
-            }).catch(function(e){console.warn('member login-sync failed:',e);});
-          }
-          // 추가 정보 입력 완료 여부 체크
-          var hasUserInfo=false;
-          try{
-            var infoKey='iumm_userinfo_'+kakaoId;
-            var savedInfo=localStorage.getItem(infoKey);
-            if(savedInfo){
-              var parsed=JSON.parse(savedInfo);
-              if(parsed.name && parsed.phone) hasUserInfo=true;
-            }
-          }catch(e){}
-          if(hasUserInfo){
+          // 회원 여부는 서버(login-sync)가 정한다 (2026-10-30)
+          //   예전에는 브라우저 저장값(iumm_userinfo_*)만 봐서, 다른 기기·시크릿 창에서는 기존 회원도 정보 입력 화면으로 갔다.
+          memberLoginSync(authObj && authObj.access_token).then(function(sync){
+          var decision=loginDecision(sync, hasLocalUserInfo(kakaoId));
+          if(decision==='member' && sync && sync.profile) saveProfileFromServer(kakaoId, sync.profile);
+          if(decision==='member'){
+            try{ var pi=JSON.parse(localStorage.getItem('iumm_userinfo_'+kakaoId)||'{}'); if(pi.name) currentUserName=pi.name; }catch(e){}
             // 공증 등 별도 페이지에서 넘어왔으면 그쪽으로 돌려보낸다
             var nextUrl=consumeLoginNext();
             if(nextUrl){ location.replace(nextUrl); return; }
             // 기존 회원: 메인 페이지로
             showPage('main');
             updateNavAfterLogin();
-            showToast(nickname+'님 환영합니다! ✓');
+            showToast(currentUserName+'님 환영합니다! ✓');
+          } else if(decision==='error'){
+            // 서버 확인 실패 + 이 브라우저에 정보 없음 → 정보 입력 화면을 띄우지 않는다(기존 회원 정보가 덮어써지지 않게)
+            resetLoginState();
+            showPage('login');
+            showLoginNotice('회원 정보를 확인하지 못했습니다. 잠시 후 다시 로그인해 주세요.');
           } else {
-            // 신규 회원: 추가 정보 입력 페이지로
+            // 신규·탈퇴(복구)·가입 미완료 회원: 추가 정보 입력 페이지로
             showPage('userinfo');
             // 카카오 닉네임을 이름 입력란에 미리 채움
             setTimeout(function(){
@@ -4039,6 +4033,7 @@ function kakaoLogin(){
               if(nameInput && !nameInput.value) nameInput.value=nickname;
             },50);
           }
+          });
         },
         fail:function(err){
           console.error('카카오 사용자 정보 요청 실패:',err);
@@ -4049,6 +4044,67 @@ function kakaoLogin(){
     fail:function(err){
       console.error('카카오 로그인 실패:',err);
       showToast('로그인에 실패했습니다. 다시 시도해주세요.');
+    }
+  });
+}
+// ─── 로그인 회원 판단 (2026-10-30) ─────────────────────────
+// login-sync 응답: { ok, isMember, signupCompleted, wasDeleted?, profile? } · 실패하면 { failed:true }
+function memberLoginSync(token){
+  if(!token) return Promise.resolve({failed:true});
+  return fetch(MEMBER_API_BASE+'/api/member/login-sync',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify({})
+  }).then(function(r){
+    if(!r.ok) return {failed:true};
+    return r.json().then(function(d){ return (d&&d.ok)?d:{failed:true}; });
+  }).catch(function(e){ console.warn('member login-sync failed:',e); return {failed:true}; });
+}
+/** 'member'(기존 회원) · 'signup'(정보 입력) · 'error'(확인 실패 — 안내만) */
+function loginDecision(sync, hasLocal){
+  if(sync && !sync.failed) return sync.signupCompleted ? 'member' : 'signup';
+  return hasLocal ? 'member' : 'error';
+}
+function hasLocalUserInfo(kakaoId){
+  try{
+    var p=JSON.parse(localStorage.getItem('iumm_userinfo_'+kakaoId)||'null');
+    return !!(p && p.name && p.phone);
+  }catch(e){ return false; }
+}
+/** 서버 프로필로 이 브라우저의 회원 정보를 채운다(빈 값은 기존 값 유지) */
+function saveProfileFromServer(kakaoId, p){
+  var key='iumm_userinfo_'+kakaoId, prev={};
+  try{ prev=JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){}
+  var langs=String(p.mainLanguages||'').split('→');
+  var info={};
+  for(var k in prev) info[k]=prev[k];
+  info.name=p.name||prev.name||'';
+  info.phone=p.phone||prev.phone||'';
+  info.company=p.company||prev.company||'';
+  info.fromLang=langs[0]||prev.fromLang||'';
+  info.toLang=langs[1]||prev.toLang||'';
+  info.syncedAt=Date.now();
+  try{ localStorage.setItem(key,JSON.stringify(info)); }catch(e){}
+  return info;
+}
+function resetLoginState(){
+  try{ localStorage.removeItem('iumm_user'); }catch(e){}
+  isLoggedIn=false; currentUserKakaoId=null; currentUserName=''; currentUser='';
+}
+function showLoginNotice(msg){
+  var el=document.getElementById('login-notice');
+  if(el){ el.textContent=msg; el.style.display='block'; }
+  showToast(msg);
+}
+// 새로고침 복원 때 이 브라우저에 회원 정보가 없으면 서버 프로필로 채운다(화면 이동 없음)
+function refreshProfileIfMissing(kakaoId){
+  if(hasLocalUserInfo(kakaoId)) return;
+  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
+  if(!token) return;
+  memberLoginSync(token).then(function(sync){
+    if(sync && !sync.failed && sync.signupCompleted && sync.profile){
+      var info=saveProfileFromServer(kakaoId, sync.profile);
+      if(info.name){ currentUserName=info.name; updateNavAfterLogin(); }
     }
   });
 }
@@ -4098,6 +4154,7 @@ function restoreLogin(){
       }
     }catch(e){}
     updateNavAfterLogin();
+    refreshProfileIfMissing(user.kakaoId);
   } catch(e){
     try{ localStorage.removeItem('iumm_user'); }catch(e2){}
   }
