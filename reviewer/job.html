@@ -20,7 +20,7 @@ body{display:flex;flex-direction:column;min-height:100vh}
 
 /* ─ 헤더 ─ */
 .job-nav{background:rgba(10,10,10,0.96);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);flex-shrink:0}
-.nav-logo{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:800;color:var(--gold);letter-spacing:3px}
+.nav-logo{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:800;color:var(--gold-light);letter-spacing:3px}
 .nav-logo span{color:var(--white)}
 .nav-meta{display:flex;align-items:center;gap:16px;font-size:13px}
 .nav-ordnum{color:var(--gray);font-weight:300}
@@ -83,7 +83,7 @@ body.rv-focus .rv-focus-bar{display:flex}
 .cl-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .cl-title{font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);letter-spacing:0.3px}
 .cl-progress{font-size:12px;color:var(--gray)}
-.cl-progress span{color:var(--gold);font-weight:700}
+.cl-progress span{color:var(--gold-light);font-weight:700}
 .cl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 16px}
 .cl-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;cursor:pointer}
 .cl-item input[type=checkbox]{appearance:none;width:16px;height:16px;min-width:16px;border:1px solid rgba(255,255,255,0.2);border-radius:2px;cursor:pointer;margin-top:1px;transition:all 0.15s;position:relative}
@@ -148,7 +148,7 @@ body.rv-focus .rv-focus-bar{display:flex}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:24px}
 .modal-overlay.open{display:flex}
 .modal-box{background:#1a1a1a;border:1px solid var(--border);border-radius:6px;max-width:480px;width:100%;padding:28px}
-.modal-title{font-size:16px;font-weight:600;color:var(--gold);margin-bottom:16px}
+.modal-title{font-size:16px;font-weight:600;color:var(--gold-light);margin-bottom:16px}
 .modal-body{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.8;margin-bottom:16px}
 .modal-body p{margin-bottom:10px}
 .modal-checklist{padding-left:20px;margin-bottom:10px}
@@ -161,7 +161,7 @@ body.rv-focus .rv-focus-bar{display:flex}
 /* [J-16/17] 명조체 전수 → Pretendard + brand-header 로고 */
 *,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 .brand-header{display:inline-flex;align-items:baseline;gap:8px;text-decoration:none;cursor:pointer}
-.brand-name{font-size:22px;font-weight:800;color:#16B894;letter-spacing:-0.02em}
+.brand-name{font-size:22px;font-weight:800;color:#9DB7F5;letter-spacing:-0.02em}
 .brand-suffix{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.12em;text-transform:uppercase;align-self:center}
 </style>
 </head>
@@ -214,8 +214,8 @@ body.rv-focus .rv-focus-bar{display:flex}
 
 <!-- AI 품질 점수 배너 (gptFinalScore 또는 aiScore 있을 때) -->
 <div id="rv-score-panel" style="display:none;padding:10px 20px;border-bottom:1px solid var(--card-border);background:rgba(255,255,255,0.02)">
-  <div id="rv-gpt-banner" style="display:none;padding:8px 12px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.2);border-radius:4px;margin-bottom:8px">
-    <span style="font-size:13px;font-weight:600;color:rgba(22,184,148,0.9)"><i class="ti ti-sparkles" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>최종 검수 점수: <span id="rv-gpt-score">—</span> / 100 <span id="rv-gpt-delta" style="font-size:11px;color:rgba(22,184,148,0.65)"></span></span>
+  <div id="rv-gpt-banner" style="display:none;padding:8px 12px;background:rgba(31,79,209,0.07);border:1px solid rgba(31,79,209,0.2);border-radius:4px;margin-bottom:8px">
+    <span style="font-size:13px;font-weight:600;color:rgba(157,183,245,0.9)"><i class="ti ti-sparkles" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>최종 검수 점수: <span id="rv-gpt-score">—</span> / 100 <span id="rv-gpt-delta" style="font-size:11px;color:rgba(157,183,245,0.65)"></span></span>
     <div id="rv-gpt-detail" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px"></div>
   </div>
   <div style="display:flex;gap:16px;font-size:12px;color:rgba(255,255,255,0.5)">
@@ -293,7 +293,7 @@ var jobData = null;
 var FIELD_CODE_TO_LABEL = {
   general:'일반', legal:'법률·계약', patent:'특허·지식재산', criminal:'범죄·수사·공문',
   immigration:'이민·비자·증명서', medical:'의료·제약', academic:'학술·논문',
-  tech:'기술·IT', business:'비즈니스', finance:'금융·재무', accounting:'회계·세무',
+  tech:'기술·IT', manual:'매뉴얼', business:'비즈니스', finance:'금융·재무', accounting:'회계·세무',
   marketing:'마케팅·광고', literary:'문학·출판', arts:'예술·문화',
   gaming:'게임·엔터테인먼트', construction:'건설·엔지니어링', esg:'환경·ESG'
 };
@@ -697,7 +697,7 @@ async function showNdaModal() {
         '<div style="margin-bottom:14px">',
         '  <div style="font-size:11px;color:var(--gray);margin-bottom:6px">원문 미리보기 (300자)</div>',
         '  <div style="background:#0e0e0e;border:1px solid var(--card-border);border-radius:3px;padding:12px;font-size:13px;color:rgba(255,255,255,0.6);max-height:80px;overflow:hidden;line-height:1.6">' + escHtml(prev.sourcePreview) + '</div>',
-        '  <div style="margin-top:8px;font-size:11px;color:var(--gray)">예상 보수: <strong style="color:var(--gold)">₩' + (prev.estimatedPay||0).toLocaleString() + '</strong> · 글자수: ' + (prev.charCount||0).toLocaleString() + '자</div>',
+        '  <div style="margin-top:8px;font-size:11px;color:var(--gray)">예상 보수: <strong style="color:var(--gold-light)">₩' + (prev.estimatedPay||0).toLocaleString() + '</strong> · 글자수: ' + (prev.charCount||0).toLocaleString() + '자</div>',
         '</div>',
       ].join('');
     }

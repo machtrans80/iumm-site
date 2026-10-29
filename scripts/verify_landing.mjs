@@ -16,242 +16,70 @@ const a = html.indexOf('<!-- HERO -->'), b = html.indexOf('<!-- 스탠다드 주
 const land = html.slice(a, b);
 check(a > 0 && b > a, '랜딩 구역 찾음');
 
-// ── 1. SINCE 라벨 — 고정 문구 (연차 계산 없음) ──
-console.log('\n[1] 첫 화면 라벨 — SINCE 2011');
-// 랜딩 스크립트(PLAN_PRICE·lpGo) — 인트로 스크립트와 구분해 고른다
+
+// ── v2 (2026-10-29) — "두 전문가가 함께 번역합니다" · 번역공증·아포스티유 제거 · 새 팔레트 ──
+console.log('\n[1] 첫 화면');
 const script = [...land.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(x => x.includes('PLAN_PRICE'));
-const els = {};
-const sandbox = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }, showPage(){}, location: {},
-  document: { getElementById: (id) => (els[id] = els[id] || { textContent: '' }) } };
+const els = {}, planEls = [{ k: 'ai', textContent: '' }, { k: 'standard', textContent: '' }];
+const sandbox = { window: {}, handleAI(){}, location: { hostname: 'iumm.kr', protocol: 'https:', search: '' },
+  document: { documentElement: { setAttribute(){} }, getElementById: (id) => (els[id] = els[id] || { textContent: '' }),
+  querySelectorAll: (q) => q.startsWith('template') ? [] : planEls.map(e => ({ getAttribute: () => e.k, set textContent(v){ e.textContent = v; } })) } };
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
-check(/<p class="lp-label"><span class="en">SINCE 2011<\/span> · 누적 처리 1만 건 이상<\/p>\s*<h1 class="serif">/.test(land), 'h1 위 라벨 "SINCE 2011 · 누적 처리 1만 건 이상"');
-check(/\.lp-hero h1\.serif\{font-family:'Nanum Myeongjo',serif !important;font-weight:700;/.test(land) && /family=Nanum\+Myeongjo:wght@[^"&]*700/.test(html), 'h1 명조(Nanum Myeongjo 700) — class="serif" 하나로 관리 (지우면 고딕)');
-check(!/lp-since|lpYears|년째/.test(land), '옛 문장(N년째)·lpYears 스크립트 없음');
+check(land.includes('<p class="lp-lead">아이움 AI는 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>'), '서브 문구');
+check(land.includes('<p class="lp-fieldline">게임 · 법률 · 의료 · 매뉴얼</p>'), '분야 줄');
+check(/id="lp-entry">\s*<button type="button" class="lp-btn" onclick="handleAI\(\)">파일 올리고 바로 견적 보기<\/button>\s*<a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기<\/a>/.test(land), '버튼 2개 (견적 → 주문 창 · 기준 → #field-standards), 인트로 mask 기준 #lp-entry 유지');
 
-// ── 2. 전문 번역 단가 — PLAN_PRICE 한 곳 ──
-console.log('\n[2] 전문 번역 단가 단일 출처');
+console.log('\n[2] 단가 단일 출처');
 check(sandbox.PLAN_PRICE && sandbox.PLAN_PRICE.ai === 25 && sandbox.PLAN_PRICE.standard === 40, 'PLAN_PRICE = { ai:25, standard:40 }');
-check(els['lp-plan-price'].textContent === '25원부터', '카드 금액 = PLAN_PRICE.ai');
+check(planEls[0].textContent === 25 && planEls[1].textContent === 40, '요금 카드 data-plan = PLAN_PRICE');
 check(!/currentPlan\s*===?\s*["']ai["']\s*\?\s*25\s*:\s*40/.test(html), '주문 모달 25:40 하드코딩 없음');
-check(!/_memberRate(Ai|Pp)\s*\|\|\s*(25|40)\)/.test(html), '견적 기본 단가 하드코딩 없음');
 
-// ── 3. 구성 ──
-console.log('\n[3] 구성 — 누구에게나 같은 화면');
-check(land.includes('공증 받으러<br>멀리 가지 마세요') && !html.includes('서울까지'), '제목');
-check(land.includes('<p class="lp-lead">서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다.</p>'), '부제');
-check((land.match(/class="lp-card[ "]/g) || []).length === 2 && land.includes('lp-card main'), '카드 2개 · 1번 강조');
-check(land.includes("<button type=\"button\" class=\"lp-btn\" onclick=\"lpGo('notary')\">번역공증 · 아포스티유 신청하기</button>"), '1번 버튼 → 위저드');
-check(land.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>') && land.includes('<div class="lp-card pro">'), '2번 카드 pro · 버튼 → 전문 번역 모달 (채운 버튼)');
-check(['.lp-card.pro{border:2px solid #6FB8F0;background:rgba(111,184,240,0.06)}', '.lp-card.pro:hover{background:rgba(111,184,240,0.12);border-color:#9ACDF5}',
-       '.lp-card.pro li::before{background:#9ACDF5}', '.lp-card.pro .lp-big .n{color:#9ACDF5}',
-       '.lp-btn.pro-btn{background:#6FB8F0;border-color:#6FB8F0;color:#06202f}', '.lp-btn.pro-btn:hover{background:#9ACDF5'].every(x => land.includes(x)),
-  '전문 번역 카드 색 (#6FB8F0 / #9ACDF5) · 점·가격·채운 버튼');
-check(!/class="no">\d<\/span>/.test(land) && !land.includes('.lp-card .k .no{') && land.includes('<p class="k">번역공증 · 아포스티유 의뢰</p>') && land.includes('<p class="k">전문 번역 의뢰</p>'),
-  '카드 번호 원 삭제 · 카드 제목 유지');
-check(!/사법공조|진술조서|수사·법률|수사 서류|lpGo\('quote'\)/.test(html), 'index.html 전체에 기밀 서류명·견적 링크 없음');
-check(['<span class="s">가족관계·기본·혼인증명서 번역</span><span class="n">5,000원</span>', '<span class="s">생활기록부 번역 (1페이지)</span><span class="n">9,000원</span>',
-       '<li>그 외 서류 1페이지 9,000원</li>', '<li>급행 접수 시 다음 영업일 수령</li>', '<li>신분증·여권 사본공증 및 아포스티유</li>',
-       ">번역공증 · 아포스티유 신청하기</button>"].every(t => land.includes(t)), '1번 카드 문구 · 버튼 "번역공증 · 아포스티유 신청하기"');
-check(['<h3>비즈니스·학술 문서를 위한 전문 번역</h3>', '분야별 전용 용어집으로 번역하고 용어·숫자·누락을 점검한 뒤, 최종 휴먼터치로 완성해 납품합니다.',
-       '<span class="n" id="lp-plan-price">25원부터</span></p>', 'onclick="handleAI()">전문 번역 의뢰하기</button>'].every(t => land.includes(t)), '2번 카드 문구 · 버튼 "전문 번역 의뢰하기"');
-check((land.match(/<details>/g) || []).length === 6 && land.includes("showPage('faq')"), 'FAQ 6개(해외 서류 포함) + 전체 보기');
-check(land.includes('<h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다</h2>') &&
-      ['<div class="t">서류 업로드</div><div class="d">필요한 서류를 선택하고 정부 사이트에서 발급받은 PDF를 올려 주세요. 발급 방법도 함께 안내해 드립니다.</div>',
-       '<div class="t">일정 확인 · 결제</div><div class="d">받으실 날짜를 선택하시면 일정과 금액을 바로 확인하실 수 있습니다.</div>',
-       '<div class="t">댁에서 수령</div><div class="d">공증 서류 스캔본을 마이페이지로 먼저 보내 드리고, 실물은 등기로 발송합니다.</div>'].every(t => land.includes(t)), '공증 3단계 제목·STEP 문구');
-check(!land.includes('lp-seo') && !land.includes('맡길 수 있는 서류:'), '맨 아래 "맡길 수 있는 서류" 한 줄 삭제');
-check(/>전문 번역<\/a>/.test(html) && !/>전문번역<\/a>/.test(html), '메뉴 "전문 번역" (PC·모바일)');
-check(!/lp-in|lpApplyLogin|lp-member|lp-join|카카오로 시작하기/.test(land), '회원 전용·가입 유도 블록 없음');
+console.log('\n[3] 구성 · 순서');
+const order = ['id="top"', 'id="team"', 'id="iumm-about"', 'id="promise"', 'id="process"', 'id="field-standards"', 'id="pricing"', 'id="faq-summary"', 'id="cta-final"'].map(x => land.indexOf(x));
+check(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), '첫 화면 → 번역팀 → 아이움이란 → 약속 → 과정 → 분야 → 요금 → FAQ → 마지막');
+check((land.match(/<ol class="lp-flow">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 4, '납품 과정 4단계');
+check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
+check((land.match(/<div class="lp-field">/g) || []).length === 4 && land.includes('<details class="lp-other">'), '분야 카드 4장 + 그 밖의 분야 접기');
 
-// ── 4. 금지 표현 ──
-console.log('\n[4] 금지 표현');
-const visible = land.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
-check(!/\bAI\b|인공지능|스마트/.test(visible.replace(/PLAN_PRICE\.ai|ai\s*:|handleAI|'ai'/g, '')), 'AI·인공지능·스마트 없음');
-// 인트로(#intro)는 맥박·스크롤 안내 움직임이 요구 사항이라 제외하고 본다
-// (인트로 그라데이션은 "아 · 이 · 움" 뒤 바탕 1개만 허용 — 글로우·그림자는 인트로도 금지)
-const introEnd = land.indexOf('<section class="lp-hero" id="top">');
-const introStart = land.lastIndexOf('<!-- ════', land.indexOf('<section class="it" id="intro"'));
-const introPart = introStart >= 0 && introEnd > introStart ? land.slice(introStart, introEnd) : '';
-// 밝은 본문 카드의 아주 약한 그림자(남색 4%) 한 가지만 허용 (2026-10-16 지시)
-check(!/gradient|box-shadow|glow|@keyframes|animation:/.test(visible.replace(introPart.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, ''), '').split('box-shadow:0 1px 3px rgba(15,37,64,0.04)').join('')),
-  '그라데이션·글로우·자동 애니메이션 없음 (인트로 제외 · 밝은 본문 카드 그림자 남색 4% 만 허용)');
-check(!/box-shadow|glow/.test(introPart) && (introPart.match(/gradient\(/g) || []).length === 3 &&
-      introPart.includes('background:radial-gradient(closest-side,rgba(15,37,64,0.85),rgba(15,37,64,0))') &&
-      introPart.includes('background:linear-gradient(to right,rgba(15,37,64,0.8),rgba(15,37,64,0) 60%)') &&
-      introPart.includes("'linear-gradient(to bottom,#000 0px,#000 '"),
-  '인트로 — 그라데이션은 3개뿐: 글자 뒤 바탕(radial) · 끝 제목 쪽 남색(linear) · 카드 줄 아래 지우는 mask · 글로우·그림자 없음');
-check(!/✦|[\u{1F300}-\u{1FAFF}]|[☀-➿]/u.test(visible), '✦·이모지 없음');
-check(!html.includes('✦'), 'index.html 전체 ✦ 없음');
-check(!/최고|최저|최초|유일|1위|완벽/.test(visible), '최상급 표현 없음');
-{
-  // 고객 화면 "AI" — 약관·처리방침(법정 고지)과 결제 payload 의 내부 플랜값('AI 프리미엄')은 제외
-  const noLegal = html.replace(/<div id="page-(terms|privacy|biz-terms)"[\s\S]*?<\/div>\s*<\/div>\s*(?=<)/g, '');
-  const lines = noLegal.split('\n').map(l => l.replace(/\/\/.*$/, '').replace(/<!--.*?-->/g, '').replace(/\/\*.*?\*\//g, ''))
-    .filter(l => /\bAI\b|인공지능/.test(l) && !/플랜:\s*currentPlan/.test(l) && !/AI 기반 전문 번역 플랫폼|AI 번역·검수 처리/.test(l));
-  check(lines.length === 0, `고객 화면 "AI" 0건${lines.length ? ' — ' + lines.map(l => l.trim().slice(0, 60)).join(' | ') : ''}`);
-}
-check(!/마지막 문장까지|직접 검수|직접 대조|원문과 대조/.test(html), '전문 번역 — 마지막 문장까지·직접 검수·직접 대조 표현 없음 (index.html 전체)');
-check(html.includes('최종 휴먼터치로 번역의 완성도를 높이는 IUMM 전문 번역사입니다') &&
-      html.includes('번역이 끝나면 최종 휴먼터치로 완성도를 높여 납품합니다.'), '전문 번역사 부제·검수 안내 = 최종 휴먼터치');
+console.log('\n[4] 공증·아포스티유 제거');
+const vis = html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+const mainVis = vis.slice(0, vis.indexOf('id="page-terms"') > 0 ? vis.indexOf('id="page-terms"') : vis.length);
+check(!/lpGo\('(notary|apostille)'\)/.test(html), '메뉴·버튼의 공증 위저드 입구 없음');
+const landVis = land.replace(/<template[\s\S]*?<\/template>/g, '').replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+check(!/공증|아포스티유|등기|급행|수령일/.test(landVis), '메인 랜딩 화면 글자에 공증·아포스티유·등기·급행·수령일 없음');
+const headMeta = html.slice(0, html.indexOf('</head>'));
+check(!/공증|아포스티유/.test(headMeta.replace(/<style[\s\S]*?<\/style>/g, '')), '제목·검색 설명·공유 문구에 공증 없음');
+const faqPage = html.slice(html.indexOf('<div id="page-faq"'), html.indexOf('<!-- 하단 문의 -->'));
+check(!/data-cat="(notary|apostille)"|공증|아포스티유/.test(faqPage.replace(/<!--[\s\S]*?-->/g, '')), '전체 FAQ 화면에 공증 항목 없음');
+check(!fs.readFileSync(path.resolve(HERE, '../sitemap.xml'), 'utf8').includes('/notary/'), 'sitemap 에 /notary/ 없음');
 
-// ── 5. 전문 번역 주문 창 — 톤 (표시만) ──
-console.log('\n[5] 전문 번역 주문 창');
-{
-  const m0 = html.indexOf('<!-- 스탠다드 주문 모달 -->'), m1 = html.indexOf('<!-- 계좌입금 안내 모달');
-  const modal = html.slice(m0, m1);
-  check(/<button id="tab-free"[^>]*>무료체험<\/button>/.test(modal) && /<button id="tab-ai"[^>]*>스탠다드<\/button>/.test(modal) &&
-        /<button id="tab-standard"[^>]*>프리미엄 플러스<\/button>/.test(modal) && modal.includes('id="plan-desc"'),
-    '탭 = 무료체험 / 스탠다드 / 프리미엄 플러스 + 설명 줄');
-  check(!/#c9a84c|201,\s*168,\s*76|#d97706|217,\s*119,\s*6|#97c459|99,\s*153,\s*34|linear-gradient|box-shadow/.test(modal), '주문 창 금색·그라데이션·그림자 없음');
-  check(!/[\u{1F300}-\u{1FAFF}]|⚠|✏|✓|✗|⏱/u.test(modal), '주문 창 이모지 없음 (닫기 ✕만)');
-  const conf = html.slice(html.indexOf('function showPaymentConfirmModal'), html.indexOf('function showPaymentConfirmModal') + 6000);
-  check(!/⚠|✓|✗|201,168,76|linear-gradient/.test(conf), '결제 전 최종 확인 창 이모지·금색 없음');
-  check(/#tab-free,#tab-ai,#tab-standard\{font-size:13px/.test(html), '모바일 탭 13px (한 줄)');
-}
-{
-  const faqNew = '영문으로 발급받으시면 번역·공증 없이 아포스티유만 받으실 수 있습니다. 제출처가 한글본 번역공증을 요구하면 번역공증도 가능합니다.';
-  check(html.split(faqNew).length - 1 === 2 && !/자동으로 아포스티유 단독으로 안내|서류를 고르시면 자동으로 안내/.test(html),
-    'FAQ "영문으로 발급되는 서류" 2곳 교체 · 자동 안내 문장 삭제');
-}
+console.log('\n[5] 문구 원칙');
+check(!/자동 번역|기계 번역|AI 도구|돌린다|돌려서|모든 문장을/.test(landVis), 'AI 도구 표현 · 사람 일 부풀리기 없음');
+check(!/사법공조|진술조서|수사|GPT|Claude|Gemini|프롬프트|원가|최고|최저|유일|1위/.test(landVis), '모델 이름·수사·원가·최상급 표현 없음');
+check(!/14일|용어 고정|역번역|95점|별의 기사|Starblade|귀사의 용어를 기억/.test(landVis), '아직 없는 기능 문구 없음(later_copy.md 보관분)');
+check(land.includes('<p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>an &amp; <b>M</b>achine</p>'), '영문 슬로건 (I·U·M·M 첫 글자만 굵게)');
+check(land.includes('<p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1만 건 이상</p>'), '신뢰 표시 한 줄');
+{ const pairs = (html.match(/<select id="lang-select"[\s\S]*?<\/select>/)[0].match(/<option[^>]*>한국어 → [^<]+<\/option>/g) || []).length;
+  check(pairs === 32, `신뢰 표시 '32개 언어' = 주문 화면 한국어→외국어 목록 ${pairs}개`); }
+check(!/이음|잇습니다|잇고|이어 드립니다/.test(landVis) && !/이음/.test(html.replace(/<!--[\s\S]*?-->/g, '')), "'이음' 브랜드 표현 · '잇다' 문구 없음 (숨김 V3 포함)");
+check(land.includes('<p class="lp-label">왜 아이움인가</p>') && land.includes('<h2 class="lp-h2">빠르면서도, 정확하게</h2>'), '왜 아이움인가 섹션');
+check(land.includes('<p class="s">당신의 가능성을 세계로 연결합니다.</p>'), '마지막 섹션 대표 문구');
 
-// ── 7. 전문 번역 과정 섹션 ──
-console.log('\n[7] 전문 번역 과정 섹션');
-{
-  const pa = land.indexOf('id="process"'), pb = land.indexOf('id="process-pro"'), pc = land.indexOf('id="faq-summary"');
-  check(pa > 0 && pb > pa && pc > pb, '위치 — 공증 3단계(#process) 바로 아래, FAQ 위');
-  check(/id="process">\s*<div class="lp">\s*<p class="lp-label">번역공증 · 아포스티유<\/p>\s*<h2 class="lp-h2">신청부터 수령까지, 세 단계면 충분합니다<\/h2>/.test(land) && !land.includes('HOW IT WORKS'),
-    '공증 3단계 라벨 "번역공증 · 아포스티유" (HOW IT WORKS 없음)');
-  const sec = land.slice(pb, pc);
-  check(sec.includes('<p class="lp-label">전문 번역</p>') && sec.includes('용어는 끝까지 같게, 숫자는 하나도 틀리지 않게'), '라벨·제목');
-  check(['<div class="t">파일 업로드</div><div class="d">파일을 올리거나 텍스트를 붙여 넣으시면 글자 수와 금액이 바로 산출됩니다.',
-         '<div class="t">분야별 번역</div><div class="d">문서 분야에 맞는 전용 용어집을 기준으로 번역합니다.',
-         '<div class="t">정밀 점검</div><div class="d">용어가 문서 전체에서 같은지, 숫자·날짜·이름이 정확한지, 빠진 문장은 없는지 확인합니다.',
-         '<div class="t">휴먼터치 · 납품</div><div class="d">최종 휴먼터치로 자연스럽게 다듬어 마이페이지로 납품하고, 알림톡으로 알려 드립니다.'].every(x => sec.includes(x)) &&
-        (sec.match(/class="lp-step"/g) || []).length === 4, 'STEP 1~4 문구');
-  check(sec.includes('class="lp-steps four"') && land.includes('.lp-steps.four{grid-template-columns:repeat(4,1fr)}') &&
-        /max-width:1024px\)\{\s*\.lp-steps\.four\{grid-template-columns:repeat\(2,1fr\)\}/.test(land) && /\.lp-steps\.four\{grid-template-columns:1fr\}/.test(land),
-    '그리드 PC 4열 / 태블릿 2열 / 모바일 1열');
-  // 금액 — PLAN_PRICE 에서 채운다 (하드코딩 금지)
-  check(!/글자당\s*<b>\s*\d/.test(sec) && sec.includes('data-plan="ai"') && sec.includes('data-plan="standard"'), '플랜 금액 하드코딩 없음 (data-plan)');
-  const plans = ['ai', 'standard'].map(k => ({ k, t: '', getAttribute(){ return this.k; }, set textContent(v){ this.t = v; } }));
-  const sb2 = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }, showPage(){}, location: {},
-    document: { getElementById: () => null, querySelectorAll: (q) => q === '[data-plan]' ? plans : [] } };
-  vm.createContext(sb2); vm.runInContext(script, sb2);
-  check(plans[0].t === sb2.PLAN_PRICE.ai && plans[1].t === sb2.PLAN_PRICE.standard, `플랜 금액 = PLAN_PRICE (${plans[0].t} / ${plans[1].t})`);
-  check(sec.includes('스탠다드 <span>(일반 검수)</span>') && sec.includes('프리미엄 플러스 <span>(전문가 검수)</span>') &&
-        sec.includes('<p class="lp-pro-note">공식 제출·계약 문서에는 프리미엄 플러스를 권해 드립니다.</p>'), '플랜 이름·권장 문구 (부가세 문구 없음)');
-  check(sec.includes('<p class="lp-trust">파일만 올리면 견적이 바로 나옵니다 · 2011년부터 누적 1만 건 이상</p>') && !/재번역|무상|오역/.test(land.replace(/<[^>]+>/g, '')),
-    'CTA 띠 문구 = "파일만 올리면 견적이 바로 나옵니다 · 2011년부터 누적 1만 건 이상" · 메인에 무상 재번역 안내 없음');
-  {
-    const pf = html.slice(html.indexOf('id="page-faq"'), html.indexOf('<!-- 하단 문의 -->', html.indexOf('id="page-faq"')));
-    check(/번역에 오류가 있으면 어떻게 하나요\?/.test(pf) && /무료 재번역 또는 A\/S\(품질수정\)/.test(pf) && /납품일로부터 <strong>5일 이내<\/strong>/.test(pf) &&
-          /무료 재번역 또는 A\/S\(품질수정\)/.test(html.slice(html.indexOf('id="page-terms"'), html.indexOf('id="page-faq"'))) && /납품일로부터 <span class="highlight">5일 이내<\/span>/.test(html),
-      '무상 재번역 안내는 전체 FAQ("번역에 오류가 있으면 어떻게 하나요?")·이용약관 제7조에 유지');
-  }
-  check(sec.includes('<button type="button" class="lp-btn pro-btn" onclick="handleAI()">전문 번역 의뢰하기</button>'), 'CTA 띠 버튼 → handleAI() · 첫 화면 전문 번역 버튼과 같은 스타일');
-  check(sec.includes('<button type="button" class="lp-plan" onclick="handleAI()"><span class="nm">스탠다드') &&
-        sec.includes('<button type="button" class="lp-plan" onclick="handleStandard()"><span class="nm">프리미엄 플러스') &&
-        (sec.match(/<span class="go">이 플랜으로 의뢰 →<\/span>/g) || []).length === 2 &&
-        land.includes('.lp-plan:hover{border-color:#9ACDF5') && land.includes('.lp-plan:focus-visible{outline:2px solid #9ACDF5') && /\.lp-plan\{[^}]*cursor:pointer/.test(land),
-    '플랜 박스 = 버튼 (스탠다드 → handleAI · 프리미엄 플러스 → handleStandard) · "이 플랜으로 의뢰 →" · hover·키보드');
-  check(land.includes('.lp-pro-act{margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:16px 24px;padding:20px 24px;border-radius:12px;border:1px solid rgba(22,184,148,0.35);background:rgba(22,184,148,0.06)}') &&
-        land.includes('.pro-sec .lp-pro-act{border-color:rgba(111,184,240,0.35);background:rgba(111,184,240,0.06)}') &&
-        land.includes('.lp-pro-act .lp-trust{margin:0;font-size:16px;color:rgba(255,255,255,0.85)') &&
-        /\.lp-pro-act\{flex-direction:column;align-items:stretch/.test(land) && land.includes('.lp-pro-act .lp-btn{width:100%}'),
-    'CTA 띠 — 섹션 색 6% · 1px · 12px · 20px 24px · 문구 16px 흰 85% · 모바일 세로 · 버튼 전체 폭');
-  check(land.includes('.lp-sec.pro-sec .lp-label{color:#9ACDF5}') && land.includes('.pro-sec .lp-step .no{color:#9ACDF5}'), '하늘색 계열 — 라벨·STEP 번호');
-  const vis = sec.replace(/<!--[\s\S]*?-->/g, '');
-  check(!/\bAI\b|자동\s?번역|엔진|모델|인공지능|최고|최저|유일|협력|검수자|단계 수/.test(vis), '금지 표현 없음 (AI·자동번역·엔진·모델·최상급·협력·내부 공정)');
-}
+console.log('\n[6] 색 — 새 팔레트');
+check(/--v-navy:#0F2540;--v-ink:#1F4FD1;--v-ink-hover:#1A43B3;[^}]*--v-bg:#FAFAF7;--v-pale:#EEF3FB;\s*--v-text:#1B2433;--v-sub:#4A5568;--v-gold:#B08D57;/.test(html), '랜딩 토큰 (네이비·잉크 블루·오프화이트·페일 블루·본문·보조·샴페인 골드)');
+check(!/#16B894|#5DE0BC|rgba\(22,184,148|rgba\(93,224,188|#06202f/i.test(html), '민트·초록·민트 위 남색 글자 없음 (사이트 전체 index.html)');
+check(/\.nav-cta\{background:#1F4FD1;color:#fff;[^}]*font-weight:800/.test(html) && html.includes('.nav-cta:hover{background:#1A43B3;color:#fff}'), '상단 견적 버튼 = 잉크 블루 + 흰 굵은 글씨, 올리면 진한 잉크 블루');
+check(/\.lp-btn\{[^}]*background:var\(--v-ink\);color:#fff;[^}]*font-weight:800/.test(html) && /\.lp-btn:hover\{background:var\(--v-ink-hover\)/.test(html), '랜딩 버튼 = 잉크 블루 + 흰 굵은 글씨');
+const gold = (html.match(/[^;{]*(?:#B08D57|var\(--v-gold\))[^;}]*/g) || []);
+check(gold.every(d => !/(^|[^-])color:\s*(#B08D57|var\(--v-gold\))/.test(d)), '샴페인 골드는 글자색으로 안 씀');
 
-// ── 9. 공증 3단계 시작 버튼 ──
-console.log('\n[9] 공증 3단계 — 시작 버튼');
-{
-  const ps = land.slice(land.indexOf('id="process"'), land.indexOf('id="process-pro"'));
-  check(/<\/div>\s*<div class="lp-pro-act">\s*<p class="lp-trust" id="lp-eta-cta">급행 접수 시 다음 영업일에 받아 보실 수 있습니다\.<\/p>\s*<button type="button" class="lp-btn" onclick="lpGo\('notary'\)">번역공증 · 아포스티유 신청하기<\/button>\s*<\/div>/.test(ps),
-    'CTA 띠 — "급행 접수 시…" + [번역공증 · 아포스티유 신청하기] → lpGo(notary)');
-  check(html.includes(`<button class="nav-cta" id="nav-order-btn" onclick="lpGo('notary')">번역공증 신청</button>`) &&
-        html.includes(`onclick="document.getElementById('nav-mobile-menu').classList.remove('open');lpGo('notary')">번역공증 신청</button`) &&
-        !html.includes("location.href='/notary/'"), '상단 번역공증 신청(PC·모바일) → lpGo(notary)');
-  check(html.includes('<a href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener noreferrer">고객센터</a>'), '푸터 고객센터 → 카카오 채널 새 창');
-}
+console.log('\n[7] 주문 화면 — 회사명 필수 · 업종 선택');
+check(html.includes('id="orderCompany"') && html.includes('개인사업자·프리랜서는 상호나 본인 이름을 입력해 주세요.'), '회사명 입력 + 안내 한 줄');
+check(['게임', '법률', '의료·의료관광', '제조·매뉴얼', '그 밖'].every(k => html.includes(`<option value="${k}">${k}</option>`)) && html.includes('<option value="">선택 안 함</option>'), '업종 5개 + 비워도 됨');
+check(/if\(oc&&!oc\.value\.trim\(\)\)\{alert\('회사명을 입력해 주세요/.test(html), '회사명 비면 결제 진행 막음');
+check(/out\.회원회사명=oc\.value\.trim\(\)/.test(html) && /out\.업종=oi\.value/.test(html), '주문 데이터에 회원회사명·업종');
 
-// ── 10. 금색 '번역공증 신청' 떠 있는 버튼 삭제 ──
-console.log('\n[10] 떠 있는 버튼 — 카카오톡 문의만');
-check(!/iumm-fab|fabGlow|fab-ico|fab-txt|◆ ?<\/span><span class="fab-txt">번역공증 신청/.test(html), '금색 번역공증 신청 버튼·CSS(iumm-fab·fabGlow) 없음');
-check(html.includes('<script src="/assets/kakao-fab.js?v=4" defer></script>'), '카카오톡 문의 버튼(공통 조각)은 그대로');
-
-// ── 11. 메인 보이는 영역 — 부가세·단서 문구 없음 (조건은 결제 단계에서만) ──
-console.log('\n[11] 메인 — 부가세 문구 없음');
-{
-  // 보이는 영역 = 랜딩(첫 화면·카드·3단계·전문 번역·메인 FAQ·서류 한 줄). 스크립트·스타일·주석 제외
-  const vis = land.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '').replace(/<!--[\s\S]*?-->/g, '');
-  check(!/부가세/.test(vis), `메인 보이는 영역 "부가세" 0건 (${(vis.match(/부가세/g) || []).length}건)`);
-  const faqSum = land.slice(land.indexOf('id="faq-summary"'));
-  check(/얼마나 걸리나요\?<\/summary><p>[^<]*\(영업일 기준 예정\)/.test(faqSum), '메인 FAQ "얼마나 걸리나요?"의 (영업일 기준 예정)은 유지');
-  check(faqSum.includes('<summary>비용은 얼마인가요?</summary><p>번역 비용은 가족관계·기본·혼인증명서 각 5,000원, 그 외 서류 1페이지 9,000원입니다. 공증·아포스티유를 포함한 금액은 서류를 올리시면 바로 확인하실 수 있습니다.</p>'), '메인 FAQ "비용은" 답변 — 새 문구 · 부가세 문구 없음');
-  check(!faqSum.includes('결제 후 취소할 수 있나요?') && faqSum.includes('<summary>어떤 서류를 맡길 수 있나요?</summary><p>가족관계·기본·혼인증명서, 생활기록부, 졸업·성적증명서, 재직증명서, 정관, 신분증·여권 사본 등을 맡기실 수 있습니다. 목록에 없는 서류는 카카오톡으로 문의해 주세요.</p>'),
-    '메인 FAQ — 취소 질문 빼고 "어떤 서류를 맡길 수 있나요?"');
-  check(/결제 후 취소·환불이 되나요\?/.test(html.slice(html.indexOf('id="page-faq"'), html.indexOf('id="page-faq"') + 60000)), '취소 질문은 전체 FAQ 에 있음');
-  const pageFaq = html.slice(html.indexOf('id="page-faq"'), html.indexOf('id="page-faq"') + 60000);
-  check(/1페이지 9,000원\(부가세 별도\)/.test(pageFaq), '전체 FAQ 페이지의 (부가세 별도)는 그대로');
-}
-
-// ── 12. 검색·공유 문구 · 모바일 카카오 원형 ──
-console.log('\n[12] 검색·공유 문구 · 카카오 버튼');
-{
-  const D = '공증 받으러 멀리 가지 마세요. 서류만 올려 주시면 번역부터 공증·아포스티유까지 모두 마쳐 댁으로 보내 드립니다. 가족관계·기본·혼인증명서 번역 5,000원, 생활기록부 1페이지 9,000원.';
-  check(html.includes('<title>IUMM 아이움 — 온라인 번역공증 · 아포스티유</title>'), 'title');
-  // ★네이버 서치어드바이저 소유확인 — 확인이 끝난 뒤에도 지우지 말 것
-  { const head = html.slice(0, html.indexOf('</head>')), m = head.match(/<meta name="naver-site-verification" content="([^"]*)" \/>/g) || [];
-    check(m.length === 1 && m[0] === '<meta name="naver-site-verification" content="17fc290db2afb148dcf2efe0da9224550c09d4f8" />',
-      'naver-site-verification 태그 존재 · 값 일치 (<head> 안 1개)'); }
-  check(['name="description"', 'property="og:description"', 'name="twitter:description"'].every(k => html.includes('<meta ' + k + ' content="' + D + '">')), 'meta·OG·twitter 설명 3곳 같은 문구 (부가세·쪽당 없음)');
-  const kf = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
-  check(kf.includes('#iumm-kakao-fab a{width:52px;height:52px;padding:0;border-radius:50%;gap:0}') && kf.includes('#iumm-kakao-fab a span{display:none}') && kf.includes('aria-label="카카오톡 문의"'), '모바일 카카오 — 52px 원형 아이콘 · aria-label 카카오톡 문의');
-  check(kf.includes("var NTALK_URL = 'https://talk.naver.com/ct/w3r4x3p';") &&
-        kf.includes(`'<a class="ntalk" href="' + NTALK_URL + '" target="_blank" rel="noopener noreferrer" aria-label="네이버 톡톡 문의"`) &&
-        kf.indexOf('NTALK_URL + \'"') < kf.indexOf('KAKAO_URL + \'"') && kf.includes('#iumm-kakao-fab a.ntalk{background:#03C75A;color:#fff}') &&
-        kf.includes('flex-direction:column;align-items:stretch;gap:10px') && !/partner\.talk\.naver\.com/.test(kf),
-    '네이버 톡톡 버튼 — talk.naver.com/ct/w3r4x3p · 새 탭 · 카카오 바로 위(간격 10px) · #03C75A · 관리자 주소 없음');
-}
-
-// ── 13. '쪽' → '페이지' (손님에게 보이는 곳) ──
-console.log('\n[13] 쪽 → 페이지');
-{
-  // 주석을 뺀 줄에서 "쪽당"·"N쪽"·"'쪽'" 표기를 찾는다 (오른쪽·이쪽·한쪽 같은 낱말은 제외)
-  const files = ['../index.html', '../notary/index.html', '../notary/edit.html'];
-  const hits = [];
-  for (const f of files) {
-    fs.readFileSync(path.resolve(HERE, f), 'utf8').split(/\r?\n/).forEach((l, i) => {
-      const t = l.replace(/<!--.*?-->/g, '').replace(/\/\/.*$/, '').replace(/\/\*.*?\*\//g, '').trim();
-      if (/^(\*|<!--)/.test(t)) return;
-      if (/쪽당|\d\s*쪽|\+\s*'쪽|'쪽 /.test(t)) hits.push(f.replace('../', '') + ':' + (i + 1));
-    });
-  }
-  check(hits.length === 0, `손님 화면 '쪽당'·'N쪽' 0건${hits.length ? ' — ' + hits.join(', ') : ''}`);
-}
-
-// ── 14. 디자인·색감 ──
-console.log('\n[14] 디자인·색감');
-check(/\.nav-cta\{background:#16B894;color:#06202f;/.test(html) && html.includes('<button style="background:#16B894;color:#06202f;'), 'nav 번역공증 신청 버튼 글자 #06202f (PC·모바일 메뉴)');
-check(land.includes('.lp-card.main{border:2px solid var(--mint);background:rgba(22,184,148,0.09)}'), '공증 카드 배경 0.09 · 전문 번역 0.06');
-check(land.includes('.lp-label{font-size:13px;letter-spacing:1px;') && land.includes('.lp-label .en{letter-spacing:3px}') &&
-      land.includes('<p class="lp-label"><span class="en">FAQ</span></p>') && land.includes('<p class="lp-label">번역공증 · 아포스티유</p>') && land.includes('<p class="lp-label">전문 번역</p>'),
-  '라벨 자간 — 기본 1px, 영문(SINCE 2011·FAQ)만 3px');
-check(html.includes('<div class="footer-biz" style="font-size:12px;color:rgba(255,255,255,0.5);') &&
-      (html.match(/<span style="margin:0 8px;color:rgba\(255,255,255,0\.25\)">·<\/span>/g) || []).length === 6 &&
-      /footer > div:nth-child\(2\)\{text-align:center;font-size:12px !important/.test(html), '푸터 사업자 정보 12px · 흰 50% · 구분선 25% (모바일도 12px)');
-{
-  const fbHtml = html.slice(html.indexOf('<div class="footer-biz"'), html.indexOf('</footer>'));
-  const fb = fbHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  check(fb === '운영 (주)마하글로벌 · 대표 임정한 · 사업자등록번호 894-88-00873 · 통신판매업신고 2018-안양동안-0458 경기도 안양시 동안구 시민대로 181, 243 · 대표전화 010-2390-5647 · 이메일 iumm.master@gmail.com · 개인정보보호책임자 임정한 © 2026 IUMM 아이움' &&
-        !/<strong|<b>/.test(fbHtml),
-    '푸터 — 운영사 정보 8항목(상호·대표·사업자번호·통신판매업·주소·전화·이메일·개인정보책임자) 그대로 · 굵은 글씨 없음 · © 2026 IUMM 아이움');
-}
-
-// ── 15. 인트로 — 한반도에서 세계로 줌아웃 · 서울에서 세계로 선 (한국 중심 점 세계지도) ──
 console.log('\n[15] 인트로');
 {
   const i0 = html.indexOf('<section class="it" id="intro"'), top = html.indexOf('<section class="lp-hero" id="top">');
@@ -260,8 +88,8 @@ console.log('\n[15] 인트로');
   const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
   check(/\.it\{position:relative;height:330vh;/.test(it) && /@media\(max-width:640px\)\{\s*\.it\{height:290vh\}/.test(it), '바깥 높이 PC 330vh / 모바일 290vh');
   check(/\.it-stage\{position:sticky;top:0;height:100vh;height:100dvh;/.test(it), '무대 sticky · 100vh → 100dvh (iOS 주소창 높이 변화)');
-  check(it.includes('<p class="it-head">당신을 세계로 이어 드립니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
-  check(land.includes('<h1 class="serif">공증 받으러<br>멀리 가지 마세요</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "공증 받으러 멀리 가지 마세요" 그대로 · 메인 화면에 하나뿐');
+  check(it.includes('<p class="it-head">당신의 가능성을 세계로 연결합니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
+  check(land.includes('<h1 class="serif">두 전문가가<br>함께 번역합니다</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "두 전문가가 함께 번역합니다" · 메인 화면에 하나뿐');
 
   // ── 지도 — 점 세계지도 + 한반도 윤곽
   const dm = it.match(/<g id="continents"><path id="land" class="land" d="([^"]*)"\/><path id="korea" class="korea" d="([^"]*)"\/><\/g>/);
@@ -271,8 +99,8 @@ console.log('\n[15] 인트로');
   check(it.includes('.it-map .land{fill:none;stroke:rgba(255,255,255,0.42);stroke-width:2.4px;stroke-linecap:round;vector-effect:non-scaling-stroke}'),
     '점 = 둥근 선끝 · 지름 2.4px · 흰색 42% (줌해도 굵기 그대로)');
   check(/^M[\d.]+ [\d.]+l/.test(kd) && (kd.match(/z/g) || []).length === 12 && Buffer.byteLength(kd, 'utf8') <= 6 * 1024 &&
-        it.includes('.it-map .korea{fill:rgba(93,224,188,0.15);stroke:#5DE0BC;stroke-width:1.5px;'),
-    `한반도 = 50m 남·북 윤곽 path (고리 ${(kd.match(/z/g) || []).length}개 · ${(Buffer.byteLength(kd, 'utf8') / 1024).toFixed(1)}KB) · 민트 선 1.5px + 민트 12%`);
+        it.includes('.it-map .korea{fill:rgba(176,141,87,0.16);stroke:#C9A877;stroke-width:1.5px;'),
+    `한반도 = 50m 남·북 윤곽 path (고리 ${(kd.match(/z/g) || []).length}개 · ${(Buffer.byteLength(kd, 'utf8') / 1024).toFixed(1)}KB) · 샴페인 골드 선 1.5px + 골드 16%`);
   const mapBytes = Buffer.byteLength(d + kd, 'utf8');
   check(mapBytes <= 40 * 1024, `지도 용량 ${(mapBytes / 1024).toFixed(1)}KB (점 ${(Buffer.byteLength(d, 'utf8') / 1024).toFixed(1)} + 한반도 ${(Buffer.byteLength(kd, 'utf8') / 1024).toFixed(1)}, ≤ 40KB)`);
   check(it.indexOf('id="korea"') < it.indexOf('class="pulse"') && it.indexOf('class="pulse"') < it.indexOf('class="kr"'), '서울 점·맥박은 한반도 위');
@@ -286,8 +114,8 @@ console.log('\n[15] 인트로');
   check(!/veil/.test(it), '지도 전체 남색 막 없음 (글자 뒤 바탕만)');
 
   // ── 서울 · 도시 · 라벨
-  check(it.includes('<circle class="pulse" r="5"/>') && it.includes('<circle class="kr" r="5"/>') && /<text class="lb home"[^>]*>SEOUL<\/text>/.test(it) && it.includes('.it-map .kr{fill:#5DE0BC}'),
-    '서울 = 민트 점 + 맥박 + "SEOUL" (모바일도 표시)');
+  check(it.includes('<circle class="pulse" r="5"/>') && it.includes('<circle class="kr" r="5"/>') && /<text class="lb home"[^>]*>SEOUL<\/text>/.test(it) && it.includes('.it-map .kr{fill:#9DB7F5}'),
+    '서울 = 밝은 블루 점 + 맥박 + "SEOUL" (모바일도 표시)');
   const dirs = [...it.matchAll(/<text class="lb dir pc-hide"[^>]*>([^<]+)<\/text>/g)].map(m => m[1]);
   const cities = [...((js.match(/var CITY = \[([\s\S]*?)\n  \];/) || [])[1] || '').matchAll(/\['([A-Z ]+)', (-?[\d.]+), (-?[\d.]+), (\d), (\d)\]/g)].map(m => ({ n: m[1], lon: +m[2], lat: +m[3], w: +m[4], lb: +m[5] }));
   const WANT = { TOKYO: [139.7, 35.7], BEIJING: [116.4, 39.9], ULAANBAATAR: [106.9, 47.9], MOSCOW: [37.6, 55.8], ANCHORAGE: [-149.9, 61.2], VANCOUVER: [-123.1, 49.3],
@@ -319,14 +147,14 @@ console.log('\n[15] 인트로');
     '모바일 — 화면 밖 곡선은 끝까지 그리고, LONDON·NEW YORK 곡선이 화면 끝에 닿으면 방향 라벨');
   check(it.includes('.it-map .lb{fill:rgba(255,255,255,0.7);font-size:11px;letter-spacing:2px;') && /function hit\(bx\)/.test(js) && /SPOT_UP = \[/.test(js) && /SPOT_DN = \[/.test(js),
     '라벨 11px · 자간 2px · 흰색 70% · 겹치면 다음 후보 자리로');
-  check(it.includes('.it-map .rt{fill:none;stroke:rgba(93,224,188,0.7);stroke-width:1.2;') && it.includes('.it-map .dst{fill:none;stroke:#5DE0BC;stroke-width:4px;'),
-    '선 1.2px · 민트 70% · 도착 점 지름 4px');
+  check(it.includes('.it-map .rt{fill:none;stroke:rgba(201,168,119,0.75);stroke-width:1.2;') && it.includes('.it-map .dst{fill:none;stroke:#9DB7F5;stroke-width:4px;'),
+    '선 1.2px · 샴페인 골드 75% · 도착 점 밝은 블루 지름 4px');
   check(/E2 = Z0 \* F > 2 \? 1 - Math\.log\(2 \/ F\) \/ Math\.log\(Z0\) : 0/.test(js) && /var q = E2 < 1 \? c01\(\(e - E2\) \/ \(1 - E2\)\)/.test(js),
     '곡선은 줌아웃 후반(실제 배율 2배 이하)부터, p 0.5 에 모두 도착');
   check(/'C' \+ f\(P1\[0\]\)/.test(js) && /% 360\) - 180/.test(js), '중심 경도(127°E) 기준 좌표 · 곡선 = 3차 베지어');
   check(/<g class="lens"><circle class="halo"\/><circle class="lf"\/><circle class="lr"\/><\/g>/.test(it) && it.indexOf('class="lens"') > it.indexOf('class="g-sp"') && it.indexOf('class="lens"') < it.indexOf('class="pulse"') &&
-        it.includes('.it-map .lf{fill:#0F2540}') && it.includes('.it-map .lr{fill:none;stroke:#5DE0BC;stroke-width:1px;vector-effect:non-scaling-stroke}') &&
-        it.includes('.it-map .halo{fill:url(#itHalo)}') && /<radialGradient id="itHalo"><stop offset="0" stop-color="#5DE0BC" stop-opacity="0\.25"\/>[^]*?<stop offset="1" stop-color="#5DE0BC" stop-opacity="0"\/><\/radialGradient>/.test(it) &&
+        it.includes('.it-map .lf{fill:#0F2540}') && it.includes('.it-map .lr{fill:none;stroke:#C9A877;stroke-width:1px;vector-effect:non-scaling-stroke}') &&
+        it.includes('.it-map .halo{fill:url(#itHalo)}') && /<radialGradient id="itHalo"><stop offset="0" stop-color="#9DB7F5" stop-opacity="0\.25"\/>[^]*?<stop offset="1" stop-color="#9DB7F5" stop-opacity="0"\/><\/radialGradient>/.test(it) &&
         /LC\.k = korea\.cloneNode\(false\); LC\.k\.removeAttribute\('id'\); lens\.insertBefore\(LC\.k, LC\.r\);/.test(js) && (it.match(/id="korea"/g) || []).length === 1 &&
         /LR = mob \? 32 : 46;/.test(js) && /c === LC\.h \? LR \+ 12 : LR/.test(js),
     '한반도 렌즈 — 지름 PC 92 · 모바일 64px · 남색(#0F2540) 불투명 채움 · 한반도 path 복제(마크업 한 번) · 민트 1px 테두리 + 바깥 12px 민트 25% → 투명 · 곡선 위 · 서울 점 아래');
@@ -337,7 +165,7 @@ console.log('\n[15] 인트로');
   {
     const tick = (js.match(/function tick\(now\)\{[\s\S]*?\n  \}/) || [''])[0];
     check(/var t = \(now \/ 2400 \+ PH\[i\]\) % 1/.test(tick) && /PH\[i\] = \(i \* 0\.377\) % 1/.test(js) && [...tick.matchAll(/\.style\.(\w+)/g)].every(m => m[1] === 'transform') &&
-          /requestAnimationFrame\(tick\)/.test(tick) && it.includes('.it-map .spark{fill:none;stroke:#5DE0BC;stroke-width:3px;'),
+          /requestAnimationFrame\(tick\)/.test(tick) && it.includes('.it-map .spark{fill:none;stroke:#DCE5FC;stroke-width:3px;'),
       '빛 점 — 지름 3px 민트 · 서울 → 도착지 2.4초 주기 · 선마다 시작 어긋남 · rAF 루프 하나 · transform 만');
     check(/setLive\(!still && ARR\.some\(Boolean\) && p < 0\.92\)/.test(js) && /\.it\.still \.it-map \.spark,\.it\.still \.it-shade\{display:none\}/.test(it),
       'reduced-motion — 빛 점 없음 (루프 안 돌고 숨김)');
@@ -349,10 +177,10 @@ console.log('\n[15] 인트로');
     '줌아웃 — 서울 기준 transform:scale, 한반도가 카드에 차는 배율(PC 약 6배) → 최종 PC 1배 · 모바일 1.6배');
 
   // ── 글자 · 끝
-  check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신을 세계로 이어 드립니다<\/p>\s*<\/div>/.test(it) &&
+  check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신의 가능성을 세계로 연결합니다<\/p>\s*<\/div>/.test(it) &&
         it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"IUMM"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
   check(it.includes('<p class="w"><span>I</span><span>U</span><span>M</span><span>M</span></p>') && !/아 · 이 · 움|<span>아<\/span>/.test(it) &&
-        /color:#5DE0BC;font-size:clamp\(48px,8vw,112px\);font-weight:800;letter-spacing:0\.18em;/.test(it) && /\.it-word \.s\{[^}]*color:rgba\(255,255,255,0\.8\)/.test(it) &&
+        /color:#C9D7FB;font-size:clamp\(48px,8vw,112px\);font-weight:800;letter-spacing:0\.18em;/.test(it) && /\.it-word \.s\{[^}]*color:rgba\(255,255,255,0\.8\)/.test(it) &&
         /var e = ease\(c01\(p \/ 0\.5\)\);/.test(js) && /var at = \[0\.5, 0\.525, 0\.55, 0\.575\];/.test(js) && /c01\(\(p - at\[j\]\) \/ 0\.03\)/.test(js) && /sub\.style\.opacity = c01\(\(p - 0\.585\) \/ 0\.035\)/.test(js),
     '줌아웃·곡선 p 0→0.5 · "IUMM" I·U·M·M 하나씩 + 부제 (p 0.5→0.62) · 민트 clamp(48px,8vw,112px) · 자간 0.18em · 800 · 부제 흰색 80%');
   check(!/0\.35/.test(js) && /var g = c01\(\(p - 0\.84\) \/ 0\.08\), gone = \(1 - g\)\.toFixed\(3\), keep = lerp\(1, 0\.14, g\)\.toFixed\(3\);/.test(js) &&
@@ -544,138 +372,42 @@ console.log('\n[15] 인트로');
   check(!/\bAI\b|인공지능|협력|부가세|사법공조|진술조서|최고|최저|유일/.test(vis), '인트로 금지 표현 없음');
 }
 
-// ── 8. FAQ 낡은 문구 ──
-console.log('\n[8] FAQ 문구 정리');
-{
-  const plain = html.replace(/<[^>]+>/g, '');
-  check(html.includes('온라인 발급본이 없는 서류는 카카오톡으로 문의해 주시면 진행 방법을 안내해 드립니다. 신분증·여권 사본공증은 원본을 빠른등기로 보내 주시면 공증 후 함께 돌려드립니다.') &&
-        !html.includes('온라인 발급이 없는 서류와 신분증·여권 사본공증은 원본을 빠른등기로'), '"직접 가지 않아도" 답변 — 카카오 문의 · 사본공증만 원본 우편');
-  check(plain.includes('메인 화면의 전문 번역 의뢰에서') && !plain.includes('번역만 필요하신가요?에서'), '전체 FAQ — "메인 화면의 전문 번역 의뢰에서"');
-  check(!/은행잔고증명서, 예방접종증명서\(유학\), 사업자등록증명, 법인등기부등본, 정관/.test(html) &&
-        html.includes('재무제표처럼 온라인 발급본이 없는 서류는 카카오톡으로 문의해 주시면 진행 방법을 안내해 드립니다.'),
-    '전체 FAQ 접수 서류 목록 — 카카오 문의 서류 분리');
-}
+// ── 고객 주문 화면 분야 — 수사 관련 문서명 없음 (2026-10-29) ──
+console.log('\n[분야] 고객 주문 화면');
+{ const fs = html.match(/<select id="field-select"[\s\S]*?<\/select>/)[0];
+  check(!/criminal|수사|진술|범죄/.test(fs), "분야 선택에 '범죄·수사·공문' 없음");
+  check(fs.includes('법률·계약 (계약서, 약관, 법령, 소송·법원 서류, 공문)'), '법률 항목 설명에 소송·법원 서류·공문 포함'); }
 
-// ── 6. 로고 — 메인·푸터·공증 화면 같은 모양 ──
-console.log('\n[6] 로고');
+// ── V3 공개 스위치 (2026-10-29) ──
+console.log('\n[V3] 공개 스위치');
 {
-  const LOGO = '<span class="lg-en">IUMM</span><span class="lg-ko">아이움</span>';
-  const css = fs.readFileSync(path.resolve(HERE, '../notary/notary.css'), 'utf8');
-  const wz = fs.readFileSync(path.resolve(HERE, '../notary/index.html'), 'utf8') + fs.readFileSync(path.resolve(HERE, '../notary/edit.html'), 'utf8');
-  check(/class="nav-logo"[^>]*>\s*<span class="lg-en">IUMM<\/span><span class="lg-ko">아이움<\/span>/.test(html) &&
-        html.includes('<div class="footer-logo" style="margin-bottom:8px">' + LOGO), '메인 내비·푸터 로고 마크업');
-  check(wz.split('class="logo">' + LOGO).length - 1 === 2, '공증 신청·서류 보완(edit) 로고 마크업');
-  check(/\.lg-en\{color:var\(--mint-light\);font-weight:800;letter-spacing:0\.14em\}/.test(html) &&
-        /\.lg-ko\{color:rgba\(255,255,255,0\.9\);font-weight:500;font-size:calc\(1em - 2px\);letter-spacing:0;margin-left:8px\}/.test(html),
-    '메인 로고 스타일 (#5DE0BC 800 0.14em / 흰 90% 500 -2px 8px)');
-  check(/\.ntr-nav \.logo \.lg-en\{color:var\(--gold-light\);font-weight:800;letter-spacing:0\.14em\}/.test(css) &&
-        /\.ntr-nav \.logo \.lg-ko\{color:rgba\(255,255,255,0\.9\);font-weight:500;font-size:calc\(1em - 2px\)/.test(css),
-    '공증 로고 스타일 (--gold-light = #5DE0BC)');
-  check(!/gradient|animation/.test((html.match(/\.nav-logo[^{]*\{[^}]*\}/g) || []).join('') + (css.match(/\.ntr-nav \.logo[^{]*\{[^}]*\}/g) || []).join('')),
-    '로고 그라데이션·애니메이션 없음');
-}
-
-// ── 통합-2. 상단 메뉴 — 해외 서류 항목 없음 (지시 변경) ──
-console.log('\n[통합-2] 상단 메뉴 — 해외 서류 항목 없음');
-{
-  const dk = html.slice(html.indexOf('id="nav-links-desktop"'), html.indexOf('</div>', html.indexOf('id="nav-links-desktop"')));
-  const mb = html.slice(html.indexOf('id="nav-mobile-menu"'), html.indexOf('</div>', html.indexOf('id="nav-mobile-menu"')));
-  check(!/해외 서류|overseas/.test(dk + mb), 'PC·모바일 메뉴에 "해외 서류" 없음');
-}
-// ── 통합-3. 메인 FAQ — 해외 서류 ──
-console.log('\n[통합-3] 메인 FAQ — 해외 서류');
-{
-  const fq = html.slice(html.indexOf('id="faq-summary"'), html.indexOf('</section>', html.indexOf('id="faq-summary"')));
-  const qs = [...fq.matchAll(/<summary>([^<]+)<\/summary>/g)].map(m => m[1]);
-  check(qs.length <= 6 && qs[qs.length - 1] === '해외에서 발급받은 서류도 맡길 수 있나요?' &&
-        fq.includes('<p>네. 미국·일본·중국 등 해외에서 발급받은 서류를 한국에 제출해야 할 때, 현지 공증·아포스티유부터 한국어 번역공증까지 한 번에 진행합니다. 나라와 서류에 따라 절차와 비용이 달라 카카오톡으로 상담 후 안내해 드립니다. <a class="lp-faq-link" href="/notary/?overseas=1">해외 서류 상담 안내 →</a></p>'),
-    `메인 FAQ 맨 아래 "해외에서 발급받은 서류도 맡길 수 있나요?" + "해외 서류 상담 안내 →"(/notary/?overseas=1) (질문 ${qs.length}개 · 6개 이하)`);
-}
-
-// ── 통합-4. 밝은 본문 ──
-console.log('\n[통합-4] 밝은 본문 — #process · #process-pro · #faq-summary (· #proof)');
-{
-  const secTag = (id) => (html.match(new RegExp('<section[^>]*id="' + id + '"[^>]*>')) || [''])[0];
-  check(['process', 'process-pro', 'faq-summary'].every(id => /class="[^"]*\blp-light\b/.test(secTag(id))) && !/lp-light/.test(secTag('top') + secTag('intro')) &&
-        /<footer style="[^"]*background:#0A1628">/.test(html),
-    '밝은 바탕 = #process · #process-pro · #faq-summary / 인트로 · 첫 화면 · 푸터는 남색 그대로');
-  const lt = (html.match(/\.lp-light[^{]*\{[^}]*\}/g) || []).join('\n');
-  check(/\.lp-light\{--lt-ink:#0F2540;--lt-sub:rgba\(15,37,64,0\.7\);--lt-line:rgba\(15,37,64,0\.1\);--lt-dot:#0E9A7B;--lt-txt:#0A7A61;\s*position:relative;z-index:1;background:#F5F8FB;/.test(lt) &&
-        /\.lp-light\.pro-sec\{--lt-dot:#2F86D6;--lt-txt:#1F6FB8;background:#EEF6FD\}/.test(lt) &&
-        lt.includes('.lp-light.lp-faq details{border-bottom:1px solid rgba(15,37,64,0.12)}') && lt.includes('.lp-light.lp-faq details p{color:var(--lt-ink)}') &&
-        /\.lp-light \.lp-step,[^{]*\{background:#fff;border:1px solid var\(--lt-line\);box-shadow:0 1px 3px rgba\(15,37,64,0\.04\)\}/.test(lt),
-    '바탕 #F5F8FB · 글자 #0F2540 · 보조 70% · 흰 카드 + 10% 테두리 · 전문 번역 #EEF6FD · FAQ 구분선 12% · 열린 답변 남색');
-  check(!/gradient|wave|clip-path|mask/i.test(lt), '경계 직선 — 밝은 본문 규칙에 그라데이션·물결 없음');
-  // 대비 (WCAG AA) — 작은 글자 4.5 · 큰 글자 3
-  const hx = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
-  const ln = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
-  const Lm = c => 0.2126 * ln(c[0]) + 0.7152 * ln(c[1]) + 0.0722 * ln(c[2]);
-  const cr = (a, b) => { const x = Lm(a), y = Lm(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
-  const mix = (f, a, b) => f.map((v, i) => v * a + b[i] * (1 - a));
-  const N = hx('#0F2540'), BG = [hx('#F5F8FB'), hx('#EEF6FD'), [255, 255, 255]];
-  const rows = [['라벨·STEP 민트 #0A7A61', hx('#0A7A61'), 4.5, [0, 2]], ['라벨·STEP 하늘 #1F6FB8', hx('#1F6FB8'), 4.5, [1, 2]],
-    ['보조 글자 남색 70%', null, 4.5, [0, 1, 2]], ['본문 남색', N, 4.5, [0, 1, 2]], ['플랜 가격 #2F86D6 (큰 글자)', hx('#2F86D6'), 3, [2]],
-    ['버튼 민트 + 남색 글자', hx('#06202f'), 4.5, 'm'], ['버튼 하늘 + 남색 글자', hx('#06202f'), 4.5, 's']];
-  const res = rows.map(([n, c, min, bgs]) => {
-    const pairs = bgs === 'm' ? [[c, hx('#16B894')]] : bgs === 's' ? [[c, hx('#6FB8F0')]] : bgs.map(i => [c || mix(N, 0.7, BG[i]), BG[i]]);
-    const lo = Math.min(...pairs.map(([a, b]) => cr(a, b))); return [n, lo, min];
-  });
-  check(res.every(([, lo, min]) => lo >= min), '대비 AA — ' + res.map(([n, lo]) => n + ' ' + lo.toFixed(2)).join(' · '));
-}
-
-// ── 통합-6. 신뢰 섹션 #proof ──
-console.log('\n[통합-6] 신뢰 섹션 #proof — 사진 있으면 켜고, 없으면 hidden');
-{
-  const tag = (html.match(/<section[^>]*id="proof"[^>]*>/) || [''])[0];
-  const pr = html.slice(html.indexOf(tag), html.indexOf('</section>', html.indexOf(tag)));
-  const has = ['sample-notary.jpg', 'sample-school-record.jpg'].every(f => fs.existsSync(path.resolve(HERE, '../assets/' + f)));
-  const opt = ['sample-notary-1200.jpg', 'sample-school-record-1200.jpg'].every(f => fs.existsSync(path.resolve(HERE, '../assets/' + f)));
-  check(!!tag && /class="lp-sec lp-light lp-proof"/.test(tag) && html.indexOf('id="proof"') < html.indexOf('id="process"') &&
-        html.slice(html.indexOf('</section>', html.indexOf('id="proof"')), html.indexOf('id="process"')).indexOf('<section') === html.slice(html.indexOf('</section>', html.indexOf('id="proof"')), html.indexOf('id="process"')).lastIndexOf('<section'),
-    '#proof — #process 바로 위 · 밝은 바탕');
-  check(pr.includes('<h2 class="lp-h2">이렇게 받으십니다</h2>') &&
-        /src="assets\/sample-notary-1200\.jpg" alt="번역공증 완료본"[^>]*loading="lazy"[^>]*><figcaption>번역공증 완료본<\/figcaption>/.test(pr) &&
-        /src="assets\/sample-school-record-1200\.jpg" alt="생활기록부 번역본"[^>]*loading="lazy"[^>]*><figcaption>생활기록부 번역본<\/figcaption>/.test(pr) &&
-        ['공증 완료본은 스캔으로 먼저, 실물은 등기로', '2011년부터 누적 처리 1만 건 이상', '급행 접수 시 다음 영업일 수령'].every(t => pr.includes('<li>' + t + '</li>')),
-    '제목 · 사진 2장(가로 1200 사본 · lazy · 캡션) · 3줄');
-  check(/\.lp-proof img\{[^}]*object-fit:cover;border-radius:14px/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-proof \.pf\{grid-template-columns:1fr;[^}]*\}\s*\.lp-proof \.ph\{grid-template-columns:1fr\}/.test(html),
-    'cover · radius 14px · 모바일 세로 쌓기');
-  check(has && opt ? !/\bhidden\b/.test(tag) : /\shidden>$/.test(tag) && /\.lp-proof\[hidden\]\{display:none !important\}/.test(html),
-    has && opt ? '사진 있음 → 켠 상태' : '사진 없음(assets/sample-*.jpg) → 플래그(hidden)로 섹션 전체 숨김');
-}
-
-// ── 통합-7. 수령일 실시간 · 모바일 압축 ──
-console.log('\n[통합-7] 수령일 실시간(/api/notary/eta) · 모바일 압축');
-{
-  check(land.includes('<li id="lp-eta-card">급행 접수 시 다음 영업일 수령</li>') && land.includes('<p class="lp-trust" id="lp-eta-cta">급행 접수 시 다음 영업일에 받아 보실 수 있습니다.</p>'),
-    '고정 문구(실패 시 그대로) — 신청 카드 한 줄 · 3단계 CTA 띠 왼쪽');
-  const FIX = { 'lp-eta-card': '급행 접수 시 다음 영업일 수령', 'lp-eta-cta': '급행 접수 시 다음 영업일에 받아 보실 수 있습니다.' };
-  const runEta = async (fetchImpl) => {
-    const e = {}; const get = (id) => (e[id] = e[id] || { textContent: FIX[id] || '' });
-    const sb = { window: {}, isLoggedIn: false, sessionStorage: { setItem(){} }, showPage(){}, location: {}, fetch: fetchImpl, AbortController,
-      setTimeout, clearTimeout, Date, document: { getElementById: get } };
-    vm.createContext(sb); vm.runInContext(script, sb);
-    await new Promise(r => setTimeout(r, 20));
-    return [get('lp-eta-card').textContent, get('lp-eta-cta').textContent];
+  check(/var SHOW_V3 = false;/.test(land), 'SHOW_V3 = false (이번 작업은 꺼 둠)');
+  const tpls = [...land.matchAll(/<template data-v3="(replace|insert)">([\s\S]*?)<\/template>/g)];
+  check(tpls.length === 4, 'V3 template 4개 (번역팀 카드 1 · 10단계 · 회사 기억 · FAQ 1)');
+  const inT = tpls.map(m => m[2]).join('\n');
+  const outT = land.replace(/<template[\s\S]*?<\/template>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+  for (const w of ['10단계', '귀사를 기억', '용어를 기억하고', '별의 기사', '전용 용어집', '역번역', '판정'])
+    check(inT.includes(w) && !outT.includes(w), `V3 문구 '${w}' — template 안에만 (스위치 꺼짐 = 화면·검색 미노출)`);
+  check((inT.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, 'V3 공정 10단계');
+  check(/<span class="tag">예시<\/span>/.test(inT), "V3 가상 예시에 '예시' 표시");
+  check(!/제출/.test(outT) && !/제출/.test(inT), "'제출' 표현 없음 (대상 독자·대상 시장)");
+  check(outT.includes('분야와 문체, 대상 독자를 먼저 파악합니다. 영국 시장은 영국식, 미국 시장은 미국식 표기로 맞춥니다.'), '현재 버전 1단계 문구');
+  // 켜지는 조건 — 운영 주소는 ?v3=1 이 있어도 꺼짐, 브랜치 미리보기만 켜짐
+  const sw = script.slice(script.indexOf('var SHOW_V3'), script.indexOf('/* 메인 랜딩 v2'));
+  const run = (hostname, search, flag) => {
+    let n = 0; const t = { getAttribute: () => 'insert', content: { cloneNode: () => ({}) }, parentNode: { replaceChild(){ n++; } } };
+    const ctx = { location: { hostname, protocol: 'https:', search }, document: { documentElement: { setAttribute(){} }, querySelectorAll: () => [t] } };
+    vm.createContext(ctx); vm.runInContext(flag ? sw.replace('SHOW_V3 = false', 'SHOW_V3 = true') : sw, ctx); return n;
   };
-  const ok = await runEta(async (u) => ({ ok: /\/api\/notary\/eta$/.test(u), json: async () => ({ express: { T2: '2026-10-19', T3: '2026-10-21' }, normal: { T2: '2026-10-21', T3: '2026-10-23' } }) }));
-  check(ok[0] === '지금 급행 접수하면 10월 19일(월) 수령' && ok[1] === ok[0], `API 성공 → "${ok[0]}" (카드 · CTA 띠 같은 문구, T2 기준 · 요일 포함)`);
-  const fails = await Promise.all([
-    runEta(async () => { throw new Error('network'); }),
-    runEta(async () => ({ ok: false, json: async () => ({}) })),
-    runEta(async () => ({ ok: true, json: async () => ({ express: { T2: '10/19' } }) })),
-    runEta(async () => ({ ok: true, json: async () => null })),
-  ]);
-  check(fails.every(([a, b]) => a === FIX['lp-eta-card'] && b === FIX['lp-eta-cta']), 'API 실패(네트워크 · 5xx · 형식 오류 · 빈 응답) → 기존 고정 문구 그대로');
-  check(/setTimeout\(function\(\)\{ if \(ctl\) ctl\.abort\(\); \}, 4000\)/.test(script) && script.includes("'https://iumm-pipeline-production.up.railway.app/api/notary/eta'"),
-    '4초 넘게 걸리면 중단(고정 문구 유지) · 파이프라인 주소 직접(MEMBER_API_BASE 는 뒤쪽 스크립트라 아직 없음)');
-  const m640 = (html.match(/@media\(max-width:640px\)\{\s*\.lp\{padding:0 16px\}[\s\S]*?\n\}/) || [''])[0];
-  check(/\.lp-bigs\{grid-template-columns:1fr 1fr;gap:10px\}/.test(m640) && /\.lp-bigs \.lp-big \.n\{font-size:clamp\(/.test(m640),
-    '모바일 — 신청 카드 가격 두 개 나란히 2열 · 숫자 clamp 축소');
-  check(/\.lp-step\{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline;padding:16px\}/.test(m640) &&
-        /\.lp-step \.d\{grid-column:1 \/ -1;font-size:14px;/.test(m640), '모바일 — 3·4단계 카드 번호 + 제목 한 줄 · 설명 14px · padding 16px');
-  check(/\.lp-plans\{grid-template-columns:1fr 1fr;gap:10px\}/.test(m640), '모바일 — 플랜 박스 2개 나란히 2열');
+  check(run('iumm.kr', '?v3=1') === 0, '운영 iumm.kr + ?v3=1 → 꺼짐');
+  check(run('iumm-site.pages.dev', '?v3=1') === 0, '운영 pages.dev + ?v3=1 → 꺼짐');
+  check(run('site-v2-two-experts.iumm-site.pages.dev', '?v3=1') === 1, '미리보기 브랜치 + ?v3=1 → 켜짐');
+  check(run('site-v2-two-experts.iumm-site.pages.dev', '') === 0, '미리보기 브랜치 기본 → 꺼짐');
+  check(run('iumm.kr', '', true) === 1, 'SHOW_V3 = true → 운영에서 켜짐');
 }
 
-console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
+// ── 8. FAQ 낡은 문구 ──
+
+console.log(`
+${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
 process.exit(fail ? 1 : 0);
