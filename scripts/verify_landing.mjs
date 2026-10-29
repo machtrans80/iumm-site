@@ -58,7 +58,13 @@ console.log('\n[5] 문구 원칙');
 check(!/자동 번역|기계 번역|AI 도구|돌린다|돌려서|모든 문장을/.test(landVis), 'AI 도구 표현 · 사람 일 부풀리기 없음');
 check(!/사법공조|진술조서|수사|GPT|Claude|Gemini|프롬프트|원가|최고|최저|유일|1위/.test(landVis), '모델 이름·수사·원가·최상급 표현 없음');
 check(!/14일|용어 고정|역번역|95점|별의 기사|Starblade|귀사의 용어를 기억/.test(landVis), '아직 없는 기능 문구 없음(later_copy.md 보관분)');
-check(!/<p class="lp-slogan"/.test(land) || /<p class="lp-slogan" lang="en">[^<]+<\/p>/.test(land), '영문 슬로건 — 원문 확인 전엔 비움');
+check(land.includes('<p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>an &amp; <b>M</b>achine</p>'), '영문 슬로건 (I·U·M·M 첫 글자만 굵게)');
+check(land.includes('<p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1만 건 이상</p>'), '신뢰 표시 한 줄');
+{ const pairs = (html.match(/<select id="lang-select"[\s\S]*?<\/select>/)[0].match(/<option[^>]*>한국어 → [^<]+<\/option>/g) || []).length;
+  check(pairs === 32, `신뢰 표시 '32개 언어' = 주문 화면 한국어→외국어 목록 ${pairs}개`); }
+check(!/이음|잇습니다|잇고|이어 드립니다/.test(landVis) && !/이음/.test(html.replace(/<!--[\s\S]*?-->/g, '')), "'이음' 브랜드 표현 · '잇다' 문구 없음 (숨김 V3 포함)");
+check(land.includes('<p class="lp-label">왜 아이움인가</p>') && land.includes('<h2 class="lp-h2">빠르면서도, 정확하게</h2>'), '왜 아이움인가 섹션');
+check(land.includes('<p class="s">당신의 가능성을 세계로 연결합니다.</p>'), '마지막 섹션 대표 문구');
 
 console.log('\n[6] 색 — 새 팔레트');
 check(/--v-navy:#0F2540;--v-ink:#1F4FD1;--v-ink-hover:#1A43B3;[^}]*--v-bg:#FAFAF7;--v-pale:#EEF3FB;\s*--v-text:#1B2433;--v-sub:#4A5568;--v-gold:#B08D57;/.test(html), '랜딩 토큰 (네이비·잉크 블루·오프화이트·페일 블루·본문·보조·샴페인 골드)');
@@ -82,7 +88,7 @@ console.log('\n[15] 인트로');
   const js = it.match(/<script>([\s\S]*?)<\/script>/)[1];
   check(/\.it\{position:relative;height:330vh;/.test(it) && /@media\(max-width:640px\)\{\s*\.it\{height:290vh\}/.test(it), '바깥 높이 PC 330vh / 모바일 290vh');
   check(/\.it-stage\{position:sticky;top:0;height:100vh;height:100dvh;/.test(it), '무대 sticky · 100vh → 100dvh (iOS 주소창 높이 변화)');
-  check(it.includes('<p class="it-head">당신을 세계로 이어 드립니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
+  check(it.includes('<p class="it-head">당신의 가능성을 세계로 연결합니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
   check(land.includes('<h1 class="serif">두 전문가가<br>함께 번역합니다</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "두 전문가가 함께 번역합니다" · 메인 화면에 하나뿐');
 
   // ── 지도 — 점 세계지도 + 한반도 윤곽
@@ -171,7 +177,7 @@ console.log('\n[15] 인트로');
     '줌아웃 — 서울 기준 transform:scale, 한반도가 카드에 차는 배율(PC 약 6배) → 최종 PC 1배 · 모바일 1.6배');
 
   // ── 글자 · 끝
-  check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신을 세계로 이어 드립니다<\/p>\s*<\/div>/.test(it) &&
+  check(/<div class="it-plate">\s*<i class="it-bg" aria-hidden="true"><\/i>\s*<p class="w">[\s\S]*?<\/p>\s*<p class="s">당신의 가능성을 세계로 연결합니다<\/p>\s*<\/div>/.test(it) &&
         it.includes('.it-bg{position:absolute;left:-30%;right:-30%;'), '"IUMM"·부제 뒤 radial 바탕 (좌우 -30% = 글자 폭 1.6배)');
   check(it.includes('<p class="w"><span>I</span><span>U</span><span>M</span><span>M</span></p>') && !/아 · 이 · 움|<span>아<\/span>/.test(it) &&
         /color:#C9D7FB;font-size:clamp\(48px,8vw,112px\);font-weight:800;letter-spacing:0\.18em;/.test(it) && /\.it-word \.s\{[^}]*color:rgba\(255,255,255,0\.8\)/.test(it) &&
