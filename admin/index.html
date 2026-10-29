@@ -1090,6 +1090,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <button id="btn-confirm-review" class="btn btn-info" style="display:none" onclick="confirmReview()">✅ 메인 노출 컨펌</button>
         <button id="btn-delete" class="btn btn-danger" style="display:none" onclick="deleteOrder()">🗑 삭제</button>
         <button id="btn-save-draft" class="btn btn-mint" style="display:none" onclick="saveTranslationDraft()">💾 임시저장</button>
+        <button id="btn-company-fix" class="btn btn-info" style="display:none" onclick="requestCompanyFix()" title="시스템 오류·원문 누락 — 고객 무상 수정 1회와 별개">회사 귀책 수정</button>
         <button class="btn-deliver" id="btn-deliver" onclick="confirmFinalDelivery()">✓ 최종 납품</button>
       </div>
     </div>
@@ -1334,7 +1335,7 @@ async function loadOrders() {
   } catch(e) { var tb = document.getElementById('orders-tbody'); if (tb) tb.innerHTML = '<tr class="empty-row"><td colspan="7">오류: ' + e.message + '</td></tr>'; }
 }
 
-// 무료 테스트 · 14일 무상 수정 표시 (2026-10-29) — 수정 요청은 주문을 눌러 고친 뒤 [납품]하면 재납품완료·처리 시간이 기록된다
+// 무료 테스트 · 14일 무상 수정 표시 (2026-10-29, 10-30 유료 주문 1회 + 회사 귀책 별개) — 수정 요청은 주문을 눌러 고친 뒤 [납품]하면 재납품완료·처리 시간이 기록된다
 function b2bTagsHtml(o) {
   var t = '';
   if (o.isFreeTest) t += ' <span class="tag" style="background:rgba(31,79,209,0.15);color:#9DB7F5;border:1px solid rgba(157,183,245,0.35)">무료 테스트</span>';
@@ -1342,15 +1343,30 @@ function b2bTagsHtml(o) {
   if (o.company) t += ' <span style="font-size:11px;color:rgba(255,255,255,0.55)">' + escHtmlB2b(o.company) + (o.industry ? ' · ' + escHtmlB2b(o.industry) : '') + '</span>';
   if (o.revisionState) {
     var open = o.revisionState === '요청됨';
-    t += ' <span class="tag" style="background:' + (open ? 'rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)') + '">수정 ' + (o.revisionCount || 0) + '/2 ' + (open ? '요청됨' : '재납품완료') + '</span>';
+    t += ' <span class="tag" style="background:' + (open ? 'rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)') + '">수정 ' + (o.revisionCount || 0) + '/1 ' + (open ? '요청됨' : '재납품완료') + '</span>';
+    if (o.companyFixCount) t += ' <span class="tag" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.35)" title="시스템 오류·원문 누락 — 고객 횟수와 별개">회사 귀책 ' + o.companyFixCount + '</span>';
     if (currentTab === 'revisions') {
-      var log = []; try { log = JSON.parse(o.revisionLog || '[]'); } catch (e) {}
+      // 서버가 배열로 준다(parseRevisionLog). 예전 문자열 응답도 받는다
+      var log = Array.isArray(o.revisionLog) ? o.revisionLog : []; if (typeof o.revisionLog === 'string') { try { log = JSON.parse(o.revisionLog || '[]'); } catch (e) {} }
       t += '<div style="margin-top:6px;font-size:11.5px;line-height:1.6;color:rgba(255,255,255,0.75)">' + log.map(function (e) {
-        return e.n + '회차 · ' + ymd(e.at) + (e.paragraph ? ' · ' + escHtmlB2b(e.paragraph) : '') + ' — ' + escHtmlB2b(e.reason || '') + (e.minutes != null ? ' <span style="color:#22c55e">(' + e.minutes + '분)</span>' : '');
+        return (e.type === 'company' ? '<span style="color:#f59e0b">회사 귀책</span>' : e.n + '회차') + ' · ' + ymd(e.at) + (e.paragraph ? ' · ' + escHtmlB2b(e.paragraph) : '') + ' — ' + escHtmlB2b(e.reason || '') + (e.minutes != null ? ' <span style="color:#22c55e">(' + e.minutes + '분)</span>' : '');
       }).join('<br>') + (o.revisionMinutes ? '<br><span style="color:rgba(255,255,255,0.5)">처리 시간 합계 ' + o.revisionMinutes + '분</span>' : '') + '</div>';
     }
   }
   return t;
+}
+// 회사 귀책 수정 접수 (2026-10-30) — 고객 횟수에 넣지 않는다. 접수 후 고쳐서 [최종 납품]하면 재납품완료·처리 시간 기록
+async function requestCompanyFix() {
+  if (!selectedOrder) return;
+  var reason = window.prompt('회사 귀책 사유 (예: 시스템 오류로 3쪽 누락)', '');
+  if (reason == null) return;
+  if (!reason.trim()) { showToast('사유를 적어 주세요', 'error'); return; }
+  try {
+    var d = await adminFetch('/api/admin/orders/' + selectedOrder.orderId + '/company-fix', { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
+    if (!d.success) { showToast(d.error || '접수하지 못했습니다', 'error'); return; }
+    showToast('회사 귀책 수정 접수 — 고친 뒤 최종 납품을 누르세요');
+    if (typeof loadOrders === 'function') loadOrders();
+  } catch (e) { showToast('접수하지 못했습니다', 'error'); }
 }
 function escHtmlB2b(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
@@ -1788,6 +1804,8 @@ function selectOrder(id, row) {
     updateConfirmReviewBtn(order.isReviewConfirmed);
   }
   if (btnDel) btnDel.style.display = 'inline-block';
+  var btnFix = document.getElementById('btn-company-fix');
+  if (btnFix) btnFix.style.display = (order.firstDeliveredAt && order.revisionState !== '요청됨') ? 'inline-block' : 'none';
   // 임시저장 버튼 표시 + 저장상태 초기화
   var btnSave = document.getElementById('btn-save-draft');
   if (btnSave) btnSave.style.display = 'inline-flex';

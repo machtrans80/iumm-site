@@ -55,7 +55,29 @@ check(!/원본 형식 그대로/.test(land), "'원본 형식 그대로' 카드 �
 check(/onclick="openFreeTest\(\)">무료 테스트 번역 신청<\/button>/.test(land) && /href="https:\/\/pf\.kakao\.com\/_BlpKX\/chat"[^>]*>NDA 체결 문의<\/a>/.test(land), '버튼: 무료 테스트 신청 · NDA 문의(카카오 상담)');
 check(!/후불|월 정산|외상/.test(html.replace(/<!--[\s\S]*?-->/g, '')), '후불·월 정산·외상 없음');
 check(html.includes("fetch(MEMBER_API_BASE+'/api/order/free-test'") && /FREE_TEST_MAX_CHARS=1000/.test(html), '무료 테스트 → /api/order/free-test · 1,000자');
-check(html.includes("'/revision',{method:'POST'") && html.includes('수정 기간이 지났습니다. 문의해 주세요.'), '마이페이지 수정 요청 → /revision · 기간 지남 안내');
+check(html.includes("'/revision',{method:'POST'") && html.includes("REVISION_CLOSED_MSG='수정 요청을 이미 사용했거나 수정 기간이 지났습니다. 문의해 주세요.'"), '마이페이지 수정 요청 → /revision · 사용·기간 지남 안내');
+
+// ── 2026-10-30 통합 명령 — 무료 테스트 하나로 · 무상 수정 유료 1회 · 수사·공증 문구 · 약관 개정 ──
+console.log('\n[3-3] 무료 테스트 하나로 · 무상 수정 유료 1회 · 약관 개정 (2026-10-30)');
+const terms = html.slice(html.indexOf('<div id="page-terms"'), html.indexOf('<!-- FAQ 페이지'));
+const priv = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
+check(!/300자|300글자/.test(html), "'300자·300글자' 문구 없음 (주석 포함)");
+check(!/2회/.test(html), "'2회' 없음 (무상 수정 1회)");
+check((html.match(/유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다\./g) || []).length === 3, '카드·랜딩 FAQ·FAQ 페이지 = 유료 주문 14일 이내 1회');
+check((html.match(/원문이 바뀌거나 분량이 늘어난 경우는 새 주문으로 접수됩니다\./g) || []).length === 2, 'FAQ 2곳 — 원문 변경·분량 추가는 새 주문');
+check(html.includes("if(!v||o.isFreeTest||v.reason==='not_delivered') return '';") && html.includes("if(v.reason==='not_paid') return '';"), '무료 테스트·미결제 주문에는 수정 요청 버튼 없음');
+check(html.includes('<button id="tab-free" onclick="switchOrderPlan(\'free\')">무료 테스트</button>') && !html.includes('id="free-trial-banner"') && !html.includes('id="free-discount-row"'), '주문 탭 = 무료 테스트 · 옛 첫 주문 할인 배너·줄 없음');
+check(/function handleFreeTrial\(\)\{ openFreeTest\(\); \}/.test(html), '옛 무료체험 진입점 → 무료 테스트');
+check(/회사명 <span style="color:#e05555">\*<\/span><\/label>\n\s*<input type="text" id="signup-company"/.test(html) && html.includes("if(!companyVal){showToast('회사명을 입력해주세요')"), '가입 정보 입력 — 회사명 필수');
+check(!/수사|진술|사법공조|증거 자료|공문|공증|아포스티유/.test(terms), '이용약관에 수사·진술·사법공조·증거 자료·공문·공증·아포스티유 없음');
+check(!terms.includes('11.4') && terms.includes('11.3 통화 환산 금지 원칙'), '11.3(수사 예외) 삭제 · 통화 환산 = 11.3');
+check(terms.includes('공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일') && priv.includes('공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일'), '약관·개인정보 공고 10-31 · 시행 11-07 (7일 전 공지)');
+check(terms.includes('href="/legal/terms-2026-10-26"') && priv.includes('href="/legal/privacy-2026-10-26"') && fs.existsSync(path.resolve(HERE, '../legal/terms-2026-10-26.html')) && fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-10-26.html')), '이전 약관·개인정보 보기 = 2026-10-26 시행본 보관 파일');
+check(terms.includes('회사당 1회, 1,000자(공백 제외) 이하의 무료 테스트 번역') && terms.includes('무료 테스트 번역은 무상 수정 대상이 아닙니다.'), '약관 5.6 무료 테스트 — 회사당 1회 1,000자 · 수정 대상 아님');
+check(terms.includes('유료 주문은 납품 후 14일 이내 1회 무상으로 수정') && terms.includes('무상 수정 횟수와 별개') && !/5일/.test(terms.slice(terms.indexOf('<h2>제1조')).replace(/15일|25일/g, '')), '약관 5.3·6조·7조 — 14일 1회 · 회사 귀책 별개 · 5일 기한 없음');
+check(terms.includes('제7조의2 (비밀유지계약)'), '약관 제7조의2 비밀유지계약 신설');
+check(!/기업 고객 전용|용어 수집|자동 삭제/.test(terms.slice(terms.indexOf('terms-revision-notice'), terms.indexOf('<h2>제1조'))), '개정 안내에 기업 고객 전용·용어 수집·자동 삭제 없음');
+check(priv.includes('무료 테스트 번역 회사당·회원당 1회 제한 관리'), '개인정보 제2조 — 무료 테스트 회사당·회원당 1회');
 check(['게임', '법률', '의료·제약·의료관광', '회계·재무', '특허·지식재산', '학술·논문', '매뉴얼·기술 문서', 'ESG', '그 밖'].every(v => html.includes(`<option value="${v}">${v}</option>`)), '업종 선택지 = 서버 ORDER_INDUSTRIES');
 check(!/value="criminal"/.test(html), '주문 화면 수사 분야 선택지 없음');
 for (const q of ['맡기기 전에 품질을 확인할 수 있나요?', '비밀유지계약을 맺을 수 있나요?', '납품 후 수정이 필요하면요?'])
@@ -396,7 +418,7 @@ console.log('\n[15] 인트로');
 console.log('\n[분야] 고객 주문 화면');
 { const fs = html.match(/<select id="field-select"[\s\S]*?<\/select>/)[0];
   check(!/criminal|수사|진술|범죄/.test(fs), "분야 선택에 '범죄·수사·공문' 없음");
-  check(fs.includes('법률·계약 (계약서, 약관, 법령, 소송·법원 서류, 공문)'), '법률 항목 설명에 소송·법원 서류·공문 포함'); }
+  check(fs.includes('법률·계약 (계약서, 약관, 법령, 소송·법원 서류)</option>') && !/공문/.test(fs), "법률 항목 설명 = 계약서·약관·법령·소송·법원 서류 ('공문' 없음, 2026-10-30)"); }
 
 // ── V3 공개 스위치 (2026-10-29) ──
 console.log('\n[V3] 공개 스위치');

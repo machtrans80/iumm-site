@@ -1,7 +1,7 @@
 /* 카카오톡 문의 버튼 — 고객 화면 공통 조각 (2026-10-15)
  *
  * ★이 파일 하나만 고친다. 페이지마다 버튼 마크업·CSS 를 복사하지 말 것.
- *   쓰는 곳: 메인(index.html), 공증 위저드(notary/index.html), 번역본 화면(notary/edit.html),
+ *   쓰는 곳: 메인(index.html), 별도 서류 화면(notary/index.html·edit.html),
  *            비공개 견적 화면(/q/… — 백엔드 notary/quotePage.js). 어드민에는 넣지 않는다.
  *   불러오기: <script src="/assets/kakao-fab.js" defer></script>
  *     data-pad="1"    본문 끝에 버튼 높이만큼 여백을 둔다(마지막 버튼이 가려지지 않게)

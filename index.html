@@ -53,7 +53,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;back
 h1,h2,h3,h4,h5,h6{color:#ffffff;font-weight:500;letter-spacing:-0.02em}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,37,64,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.08)}
 .nav-logo{font-size:23px;font-weight:700;color:#9DB7F5;letter-spacing:0.5px;text-decoration:none;flex-shrink:0;white-space:nowrap}
-/* 로고 — IUMM(민트 밝게·굵게·자간) + 아이움(흰색 90%·2px 작게). 메인·푸터·공증 화면 모두 같은 모양 */
+/* 로고 — IUMM(민트 밝게·굵게·자간) + 아이움(흰색 90%·2px 작게). 메인·푸터·하위 화면 모두 같은 모양 */
 .nav-logo .lg-en,.footer-logo .lg-en{color:var(--mint-light);font-weight:800;letter-spacing:0.14em}
 .nav-logo .lg-ko,.footer-logo .lg-ko{color:rgba(255,255,255,0.9);font-weight:500;font-size:calc(1em - 2px);letter-spacing:0;margin-left:8px}
 .nav-links{display:flex;gap:32px;align-items:center}
@@ -86,7 +86,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:fl
 #order-modal-box strong{color:#fff}
 #order-modal-box .lbl{color:rgba(255,255,255,0.95)}
 /* 플랜별 모달 — overlay 방식 (원래 배경 유지, 색상 hint만) */
-/* 전문 번역 주문 창 — 메인·공증 위저드와 같은 민트/네이비 (2026-10-15). 플랜별 색 구분 없음 */
+/* 전문 번역 주문 창 — 메인과 같은 민트/네이비 (2026-10-15). 플랜별 색 구분 없음 */
 #order-modal-box{background:var(--black-deeper)!important;border:1px solid rgba(31,79,209,0.45)!important;border-radius:12px}
 #order-modal-box .btn-primary{background:var(--mint)!important;color:#fff!important;box-shadow:none!important;border-radius:8px}
 #order-modal-box .btn-primary:hover{background:var(--mint-light)!important}
@@ -837,7 +837,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <a class="nav-logo" href="/" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})"><span class="lg-en">IUMM</span><span class="lg-ko">아이움</span></a>
   <div style="display:flex;align-items:center;gap:32px">
     <div class="nav-links" id="nav-links-desktop">
-      <!-- 2026-10-29 v2 — 번역공증·아포스티유 메뉴 제거. 메뉴 = 랜딩 구역 이동 + FAQ + 로그인 -->
+      <!-- 2026-10-29 v2 — 메뉴 = 랜딩 구역 이동 + FAQ + 로그인 -->
       <a href="#team">아이움 번역팀</a>
       <a href="#field-standards">분야</a>
       <a href="#process">번역 과정</a>
@@ -927,16 +927,19 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div class="legal-page">
     <button class="legal-back-btn" onclick="showPage('main')">← 홈으로</button>
     <h1>이용약관</h1>
-    <p class="legal-date">공고일: 2026년 10월 19일 &nbsp;|&nbsp; 시행일: 2026년 10월 26일 &nbsp;|&nbsp; 최초 시행: 2026년 1월 1일</p>
+    <p class="legal-date">공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일 &nbsp;|&nbsp; 최초 시행: 2026년 1월 1일</p>
 
     <div id="terms-revision-notice" style="border:1px solid rgba(31,79,209,0.35);background:rgba(31,79,209,0.06);padding:14px 18px;margin:0 0 32px;border-radius:2px">
       <p style="margin:0 0 6px"><strong style="color:rgba(255,255,255,0.85)">[개정 안내]</strong> 이용약관이 다음과 같이 개정됩니다.</p>
       <ul style="margin:0">
-        <li>개정 조항: 제11조의2 (번역 용어의 정리 및 기업 전용 용어집) 신설</li>
-        <li>개정 사유: 번역 품질과 용어 통일성 향상</li>
-        <li>공지일: 2026년 10월 19일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 10월 26일</span></li>
+        <li>무료 테스트 번역: 회사당 1회, 1,000자(공백 제외) 이하로 변경 (제4조, 제5조 5.6)</li>
+        <li>무상 수정: 유료 주문은 납품 후 14일 이내 1회 무상 수정, 원문 변경·분량 추가는 새 주문, 시스템 오류·원문 누락은 회사가 횟수와 별개로 바로잡음 (제5조 5.3, 제6조, 제7조 — 신청 기간 5일 → 14일)</li>
+        <li>비밀유지계약: 요청 시 번역 착수 전 체결 가능 (제7조의2 신설)</li>
+        <li>제11조 11.3 삭제 및 항 번호 정리, 제9조·제13조 문구 정리</li>
+        <li>개정 사유: 무료 테스트·무상 수정 기준 변경, 기업 고객 비밀유지 안내</li>
+        <li>공지일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 7일</span></li>
       </ul>
-      <p style="margin:6px 0 0"><a href="/legal/terms-2026-10-22" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 약관 보기</a></p>
+      <p style="margin:6px 0 0"><a href="/legal/terms-2026-10-26" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 약관 보기</a></p>
     </div>
 
     <h2>제1조 (목적)</h2>
@@ -962,7 +965,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>번역 요금은 이용자가 입력·선택한 글자수(공백 제외) 또는 페이지수를 기준으로 산정됩니다.</li>
       <li><span class="highlight">이용자가 입력한 글자수, 페이지수, 파일 정보의 정확성은 전적으로 이용자의 책임</span>이며, 잘못된 입력으로 인한 요금 차이 및 불이익에 대해 회사는 책임지지 않습니다.</li>
       <li>잘못된 파일 첨부, 오입력, 단순 변심으로 인한 환불 및 가격 수정은 불가합니다.</li>
-      <li>무료 체험 서비스(300글자)는 회원 1인당 1회에 한하여 제공됩니다.</li>
+      <li>무료 테스트 번역은 회사당 1회, 1,000자(공백 제외) 이하로 제공되며, 무상 수정 요청 대상이 아닙니다.</li>
     </ul>
 
     <h2 id="article-5">제5조 (결제 및 환불 정책)</h2>
@@ -993,17 +996,16 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>"기대와 다르다", "더 좋은 번역을 받고 싶다" 등 주관적 사유</li>
     </ul>
 
-    <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">5.3 무료 재번역 또는 A/S(품질수정) 제공 사유 (회사 귀책)</h3>
-    <p>아래의 경우 <span class="highlight">무료 재번역 또는 A/S(품질수정)</span>를 제공합니다 (환불은 불가).</p>
+    <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">5.3 무상 수정 및 회사 귀책 수정</h3>
     <ul>
-      <li>시스템 오류로 번역이 정상 진행되지 않은 경우</li>
-      <li>객관적·명백한 오역이 확인된 경우 (<span class="highlight">납품 후 5일 이내 신청</span>)</li>
-      <li>원문 내용의 일부가 누락된 채 번역된 경우</li>
-      <li>당사가 보장하는 품질 기준에 명백히 미달하는 경우</li>
+      <li><span class="highlight">유료 주문은 납품 후 14일 이내 1회 무상으로 수정</span>해 드립니다 (환불은 불가).</li>
+      <li>원문이 바뀌었거나 분량이 늘어난 경우는 수정이 아닌 <span class="highlight">새 주문으로 접수</span>됩니다.</li>
+      <li>시스템 오류로 번역이 정상 진행되지 않았거나 원문 일부가 누락된 채 번역된 경우 등 회사 귀책 사유는 <span class="highlight">회사가 바로잡으며, 무상 수정 횟수와 별개</span>로 처리합니다.</li>
+      <li>무료 테스트 번역은 무상 수정 대상이 아닙니다.</li>
     </ul>
     <p style="background:rgba(31,79,209,0.05);border-left:2px solid var(--gold);padding:12px 16px;margin:10px 0">
-      <strong style="color:var(--gold-light)">신청 방법:</strong> iumm.master@gmail.com으로 <strong>주문번호 + 오역 부분 + 사유</strong>를 함께 보내주시면 회사가 검토 후 진행합니다. 
-      <span class="highlight">납품 후 5일이 경과하면 무료 재번역/A/S 신청이 불가</span>합니다.
+      <strong style="color:var(--gold-light)">신청 방법:</strong> 마이페이지의 주문에서 [수정 요청]을 누르시거나, iumm.master@gmail.com으로 <strong>주문번호 + 고칠 부분 + 사유</strong>를 보내 주세요.
+      <span class="highlight">납품 후 14일이 지나면 무상 수정 신청이 불가</span>합니다 (회사 귀책 사유는 제외).
     </p>
 
     <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">5.4 부분 환불 사유 (예외적)</h3>
@@ -1021,11 +1023,12 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>회사는 이용자의 결제 정보를 저장·보관하지 않습니다.</li>
     </ul>
 
-    <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">5.6 무료체험 제공</h3>
+    <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">5.6 무료 테스트 번역</h3>
     <ul>
-      <li>회사는 결제 전 품질 확인을 위해 <span class="highlight">회원당 1회, 최대 300자의 무료체험</span>을 제공합니다.</li>
-      <li>무료체험을 통해 번역 품질을 확인한 후 결제를 진행하실 것을 권장합니다.</li>
-      <li>무료체험 이용 후 결제한 경우, 본 환불 정책이 동일하게 적용됩니다.</li>
+      <li>회사는 결제 전 품질 확인을 위해 <span class="highlight">회사당 1회, 1,000자(공백 제외) 이하의 무료 테스트 번역</span>을 제공합니다. 신청 시 회사명을 적어야 하며, 결제는 필요 없습니다.</li>
+      <li>글자 수는 유료 주문과 같은 방식(공백 제외)으로 셉니다.</li>
+      <li>무료 테스트 번역은 무상 수정 요청 대상이 아닙니다.</li>
+      <li>무료 테스트 번역 이용 후 결제한 주문에는 본 환불 정책이 동일하게 적용됩니다.</li>
     </ul>
 
     <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">5.7 분쟁 해결</h3>
@@ -1038,29 +1041,37 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <h2>제6조 (번역 납품 및 확인)</h2>
     <ul>
       <li>번역 완료 시 카카오 알림톡으로 안내드리며, 마이페이지에서 다운로드하실 수 있습니다. 파일은 납품일로부터 21일 후 자동 삭제됩니다.</li>
-      <li><span class="highlight">납품일로부터 5일 이내에 이의 제기가 없을 경우 최종 수령 및 확인으로 간주</span>하며, 이후 수정 및 이의 제기는 불가합니다.</li>
+      <li><span class="highlight">납품일로부터 14일 이내에 수정 요청이나 이의 제기가 없을 경우 최종 수령 및 확인으로 간주</span>하며, 이후 무상 수정 및 이의 제기는 불가합니다 (제5조 5.3의 회사 귀책 사유는 제외).</li>
       <li>이메일 오류, 스팸 분류, 수신 거부, 이용자의 이메일 주소 오기재 등 이용자 귀책 사유로 인한 미수신은 회사의 책임이 아닙니다.</li>
       <li>납품 후 이용자가 원본 파일을 임의로 수정한 경우, 이후 수정 요청은 불가합니다.</li>
     </ul>
 
-    <h2>제7조 (번역 품질 보증 및 A/S - 품질수정)</h2>
+    <h2>제7조 (번역 품질 보증 및 무상 수정)</h2>
     <ul>
-      <li>회사의 명백한 귀책 사유(오역, 누락, 미번역 등)가 객관적으로 확인된 경우에 한해 <span class="highlight">무료 재번역 또는 A/S(품질수정)</span> 서비스를 제공합니다.</li>
-      <li>재번역·A/S 요청은 <span class="highlight">iumm.master@gmail.com</span>으로 납품일로부터 <span class="highlight">5일 이내</span>에 접수해야 하며, 접수 시 다음을 포함해야 합니다.
+      <li>유료 주문은 <span class="highlight">납품 후 14일 이내 1회 무상 수정</span>을 제공합니다. 회사의 명백한 귀책 사유(시스템 오류, 원문 누락 등)는 횟수와 별개로 회사가 바로잡습니다.</li>
+      <li>수정 요청은 마이페이지의 [수정 요청] 또는 <span class="highlight">iumm.master@gmail.com</span>으로 납품일로부터 <span class="highlight">14일 이내</span>에 접수해야 하며, 접수 시 다음을 포함해야 합니다.
         <ul>
           <li>주문번호</li>
-          <li>오역으로 판단되는 부분 (원문 + 번역 결과)</li>
-          <li>판단 사유 또는 제안</li>
+          <li>고칠 부분 (원문 + 번역 결과)</li>
+          <li>사유 또는 제안</li>
         </ul>
       </li>
-      <li>아래의 경우는 재번역·A/S 대상이 되지 않습니다.
+      <li>아래의 경우는 무상 수정 대상이 되지 않습니다.
         <ul>
           <li>이용자의 주관적 문체 선호 또는 표현 방식의 차이</li>
           <li>원문의 모호성·비문법성으로 인한 번역 결과</li>
           <li>이용자가 직접 수정하거나 제3자가 수정에 개입한 경우</li>
-          <li><span class="highlight">납품 후 5일이 경과한 경우</span></li>
+          <li>원문 변경 또는 분량 추가 (새 주문으로 접수)</li>
+          <li>무료 테스트 번역</li>
+          <li><span class="highlight">납품 후 14일이 경과한 경우</span></li>
         </ul>
       </li>
+    </ul>
+
+    <h2 id="article-7-2">제7조의2 (비밀유지계약)</h2>
+    <ul>
+      <li>이용자가 요청하는 경우 회사는 <span class="highlight">번역 착수 전에 이용자와 비밀유지계약을 체결</span>할 수 있습니다.</li>
+      <li>요청은 iumm.master@gmail.com으로 접수하며, 계약 체결 후 번역을 시작합니다.</li>
     </ul>
 
     <h2>제8조 (프리미엄 플러스(전문가 검수) 검수자 배정)</h2>
@@ -1179,7 +1190,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li>전문 자격사(변호사·의사·변리사·법무사·노무사·감정평가사·관세사·세무사·공인회계사·한의사) 검수 서비스는 IUMM이 자격 확인한 검수자에 의해 제공됩니다.</li>
       <li>검수자의 자격 유효성은 등록 시점 기준이며, 이후 자격 변동에 대해 회사는 책임지지 않습니다.</li>
-      <li>전문 자격사 검수 결과물은 법적 효력, 공증, 법원 제출용 인증을 보장하지 않습니다.</li>
+      <li>전문 자격사 검수 결과물은 법적 효력, 공적 인증, 법원 제출용 인증을 보장하지 않습니다.</li>
     </ul>
 
     <h2>제10조 (이용자의 의무)</h2>
@@ -1215,14 +1226,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>반복적인 위반 시 회원 자격이 정지·해지될 수 있습니다.</li>
     </ul>
 
-    <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">11.3 수사·범죄 관련 문서 (예외)</h3>
-    <ul>
-      <li>수사기관·법원·변호사 등 공적 기관·자격사의 정당한 업무 수행을 위한 <span class="highlight">수사 기록, 진술서, 공문서, 증거 자료 등은 별도 계약을 통해 처리</span>합니다.</li>
-      <li>해당 문서 의뢰 시 사전에 <span class="highlight">iumm.master@gmail.com</span>으로 문의해 주시기 바라며, 회사는 의뢰 주체의 정당성을 확인한 후 진행 여부를 결정합니다.</li>
-      <li>본 예외 조항은 콘텐츠 자체가 거부 대상이라도, 정당한 공적 필요에 의한 분석·증거 목적 번역에 한해 적용됩니다.</li>
-    </ul>
-
-    <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">11.4 통화 환산 금지 원칙</h3>
+    <h3 style="color:var(--gold-light);font-size:15px;margin-top:20px;margin-bottom:8px">11.3 통화 환산 금지 원칙</h3>
     <ul>
       <li>IUMM은 번역 시 <span class="highlight">원문에 기재된 통화 단위를 그대로 유지</span>하며, 환율 변동에 따른 통화 환산을 수행하지 않습니다 (예: USD, EUR, KRW 등 ISO 코드 그대로).</li>
       <li>이는 계약·법률·재무 문서의 <span class="highlight">법적 효력 보존, 회계 처리의 정확성, 환율 변동으로 인한 분쟁 방지</span>를 위함입니다.</li>
@@ -1244,7 +1248,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
     <h2>제13조 (면책조항)</h2>
     <ul>
-      <li>회사는 번역 결과물의 법적 효력, 공증, 인증에 관한 사항을 보증하지 않습니다.</li>
+      <li>회사는 번역 결과물의 법적 효력 및 공적 인증에 관한 사항을 보증하지 않습니다.</li>
       <li>이용자가 번역 결과물을 활용하여 발생하는 모든 법적·경제적 결과에 대한 책임은 이용자에게 있습니다.</li>
       <li>이용자 간 또는 이용자와 제3자 간의 분쟁에 대해 회사는 개입하지 않습니다.</li>
     </ul>
@@ -1267,7 +1271,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <h1 style="font-family:'Nanum Myeongjo',serif;font-size:clamp(32px,5vw,48px);font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:-1px">자주 묻는 질문</h1>
     <p style="font-size:15px;color:rgba(255,255,255,0.55);font-weight:300;margin-bottom:48px;line-height:1.8">아이움 전문 번역 이용에 자주 묻는 질문들을 정리했습니다.<br>찾으시는 답변이 없으면 <a href="mailto:iumm.master@gmail.com" style="color:var(--gold-light);text-decoration:underline">iumm.master@gmail.com</a>으로 문의해주세요.</p>
 
-    <!-- 카테고리 탭 (2026-10-29 v2 — 번역공증·아포스티유 항목 제거, 전문 번역 중심) -->
+    <!-- 카테고리 탭 (2026-10-29 v2 — 전문 번역 중심) -->
     <div class="faq-tabs" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,0.08)">
       <button onclick="switchFaqTab('all')" class="faq-tab faq-tab-active" data-tab="all" style="padding:10px 18px;background:var(--gold);color:#fff;border:none;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">전체</button>
       <button onclick="switchFaqTab('translate')" class="faq-tab" data-tab="translate" style="padding:10px 18px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:500;letter-spacing:1px;cursor:pointer;border-radius:100px;transition:all 0.3s">번역</button>
@@ -1300,7 +1304,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
       <div class="faq-item" data-cat="translate">
         <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold-light);font-weight:700;margin-right:12px">Q.</span>납품 후 수정이 필요하면요?<span class="faq-arrow">▼</span></div>
-        <div class="faq-a"><p>납품 후 14일 이내, 2회까지 무료로 수정해 드립니다. 마이페이지의 주문에서 [수정 요청]을 눌러 주세요. 원문이 바뀐 경우는 새 주문으로 접수됩니다.</p></div>
+        <div class="faq-a"><p>유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다. 원문이 바뀌거나 분량이 늘어난 경우는 새 주문으로 접수됩니다. 마이페이지의 주문에서 [수정 요청]을 눌러 주세요.</p></div>
       </div>
 
       <div class="faq-item" data-cat="payment">
@@ -1336,16 +1340,17 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div class="legal-page">
     <button class="legal-back-btn" onclick="showPage('main')">← 홈으로</button>
     <h1>개인정보처리방침</h1>
-    <p class="legal-date">공고일: 2026년 10월 19일 &nbsp;|&nbsp; 시행일: 2026년 10월 26일</p>
+    <p class="legal-date">공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일</p>
 
     <div id="privacy-revision-notice" style="border:1px solid rgba(31,79,209,0.35);background:rgba(31,79,209,0.06);padding:14px 18px;margin:0 0 32px;border-radius:2px">
       <p style="margin:0 0 6px"><strong style="color:rgba(255,255,255,0.85)">[개정 안내]</strong> 개인정보처리방침이 다음과 같이 개정됩니다.</p>
       <ul style="margin:0">
-        <li>개정 조항: 제2조의2 (번역 용어의 정리 및 기업 전용 용어집) 신설, 제1조 ③ 기업 고객 선택 시 수집 항목 추가</li>
-        <li>개정 사유: 번역 품질과 용어 통일성 향상</li>
-        <li>공지일: 2026년 10월 19일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 10월 26일</span></li>
+        <li>제1조 ①: 회원가입 시 입력하는 이름·전화번호·회사명 명시 (회사명 필수 입력으로 변경)</li>
+        <li>제2조: 무료 체험 1회 제한 관리 → 무료 테스트 번역 회사당·회원당 1회 제한 관리</li>
+        <li>개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하)</li>
+        <li>공지일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 7일</span></li>
       </ul>
-      <p style="margin:6px 0 0"><a href="/legal/privacy-2026-10-22" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 개인정보처리방침 보기</a></p>
+      <p style="margin:6px 0 0"><a href="/legal/privacy-2026-10-26" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 개인정보처리방침 보기</a></p>
     </div>
 
     <p>IUMM(이하 "회사")은 「개인정보 보호법」 및 「정보통신망 이용촉진 및 정보보호 등에 관한 법률」에 따라 이용자의 개인정보를 보호하고, 관련 고충을 신속·원활하게 처리하기 위해 다음과 같이 개인정보처리방침을 수립·공개합니다.</p>
@@ -1354,6 +1359,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <p><strong style="color:rgba(255,255,255,0.8)">① 필수 수집 항목</strong></p>
     <ul>
       <li>이메일 주소 (회원가입, 본인 확인, 번역 납품)</li>
+      <li>이름, 전화번호, 회사명 (회원가입 시 입력 — 본인 확인·연락, 무료 테스트 번역 회사당 1회 확인)</li>
       <li>서비스 이용 기록, 접속 로그, 접속 IP</li>
       <li>결제 정보 (결제수단 종류, 결제 승인 번호 — PG사 보관, 회사 미보관)</li>
     </ul>
@@ -1384,7 +1390,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>회원가입 및 본인 확인</li>
       <li>번역 서비스 제공 및 납품 (알림톡 안내·마이페이지 다운로드)</li>
       <li>결제 처리 및 환불·민원 처리</li>
-      <li>무료 체험 1회 제한 관리 (중복 사용 방지)</li>
+      <li>무료 테스트 번역 회사당·회원당 1회 제한 관리 (중복 사용 방지)</li>
       <li>서비스 품질 개선 및 통계 분석</li>
       <li>법령 준수 및 분쟁 해결</li>
     </ul>
@@ -1646,8 +1652,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         <p style="font-size:11px;color:rgba(255,255,255,0.65);font-weight:300;line-height:1.7"><strong style="color:rgba(255,180,180,0.95)">정확한 정보를 입력해주세요.</strong> 번역 진행 중 긴급 연락이나 본인 확인 시 사용되며, 부정확한 정보 입력 시 서비스 이용에 불이익이 발생할 수 있습니다.</p>
       </div>
       <div>
-        <label class="lbl">회사명 <span style="font-size:10px;color:rgba(255,255,255,0.35)">(선택)</span></label>
-        <input type="text" id="signup-company" class="inp" placeholder="회사명을 입력하세요">
+        <label class="lbl">회사명 <span style="color:#e05555">*</span></label>
+        <input type="text" id="signup-company" class="inp" maxlength="100" autocomplete="organization" placeholder="회사명을 입력하세요 (개인은 '개인')">
       </div>
       <div>
         <label class="lbl">주요 번역 언어 <span style="font-size:10px;color:rgba(255,255,255,0.35)">(선택)</span></label>
@@ -1756,7 +1762,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         </div>
         <!-- 번역 거부 콘텐츠 안내 -->
         <p style="font-size:11px;color:rgba(255,150,150,0.7);margin:0;line-height:1.6"><i class="ti ti-ban icon-g" style="margin-right:2px"></i>아동 성착취·음란물·무기·마약·테러·혐오 등 번역 거부 콘텐츠는 의뢰가 제한됩니다.</p>
-        <p style="font-size:11px;color:rgba(157,183,245,0.6);margin:0">가입 즉시 300글자 무료 번역이 제공됩니다 (1회 한정)</p>
+        <p style="font-size:11px;color:rgba(157,183,245,0.6);margin:0">무료 테스트 번역: 회사당 1회, 1,000자 이하 · 결제 없음</p>
       </div>
       <button class="btn-primary" style="width:100%;margin-top:8px;padding:16px" onclick="completeUserInfo()">입력 완료 → IUMM 시작하기</button>
       <button onclick="kakaoLogout()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;text-decoration:underline;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif">취소하고 로그아웃</button>
@@ -1771,7 +1777,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <div style="text-align:center;margin-bottom:48px">
       <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:400;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
       <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:10px">시작하기</h2>
-      <p style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.9">카카오 계정으로 1초 만에 시작하세요<br><span style="color:var(--gold-light);font-size:13px">가입 즉시 300글자 무료 번역 제공</span></p>
+      <p style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.9">카카오 계정으로 1초 만에 시작하세요<br><span style="color:var(--gold-light);font-size:13px">무료 테스트 번역 — 회사당 1회, 1,000자 이하</span></p>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <p id="login-notice" role="alert" style="display:none;margin:0 0 14px;padding:12px 14px;border-radius:6px;background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.35);color:#ffb4b4;font-size:13px;line-height:1.6;text-align:center"></p>
@@ -1803,7 +1809,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <!-- HERO -->
 <!-- ════════════════════════════════════════════════════════════════
      메인 랜딩 v2 — "두 전문가가 함께 번역합니다" (2026-10-29 대표 명령, 미리보기 브랜치 site-v2-two-experts)
-     ★번역공증·아포스티유는 사이트에서 뺐다. 서버 공증 코드는 그대로(진행 중 주문·관리자 경로용).
      ★색 = 아래 :root 토큰만. 상태 색은 파란 계열로만. 샴페인 골드는 가는 선·배지 테두리에만(글자 금지).
      ★문구 원칙: AI = '아이움 AI'(도구 표현 금지), 사람 일은 '최종 확인·마지막 책임·최종 휴먼터치'까지만.
        모델 이름·모델 수·프롬프트·원가·실제 용어집·고객명·게임 이름 금지. 없는 기능 약속 금지(later_copy.md 에 보관).
@@ -2594,7 +2599,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     <div class="lp-biz">
       <div class="bz"><p class="t">비밀유지계약(NDA)</p><p class="d">요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></div>
       <div class="bz"><p class="t">무료 테스트 번역</p><p class="d">맡기기 전에 직접 확인하세요. 회사당 1회, 1,000자까지 무료로 번역해 드립니다.</p></div>
-      <div class="bz"><p class="t">14일 무상 수정</p><p class="d">납품 후 14일 이내, 2회까지 무료로 수정해 드립니다.</p></div>
+      <div class="bz"><p class="t">14일 무상 수정</p><p class="d">유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다.</p></div>
       <template data-v3="insert"><div class="bz"><p class="t">품질 리포트</p><p class="d">납품할 때 항목별 품질 점수와 용어 일치 결과를 함께 드립니다.</p></div></template>
     </div>
     <div class="lp-biz-act">
@@ -2638,7 +2643,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     <template data-v3="insert"><details><summary>같은 회사 문서인데 매번 표현이 달라지지 않나요?</summary><p>고객사마다 전용 용어집이 쌓여, 다음 주문에서도 같은 표현을 씁니다.</p></details></template>
     <details><summary>맡기기 전에 품질을 확인할 수 있나요?</summary><p>회사당 1회, 1,000자까지 무료 테스트 번역을 해 드립니다.</p></details>
     <details><summary>비밀유지계약을 맺을 수 있나요?</summary><p>네. 요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></details>
-    <details><summary>납품 후 수정이 필요하면요?</summary><p>납품 후 14일 이내, 2회까지 무료로 수정해 드립니다. 원문이 바뀐 경우는 새 주문으로 접수됩니다.</p></details>
+    <details><summary>납품 후 수정이 필요하면요?</summary><p>유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다. 원문이 바뀌거나 분량이 늘어난 경우는 새 주문으로 접수됩니다.</p></details>
     <details><summary>문서가 외부로 새지 않나요?</summary><p>맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가립니다.</p></details>
     <details><summary>어떤 파일을 올릴 수 있나요?</summary><p>PDF, Word(DOC·DOCX), Excel(XLS·XLSX), TXT 파일과 JPG·PNG·WEBP·TIFF 이미지를 올리실 수 있습니다. 문서 내용을 직접 붙여 넣으셔도 됩니다.</p></details>
     <p class="lp-note"><a class="lp-link" href="#" onclick="showPage('faq');return false">전체 질문 보기 →</a></p>
@@ -2680,7 +2685,7 @@ var SHOW_V3 = false;
 
 /* 메인 랜딩 v2 — 단가 표시 (PLAN_PRICE 단일 출처) */
 (function(){
-  // ★공증 위저드 입구는 닫았다(2026-10-29). 옛 링크·북마크가 부르는 lpGo 는 전문 번역 견적으로 보낸다
+  // 옛 링크·북마크가 부르는 lpGo 는 전문 번역 견적으로 보낸다 (2026-10-29)
   window.lpGo = function(){ handleAI(); };
   Array.prototype.forEach.call(document.querySelectorAll('[data-plan]'), function(el){
     var k = el.getAttribute('data-plan');
@@ -2699,22 +2704,12 @@ var SHOW_V3 = false;
 
       <!-- 플랜 전환 탭 -->
       <div class="ord-tabs">
-        <button id="tab-free" onclick="switchOrderPlan('free')">무료체험</button>
+        <button id="tab-free" onclick="switchOrderPlan('free')">무료 테스트</button>
         <button id="tab-ai" class="on" onclick="switchOrderPlan('ai')">스탠다드</button>
         <button id="tab-standard" onclick="switchOrderPlan('standard')">프리미엄 플러스</button>
       </div>
       <p id="plan-desc">스탠다드 · 일반 검수</p>
 
-      <!-- 첫 주문 혜택 배너 -->
-      <div id="free-trial-banner" style="display:none;background:rgba(31,79,209,0.1);border:1px solid rgba(31,79,209,0.35);padding:10px 16px;margin-bottom:16px;display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <p style="font-size:13px;color:var(--gold-light);font-weight:600"><i class="ti ti-gift icon-g" style="margin-right:3px"></i>첫 주문 혜택 적용 중 · 1회 한정</p>
-            <p style="font-size:11px;color:rgba(157,183,245,0.7);font-weight:300;margin-top:3px">300글자 무료 · 스탠다드 (일반 검수) 플랜</p>
-          </div>
-          <p style="font-size:18px;color:var(--mint-light);font-weight:700">- 7,500원</p>
-        </div>
-      </div>
       <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px;text-align:center">번역할 파일을 올려주시거나 직접 복사 후 붙여주시면 글자수와 견적이 자동 산출됩니다</p>
 
       <!-- 통합 파일 추출 — 순서: 한자 체크박스 → 파일 선택 버튼 -->
@@ -2785,14 +2780,6 @@ var SHOW_V3 = false;
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">글자수</p><p id="char-count" style="font-size:20px;font-weight:600">-</p></div>
           <div style="text-align:right"><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">자동 견적</p><p id="estimate-amount" style="font-size:32px;font-weight:700;color:var(--gold-light)">-</p></div>
-        </div>
-        <!-- 첫 주문 할인 -->
-        <div id="free-discount-row" style="display:none;background:rgba(31,79,209,0.08);border:1px solid rgba(31,79,209,0.25);padding:10px 14px;margin-bottom:10px;display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <p style="font-size:12px;color:var(--gold-light);font-weight:500"><i class="ti ti-gift icon-g" style="margin-right:3px"></i>첫 주문 혜택 (300글자 무료 · 1회 한정)</p>
-            <p style="font-size:14px;color:var(--gold-light);font-weight:700">- 7,500원</p>
-          </div>
-          <p style="font-size:11px;color:rgba(157,183,245,0.6);margin-top:4px;font-weight:300">스탠다드 (일반 검수) 플랜 적용 · 발급일로부터 1회만 사용 가능</p>
         </div>
         <!-- 최종 결제 금액 (할인 적용 시) -->
         <div id="final-amount-row" style="display:none;border-top:1px solid rgba(31,79,209,0.2);padding-top:10px;margin-bottom:10px;display:none">
@@ -2889,7 +2876,7 @@ var SHOW_V3 = false;
           <option value="general" style="background:#1a1a1a;color:#fafaf8">일반 (분야 미지정 · 자연스러운 표준 번역)</option>
           <optgroup label="── 아이움 특화 분야 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
             <option value="gaming" style="background:#1a1a1a;color:#fafaf8">게임 (게임 내 텍스트, 스토리, 스토어 소개문, 패치 노트)</option>
-            <option value="legal" style="background:#1a1a1a;color:#fafaf8">법률·계약 (계약서, 약관, 법령, 소송·법원 서류, 공문)</option>
+            <option value="legal" style="background:#1a1a1a;color:#fafaf8">법률·계약 (계약서, 약관, 법령, 소송·법원 서류)</option>
             <option value="medical" style="background:#1a1a1a;color:#fafaf8">의료·제약·의료관광 (안내문, 의약품 설명서, 임상 문서)</option>
             <option value="accounting" style="background:#1a1a1a;color:#fafaf8">회계·재무 (감사보고서, 재무제표, 연차보고서)</option>
             <option value="patent" style="background:#1a1a1a;color:#fafaf8">특허·지식재산 (특허 명세서, 청구항)</option>
@@ -3146,7 +3133,7 @@ var SHOW_V3 = false;
       <div style="background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.3);border-radius:4px;padding:14px 16px;margin-bottom:16px">
         <p style="font-size:12px;font-weight:700;color:#ff6b6b;letter-spacing:1px;margin-bottom:8px">환불 불가 정책 안내</p>
         <p style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7;font-weight:300;margin-bottom:6px">결제 즉시 번역이 자동 착수되어 <strong style="color:#fff">결제 후 환불이 불가합니다</strong>. (전자상거래법 제17조 2항)</p>
-        <p style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">품질 확인을 원하시면 먼저 <a href="#" onclick="event.stopPropagation();closeModal('payment');document.getElementById('order-textarea')?.focus();return false" style="color:var(--gold-light);text-decoration:underline">무료체험(300자)</a>을 이용해 주세요.</p>
+        <p style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;font-weight:300">품질 확인을 원하시면 먼저 <a href="#" onclick="event.stopPropagation();closeModal('payment');openFreeTest();return false" style="color:var(--gold-light);text-decoration:underline">무료 테스트 번역</a>(회사당 1회, 1,000자 이하)을 이용해 주세요.</p>
       </div>
 
       <!-- 취소/환불 체크박스 -->
@@ -3598,7 +3585,7 @@ function applyExpertsGate(){
 }
 applyExpertsGate();
 
-// ───────────── 카카오ID 기반 무료체험 차단 ─────────────
+// ───────────── 카카오ID 기반 옛 첫 주문 혜택 기록 (2026-10-30 폐지, 무료 테스트 제한은 서버가 한다) ─────────────
 function checkFreeTrialUsed(kakaoId){
   if(!kakaoId) return false;
   try{
@@ -3754,26 +3741,8 @@ function showReviewerPanel(){
   document.getElementById('reviewer-panel').style.display='block';
   loadReviewers(function(){filterReviewers('전체');});
 }
-function handleFreeTrial(){
-  if(!isLoggedIn){showPage('signup');return;}
-  // localStorage 재확인 (혹시 변수 초기화된 경우)
-  if(currentUser&&!freeTrialUsed){
-    var key='iumm_free_'+currentUser.toLowerCase().trim();
-    if(localStorage.getItem(key)==='used') freeTrialUsed=true;
-  }
-  if(freeTrialUsed){
-    showToast('첫 주문 혜택은 이미 사용하셨습니다');
-    handleAI();
-    return;
-  }
-  isFreeTrialOrder=true;
-  currentPlan='ai';
-  clearEstimate();
-  showModal('order');
-  updateOrderModal();
-  var banner=document.getElementById('free-trial-banner');
-  if(banner) banner.style.display='block';
-}
+// 예전 '무료체험' 진입점 — 2026-10-30 무료 테스트 번역 하나로 합쳤다(옛 첫 주문 할인 없음)
+function handleFreeTrial(){ openFreeTest(); }
 
 // FAQ 토글
 
@@ -4012,7 +3981,7 @@ function kakaoLogin(){
           if(decision==='member' && sync && sync.profile) saveProfileFromServer(kakaoId, sync.profile);
           if(decision==='member'){
             try{ var pi=JSON.parse(localStorage.getItem('iumm_userinfo_'+kakaoId)||'{}'); if(pi.name) currentUserName=pi.name; }catch(e){}
-            // 공증 등 별도 페이지에서 넘어왔으면 그쪽으로 돌려보낸다
+            // 별도 페이지에서 넘어왔으면 그쪽으로 돌려보낸다
             var nextUrl=consumeLoginNext();
             if(nextUrl){ location.replace(nextUrl); return; }
             // 기존 회원: 메인 페이지로
@@ -4295,7 +4264,8 @@ function updateOrderModal(){
   var price=PLAN_PRICE[currentPlan==="ai"?'ai':'standard'];
   if(priceLabel) priceLabel.textContent='글자당 '+price+'원';
   // 탭 활성화 동기화 + 모달 테마
-  var planKey=isFreeTrialOrder?'free':(currentPlan==='ai'?'ai':'standard');
+  var _ftc=document.getElementById('freeTestCheck');
+  var planKey=(_ftc&&_ftc.checked)?'free':(currentPlan==='ai'?'ai':'standard');
   applyOrderPlanTheme(planKey);
   ['free','ai','standard'].forEach(function(t){
     var btn=document.getElementById('tab-'+t);
@@ -4744,6 +4714,10 @@ function toggleFreeTest(on){
   document.getElementById('free-test-box').style.borderColor=on?'rgba(31,79,209,0.45)':'rgba(255,255,255,0.10)';
   document.getElementById('go-pay-btn').style.display=on?'none':'';
   document.getElementById('free-test-btn').style.display=on?'':'none';
+  // 탭·색도 함께 — 무료 테스트는 스탠다드 화면 위에서 신청한다
+  if(on) currentPlan='ai';
+  ['free','ai','standard'].forEach(function(t){var b=document.getElementById('tab-'+t);if(b)b.classList.toggle('on',on?t==='free':t===(currentPlan==='standard'?'standard':'ai'));});
+  applyOrderPlanTheme(on?'free':(currentPlan==='standard'?'standard':'ai'));
   if(on) updateFreeTestCount();
 }
 /** 랜딩 '무료 테스트 번역 신청' — 주문 화면을 무료 테스트로 연다 */
@@ -5066,6 +5040,8 @@ function completeUserInfo(){
   var phoneVal=phone?phone.value.trim():'';
   if(!nameVal){showToast('이름을 입력해주세요');if(name)name.focus();return;}
   if(!phoneVal){showToast('전화번호를 입력해주세요');if(phone)phone.focus();return;}
+  var companyVal=company?company.value.trim():'';
+  if(!companyVal){showToast('회사명을 입력해주세요');if(company)company.focus();return;}
   // 전화번호 형식 검증 (숫자만 추출해서 10~11자리)
   var phoneDigits=phoneVal.replace(/[^0-9]/g,'');
   if(phoneDigits.length<10||phoneDigits.length>11){
@@ -5079,7 +5055,7 @@ function completeUserInfo(){
   var userInfo={
     name:nameVal,
     phone:phoneVal,
-    company:company?company.value.trim():'',
+    company:companyVal,
     fromLang:fromLang?fromLang.value:'',
     toLang:toLang?toLang.value:'',
     agreedAt:Date.now(),
@@ -5098,7 +5074,7 @@ function completeUserInfo(){
         body:JSON.stringify({
           name:nameVal,
           phone:phoneVal,
-          company:company?company.value.trim():'',
+          company:companyVal,
           mainLanguages:mainLang,
           agreeTerms:true,
           agreePrivacy:true,
@@ -5116,7 +5092,7 @@ function completeUserInfo(){
     }
     // 사용자 이름도 카카오 닉네임 → 입력한 실명으로 업데이트
     currentUserName=nameVal;
-    // 신규 회원이 공증 등 별도 페이지에서 넘어온 경우 — 정보 입력까지 끝났으니 복귀
+    // 신규 회원이 별도 페이지에서 넘어온 경우 — 정보 입력까지 끝났으니 복귀
     var nextUrl=consumeLoginNext();
     if(nextUrl){ location.replace(nextUrl); return; }
     showPage('main');
@@ -5233,24 +5209,26 @@ function downloadDelivery(btn, orderNumberEnc, index){
   // 새 탭으로 열어 서버 302 → Airtable 다운로드 (모든 파일 타입에서 동작, 팝업 차단 회피)
   window.open(url,'_blank');
 }
-// ─── 무료 테스트 · 14일 무상 수정 (2026-10-29) ─────────────
+// ─── 무료 테스트 · 14일 무상 수정 (2026-10-29, 10-30 유료 주문 1회) ─────────────
 function _myFreeTestNote(o){
   if(!o.isFreeTest) return '';
   return '<div style="margin-top:12px;padding:11px 13px;background:rgba(31,79,209,0.07);border-left:3px solid #1F4FD1;border-radius:0 4px 4px 0;font-size:12px;color:rgba(255,255,255,0.82);line-height:1.75">'
     +'<span style="display:inline-block;padding:2px 9px;margin-right:6px;border-radius:20px;font-size:10.5px;font-weight:700;background:rgba(31,79,209,0.2);color:#9DB7F5">무료 테스트</span>'
     +'같은 품질로 바로 주문하실 수 있습니다.</div>';
 }
+var REVISION_CLOSED_MSG='수정 요청을 이미 사용했거나 수정 기간이 지났습니다. 문의해 주세요.';
+/** 무상 수정 — 유료 주문만 · 납품 후 14일 이내 1회 (2026-10-30). 무료 테스트 주문에는 버튼 없음 */
 function _myRevision(o){
-  var v=o.revision; if(!v||v.reason==='not_delivered') return '';
+  var v=o.revision; if(!v||o.isFreeTest||v.reason==='not_delivered') return '';
   var id='rev-'+String(o.orderNumber||'').replace(/[^A-Za-z0-9_-]/g,'');
   var until=v.until?_myOrderDate(v.until):'';
   var head='<div style="margin-top:12px;font-size:11.5px;color:rgba(255,255,255,0.6);line-height:1.7">';
   if(v.reason==='in_progress') return head+'수정 요청을 처리하고 있습니다. 고친 번역본은 다시 알림톡으로 안내드립니다.</div>';
-  if(v.reason==='expired') return head+'수정 기간이 지났습니다. 문의해 주세요.</div>';
-  if(v.reason==='max_reached') return head+'무상 수정 2회를 모두 사용하셨습니다. 문의해 주세요.</div>';
+  if(v.reason==='not_paid') return '';
+  if(v.reason==='expired'||v.reason==='max_reached') return head+REVISION_CLOSED_MSG+'</div>';
   return '<div style="margin-top:12px">'
     +'<button type="button" onclick="toggleRevisionForm(\''+id+'\')" style="padding:9px 16px;border-radius:4px;border:1px solid rgba(157,183,245,0.45);background:transparent;color:#9DB7F5;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">수정 요청</button>'
-    +'<span style="margin-left:10px;font-size:11.5px;color:rgba(255,255,255,0.55)">'+(until?until+'까지 · ':'')+'남은 횟수 '+Math.max(0,v.max-v.count)+'회</span>'
+    +'<span style="margin-left:10px;font-size:11.5px;color:rgba(255,255,255,0.55)">'+(until?until+'까지 · ':'')+'1회 무료</span>'
     +'<div id="'+id+'" data-order="'+_esc(o.orderNumber||'')+'" style="display:none;margin-top:12px;padding:14px;border:1px solid rgba(255,255,255,0.10);border-radius:6px;background:rgba(255,255,255,0.02)">'
       +'<label style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:rgba(255,255,255,0.85);margin-bottom:6px;cursor:pointer"><input type="radio" name="'+id+'-kind" value="fix" checked> 번역을 고쳐 주세요</label>'
       +'<label style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:rgba(255,255,255,0.85);margin-bottom:10px;cursor:pointer"><input type="radio" name="'+id+'-kind" value="source_change"> 원문이 바뀌었거나 분량이 늘었습니다</label>'
@@ -5582,19 +5560,18 @@ function switchOrderPlan(plan){
   });
   // 플랜 변경
   if(plan==='free'){
-    if(!isLoggedIn){showPage('signup');return;}
-    if(freeTrialUsed){showToast('첫 주문 혜택은 이미 사용하셨습니다');plan='ai';}
-    else{
-      currentPlan='ai';
-      isFreeTrialOrder=true;
-      clearEstimate();
-      updateOrderModal();
-      applyOrderPlanTheme('free');
-      var banner=document.getElementById('free-trial-banner');
-      if(banner) banner.style.display='block';
-      return;
-    }
+    // 무료 테스트 번역(회사당 1회·1,000자) — 스탠다드 화면에 무료 테스트 체크를 켠다
+    if(!isLoggedIn){showPage('login');return;}
+    currentPlan='ai';
+    isFreeTrialOrder=false;
+    clearEstimate();
+    updateOrderModal();
+    applyOrderPlanTheme('free');
+    var ftc=document.getElementById('freeTestCheck');
+    if(ftc&&!ftc.checked){ftc.checked=true;toggleFreeTest(true);}
+    return;
   }
+  _resetFreeTest();
   if(plan==='ai'){
     currentPlan='ai';
     isFreeTrialOrder=false;
@@ -5612,8 +5589,6 @@ function switchOrderPlan(plan){
   }
   clearEstimate();
   updateOrderModal();
-  var banner=document.getElementById('free-trial-banner');
-  if(banner) banner.style.display='none';
 }
 function applyOrderPlanTheme(planKey){
   var box=document.getElementById('order-modal-box');
@@ -5623,7 +5598,7 @@ function applyOrderPlanTheme(planKey){
   else if(planKey==='ai') box.classList.add('plan-ai');
   else if(planKey==='standard') box.classList.add('plan-standard');
   var desc=document.getElementById('plan-desc');
-  if(desc) desc.textContent=planKey==='free'?'무료체험 · 첫 주문 300글자 무료 (스탠다드 · 일반 검수)'
+  if(desc) desc.textContent=planKey==='free'?'무료 테스트 번역 · 회사당 1회 · 1,000자 이하 · 결제 없음'
     :planKey==='standard'?'프리미엄 플러스 · 전문가 검수':'스탠다드 · 일반 검수';
 }
 function switchToPremiumPlus(){
@@ -5741,7 +5716,7 @@ async function completePayment(){
 
   // 최소 결제 금액 검증 (PortOne 정책: 1,000원 이상)
   if(amountNum<1000){
-    alert('결제 금액이 1,000원 미만입니다.\n\n300자 무료체험 할인(7,500원)은 최소 결제 금액 이상 주문 시 자동 적용됩니다.\n최소 340자 이상 입력해 주세요.\n(340자 × 25원 - 7,500원 할인 = 1,000원)');
+    alert('결제 금액이 1,000원 미만입니다.\n\n최소 결제 금액은 1,000원입니다. 품질 확인이 목적이라면 무료 테스트 번역(회사당 1회, 1,000자 이하)을 이용해 주세요.');
     return;
   }
 
@@ -5836,7 +5811,7 @@ async function completePayment(){
       return;
     }
 
-  // ── 무료체험 처리 ─────────────────────────────────────────
+  // ── 옛 첫 주문 무료체험 — 2026-10-30 폐지. isFreeTrialOrder 는 더 이상 true 가 되지 않는다 ──
   if(isFreeTrialOrder&&!freeTrialUsed){
     freeTrialUsed=true;
     isFreeTrialOrder=false;
@@ -6765,7 +6740,7 @@ function escCloseModal(e) {
 
 // ─── 전문번역 주문 진입 ──────────────────────────────────────
 // 상단 '이용하기' 버튼과 똑같은 기존 주문 경로를 탄다 (AI 플랜 주문 모달).
-// 플로팅 "전문번역 문의" 버튼은 없앴지만(공증 버튼 하나만 남김) 이 함수는
+// 플로팅 "전문번역 문의" 버튼은 없앴지만 이 함수는
 // 다른 곳에서 부를 수 있게 남겨 둔다 — 지워도 되는 시점에 정리한다.
 function openTranslationOrder(){
   if(isLoggedIn){
