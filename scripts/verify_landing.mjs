@@ -27,7 +27,7 @@ vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
 check(land.includes('<p class="lp-lead">아이움 AI는 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>'), '서브 문구');
 check(land.includes('<p class="lp-fieldline">게임 · 법률 · 의료 · 매뉴얼</p>'), '분야 줄');
-check(/id="lp-entry">\s*<button type="button" class="lp-btn" onclick="handleAI\(\)">파일 올리고 바로 견적 보기<\/button>\s*<a class="lp-btn line" href="#fields">분야별 번역 기준 보기<\/a>/.test(land), '버튼 2개 (견적 → 주문 창 · 기준 → #fields), 인트로 mask 기준 #lp-entry 유지');
+check(/id="lp-entry">\s*<button type="button" class="lp-btn" onclick="handleAI\(\)">파일 올리고 바로 견적 보기<\/button>\s*<a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기<\/a>/.test(land), '버튼 2개 (견적 → 주문 창 · 기준 → #field-standards), 인트로 mask 기준 #lp-entry 유지');
 
 console.log('\n[2] 단가 단일 출처');
 check(sandbox.PLAN_PRICE && sandbox.PLAN_PRICE.ai === 25 && sandbox.PLAN_PRICE.standard === 40, 'PLAN_PRICE = { ai:25, standard:40 }');
@@ -35,9 +35,10 @@ check(planEls[0].textContent === 25 && planEls[1].textContent === 40, '요금 �
 check(!/currentPlan\s*===?\s*["']ai["']\s*\?\s*25\s*:\s*40/.test(html), '주문 모달 25:40 하드코딩 없음');
 
 console.log('\n[3] 구성 · 순서');
-const order = ['id="top"', 'id="team"', 'id="about"', 'id="promise"', 'id="process"', 'id="fields"', 'id="pricing"', 'id="faq-summary"', 'id="cta-final"'].map(x => land.indexOf(x));
+const order = ['id="top"', 'id="team"', 'id="iumm-about"', 'id="promise"', 'id="process"', 'id="field-standards"', 'id="pricing"', 'id="faq-summary"', 'id="cta-final"'].map(x => land.indexOf(x));
 check(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), '첫 화면 → 번역팀 → 아이움이란 → 약속 → 과정 → 분야 → 요금 → FAQ → 마지막');
 check((land.match(/<ol class="lp-flow">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 4, '납품 과정 4단계');
+check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
 check((land.match(/<div class="lp-field">/g) || []).length === 4 && land.includes('<details class="lp-other">'), '분야 카드 4장 + 그 밖의 분야 접기');
 
 console.log('\n[4] 공증·아포스티유 제거');

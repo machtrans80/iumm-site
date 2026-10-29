@@ -839,7 +839,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <div class="nav-links" id="nav-links-desktop">
       <!-- 2026-10-29 v2 — 번역공증·아포스티유 메뉴 제거. 메뉴 = 랜딩 구역 이동 + FAQ + 로그인 -->
       <a href="#team">아이움 번역팀</a>
-      <a href="#fields">분야</a>
+      <a href="#field-standards">분야</a>
       <a href="#process">번역 과정</a>
       <a href="#pricing">요금</a>
       <a href="#" onclick="showPage('faq');return false">FAQ</a>
@@ -851,7 +851,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 </nav>
 <div class="nav-mobile-menu" id="nav-mobile-menu">
   <a href="#team" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');">아이움 번역팀</a>
-  <a href="#fields" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');">분야</a>
+  <a href="#field-standards" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');">분야</a>
   <a href="#process" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');">번역 과정</a>
   <a href="#pricing" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');">요금</a>
   <a href="#" onclick="document.getElementById('nav-mobile-menu').classList.remove('open');showPage('faq');return false">FAQ</a>
@@ -1840,12 +1840,12 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-team-foot{margin:28px 0 0;text-align:center;font-size:18px;font-weight:700;color:var(--v-navy);word-break:keep-all}
 
 /* ③ 아이움이란 */
-.lp-about p{margin:0 0 12px;font-size:19px;font-weight:500;line-height:1.85;color:var(--v-text);word-break:keep-all}
-.lp-about p:last-child{margin:0}
+.lp-about p:not(.lp-label){margin:0 0 12px;font-size:19px;font-weight:500;line-height:1.85;color:var(--v-text);word-break:keep-all}
+.lp-about p:not(.lp-label):last-child{margin:0}
 
 /* ④ 세 가지 약속 */
 .lp-promise{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.lp-promise .it{padding:26px 24px;border-radius:14px;background:#fff;border:1px solid var(--v-line)}
+.lp-promise .pm{padding:26px 24px;border-radius:14px;background:#fff;border:1px solid var(--v-line)}
 .lp-promise .t{margin:0 0 10px;font-size:20px;font-weight:800;color:var(--v-navy)}
 .lp-promise .t::before{content:'';display:block;width:28px;height:3px;border-radius:2px;background:var(--v-ink);margin-bottom:14px}
 .lp-promise .d{margin:0;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
@@ -1922,7 +1922,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp-hero h1{font-size:38px}
   .lp-hero-act .lp-btn{width:100%}
   .lp-team .card,.lp-field,.lp-plan{padding:22px 20px}
-  .lp-sub,.lp-about p{font-size:17px}
+  .lp-sub,.lp-about p:not(.lp-label){font-size:17px}
 }
 /* ★전역 모바일 규칙(section{padding:… !important})이 랜딩 여백을 덮는다 — 랜딩 구역만 되돌린다 */
 @media(max-width:768px){
@@ -2291,7 +2291,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     <p class="lp-fieldline">게임 · 법률 · 의료 · 매뉴얼</p>
     <div class="lp-hero-act" id="lp-entry">
       <button type="button" class="lp-btn" onclick="handleAI()">파일 올리고 바로 견적 보기</button>
-      <a class="lp-btn line" href="#fields">분야별 번역 기준 보기</a>
+      <a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기</a>
     </div>
   </div>
 </section>
@@ -2380,7 +2380,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 </section>
 
 <!-- ③ 아이움이란 -->
-<section class="lp-sec pale" id="about">
+<section class="lp-sec pale" id="iumm-about">
   <div class="lp lp-about">
     <p class="lp-label">아이움이란</p>
     <h2 class="lp-h2">아이움은 '이음'입니다</h2>
@@ -2395,9 +2395,9 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     <p class="lp-label">세 가지 약속</p>
     <h2 class="lp-h2">빠르게, 합리적으로, 안전하게</h2>
     <div class="lp-promise">
-      <div class="it"><p class="t">빠르게</p><p class="d">파일을 올리면 견적이 바로 나오고, 번역은 곧바로 시작됩니다.</p></div>
-      <div class="it"><p class="t">합리적으로</p><p class="d">아이움 AI와 전문 번역가가 역할을 나눠 일하기 때문에, 전문번역을 부담 없는 단가로 맡기실 수 있습니다.</p></div>
-      <div class="it"><p class="t">안전하게</p><p class="d">맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가립니다.</p></div>
+      <div class="pm"><p class="t">빠르게</p><p class="d">파일을 올리면 견적이 바로 나오고, 번역은 곧바로 시작됩니다.</p></div>
+      <div class="pm"><p class="t">합리적으로</p><p class="d">아이움 AI와 전문 번역가가 역할을 나눠 일하기 때문에, 전문번역을 부담 없는 단가로 맡기실 수 있습니다.</p></div>
+      <div class="pm"><p class="t">안전하게</p><p class="d">맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가립니다.</p></div>
     </div>
   </div>
 </section>
@@ -2417,7 +2417,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 </section>
 
 <!-- ⑥ 우리가 가장 잘하는 네 가지 — ★'기준' 배지는 파이프라인 스타일시트 '분야별 참고 기준'에 들어간 것만 -->
-<section class="lp-sec" id="fields">
+<section class="lp-sec" id="field-standards">
   <div class="lp">
     <p class="lp-label">분야별 번역 기준</p>
     <h2 class="lp-h2">우리가 가장 잘하는 네 가지</h2>
@@ -2426,7 +2426,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
         <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a4 4 0 014 4v2a3 3 0 01-5.4 1.8L15 14H9l-1.6 1.8A3 3 0 012 14v-2a4 4 0 014-4z"/><path d="M7 11v2M6 12h2M15.5 11.5h.01M17.5 12.5h.01"/></svg></span><p class="f">게임</p></div>
         <p class="d">세계관과 캐릭터의 말투까지 옮깁니다. 원작의 공식 표기를 먼저 따르고, 작품 전체에서 같은 표현을 씁니다.</p>
         <p class="ex">예: 게임 내 텍스트 · 스토리 · 스토어 소개문 · 패치 노트</p>
-        <ul class="std"><!--STD_GAME--></ul>
+        <ul class="std"><li>IGDA 게임 현지화 모범 사례</li><li>Microsoft 한국어 현지화 스타일 가이드</li><li>Steamworks 현지화 문서</li></ul>
       </div>
       <div class="lp-field">
         <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M5 6h14"/><path d="M5 6l-3 6a3 3 0 006 0zM19 6l-3 6a3 3 0 006 0z"/></svg></span><p class="f">법률</p></div>
@@ -2444,7 +2444,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
         <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M15 4v5h5M8 13h8M8 17h5"/></svg></span><p class="f">매뉴얼</p></div>
         <p class="d">반복이 많은 문서일수록 일관성이 생명입니다. 같은 문장은 같은 번역으로, 읽는 사람이 헷갈리지 않게 옮깁니다.</p>
         <p class="ex">예: 제품 사용설명서 · 설치·정비 가이드 · 안전 수칙 · 기술 문서</p>
-        <ul class="std"><!--STD_MANUAL--></ul>
+        <ul class="std"><li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li><li>ASD-STE100 Simplified Technical English</li></ul>
       </div>
     </div>
     <details class="lp-other">
@@ -2723,7 +2723,8 @@ var PLAN_PRICE = { ai: 25, standard: 40 };
           <optgroup label="── 의료·학술·기술 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
             <option value="medical" style="background:#1a1a1a;color:#fafaf8">의료·제약 (논문, 임상시험, 의약품)</option>
             <option value="academic" style="background:#1a1a1a;color:#fafaf8">학술·논문 (학술지, 연구보고서)</option>
-            <option value="tech" style="background:#1a1a1a;color:#fafaf8">기술·IT (매뉴얼, API, 기술문서)</option>
+            <option value="tech" style="background:#1a1a1a;color:#fafaf8">기술·IT (API, 기술문서)</option>
+            <option value="manual" style="background:#1a1a1a;color:#fafaf8">매뉴얼 (사용설명서, 설치·정비 가이드)</option>
           </optgroup>
           <optgroup label="── 비즈니스·금융 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
             <option value="business" style="background:#1a1a1a;color:#fafaf8">비즈니스 (이메일, 보고서, 회사소개)</option>
