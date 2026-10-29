@@ -1289,8 +1289,18 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       </div>
 
       <div class="faq-item" data-cat="translate">
-        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold-light);font-weight:700;margin-right:12px">Q.</span>번역에 오류가 있으면 어떻게 하나요?<span class="faq-arrow">▼</span></div>
-        <div class="faq-a"><p>오역·누락·미번역처럼 명백한 오류가 객관적으로 확인되면 <strong>무료 재번역 또는 A/S(품질수정)</strong>를 해 드립니다(환불은 되지 않습니다). 납품일로부터 <strong>5일 이내</strong>에 iumm.master@gmail.com 으로 주문번호, 오역으로 판단되는 부분(원문 + 번역 결과), 판단 사유를 보내 주시면 검토 후 진행합니다.</p><p>문체 선호나 표현 방식의 차이, 원문이 모호해 생긴 결과, 직접 또는 제3자가 수정한 경우, 납품 후 5일이 지난 경우는 대상이 아닙니다. 자세한 내용은 <a href="#" onclick="showPage('terms');return false" style="color:var(--gold-light);text-decoration:underline">이용약관</a> 제5조·제7조를 확인해 주세요.</p></div>
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold-light);font-weight:700;margin-right:12px">Q.</span>맡기기 전에 품질을 확인할 수 있나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>회사당 1회, 1,000자까지 무료 테스트 번역을 해 드립니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="translate">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold-light);font-weight:700;margin-right:12px">Q.</span>비밀유지계약을 맺을 수 있나요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>네. 요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></div>
+      </div>
+
+      <div class="faq-item" data-cat="translate">
+        <div class="faq-q" onclick="toggleFaq(this)"><span style="color:var(--gold-light);font-weight:700;margin-right:12px">Q.</span>납품 후 수정이 필요하면요?<span class="faq-arrow">▼</span></div>
+        <div class="faq-a"><p>납품 후 14일 이내, 2회까지 무료로 수정해 드립니다. 마이페이지의 주문에서 [수정 요청]을 눌러 주세요. 원문이 바뀐 경우는 새 주문으로 접수됩니다.</p></div>
       </div>
 
       <div class="faq-item" data-cat="payment">
@@ -1888,8 +1898,34 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-flow .t{display:block;margin:0 0 8px;font-size:18px;font-weight:800;color:var(--v-navy);word-break:keep-all}
 .lp-flow .d{display:block;font-size:16px;font-weight:500;line-height:1.65;color:var(--v-text);word-break:keep-all}
 
-/* ⑥ 네 가지 분야 */
-.lp-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* ⑥ 여덟 분야 — 데스크톱 4×2, 모바일 4장 + 더 보기 */
+.lp-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.lp-fields .lp-field{padding:22px 20px 20px}
+.lp-fields .lp-field .f{font-size:19px}
+.lp-fields .lp-field .d{font-size:15.5px;line-height:1.7}
+.lp-fields .lp-field .ex{font-size:14.5px}
+.lp-fields .lp-field .ex.mk{margin-top:-6px}
+.lp-fields .lp-field .std li{font-size:13.5px;padding:4px 10px}
+.lp-more{display:none}
+.lp-fieldline .nb{white-space:nowrap}
+.lp-kicker{margin:0 0 8px;font-size:15px;font-weight:700;color:var(--v-ink);letter-spacing:.2px}
+/* ⑦-2 기업 고객 */
+.lp-biz{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+html[data-v3="on"] .lp-biz{grid-template-columns:repeat(4,1fr)}
+.lp-biz .bz{padding:24px 22px;border-radius:16px;background:#fff;border:1px solid var(--v-line);border-top:3px solid var(--v-gold)}
+.lp-biz .t{margin:0 0 10px;font-size:19px;font-weight:800;color:var(--v-navy);word-break:keep-all}
+.lp-biz .d{margin:0;font-size:16px;font-weight:500;line-height:1.7;color:var(--v-text);word-break:keep-all}
+.lp-biz-act{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.lp-btn.line.dark{color:var(--v-navy);border-color:var(--v-navy);background:transparent}
+.lp-btn.line.dark:hover{background:var(--v-navy);color:#fff}
+@media(max-width:1100px){.lp-fields{grid-template-columns:1fr 1fr}html[data-v3="on"] .lp-biz{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){
+  .lp-fields{grid-template-columns:1fr}
+  .lp-fields:not(.all) .lp-field:nth-child(n+5){display:none}
+  .lp-more{display:block;width:100%;margin-top:14px;min-height:52px;border-radius:14px;border:1px solid var(--v-line);background:#fff;font-size:16px;font-weight:700;color:var(--v-ink);cursor:pointer;font-family:inherit}
+  .lp-biz,html[data-v3="on"] .lp-biz{grid-template-columns:1fr}
+  .lp-biz-act .lp-btn{width:100%}
+}
 .lp-field{padding:26px 26px 24px;border-radius:16px;background:#fff;border:1px solid var(--v-line);box-shadow:0 4px 16px rgba(15,37,64,0.05)}
 .lp-field .hd{display:flex;align-items:center;gap:12px;margin:0 0 12px}
 .lp-field .ib{flex:none;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;background:var(--v-ink-soft);color:var(--v-ink)}
@@ -2314,10 +2350,10 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 
 <section class="lp-hero" id="top">
   <div class="lp">
-    <p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>an &amp; <b>M</b>achine</p>
+    <p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>ind &amp; <b>M</b>achine</p>
     <h1 class="serif">두 전문가가<br>함께 번역합니다</h1>
     <p class="lp-lead">아이움 AI는 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>
-    <p class="lp-fieldline">게임 · 법률 · 의료 · 매뉴얼</p>
+    <p class="lp-fieldline">게임 · 법률 · 의료 · 회계 · 특허 · <span class="nb">학술 · 매뉴얼 · ESG</span></p>
     <div class="lp-hero-act" id="lp-entry">
       <button type="button" class="lp-btn" onclick="handleAI()">파일 올리고 바로 견적 보기</button>
       <a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기</a>
@@ -2432,20 +2468,27 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   </div>
 </section>
 
-<!-- ⑤ 한 문서가 납품되기까지 -->
+<!-- ⑤ 번역 과정 — 현재 9단계는 운영 중인 V2 코드 기준(2026-10-29 확인), V3 10단계는 template -->
 <section class="lp-sec pale" id="process">
   <div class="lp">
     <p class="lp-label">번역 과정</p>
     <div class="v3-cur">
-    <h2 class="lp-h2">한 문서가 납품되기까지</h2>
-    <ol class="lp-flow">
-      <li><span class="no">1</span><span class="bx"><span class="t">문서 분석</span><span class="d">분야와 문체, 대상 독자를 먼저 파악합니다. 영국 시장은 영국식, 미국 시장은 미국식 표기로 맞춥니다.</span></span></li>
-      <li><span class="no">2</span><span class="bx"><span class="t">분야별 번역</span><span class="d">아이움 AI가 분야별 기준과 검증된 용어로 옮깁니다.</span></span></li>
-      <li><span class="no">3</span><span class="bx"><span class="t">교차 검수</span><span class="d">번역과 분리된 별도 검수가 문장 하나하나를 원문과 다시 대조합니다.</span></span></li>
-      <li><span class="no">4</span><span class="bx"><span class="t">전문 번역가 최종 확인</span><span class="d">숫자·금액·이름·괄호까지 원문과 맞춘 뒤, 전문 번역가가 마지막으로 확인하고 납품합니다.</span></span></li>
+    <h2 class="lp-h2">단순 AI 번역이 아닙니다</h2>
+    <p class="lp-sub">아이움 AI와 전문 번역가가 9단계 검증을 거쳐 완성합니다.</p>
+    <ol class="lp-flow10">
+      <li><span class="no">1</span><span class="bx"><span class="t">문서 분석</span><span class="d">문서 종류를 파악하고, 개인정보 번호는 처리 전에 자동으로 가립니다. 영어 번역은 대상 시장의 표기에 맞춥니다.</span></span></li>
+      <li><span class="no">2</span><span class="bx"><span class="t">용어 선별</span><span class="d">분야별로 검증된 용어와 고객사 지정 용어를 먼저 골라 번역에 적용합니다.</span></span></li>
+      <li><span class="no">3</span><span class="bx"><span class="t">분야별 번역</span><span class="d">아이움 AI가 분야별 기준에 맞춰 옮깁니다.</span></span></li>
+      <li><span class="no">4</span><span class="bx"><span class="t">교차 검수</span><span class="d">번역과 분리된 별도 검수가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span></span></li>
+      <li><span class="no">5</span><span class="bx"><span class="t">반론과 수정</span><span class="d">중요한 지적은 근거를 따져, 맞는 지적만 반영합니다.</span></span></li>
+      <li><span class="no">6</span><span class="bx"><span class="t">일관성 점검</span><span class="d">문서 전체에서 같은 말이 같은 표현으로 쓰였는지 확인합니다.</span></span></li>
+      <li><span class="no">7</span><span class="bx"><span class="t">정밀 점검</span><span class="d">숫자·금액·날짜·괄호·지정 용어를 원문과 하나하나 대조합니다.</span></span></li>
+      <li><span class="no">8</span><span class="bx"><span class="t">품질 점수</span><span class="d">검수와 점검 결과로 번역 품질 점수를 매깁니다.</span></span></li>
+      <li><span class="no">9</span><span class="bx"><span class="t">전문 번역가 최종 확인</span><span class="d">전문 번역가가 마지막으로 확인하고 납품합니다.</span></span></li>
     </ol>
     </div>
     <template data-v3="replace"><div class="v3-on">
+    <p class="lp-kicker">단순 AI 번역이 아닙니다</p>
     <h2 class="lp-h2">한 문장이 10단계를 거쳐 납품됩니다</h2>
     <ol class="lp-flow10">
       <li><span class="no">1</span><span class="bx"><span class="t">문서 분석</span><span class="d">분야·문체·대상 독자를 파악하고, 개인정보 번호는 처리 전에 자동으로 가립니다.</span></span></li>
@@ -2469,17 +2512,18 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   </div>
 </section>
 
-<!-- ⑥ 우리가 가장 잘하는 네 가지 — ★'기준' 배지는 파이프라인 스타일시트 '분야별 참고 기준'에 들어간 것만 -->
+<!-- ⑥ 아이움이 특화한 여덟 분야 — ★'기준' 배지는 파이프라인 스타일시트 '분야별 참고 기준'에 들어간 것만 -->
 <section class="lp-sec" id="field-standards">
   <div class="lp">
     <p class="lp-label">분야별 번역 기준</p>
-    <h2 class="lp-h2">우리가 가장 잘하는 네 가지</h2>
-    <div class="lp-fields">
+    <h2 class="lp-h2">아이움이 특화한 여덟 분야</h2>
+    <div class="lp-fields" id="lp-fields">
       <div class="lp-field">
         <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a4 4 0 014 4v2a3 3 0 01-5.4 1.8L15 14H9l-1.6 1.8A3 3 0 012 14v-2a4 4 0 014-4z"/><path d="M7 11v2M6 12h2M15.5 11.5h.01M17.5 12.5h.01"/></svg></span><p class="f">게임</p></div>
         <p class="d">세계관과 캐릭터의 말투까지 옮깁니다. 원작의 공식 표기를 먼저 따르고, 작품 전체에서 같은 표현을 씁니다.</p>
         <p class="ex">예: 게임 내 텍스트 · 스토리 · 스토어 소개문 · 패치 노트</p>
-        <ul class="std"><li>IGDA 게임 현지화 모범 사례</li><li>Microsoft 한국어 현지화 스타일 가이드</li><li>Steamworks 현지화 문서</li></ul>
+        <p class="ex mk">주요 시장: 영어 · 중국어(간체·번체) · 일본어 등</p>
+        <ul class="std"><li>IGDA 게임 현지화 모범 사례</li><li>Microsoft 현지화 스타일 가이드(한·일·중 간체·번체)</li><li>Steamworks 현지화 문서</li><li>원작 공식 표기 우선</li></ul>
       </div>
       <div class="lp-field">
         <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M5 6h14"/><path d="M5 6l-3 6a3 3 0 006 0zM19 6l-3 6a3 3 0 006 0z"/></svg></span><p class="f">법률</p></div>
@@ -2488,21 +2532,46 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
         <ul class="std"><li>법제처 국가법령정보센터 영문 법령</li><li>Black's Law Dictionary</li></ul>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg></span><p class="f">의료 · 의료관광</p></div>
-        <p class="d">정확해야 안심할 수 있습니다. 공인 의학 용어 기준으로, 해외 환자가 바로 이해할 수 있게 옮깁니다.</p>
-        <p class="ex">예: 병원·시술 안내문 · 진료 안내 · 의료관광 상담 자료 · 의학 논문</p>
-        <ul class="std"><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류(KCD)</li></ul>
+        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg></span><p class="f">의료 · 제약 · 의료관광</p></div>
+        <p class="d">정확해야 안심할 수 있습니다. 공인 의학 용어 기준으로, 해외 환자와 기관이 바로 이해할 수 있게 옮깁니다.</p>
+        <p class="ex">예: 병원·시술 안내문 · 의약품 설명서 · 임상 문서 · 의료관광 상담 자료</p>
+        <ul class="std"><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류(KCD)</li><li>ICH 가이드라인</li></ul>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M15 4v5h5M8 13h8M8 17h5"/></svg></span><p class="f">매뉴얼</p></div>
+        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><p class="f">회계 · 재무</p></div>
+        <p class="d">숫자 하나, 계정과목 하나가 신뢰를 좌우합니다. 국제회계기준 용어로 옮기고, 금액은 원문 그대로 지킵니다.</p>
+        <p class="ex">예: 감사보고서 · 재무제표 · 연차보고서 · IR 자료</p>
+        <ul class="std"><li>K-IFRS</li><li>IFRS 회계기준</li><li>ISA 국제감사기준</li></ul>
+      </div>
+      <div class="lp-field">
+        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg></span><p class="f">특허 · 지식재산</p></div>
+        <p class="d">청구항의 한 단어가 권리 범위를 바꿉니다. 국제 특허 용어 기준으로 원문의 구조를 그대로 옮깁니다.</p>
+        <p class="ex">예: 특허 명세서 · 청구항 · 선행기술 자료 · 심사 의견 대응</p>
+        <ul class="std"><li>WIPO Pearl 특허 용어</li><li>지식재산처 PCT 용어 해설</li></ul>
+      </div>
+      <div class="lp-field">
+        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5L12 3l10 3.5L12 10z"/><path d="M6 8.2V14c0 1.7 2.7 3 6 3s6-1.3 6-3V8.2M22 6.5V12"/></svg></span><p class="f">학술 · 논문</p></div>
+        <p class="d">연구의 언어를 학계의 언어로 옮깁니다. 분야별 학술 용어를 지키고, 인용 양식은 원문 그대로 둡니다.</p>
+        <p class="ex">예: 학술 논문 · 학위논문 초록 · 연구계획서 · 학회 발표 자료</p>
+        <ul class="std"><li>인용 양식 원문 유지(APA·MLA·Chicago·IEEE)</li><li>학회 공식 용어 우선</li></ul>
+      </div>
+      <div class="lp-field">
+        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15"/><path d="M5 19l7-7"/></svg></span><p class="f">ESG · 지속가능경영</p></div>
+        <p class="d">해외 투자자와 고객이 읽는 보고서입니다. 국제 공시 기준의 용어로 옮깁니다.</p>
+        <p class="ex">예: 지속가능경영보고서 · ESG 공시 자료 · 기후 관련 보고</p>
+        <ul class="std"><li>GRI Standards</li><li>ISSB IFRS S1·S2</li><li>KSSB 지속가능성 공시기준</li></ul>
+      </div>
+      <div class="lp-field">
+        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M15 4v5h5M8 13h8M8 17h5"/></svg></span><p class="f">매뉴얼 · 기술 문서</p></div>
         <p class="d">반복이 많은 문서일수록 일관성이 생명입니다. 같은 문장은 같은 번역으로, 읽는 사람이 헷갈리지 않게 옮깁니다.</p>
-        <p class="ex">예: 제품 사용설명서 · 설치·정비 가이드 · 안전 수칙 · 기술 문서</p>
+        <p class="ex">예: 제품 사용설명서 · 설치·정비 가이드 · 안전 수칙 · 기술 사양서</p>
         <ul class="std"><li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li><li>ASD-STE100 Simplified Technical English</li></ul>
       </div>
     </div>
+    <button type="button" class="lp-more" id="lp-fields-more" aria-expanded="false" aria-controls="lp-fields" onclick="var g=document.getElementById('lp-fields'),o=g.classList.toggle('all');this.setAttribute('aria-expanded',o);this.textContent=o?'접기':'네 분야 더 보기';">네 분야 더 보기</button>
     <details class="lp-other">
       <summary>그 밖의 분야</summary>
-      <p>그 밖의 분야(비즈니스 · 마케팅 · 학술 등)도 분야별 기준으로 번역합니다.</p>
+      <p>그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.</p>
     </details>
   </div>
 </section>
@@ -2516,8 +2585,26 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   </div>
 </section></template>
 
+<!-- ⑦-2 기업 고객 — 지금 되는 것만(원본 형식 유지 납품은 아직 없어 카드에서 뺌, 2026-10-29) -->
+<section class="lp-sec pale" id="business">
+  <div class="lp">
+    <p class="lp-label">기업 고객</p>
+    <h2 class="lp-h2">기업이 아이움에 맡기는 이유</h2>
+    <div class="lp-biz">
+      <div class="bz"><p class="t">비밀유지계약(NDA)</p><p class="d">요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></div>
+      <div class="bz"><p class="t">무료 테스트 번역</p><p class="d">맡기기 전에 직접 확인하세요. 회사당 1회, 1,000자까지 무료로 번역해 드립니다.</p></div>
+      <div class="bz"><p class="t">14일 무상 수정</p><p class="d">납품 후 14일 이내, 2회까지 무료로 수정해 드립니다.</p></div>
+      <template data-v3="insert"><div class="bz"><p class="t">품질 리포트</p><p class="d">납품할 때 항목별 품질 점수와 용어 일치 결과를 함께 드립니다.</p></div></template>
+    </div>
+    <div class="lp-biz-act">
+      <button type="button" class="lp-btn" onclick="openFreeTest()">무료 테스트 번역 신청</button>
+      <a class="lp-btn line dark" href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener">NDA 체결 문의</a>
+    </div>
+  </div>
+</section>
+
 <!-- ⑧ 요금 — 단가는 PLAN_PRICE(data-plan) -->
-<section class="lp-sec pale" id="pricing">
+<section class="lp-sec" id="pricing">
   <div class="lp">
     <p class="lp-label">요금</p>
     <h2 class="lp-h2">글자 수 기준 정찰제</h2>
@@ -2548,6 +2635,9 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     <h2 class="lp-h2">자주 묻는 질문</h2>
     <details><summary>AI 번역인가요?</summary><p>아이움 AI와 전문 번역가가 한 팀으로 번역합니다. 아이움 AI가 분야 기준에 맞춰 옮기고 원문과 대조하면, 전문 번역가가 마지막으로 확인하고 납품합니다.</p></details>
     <template data-v3="insert"><details><summary>같은 회사 문서인데 매번 표현이 달라지지 않나요?</summary><p>고객사마다 전용 용어집이 쌓여, 다음 주문에서도 같은 표현을 씁니다.</p></details></template>
+    <details><summary>맡기기 전에 품질을 확인할 수 있나요?</summary><p>회사당 1회, 1,000자까지 무료 테스트 번역을 해 드립니다.</p></details>
+    <details><summary>비밀유지계약을 맺을 수 있나요?</summary><p>네. 요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></details>
+    <details><summary>납품 후 수정이 필요하면요?</summary><p>납품 후 14일 이내, 2회까지 무료로 수정해 드립니다. 원문이 바뀐 경우는 새 주문으로 접수됩니다.</p></details>
     <details><summary>문서가 외부로 새지 않나요?</summary><p>맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가립니다.</p></details>
     <details><summary>어떤 파일을 올릴 수 있나요?</summary><p>PDF, Word(DOC·DOCX), Excel(XLS·XLSX), TXT 파일과 JPG·PNG·WEBP·TIFF 이미지를 올리실 수 있습니다. 문서 내용을 직접 붙여 넣으셔도 됩니다.</p></details>
     <p class="lp-note"><a class="lp-link" href="#" onclick="showPage('faq');return false">전체 질문 보기 →</a></p>
@@ -2796,31 +2886,25 @@ var SHOW_V3 = false;
         <label class="lbl">전문 분야 <span style="font-size:10px;color:rgba(157,183,245,0.7);font-weight:400">(선택 시 분야 맞춤 번역 적용)</span></label>
         <select id="field-select" class="inp" style="padding:11px 16px">
           <option value="general" style="background:#1a1a1a;color:#fafaf8">일반 (분야 미지정 · 자연스러운 표준 번역)</option>
-          <optgroup label="── 법률·공공 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
+          <optgroup label="── 아이움 특화 분야 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
+            <option value="gaming" style="background:#1a1a1a;color:#fafaf8">게임 (게임 내 텍스트, 스토리, 스토어 소개문, 패치 노트)</option>
             <option value="legal" style="background:#1a1a1a;color:#fafaf8">법률·계약 (계약서, 약관, 법령, 소송·법원 서류, 공문)</option>
-            <option value="patent" style="background:#1a1a1a;color:#fafaf8">특허·지식재산 (특허 명세서, 발명)</option>
-            <option value="immigration" style="background:#1a1a1a;color:#fafaf8">이민·비자·증명서 (출생/혼인/학력/재직 증명)</option>
+            <option value="medical" style="background:#1a1a1a;color:#fafaf8">의료·제약·의료관광 (안내문, 의약품 설명서, 임상 문서)</option>
+            <option value="accounting" style="background:#1a1a1a;color:#fafaf8">회계·재무 (감사보고서, 재무제표, 연차보고서)</option>
+            <option value="patent" style="background:#1a1a1a;color:#fafaf8">특허·지식재산 (특허 명세서, 청구항)</option>
+            <option value="academic" style="background:#1a1a1a;color:#fafaf8">학술·논문 (학술 논문, 초록, 연구계획서)</option>
+            <option value="manual" style="background:#1a1a1a;color:#fafaf8">매뉴얼·기술 문서 (사용설명서, 설치·정비 가이드)</option>
+            <option value="esg" style="background:#1a1a1a;color:#fafaf8">ESG·지속가능경영 (지속가능경영보고서, 공시 자료)</option>
           </optgroup>
-          <optgroup label="── 의료·학술·기술 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
-            <option value="medical" style="background:#1a1a1a;color:#fafaf8">의료·제약 (논문, 임상시험, 의약품)</option>
-            <option value="academic" style="background:#1a1a1a;color:#fafaf8">학술·논문 (학술지, 연구보고서)</option>
-            <option value="tech" style="background:#1a1a1a;color:#fafaf8">기술·IT (API, 기술문서)</option>
-            <option value="manual" style="background:#1a1a1a;color:#fafaf8">매뉴얼 (사용설명서, 설치·정비 가이드)</option>
-          </optgroup>
-          <optgroup label="── 비즈니스·금융 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
+          <optgroup label="── 그 밖의 분야 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
             <option value="business" style="background:#1a1a1a;color:#fafaf8">비즈니스 (이메일, 보고서, 회사소개)</option>
-            <option value="finance" style="background:#1a1a1a;color:#fafaf8">금융·재무 (재무제표, IR, 투자)</option>
-            <option value="accounting" style="background:#1a1a1a;color:#fafaf8">회계·세무 (세무 문서, 회계 보고서)</option>
             <option value="marketing" style="background:#1a1a1a;color:#fafaf8">마케팅·광고 (브로셔, SNS, 광고)</option>
-          </optgroup>
-          <optgroup label="── 문화·콘텐츠 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
+            <option value="finance" style="background:#1a1a1a;color:#fafaf8">금융·투자 (IR, 투자 자료)</option>
+            <option value="tech" style="background:#1a1a1a;color:#fafaf8">기술·IT (API, 기술문서)</option>
+            <option value="immigration" style="background:#1a1a1a;color:#fafaf8">이민·비자·증명서 (출생/혼인/학력/재직 증명)</option>
             <option value="literary" style="background:#1a1a1a;color:#fafaf8">문학·출판 (소설, 에세이, 웹소설)</option>
             <option value="arts" style="background:#1a1a1a;color:#fafaf8">예술·문화 (영화, 음악, 미술, 공연)</option>
-            <option value="gaming" style="background:#1a1a1a;color:#fafaf8">게임·엔터테인먼트 (게임 UI, 자막, 더빙)</option>
-          </optgroup>
-          <optgroup label="── 산업·환경 ──" style="background:#1a1a1a;color:rgba(157,183,245,0.8)">
             <option value="construction" style="background:#1a1a1a;color:#fafaf8">건설·엔지니어링 (시방서, 도면, FIDIC 계약)</option>
-            <option value="esg" style="background:#1a1a1a;color:#fafaf8">환경·ESG (지속가능경영, TCFD, 탄소중립)</option>
           </optgroup>
         </select>
         <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;font-weight:300;line-height:1.7">분야별 전문 번역사처럼 톤·용어·스타일을 맞춰 번역합니다.</p>
@@ -2893,11 +2977,30 @@ var SHOW_V3 = false;
               <option value="">선택 안 함</option>
               <option value="게임">게임</option>
               <option value="법률">법률</option>
-              <option value="의료·의료관광">의료·의료관광</option>
-              <option value="제조·매뉴얼">제조·매뉴얼</option>
+              <option value="의료·제약·의료관광">의료·제약·의료관광</option>
+              <option value="회계·재무">회계·재무</option>
+              <option value="특허·지식재산">특허·지식재산</option>
+              <option value="학술·논문">학술·논문</option>
+              <option value="매뉴얼·기술 문서">매뉴얼·기술 문서</option>
+              <option value="ESG">ESG</option>
               <option value="그 밖">그 밖</option>
             </select>
           </div>
+        </div>
+      </div>
+
+      <!-- 무료 테스트 번역 (2026-10-29) — 회사당 1회·1,000자(공백 제외). 서버 /api/order/free-test 가 회사명·회사 메일 도메인·연락처로 중복을 막는다 -->
+      <div id="free-test-box" style="margin-top:16px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:6px">
+        <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;margin:0">
+          <input type="checkbox" id="freeTestCheck" onchange="toggleFreeTest(this.checked)" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:#1F4FD1">
+          <span style="line-height:1.55">
+            <strong style="font-size:14px;color:var(--white);font-weight:500">무료 테스트 번역으로 신청합니다</strong>
+            <span style="display:block;font-size:12px;color:rgba(255,255,255,0.62);margin-top:3px">회사당 1회, 1,000자(공백 제외)까지 결제 없이 번역해 드립니다.</span>
+          </span>
+        </label>
+        <div id="freeTestInfo" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:12.5px;line-height:1.7;color:rgba(255,255,255,0.75)">
+          <div>지금 글자 수: <strong id="freeTestChars" style="color:var(--gold-light)">0</strong>자 / 1,000자</div>
+          <div style="color:rgba(255,255,255,0.55)">길면 1,000자 이하로 발췌해 올려 주세요. 위에 적은 회사명으로 신청됩니다.</div>
         </div>
       </div>
 
@@ -2930,7 +3033,8 @@ var SHOW_V3 = false;
         </div>
       </div>
 
-      <button onclick="goToPayment()" class="btn-primary" style="width:100%;padding:16px;font-size:15px;margin-top:16px">선택 완료 → 최종 결제하기</button>
+      <button onclick="goToPayment()" id="go-pay-btn" class="btn-primary" style="width:100%;padding:16px;font-size:15px;margin-top:16px">선택 완료 → 최종 결제하기</button>
+      <button onclick="submitFreeTest()" id="free-test-btn" class="btn-primary" style="display:none;width:100%;padding:16px;font-size:15px;margin-top:16px">무료 테스트 번역 신청하기</button>
       <p style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;margin-top:12px;font-weight:300">결제 후 번역 작업 프로세스가 바로 시작되므로 취소 및 환불이 불가합니다.</p>
 
       <!-- 번역 소요시간 (결제 버튼 아래, 보조 정보, 소형) -->
@@ -4067,8 +4171,10 @@ function showToast(msg){
   document.body.appendChild(t);
   setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},500);},2500);
 }
-function handleAI(){if(!isLoggedIn){showPage('login');return;}currentPlan='ai';isFreeTrialOrder=false;clearEstimate();showModal('order');updateOrderModal();}
-function handleStandard(){if(!isLoggedIn){showPage('login');return;}currentPlan='standard';isFreeTrialOrder=false;clearEstimate();showModal('order');updateOrderModal();}
+function handleAI(){if(!isLoggedIn){showPage('login');return;}currentPlan='ai';isFreeTrialOrder=false;clearEstimate();_resetFreeTest();showModal('order');updateOrderModal();}
+function _resetFreeTest(){var c=document.getElementById('freeTestCheck');if(c&&c.checked){c.checked=false;toggleFreeTest(false);}}
+document.addEventListener('input',function(e){if(e.target&&(e.target.id==='pasteText'||e.target.id==='ocr-result-text'))updateFreeTestCount();});
+function handleStandard(){if(!isLoggedIn){showPage('login');return;}currentPlan='standard';isFreeTrialOrder=false;clearEstimate();_resetFreeTest();showModal('order');updateOrderModal();}
 function clearEstimate(){
   document.getElementById('estimate-result').style.display='none';
   document.getElementById('char-count').textContent='-';
@@ -4562,6 +4668,76 @@ function corpOrderPayload(){
   return out;
 }
 
+// ─── 무료 테스트 번역 (2026-10-29) ─────────────────────────
+var FREE_TEST_MAX_CHARS=1000;
+function _freeTestText(){
+  var ocr=document.getElementById('ocr-result-text');
+  if(window._inputMode==='ocr'&&ocr) return ocr.value||'';
+  return getSourceText();
+}
+function _freeTestCount(){ return _freeTestText().replace(/\s/g,'').length; }
+function updateFreeTestCount(){
+  var el=document.getElementById('freeTestChars'); if(!el) return;
+  var n=_freeTestCount();
+  el.textContent=n.toLocaleString();
+  el.style.color=n>FREE_TEST_MAX_CHARS?'#ff6b6b':'var(--gold-light)';
+}
+function toggleFreeTest(on){
+  document.getElementById('freeTestInfo').style.display=on?'block':'none';
+  document.getElementById('free-test-box').style.borderColor=on?'rgba(31,79,209,0.45)':'rgba(255,255,255,0.10)';
+  document.getElementById('go-pay-btn').style.display=on?'none':'';
+  document.getElementById('free-test-btn').style.display=on?'':'none';
+  if(on) updateFreeTestCount();
+}
+/** 랜딩 '무료 테스트 번역 신청' — 주문 화면을 무료 테스트로 연다 */
+function openFreeTest(){
+  if(!isLoggedIn){showPage('login');return;}
+  handleAI();
+  var c=document.getElementById('freeTestCheck');
+  if(c){c.checked=true;toggleFreeTest(true);}
+}
+async function submitFreeTest(){
+  var text=_freeTestText();
+  if(!text.trim()){alert('번역할 원문을 입력해 주세요.\n(파일 추출 또는 직접 입력)');return;}
+  var n=_freeTestCount();
+  if(n>FREE_TEST_MAX_CHARS){alert('1,000자 이하로 발췌해 올려 주세요. (지금 '+n.toLocaleString()+'자)');return;}
+  var oc=document.getElementById('orderCompany');
+  if(!oc||!oc.value.trim()){alert('회사명을 입력해 주세요.');if(oc)oc.focus();return;}
+  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
+  if(!token){alert('카카오 로그인 후 신청해 주세요.');return;}
+  var ui={};
+  try{var sv=currentUserKakaoId&&localStorage.getItem('iumm_userinfo_'+currentUserKakaoId);if(sv)ui=JSON.parse(sv);}catch(e){}
+  var fs=document.getElementById('field-select');
+  var ls=document.getElementById('lang-select');
+  var data={
+    번역방향: ls?ls.value:'',
+    전문분야: fs?fs.options[fs.selectedIndex].text:'일반',
+    분야영문코드: fs?fs.value:'general',
+    원문텍스트: text,
+    회원이메일: currentUser||'',
+    회원이름: currentUserName||ui.name||'미입력',
+    회원전화번호: ui.phone||'',
+    접수일시: new Date().toLocaleString('ko-KR'),
+    파일첨부: (window._iummSourceFiles&&window._iummSourceFiles.length)?window._iummSourceFiles.map(function(f){return f.name;}).join(', '):'첨부파일 없음',
+    고객요청용어집: '없음'
+  };
+  var corp=corpOrderPayload();
+  data.회원회사명=corp.회원회사명; if(corp.업종) data.업종=corp.업종; if(corp.문서제목) data.문서제목=corp.문서제목;
+  var btn=document.getElementById('free-test-btn');
+  btn.disabled=true; btn.textContent='신청하는 중…';
+  try{
+    var r=await fetch(MEMBER_API_BASE+'/api/order/free-test',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(data)});
+    var d=await r.json().catch(function(){return {};});
+    if(!r.ok||!d.ok){alert(d.error||'신청 중 문제가 생겼습니다. 잠시 뒤 다시 시도해 주세요.');return;}
+    closeModal('order');
+    alert('무료 테스트 번역이 접수되었습니다.\n주문번호: '+d.orderNumber+'\n완료되면 알림톡으로 안내드리고, 마이페이지에서 내려받으실 수 있습니다.');
+  }catch(e){
+    alert('신청 중 문제가 생겼습니다. 잠시 뒤 다시 시도해 주세요.');
+  }finally{
+    btn.disabled=false; btn.textContent='무료 테스트 번역 신청하기';
+  }
+}
+
 function goToPayment(){
   // [J-19c] 원문 입력 검증
   if(!getSourceText().trim()){
@@ -5000,6 +5176,50 @@ function downloadDelivery(btn, orderNumberEnc, index){
   // 새 탭으로 열어 서버 302 → Airtable 다운로드 (모든 파일 타입에서 동작, 팝업 차단 회피)
   window.open(url,'_blank');
 }
+// ─── 무료 테스트 · 14일 무상 수정 (2026-10-29) ─────────────
+function _myFreeTestNote(o){
+  if(!o.isFreeTest) return '';
+  return '<div style="margin-top:12px;padding:11px 13px;background:rgba(31,79,209,0.07);border-left:3px solid #1F4FD1;border-radius:0 4px 4px 0;font-size:12px;color:rgba(255,255,255,0.82);line-height:1.75">'
+    +'<span style="display:inline-block;padding:2px 9px;margin-right:6px;border-radius:20px;font-size:10.5px;font-weight:700;background:rgba(31,79,209,0.2);color:#9DB7F5">무료 테스트</span>'
+    +'같은 품질로 바로 주문하실 수 있습니다.</div>';
+}
+function _myRevision(o){
+  var v=o.revision; if(!v||v.reason==='not_delivered') return '';
+  var id='rev-'+String(o.orderNumber||'').replace(/[^A-Za-z0-9_-]/g,'');
+  var until=v.until?_myOrderDate(v.until):'';
+  var head='<div style="margin-top:12px;font-size:11.5px;color:rgba(255,255,255,0.6);line-height:1.7">';
+  if(v.reason==='in_progress') return head+'수정 요청을 처리하고 있습니다. 고친 번역본은 다시 알림톡으로 안내드립니다.</div>';
+  if(v.reason==='expired') return head+'수정 기간이 지났습니다. 문의해 주세요.</div>';
+  if(v.reason==='max_reached') return head+'무상 수정 2회를 모두 사용하셨습니다. 문의해 주세요.</div>';
+  return '<div style="margin-top:12px">'
+    +'<button type="button" onclick="toggleRevisionForm(\''+id+'\')" style="padding:9px 16px;border-radius:4px;border:1px solid rgba(157,183,245,0.45);background:transparent;color:#9DB7F5;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">수정 요청</button>'
+    +'<span style="margin-left:10px;font-size:11.5px;color:rgba(255,255,255,0.55)">'+(until?until+'까지 · ':'')+'남은 횟수 '+Math.max(0,v.max-v.count)+'회</span>'
+    +'<div id="'+id+'" data-order="'+_esc(o.orderNumber||'')+'" style="display:none;margin-top:12px;padding:14px;border:1px solid rgba(255,255,255,0.10);border-radius:6px;background:rgba(255,255,255,0.02)">'
+      +'<label style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:rgba(255,255,255,0.85);margin-bottom:6px;cursor:pointer"><input type="radio" name="'+id+'-kind" value="fix" checked> 번역을 고쳐 주세요</label>'
+      +'<label style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:rgba(255,255,255,0.85);margin-bottom:10px;cursor:pointer"><input type="radio" name="'+id+'-kind" value="source_change"> 원문이 바뀌었거나 분량이 늘었습니다</label>'
+      +'<input type="text" class="rev-para" maxlength="300" placeholder="고칠 곳 (예: 2쪽 3번째 문단)" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:9px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:inherit">'
+      +'<textarea class="rev-reason" rows="3" maxlength="2000" placeholder="무엇을 어떻게 고쳐야 하는지 적어 주세요" style="width:100%;box-sizing:border-box;padding:9px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:inherit;resize:vertical"></textarea>'
+      +'<button type="button" onclick="submitRevision(\''+id+'\')" class="btn-primary" style="margin-top:10px;padding:10px 18px;font-size:13px">수정 요청 보내기</button>'
+    +'</div></div>';
+}
+function toggleRevisionForm(id){var b=document.getElementById(id);if(b)b.style.display=b.style.display==='none'?'block':'none';}
+async function submitRevision(id){
+  var box=document.getElementById(id); if(!box) return;
+  var kindEl=box.querySelector('input[name="'+id+'-kind"]:checked');
+  var kind=kindEl?kindEl.value:'fix';
+  if(kind==='source_change'){alert('원문이 바뀌었거나 분량이 늘어난 경우는 새 주문으로 접수해 주세요.');return;}
+  var reason=box.querySelector('.rev-reason').value.trim();
+  if(!reason){alert('고칠 내용을 적어 주세요.');return;}
+  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
+  if(!token){showToast('카카오 로그인 후 이용해주세요','error');return;}
+  try{
+    var r=await fetch(MEMBER_API_BASE+'/api/member/orders/'+encodeURIComponent(box.dataset.order)+'/revision',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({kind:kind,paragraph:box.querySelector('.rev-para').value.trim(),reason:reason})});
+    var d=await r.json().catch(function(){return {};});
+    if(!r.ok||!d.ok){alert(d.error||'요청 중 문제가 생겼습니다. 잠시 뒤 다시 시도해 주세요.');return;}
+    alert('수정 요청이 접수되었습니다. 고친 번역본은 알림톡으로 안내드립니다.');
+    loadMyOrders();
+  }catch(e){alert('요청 중 문제가 생겼습니다. 잠시 뒤 다시 시도해 주세요.');}
+}
 async function loadMyOrders(){
   var list=document.getElementById('my-orders-list');
   if(!list) return;
@@ -5028,6 +5248,8 @@ async function loadMyOrders(){
           +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">검수자</p><p style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.8)">'+_esc(o.reviewer||'자동 배정')+'</p></div>'
         +'</div>'
         +_myOrderDownload(o)
+        +_myFreeTestNote(o)
+        +_myRevision(o)
       +'</div>';
     }).join('');
   }catch(e){ list.innerHTML='<p style="font-size:13px;color:#e05555;font-weight:300;padding:20px 0">오류: '+_esc(e.message)+'</p>'; }

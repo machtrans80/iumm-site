@@ -27,7 +27,7 @@ const sandbox = { window: {}, handleAI(){}, location: { hostname: 'iumm.kr', pro
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
 check(land.includes('<p class="lp-lead">아이움 AI는 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>'), '서브 문구');
-check(land.includes('<p class="lp-fieldline">게임 · 법률 · 의료 · 매뉴얼</p>'), '분야 줄');
+check(land.includes('<p class="lp-fieldline">게임 · 법률 · 의료 · 회계 · 특허 · <span class="nb">학술 · 매뉴얼 · ESG</span></p>'), '분야 줄 (여덟 분야)');
 check(/id="lp-entry">\s*<button type="button" class="lp-btn" onclick="handleAI\(\)">파일 올리고 바로 견적 보기<\/button>\s*<a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기<\/a>/.test(land), '버튼 2개 (견적 → 주문 창 · 기준 → #field-standards), 인트로 mask 기준 #lp-entry 유지');
 
 console.log('\n[2] 단가 단일 출처');
@@ -36,11 +36,31 @@ check(planEls[0].textContent === 25 && planEls[1].textContent === 40, '요금 �
 check(!/currentPlan\s*===?\s*["']ai["']\s*\?\s*25\s*:\s*40/.test(html), '주문 모달 25:40 하드코딩 없음');
 
 console.log('\n[3] 구성 · 순서');
-const order = ['id="top"', 'id="team"', 'id="iumm-about"', 'id="promise"', 'id="process"', 'id="field-standards"', 'id="pricing"', 'id="faq-summary"', 'id="cta-final"'].map(x => land.indexOf(x));
-check(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), '첫 화면 → 번역팀 → 아이움이란 → 약속 → 과정 → 분야 → 요금 → FAQ → 마지막');
-check((land.match(/<ol class="lp-flow">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 4, '납품 과정 4단계');
+const order = ['id="top"', 'id="team"', 'id="iumm-about"', 'id="promise"', 'id="process"', 'id="field-standards"', 'id="business"', 'id="pricing"', 'id="faq-summary"', 'id="cta-final"'].map(x => land.indexOf(x));
+check(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), '첫 화면 → 번역팀 → 아이움이란 → 약속 → 과정 → 분야 → 기업 고객 → 요금 → FAQ → 마지막');
+const curFlow = land.slice(land.search(/<div class="v3-cur">\s*<h2 class="lp-h2">단순 AI 번역이 아닙니다<\/h2>/));
+check(curFlow.length < land.length && (curFlow.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 9, "현재 번역 과정 9단계 · 큰 제목 '단순 AI 번역이 아닙니다'");
+check(land.includes('<p class="lp-sub">아이움 AI와 전문 번역가가 9단계 검증을 거쳐 완성합니다.</p>'), '과정 부제');
+check(/<p class="lp-kicker">단순 AI 번역이 아닙니다<\/p>\s*<h2 class="lp-h2">한 문장이 10단계를 거쳐 납품됩니다<\/h2>/.test(land), 'V3 10단계 위 작은 제목');
 check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
-check((land.match(/<div class="lp-field">/g) || []).length === 4 && land.includes('<details class="lp-other">'), '분야 카드 4장 + 그 밖의 분야 접기');
+check((land.match(/<div class="lp-field">/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 카드 8장 + 그 밖의 분야 접기');
+check(land.includes('<h2 class="lp-h2">아이움이 특화한 여덟 분야</h2>') && land.includes('id="lp-fields-more"') && /\.lp-fields:not\(\.all\) \.lp-field:nth-child\(n\+5\)\{display:none\}/.test(html), '여덟 분야 제목 · 모바일 4장 + 더 보기');
+for (const b of ['ICH 가이드라인', 'K-IFRS', 'ISA 국제감사기준', 'WIPO Pearl 특허 용어', '지식재산처 PCT 용어 해설', '학회 공식 용어 우선', 'GRI Standards', 'ISSB IFRS S1·S2', 'KSSB 지속가능성 공시기준', '원작 공식 표기 우선'])
+  check(land.includes('<li>' + b + '</li>'), `기준 배지 '${b}'`);
+check(land.includes('주요 시장: 영어 · 중국어(간체·번체) · 일본어 등'), '게임 주요 시장 줄');
+
+console.log('\n[3-2] 기업 고객 · 무료 테스트 · 14일 무상 수정');
+check(land.includes('<h2 class="lp-h2">기업이 아이움에 맡기는 이유</h2>') && (land.match(/<div class="bz">/g) || []).length === 4, '기업 고객 카드 (공개 3 + V3 품질 리포트 1)');
+check(!/원본 형식 그대로/.test(land), "'원본 형식 그대로' 카드 없음 (형식 유지 납품 미지원)");
+check(/onclick="openFreeTest\(\)">무료 테스트 번역 신청<\/button>/.test(land) && /href="https:\/\/pf\.kakao\.com\/_BlpKX\/chat"[^>]*>NDA 체결 문의<\/a>/.test(land), '버튼: 무료 테스트 신청 · NDA 문의(카카오 상담)');
+check(!/후불|월 정산|외상/.test(html.replace(/<!--[\s\S]*?-->/g, '')), '후불·월 정산·외상 없음');
+check(html.includes("fetch(MEMBER_API_BASE+'/api/order/free-test'") && /FREE_TEST_MAX_CHARS=1000/.test(html), '무료 테스트 → /api/order/free-test · 1,000자');
+check(html.includes("'/revision',{method:'POST'") && html.includes('수정 기간이 지났습니다. 문의해 주세요.'), '마이페이지 수정 요청 → /revision · 기간 지남 안내');
+check(['게임', '법률', '의료·제약·의료관광', '회계·재무', '특허·지식재산', '학술·논문', '매뉴얼·기술 문서', 'ESG', '그 밖'].every(v => html.includes(`<option value="${v}">${v}</option>`)), '업종 선택지 = 서버 ORDER_INDUSTRIES');
+check(!/value="criminal"/.test(html), '주문 화면 수사 분야 선택지 없음');
+for (const q of ['맡기기 전에 품질을 확인할 수 있나요?', '비밀유지계약을 맺을 수 있나요?', '납품 후 수정이 필요하면요?'])
+  check(html.split(q).length - 1 === 2, `FAQ '${q}' (요약 · 전체)`);
+check(!/납품일로부터 <strong>5일 이내<\/strong>/.test(html.slice(html.indexOf('<div id="page-faq"'))) || html.indexOf('<div id="page-faq"') < 0, 'FAQ 의 5일 A/S 문구 교체');
 
 console.log('\n[4] 공증·아포스티유 제거');
 const vis = html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
@@ -57,8 +77,8 @@ check(!fs.readFileSync(path.resolve(HERE, '../sitemap.xml'), 'utf8').includes('/
 console.log('\n[5] 문구 원칙');
 check(!/자동 번역|기계 번역|AI 도구|돌린다|돌려서|모든 문장을/.test(landVis), 'AI 도구 표현 · 사람 일 부풀리기 없음');
 check(!/사법공조|진술조서|수사|GPT|Claude|Gemini|프롬프트|원가|최고|최저|유일|1위/.test(landVis), '모델 이름·수사·원가·최상급 표현 없음');
-check(!/14일|용어 고정|역번역|95점|별의 기사|Starblade|귀사의 용어를 기억/.test(landVis), '아직 없는 기능 문구 없음(later_copy.md 보관분)');
-check(land.includes('<p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>an &amp; <b>M</b>achine</p>'), '영문 슬로건 (I·U·M·M 첫 글자만 굵게)');
+check(!/용어 고정|역번역|95점|별의 기사|Starblade|귀사의 용어를 기억|품질 리포트/.test(landVis), '아직 없는 기능 문구 없음(later_copy.md 보관분)');
+check(land.includes('<p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>ind &amp; <b>M</b>achine</p>'), '영문 슬로건 (I·U·M·M 첫 글자만 굵게)');
 check(land.includes('<p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1만 건 이상</p>'), '신뢰 표시 한 줄');
 { const pairs = (html.match(/<select id="lang-select"[\s\S]*?<\/select>/)[0].match(/<option[^>]*>한국어 → [^<]+<\/option>/g) || []).length;
   check(pairs === 32, `신뢰 표시 '32개 언어' = 주문 화면 한국어→외국어 목록 ${pairs}개`); }
@@ -76,7 +96,7 @@ check(gold.every(d => !/(^|[^-])color:\s*(#B08D57|var\(--v-gold\))/.test(d)), '�
 
 console.log('\n[7] 주문 화면 — 회사명 필수 · 업종 선택');
 check(html.includes('id="orderCompany"') && html.includes('개인사업자·프리랜서는 상호나 본인 이름을 입력해 주세요.'), '회사명 입력 + 안내 한 줄');
-check(['게임', '법률', '의료·의료관광', '제조·매뉴얼', '그 밖'].every(k => html.includes(`<option value="${k}">${k}</option>`)) && html.includes('<option value="">선택 안 함</option>'), '업종 5개 + 비워도 됨');
+check(html.includes('<option value="">선택 안 함</option>') && !/value="(의료·의료관광|제조·매뉴얼)"/.test(html), '업종 9개(위 [3-2]) + 비워도 됨 · 옛 선택지 없음');
 check(/if\(oc&&!oc\.value\.trim\(\)\)\{alert\('회사명을 입력해 주세요/.test(html), '회사명 비면 결제 진행 막음');
 check(/out\.회원회사명=oc\.value\.trim\(\)/.test(html) && /out\.업종=oi\.value/.test(html), '주문 데이터에 회원회사명·업종');
 
@@ -383,7 +403,7 @@ console.log('\n[V3] 공개 스위치');
 {
   check(/var SHOW_V3 = false;/.test(land), 'SHOW_V3 = false (이번 작업은 꺼 둠)');
   const tpls = [...land.matchAll(/<template data-v3="(replace|insert)">([\s\S]*?)<\/template>/g)];
-  check(tpls.length === 4, 'V3 template 4개 (번역팀 카드 1 · 10단계 · 회사 기억 · FAQ 1)');
+  check(tpls.length === 5, 'V3 template 5개 (번역팀 카드 1 · 10단계 · 회사 기억 · 품질 리포트 카드 · FAQ 1)');
   const inT = tpls.map(m => m[2]).join('\n');
   const outT = land.replace(/<template[\s\S]*?<\/template>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   for (const w of ['10단계', '귀사를 기억', '용어를 기억하고', '별의 기사', '전용 용어집', '역번역', '판정'])
@@ -391,7 +411,7 @@ console.log('\n[V3] 공개 스위치');
   check((inT.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, 'V3 공정 10단계');
   check(/<span class="tag">예시<\/span>/.test(inT), "V3 가상 예시에 '예시' 표시");
   check(!/제출/.test(outT) && !/제출/.test(inT), "'제출' 표현 없음 (대상 독자·대상 시장)");
-  check(outT.includes('분야와 문체, 대상 독자를 먼저 파악합니다. 영국 시장은 영국식, 미국 시장은 미국식 표기로 맞춥니다.'), '현재 버전 1단계 문구');
+  check(outT.includes('문서 종류를 파악하고, 개인정보 번호는 처리 전에 자동으로 가립니다. 영어 번역은 대상 시장의 표기에 맞춥니다.'), '현재 버전 1단계 문구 (V2 실제 단계)');
   // 켜지는 조건 — 운영 주소는 ?v3=1 이 있어도 꺼짐, 브랜치 미리보기만 켜짐
   const sw = script.slice(script.indexOf('var SHOW_V3'), script.indexOf('/* 메인 랜딩 v2'));
   const run = (hostname, search, flag) => {
