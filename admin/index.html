@@ -336,6 +336,10 @@ html,body{background:var(--navy);color:var(--offwhite);overflow-x:hidden}
   font-size:24px;font-weight:700;letter-spacing:-0.02em;line-height:1.3;cursor:pointer;font-family:inherit;transition:background 0.15s,color 0.15s}
 .work-btn:hover{background:#2A5BE0;border-color:#2A5BE0}
 .work-btn.active{background:var(--offwhite);color:var(--navy);border-color:var(--offwhite)}
+.ntr-ship-head{display:flex;align-items:center;gap:12px;width:100%;padding:0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;flex-wrap:wrap}
+.ntr-ship-sum{font-size:13px;color:rgba(255,255,255,0.6)}
+.ntr-ship-sum.todo{color:#D9BC8C;font-weight:700}
+.ntr-ship-chev{margin-left:auto;font-size:12px;color:#9DB7F5}
 body.admin-focus .work-bar{display:none}
 
 /* 메뉴 묶음 — 작업 · 주문·고객 · 용어 · 검수자 · 기록 */
@@ -454,7 +458,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
          가장 자주 하는 일 셋. 각 버튼은 아래 메뉴의 같은 탭을 연다(switchTab 그대로). -->
     <div class="work-bar" role="group" aria-label="작업">
       <button type="button" class="work-btn" id="work-bypass" data-tab="bypass" onclick="switchTab('bypass')">우회 번역</button>
-      <button type="button" class="work-btn" id="work-ntr" data-tab="notary_ship" onclick="switchTab('notary_ship')">번역공증 작업</button>
+      <button type="button" class="work-btn" id="work-ntr" data-tab="notary_work" onclick="switchTab('notary_work')">번역공증 작업</button>
       <button type="button" class="work-btn" id="work-review" data-tab="gpt_review" onclick="switchTab('gpt_review')">검수</button>
     </div>
     <!-- ── 메뉴 묶음 ─────────────────────────────────────────
@@ -464,8 +468,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
       <div class="menu-group" data-group="work">
         <span class="menu-group-title">작업</span>
         <button data-mode="tx" class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')">우회 번역</button>
-        <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')">번역공증 작업<span id="ntr-badge" class="menu-badge" style="display:none">0</span></button>
-        <button data-mode="ntr" class="tab-btn" id="tab-ntrd" onclick="switchTab('notary_direct')">직접 번역 (결제 없이)</button>
+        <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_work')">번역공증 작업<span id="ntr-badge" class="menu-badge" style="display:none">0</span></button>
         <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')">검수</button>
       </div>
       <div class="menu-group" data-group="orders">
@@ -594,33 +597,6 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
       </div>
     </div>
 
-    <!-- ── 공증 배송 관리 ────────────────────────────────────
-         스캔본을 올리면 표시 상태가 완료로 바뀌고, 발송번호를 넣으면
-         발송완료 + 고객 알림이 나간다. 대표 행동이 곧 상태다. -->
-    <div id="ntr-wrap" style="display:none;padding:4px 0 32px">
-      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
-        <button class="tab-btn ntr-f active" data-f="all"      onclick="ntrFilter('all')">전체</button>
-        <button class="tab-btn ntr-f"        data-f="progress" onclick="ntrFilter('progress')">진행 중</button>
-        <button class="tab-btn ntr-f"        data-f="ready"    onclick="ntrFilter('ready')">발송대기</button>
-        <button class="tab-btn ntr-f"        data-f="shipped"  onclick="ntrFilter('shipped')">발송완료</button>
-        <button class="tab-btn ntr-f"        data-f="manual"   onclick="ntrFilter('manual')" style="color:#D9BC8C">번역 대기 (수동)</button>
-        <span style="width:14px"></span>
-        <button class="tab-btn ntr-t active" data-t="all" onclick="ntrTier('all')">전체</button>
-        <button class="tab-btn ntr-t"        data-t="T1"  onclick="ntrTier('T1')">T1 번역만</button>
-        <button class="tab-btn ntr-t"        data-t="T2"  onclick="ntrTier('T2')">T2 공증</button>
-        <button class="tab-btn ntr-t"        data-t="T3"  onclick="ntrTier('T3')">T3 아포스티유</button>
-        <button class="tab-btn ntr-t"        data-t="APO" onclick="ntrTier('APO')">APO 단독</button>
-        <button class="tab-btn ntr-t"        data-t="CPA" onclick="ntrTier('CPA')">CPA 사본공증</button>
-        <span style="flex:1"></span>
-        <span id="ntr-count" style="font-size:12px;color:rgba(255,255,255,0.35)"></span>
-        <button class="tab-btn" onclick="loadNotaryShipping()">새로고침</button>
-      </div>
-      <!-- ★수동 번역 대기 = 대표 1인 병목. 건수·가장 오래된 경과일을 항상 맨 위에 띄운다 -->
-      <div id="ntr-express" style="display:none;margin-bottom:10px;padding:11px 14px;border-left:3px solid #B08D57;background:rgba(176,141,87,0.1);font-size:13px;color:#FAFAF7"></div>
-      <div id="ntr-manual" style="display:none;margin-bottom:14px;padding:11px 14px;border-left:3px solid #D9BC8C;background:rgba(176,141,87,0.08);font-size:13px;color:#FAFAF7"></div>
-      <div id="ntr-list"></div>
-    </div>
-
     <!-- ── 직접 번역 (결제 없이) ─────────────────────────────
          오프라인 손님이 들고 온 서류를 대표가 그 자리에서 번역·출력한다.
          고객용 공증 번역 시스템을 그대로 쓰고 결제만 건너뛴다.
@@ -632,7 +608,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
       <div class="bp-section">
         <div class="bp-section-title">
           <i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>
-          직접 번역 — 결제 없이 (관리자 전용)
+          번역공증 작업 — 결제 없이 (관리자 전용)
         </div>
         <div style="background:rgba(157,183,245,0.06);border-left:3px solid var(--gold);padding:12px 16px;border-radius:4px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8;margin-bottom:18px">
           오프라인 손님 서류를 <strong style="color:var(--gold)">번역만</strong> 처리합니다
@@ -694,6 +670,42 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <button class="tab-btn" onclick="loadNotaryDirect()" style="text-transform:none;letter-spacing:0">새로고침</button>
         </div>
         <div id="ntrd-list"><p style="color:rgba(255,255,255,0.35);font-size:13px">탭 클릭 시 로드됩니다</p></div>
+      </div>
+
+      <!-- ── 고객 공증 배송 관리 (2026-10-31 통합) — 기본은 접힘. 할 일(발송대기 + 수동 번역 대기)이 있으면 펼쳐서 보여 준다.
+           안쪽 목록·필터·새로고침은 예전 '번역공증 작업(공증 배송 관리)' 화면 그대로 -->
+      <div class="bp-section" id="ntr-ship-sec">
+        <button type="button" class="ntr-ship-head" id="ntr-ship-toggle" aria-expanded="false" aria-controls="ntr-wrap" onclick="ntrShipToggle()">
+          <span class="bp-section-title" style="margin:0">고객 공증 배송 관리</span>
+          <span id="ntr-ship-sum" class="ntr-ship-sum">불러오는 중…</span>
+          <span class="ntr-ship-chev" id="ntr-ship-chev">펼치기</span>
+        </button>
+        <!-- ── 공증 배송 관리 ────────────────────────────────────
+             스캔본을 올리면 표시 상태가 완료로 바뀌고, 발송번호를 넣으면
+             발송완료 + 고객 알림이 나간다. 대표 행동이 곧 상태다. -->
+        <div id="ntr-wrap" style="display:none;padding:14px 0 0">
+          <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+            <button class="tab-btn ntr-f active" data-f="all"      onclick="ntrFilter('all')">전체</button>
+            <button class="tab-btn ntr-f"        data-f="progress" onclick="ntrFilter('progress')">진행 중</button>
+            <button class="tab-btn ntr-f"        data-f="ready"    onclick="ntrFilter('ready')">발송대기</button>
+            <button class="tab-btn ntr-f"        data-f="shipped"  onclick="ntrFilter('shipped')">발송완료</button>
+            <button class="tab-btn ntr-f"        data-f="manual"   onclick="ntrFilter('manual')" style="color:#D9BC8C">번역 대기 (수동)</button>
+            <span style="width:14px"></span>
+            <button class="tab-btn ntr-t active" data-t="all" onclick="ntrTier('all')">전체</button>
+            <button class="tab-btn ntr-t"        data-t="T1"  onclick="ntrTier('T1')">T1 번역만</button>
+            <button class="tab-btn ntr-t"        data-t="T2"  onclick="ntrTier('T2')">T2 공증</button>
+            <button class="tab-btn ntr-t"        data-t="T3"  onclick="ntrTier('T3')">T3 아포스티유</button>
+            <button class="tab-btn ntr-t"        data-t="APO" onclick="ntrTier('APO')">APO 단독</button>
+            <button class="tab-btn ntr-t"        data-t="CPA" onclick="ntrTier('CPA')">CPA 사본공증</button>
+            <span style="flex:1"></span>
+            <span id="ntr-count" style="font-size:12px;color:rgba(255,255,255,0.35)"></span>
+            <button class="tab-btn" onclick="loadNotaryShipping()">새로고침</button>
+          </div>
+          <!-- ★수동 번역 대기 = 대표 1인 병목. 건수·가장 오래된 경과일을 항상 맨 위에 띄운다 -->
+          <div id="ntr-express" style="display:none;margin-bottom:10px;padding:11px 14px;border-left:3px solid #B08D57;background:rgba(176,141,87,0.1);font-size:13px;color:#FAFAF7"></div>
+          <div id="ntr-manual" style="display:none;margin-bottom:14px;padding:11px 14px;border-left:3px solid #D9BC8C;background:rgba(176,141,87,0.08);font-size:13px;color:#FAFAF7"></div>
+          <div id="ntr-list"></div>
+        </div>
       </div>
     </div>
 
@@ -1420,6 +1432,7 @@ async function doAdminLogin() {
       restoreAdminMode();
       loadOrders();
       refreshBpBadge();
+      loadNotaryShipping();   // 번역공증 작업 메뉴 배지(발송대기 + 수동 번역 대기)
     } else {
       document.getElementById('login-err').textContent = res.error || '로그인 실패';
     }
@@ -1438,7 +1451,7 @@ function doAdminLogout() {
    모드를 바꿀 때 그 모드의 첫 탭으로 옮겨 준다.
    공증 기능이 늘면 tabs 에 data-mode="ntr" 버튼만 추가하면 된다. */
 var ADMIN_MODE = 'tx';
-var MODE_HOME = { tx: 'ai_premium', ntr: 'notary_ship' };
+var MODE_HOME = { tx: 'ai_premium', ntr: 'notary_work' };
 
 async function loadIndustryStats() {
   var out = document.getElementById('industry-stats-out');
@@ -1464,6 +1477,7 @@ function restoreAdminMode() {
 }
 
 function switchTab(tab) {
+  if (tab === 'notary_ship' || tab === 'notary_direct') tab = 'notary_work';   // 예전 이름(공증 배송 관리 · 직접 번역) → 통합 화면
   currentTab = tab;
   if (tab !== 'terms' && (location.hash || '').indexOf('#terms') === 0) history.replaceState(null, '', location.pathname + location.search);
   selectedOrder = null;
@@ -1487,16 +1501,14 @@ function switchTab(tab) {
   var isTerms = tab === 'terms', isCorp = tab === 'corp';
   document.getElementById('terms-wrap').style.display = isTerms ? 'block' : 'none';
   document.getElementById('corp-wrap').style.display = isCorp ? 'block' : 'none';
-  document.getElementById('tab-ntr').className = 'tab-btn' + (tab==='notary_ship' ? ' active' : '');
-  document.getElementById('tab-ntrd').className = 'tab-btn' + (tab==='notary_direct' ? ' active' : '');
+  document.getElementById('tab-ntr').className = 'tab-btn' + (tab==='notary_work' ? ' active' : '');
   var isBypass = tab === 'bypass';
   var isSettlement = tab === 'settlement';
   var isUnassigned = tab === 'unassigned';
   var isFailed = tab === 'failed';
   var isGptReview = tab === 'gpt_review';
   var isMembers = tab === 'members';
-  var isNtr = tab === 'notary_ship';
-  var isNtrd = tab === 'notary_direct';
+  var isNtr = tab === 'notary_work';   // 번역공증 작업 = 직접 번역 + 고객 공증 배송 관리
   // 2026-10-31 새 탭 — 용어 추출 · 크레딧 사용 기록 · 업종별 주문 수(옮김)
   var isTx = tab === 'term_extract', isCredit = tab === 'credit', isStats = tab === 'stats';
   document.getElementById('tab-tx').className = 'tab-btn' + (isTx ? ' active' : '');
@@ -1511,9 +1523,8 @@ function switchTab(tab) {
     if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
   document.getElementById('members-wrap').style.display = isMembers ? 'block' : 'none';
-  document.getElementById('ntr-wrap').style.display = isNtr ? 'block' : 'none';
-  document.getElementById('ntrd-wrap').style.display = isNtrd ? 'block' : 'none';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isNtrd || isTerms || isCorp || isTx || isCredit || isStats) ? 'none' : 'block';
+  document.getElementById('ntrd-wrap').style.display = isNtr ? 'block' : 'none';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isTerms || isCorp || isTx || isCredit || isStats) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
@@ -1536,10 +1547,9 @@ function switchTab(tab) {
     loadUnassigned();
   } else if (tab === 'failed') {
     loadFailedOrders();
-  } else if (tab === 'notary_ship') {
-    loadNotaryShipping();
-  } else if (tab === 'notary_direct') {
+  } else if (tab === 'notary_work') {
     ntrdInit();
+    ntrShipOpen();
   } else if (tab === 'members') {
     loadMembers('');
   } else if (tab === 'terms') {
@@ -3126,8 +3136,10 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('admin-view').style.display = 'flex';
     // 용어 관리 화면 주소(#terms…)로 새로 고침하면 그 탭·페이지·필터로 돌아간다(admin/terms.js)
     if ((location.hash || '').indexOf('#terms') === 0) { setAdminMode('tx', true); switchTab('terms'); }
+    else if (NTR_HASH.test(location.hash || '')) switchTab('notary_work');
     else { restoreAdminMode(); loadOrders(); }
     refreshBpBadge();
+    if (currentTab !== 'notary_work') loadNotaryShipping();   // 메뉴 배지(발송대기 + 수동 번역 대기)를 처음부터 보이게
   }
 });
 
@@ -3996,6 +4008,47 @@ function _ntrDay(d){
   return (t.getUTCMonth()+1)+'월 '+t.getUTCDate()+'일('+W[t.getUTCDay()]+')';
 }
 function _nd(s){ if(!s) return '-'; try{ return new Date(s).toLocaleString('ko-KR',{dateStyle:'short',timeStyle:'short'}); }catch(e){ return s; } }
+
+/* ── 번역공증 작업 통합(2026-10-31) — 고객 공증 배송 관리 섹션 접기·요약 ──
+   할 일 수 = loadNotaryShipping 이 채우는 메뉴 배지(#ntr-badge) 숫자. 공증 함수 안은 손대지 않고 배지만 읽는다.
+   (스캔·발송·재개 뒤 loadNotaryShipping 이 다시 불려 배지가 바뀌면 요약 줄도 저절로 바뀐다) */
+var NTR_HASH = /^#(notary|notary_work|notary_ship|notary_direct)$/;
+var _ntrShipAuto = true;
+function ntrShipSet(open) {
+  document.getElementById('ntr-wrap').style.display = open ? 'block' : 'none';
+  document.getElementById('ntr-ship-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+  document.getElementById('ntr-ship-chev').textContent = open ? '접기' : '펼치기';
+}
+function ntrShipToggle() {
+  _ntrShipAuto = false;
+  ntrShipSet(document.getElementById('ntr-wrap').style.display !== 'block');
+}
+function ntrShipCount() {
+  var b = document.getElementById('ntr-badge');
+  return b && b.style.display !== 'none' ? (parseInt(b.textContent, 10) || 0) : 0;
+}
+function ntrShipSummary() {
+  var el = document.getElementById('ntr-ship-sum'), n = ntrShipCount();
+  var failed = /불러오지 못했습니다/.test(document.getElementById('ntr-list').textContent);
+  el.textContent = failed ? '배송 목록을 불러오지 못했습니다 — 펼쳐서 새로고침' : n ? '처리할 건 ' + n + '건 (발송대기 · 수동 번역 대기)' : '처리할 배송 건 없음';
+  el.classList.toggle('todo', !!n || failed);
+  return n;
+}
+function ntrShipOpen() {
+  _ntrShipAuto = true;
+  ntrShipSet(false);
+  document.getElementById('ntr-ship-sum').textContent = '불러오는 중…';
+  loadNotaryShipping().then(function(){
+    var n = ntrShipSummary();
+    if (_ntrShipAuto && n) ntrShipSet(true);   // 할 일이 있으면 자동 펼침
+  });
+}
+window.addEventListener('DOMContentLoaded', function() {
+  new MutationObserver(ntrShipSummary).observe(document.getElementById('ntr-badge'), { attributes: true, childList: true, characterData: true, subtree: true });
+});
+window.addEventListener('hashchange', function() {
+  if (NTR_HASH.test(location.hash || '') && document.getElementById('admin-view').style.display === 'flex') switchTab('notary_work');
+});
 
 async function loadNotaryShipping() {
   var box = document.getElementById('ntr-list');

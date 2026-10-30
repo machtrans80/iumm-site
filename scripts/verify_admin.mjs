@@ -38,7 +38,7 @@ const UP = ['계약서_원문.docx', '계약서_번역.docx', '메모_원문만.
 
 // ── 가짜 API (페이지가 뜨기 전에 심는다) ──
 const MOCK = String.raw`(() => {
-  const S = window.__mock = { calls: [], intervals: [], opened: [], estimateAllowed: true, reviewAllowed: true, reviewMode: 'ok', job: '진행 중' };
+  const S = window.__mock = { calls: [], intervals: [], opened: [], estimateAllowed: true, reviewAllowed: true, reviewMode: 'ok', job: '진행 중', manualWaiting: 0 };
   const _si = window.setInterval;
   window.setInterval = function (fn, ms) { S.intervals.push(ms); return _si.apply(this, arguments); };
   window.open = (u) => { S.opened.push(String(u)); return null; };
@@ -94,7 +94,7 @@ const MOCK = String.raw`(() => {
     if (p === '/api/notary/config') return J({ ok: true, documents: [{ code: 'family', name: '가족관계증명서', ready: true }], langs: [{ code: 'en', name: '영어', ready: true }] });
     if (p === '/api/notary/admin/direct' && m === 'GET') return J({ ok: true, orders: [{ orderNumber: 'NTR-ADM-0001', docType: '가족관계증명서', statusKey: 'done', statusLabel: '완료', receivedAt: '2026-10-30T01:00:00Z' }] });
     if (/^\/api\/notary\/admin\/direct\/[^/]+\/reopen$/.test(p)) return J({ ok: true, editUrl: 'https://iumm.kr/notary/edit.html?t=EDIT_TOKEN' });
-    if (p === '/api/notary/admin/shipping') return J({ ok: true, orders: [] });
+    if (p === '/api/notary/admin/shipping') return J({ ok: true, orders: [], manualWaiting: S.manualWaiting, manualOldestDays: S.manualWaiting ? 3 : 0 });
     return J({ success: true, ok: true, orders: [], items: [], reviewers: [], members: [] });
   };
 })();`;
@@ -114,7 +114,7 @@ let seq = 0; const waiting = new Map(); const events = []; const errors = [];
 ws.addEventListener('message', (e) => {
   const msg = JSON.parse(e.data);
   if (msg.id && waiting.has(msg.id)) { waiting.get(msg.id)(msg); waiting.delete(msg.id); }
-  else if (msg.method) { events.push(msg.method); if (msg.method === 'Runtime.exceptionThrown') errors.push(msg.params.exceptionDetails.exception?.description || msg.params.exceptionDetails.text); }
+  else if (msg.method) { events.push(msg.method); if (msg.method === 'Runtime.exceptionThrown') errors.push(msg.params.exceptionDetails.exception?.description || msg.params.exceptionDetails.text); if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') errors.push('console.error ' + (msg.params.args || []).map((a) => a.value ?? a.description).join(' ')); }
 });
 const send = (method, params = {}) => new Promise((r) => { const id = ++seq; waiting.set(id, r); ws.send(JSON.stringify({ id, method, params })); });
 const ev = async (expr) => {
@@ -211,7 +211,7 @@ try {
   await click('#work-bypass');
   check(await ev(`document.getElementById('bypass-wrap').style.display === 'block' && document.getElementById('tab-bypass').classList.contains('active') && document.getElementById('work-bypass').classList.contains('active')`), '[우회 번역] → 우회 번역(우회 주문) 화면');
   await click('#work-ntr');
-  check(await ev(`document.getElementById('ntr-wrap').style.display === 'block' && document.getElementById('tab-ntr').classList.contains('active')`), '[번역공증 작업] → 공증 배송 관리 화면');
+  check(await ev(`document.getElementById('ntrd-wrap').style.display === 'block' && document.getElementById('tab-ntr').classList.contains('active') && document.getElementById('work-ntr').classList.contains('active')`), '[번역공증 작업] → 통합 화면(직접 번역 + 고객 공증 배송 관리)');
   check((await calls('^/api/notary/admin/shipping$')).length >= 1, '번역공증 작업 목록 API 그대로 (/api/notary/admin/shipping)');
   await click('#work-review');
   check(await ev(`document.getElementById('gpt-review-wrap').style.display === 'block' && document.getElementById('tab-gpt').classList.contains('active')`), '[검수] → 검수 화면');
@@ -220,18 +220,20 @@ try {
   const groups = await ev(`[...document.querySelectorAll('.menu-group')].map(g => ({ t: g.querySelector('.menu-group-title').textContent, items: [...g.querySelectorAll('.tab-btn')].map(b => b.id + ':' + [...b.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim()), shown: [...g.querySelectorAll('.tab-btn')].every(b => b.getClientRects().length) }))`);
   const G = Object.fromEntries(groups.map((g) => [g.t, g.items.map((x) => x.split(':')[1])]));
   check(groups.map((g) => g.t).join() === '작업,주문·고객,용어,검수자,기록', '묶음 순서: 작업 · 주문·고객 · 용어 · 검수자 · 기록');
-  check(['우회 번역', '번역공증 작업', '직접 번역 (결제 없이)', '검수'].every((x) => G['작업'].includes(x)), '작업: 우회 번역 · 번역공증 작업 · 직접 번역 · 검수');
+  check(G['작업'].join() === '우회 번역,번역공증 작업,검수', `작업: 우회 번역 · 번역공증 작업 · 검수 — 직접 번역 항목 없음 (${G['작업'].join(' · ')})`);
+  check((await ev(`[...document.querySelectorAll('.menu-groups .tab-btn, .work-bar .work-btn')].filter(b => /번역공증 작업/.test(b.textContent)).map(b => b.className.split(' ')[0]).join()`)) === 'work-btn,tab-btn', "'번역공증 작업'은 큰 버튼 1개 + 메뉴 1개");
+  check(!(await ev(`/직접 번역/.test(document.querySelector('.menu-groups').textContent + document.querySelector('.work-bar').textContent)`)), "메뉴·큰 버튼에 '직접 번역' 없음");
   check(['AI 프리미엄 납품 대기', '프리미엄 플러스 컨펌', '입금대기', '확인필요·번역실패', '무료 테스트', '수정 요청', '기업 고객', '회원 관리'].every((x) => G['주문·고객'].includes(x)), '주문·고객: 주문 목록(AI 프리미엄·프리미엄 플러스·입금대기·확인필요) · 무료 테스트 · 수정 요청 · 기업 고객 · 회원 관리');
   check(G['용어'].join() === '용어집,용어 추출', '용어: 용어집 · 용어 추출');
   check(['검수자 승인', '승인된 검수자', '반려된 검수자', '배정 (미배정)'].every((x) => G['검수자'].includes(x)), '검수자: 검수자 관리(승인·승인됨·반려) · 배정');
   check(['크레딧 사용 기록', '정산 관리', '업종별 주문 수'].every((x) => G['기록'].includes(x)), '기록: 크레딧 사용 기록 · 정산 관리 · 업종별 주문 수');
   check(groups.every((g) => g.shown), '모든 메뉴가 항상 보임 (업무 모드로 숨기지 않음)');
   const ids = groups.flatMap((g) => g.items.map((x) => x.split(':')[0]));
-  const oldIds = ['tab-bp', 'tab-ai', 'tab-pp', 'tab-rv', 'tab-rv-approved', 'tab-rv-rejected', 'tab-st', 'tab-ua', 'tab-failed', 'tab-bypass', 'tab-gpt', 'tab-members', 'tab-terms', 'tab-rev', 'tab-ft', 'tab-corp', 'tab-ntr', 'tab-ntrd'];
-  check(oldIds.every((x) => ids.includes(x)), '예전 탭 18개 모두 메뉴에 있음 (id 그대로)');
+  const oldIds = ['tab-bp', 'tab-ai', 'tab-pp', 'tab-rv', 'tab-rv-approved', 'tab-rv-rejected', 'tab-st', 'tab-ua', 'tab-failed', 'tab-bypass', 'tab-gpt', 'tab-members', 'tab-terms', 'tab-rev', 'tab-ft', 'tab-corp', 'tab-ntr'];
+  check(oldIds.every((x) => ids.includes(x)), '예전 탭 17개 메뉴에 있음 (id 그대로 · 직접 번역은 번역공증 작업으로 합침)');
   check(!/GPT 검수/.test(await ev(`document.querySelector('.menu-groups').textContent + document.querySelector('.work-bar').textContent + document.getElementById('gpt-submit-btn').textContent`)), "메뉴·버튼에 'GPT 검수' 없음 → '검수'");
   const onclick = await ev(`Object.fromEntries([...document.querySelectorAll('.menu-groups .tab-btn')].map(b => [b.id, b.getAttribute('onclick')]))`);
-  const OLD_ONCLICK = { 'tab-bp': 'bank_pending', 'tab-ai': 'ai_premium', 'tab-pp': 'premium_plus', 'tab-rv': 'reviewers', 'tab-rv-approved': 'reviewers_approved', 'tab-rv-rejected': 'reviewers_rejected', 'tab-st': 'settlement', 'tab-ua': 'unassigned', 'tab-failed': 'failed', 'tab-bypass': 'bypass', 'tab-gpt': 'gpt_review', 'tab-members': 'members', 'tab-terms': 'terms', 'tab-rev': 'revisions', 'tab-ft': 'free_test', 'tab-corp': 'corp', 'tab-ntr': 'notary_ship', 'tab-ntrd': 'notary_direct' };
+  const OLD_ONCLICK = { 'tab-bp': 'bank_pending', 'tab-ai': 'ai_premium', 'tab-pp': 'premium_plus', 'tab-rv': 'reviewers', 'tab-rv-approved': 'reviewers_approved', 'tab-rv-rejected': 'reviewers_rejected', 'tab-st': 'settlement', 'tab-ua': 'unassigned', 'tab-failed': 'failed', 'tab-bypass': 'bypass', 'tab-gpt': 'gpt_review', 'tab-members': 'members', 'tab-terms': 'terms', 'tab-rev': 'revisions', 'tab-ft': 'free_test', 'tab-corp': 'corp', 'tab-ntr': 'notary_work' };
   check(Object.entries(OLD_ONCLICK).every(([id, t]) => onclick[id] === `switchTab('${t}')`), '탭마다 같은 switchTab 값 (기능·경로 그대로)');
   await click('#tab-rev');
   check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/orders' && c.q === '?tab=revisions')`), '수정 요청 → /api/admin/orders?tab=revisions (예전과 같음)');
@@ -331,22 +333,55 @@ try {
   const bp = (await calls('^/api/admin/translate-bypass$'))[0];
   check(bp && bp.m === 'POST' && bp.auth === 'Bearer TEST_TOKEN', '우회 번역 접수 → POST /api/admin/translate-bypass (예전과 같은 주소)');
   check(bp && bp.json && bp.json.direction === document_dir_expect(), '번역 방향 값 그대로 (예: "포르투갈어 → 한국어")');
-  await click('#tab-ntrd');
-  check(await until(`/NTR-ADM-0001/.test(document.getElementById('ntrd-list').textContent)`), '직접 번역 목록 열림');
+  await click('#tab-ntr');
+  check(await until(`/NTR-ADM-0001/.test(document.getElementById('ntrd-list').textContent)`), '번역공증 작업 → 최근 직접 번역 목록 열림');
   await ev(`window.__mock.opened.length = 0; ntrdReopen('NTR-ADM-0001')`);
   check(await until(`window.__mock.opened[0] === 'https://iumm.kr/notary/edit.html?t=EDIT_TOKEN'`), '공증 편집 열기: 서버가 준 editUrl(/notary/edit.html) 그대로 새 창');
   check(adminSrc.includes("window.open(NTRD_CUR.editUrl, '_blank')") && adminSrc.includes("window.open(j.editUrl, '_blank')") && adminSrc.includes("'/api/notary/admin/direct/' + encodeURIComponent(orderNumber) + '/reopen'"), '편집 화면 여는 코드·주소 main 과 같음');
   check(fs.existsSync(path.join(ROOT, 'notary/edit.html')), 'notary/edit.html 그대로 있음');
+
+  console.log('\n[7-2] 번역공증 작업 통합 화면');
+  await click('#tab-ntr');
+  const ntrOrder = await ev(`(() => { const w = document.getElementById('ntrd-wrap'); const pos = (id) => [...w.querySelectorAll('*')].indexOf(document.getElementById(id));
+    return { title: w.querySelector('.bp-section-title').textContent.replace(/\\s+/g, ' ').trim(), form: pos('ntrd-submit'), list: pos('ntrd-list'), ship: pos('ntr-ship-sec'), inside: w.contains(document.getElementById('ntr-wrap')) }; })()`);
+  check(ntrOrder.title === '번역공증 작업 — 결제 없이 (관리자 전용)', `화면 제목 (${ntrOrder.title})`);
+  check(ntrOrder.form >= 0 && ntrOrder.form < ntrOrder.list && ntrOrder.list < ntrOrder.ship && ntrOrder.inside, '위에서 아래로: 직접 번역 시작 → 최근 직접 번역 → 고객 공증 배송 관리');
+  check(await until(`document.getElementById('ntrd-doc').options.length >= 1 && document.getElementById('ntrd-doc').value !== '' || [...document.getElementById('ntrd-doc').options].some(o => /가족관계증명서/.test(o.textContent))`) && await ev(`[...document.getElementById('ntrd-lang').options].some(o => o.value === 'en')`), '서류 종류·번역 언어 드롭다운 불러옴 (/api/notary/config)');
+  check(await until(`document.getElementById('ntr-ship-sum').textContent === '처리할 배송 건 없음'`), "할 일 0 → '처리할 배송 건 없음' 한 줄");
+  check(await ev(`document.getElementById('ntr-wrap').style.display === 'none' && document.getElementById('ntr-ship-toggle').getAttribute('aria-expanded') === 'false' && document.getElementById('ntr-badge').style.display === 'none'`), '할 일 0 → 접힘 · 메뉴 배지 없음');
+  await click('#ntr-ship-toggle');
+  check(await ev(`document.getElementById('ntr-wrap').style.display === 'block' && document.getElementById('ntr-ship-toggle').getAttribute('aria-expanded') === 'true'`), '누르면 펼쳐짐');
+  check(await ev(`['all', 'progress', 'ready', 'shipped', 'manual'].every(f => !!document.querySelector('#ntr-wrap .ntr-f[data-f="' + f + '"]')) && document.querySelectorAll('#ntr-wrap .ntr-t').length === 6`), '펼친 안쪽: 기존 단계·등급 거르기 버튼 그대로');
+  await ev(`window.__mock.calls.length = 0; [...document.querySelectorAll('#ntr-wrap button')].find(b => b.textContent.trim() === '새로고침').click(), 1`);
+  check(await until(`window.__mock.calls.some(c => c.p === '/api/notary/admin/shipping')`), '배송 [새로고침] → /api/notary/admin/shipping');
+  await click('#ntr-ship-toggle');
+  check(await ev(`document.getElementById('ntr-wrap').style.display === 'none'`), '다시 누르면 접힘');
+  await ev(`window.__mock.manualWaiting = 2; 1`);
+  await click('#tab-ai'); await click('#tab-ntr');
+  check(await until(`document.getElementById('ntr-wrap').style.display === 'block'`), '할 일 있음 → 섹션 자동 펼침');
+  check(await ev(`document.getElementById('ntr-badge').style.display !== 'none' && document.getElementById('ntr-badge').textContent === '2' && /처리할 건 2건/.test(document.getElementById('ntr-ship-sum').textContent)`), '메뉴 배지 2 · 요약 "처리할 건 2건"');
+  for (const old of ['notary_ship', 'notary_direct']) {
+    await click('#tab-ai');
+    await ev(`switchTab('${old}'), 1`);
+    check(await ev(`currentTab === 'notary_work' && document.getElementById('ntrd-wrap').style.display === 'block' && document.getElementById('tab-ntr').classList.contains('active')`), `예전 탭 이름 '${old}' → 통합 화면`);
+  }
+  for (const h of ['#notary_direct', '#notary_ship']) {
+    await click('#tab-ai');
+    await ev(`location.hash = '${h}', 1`);
+    check(await until(`currentTab === 'notary_work' && document.getElementById('ntrd-wrap').style.display === 'block'`), `주소 ${h} → 통합 화면`);
+  }
+  await ev(`history.replaceState(null, '', location.pathname); window.__mock.manualWaiting = 0; 1`);
+  check(adminSrc.includes('function ntrdSubmit()') && adminSrc.includes('async function loadNotaryDirect()') && adminSrc.includes('async function loadNotaryShipping()') && adminSrc.includes('async function ntrdInit()'), '공증 함수 이름 그대로 (ntrdSubmit · loadNotaryDirect · loadNotaryShipping · ntrdInit)');
 
   console.log('\n[8] 색 · 초점 · 좁은 화면');
   await click('#tab-ai');
   await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`);
   let bad = await ev(COLOR_SCAN);
   check(bad.length === 0, '첫 화면 계산된 색에 민트·청록·초록·빨강 없음' + (bad.length ? ' — ' + bad.join(' | ') : ''));
-  const scanTabs = ['#tab-failed', '#tab-tx', '#tab-gpt', '#tab-credit', '#tab-ntrd', '#tab-bypass', '#tab-terms'];
+  const scanTabs = ['#tab-failed', '#tab-tx', '#tab-gpt', '#tab-credit', '#tab-ntr', '#tab-bypass', '#tab-terms'];
   const badAll = [];
   for (const t of scanTabs) { await click(t); await sleep(250); badAll.push(...(await ev(COLOR_SCAN)).map((x) => t + ' ' + x)); }
-  check(badAll.length === 0, '다른 탭(확인필요·용어 추출·검수·크레딧·직접 번역·우회 번역·용어집)도 민트·초록·빨강 없음' + (badAll.length ? ' — ' + badAll.slice(0, 6).join(' | ') : ''));
+  check(badAll.length === 0, '다른 탭(확인필요·용어 추출·검수·크레딧·번역공증 작업·우회 번역·용어집)도 민트·초록·빨강 없음' + (badAll.length ? ' — ' + badAll.slice(0, 6).join(' | ') : ''));
   check(await ev(`getComputedStyle(document.body).backgroundColor === 'rgb(15, 37, 64)' && /Pretendard/.test(getComputedStyle(document.body).fontFamily)`), '바탕 네이비 #0F2540 · 글꼴 Pretendard');
   check(await ev(`getComputedStyle(document.querySelector('.work-btn')).backgroundColor === 'rgb(31, 79, 209)'`), '작업 버튼 파랑 #1F4FD1');
   check(!/fonts\.googleapis/.test(adminSrc) && /pretendard@v1\.3\.9/.test(adminSrc) && /MaruBuri-Regular\.woff2/.test(adminSrc), '글꼴: Pretendard(jsdelivr) + MaruBuri(pstatic) — 고객 홈페이지와 같은 방식, Google Fonts 없음');
