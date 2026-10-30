@@ -38,7 +38,7 @@ const UP = ['계약서_원문.docx', '계약서_번역.docx', '메모_원문만.
 
 // ── 가짜 API (페이지가 뜨기 전에 심는다) ──
 const MOCK = String.raw`(() => {
-  const S = window.__mock = { calls: [], intervals: [], opened: [], estimateAllowed: true, reviewAllowed: true, reviewMode: 'ok', job: '진행 중', manualWaiting: 0 };
+  const S = window.__mock = { calls: [], intervals: [], opened: [], estimateAllowed: true, reviewAllowed: true, reviewMode: 'ok', job: '진행 중', manualWaiting: 0, hidden: {} };
   const _si = window.setInterval;
   window.setInterval = function (fn, ms) { S.intervals.push(ms); return _si.apply(this, arguments); };
   window.open = (u) => { S.opened.push(String(u)); return null; };
@@ -61,9 +61,11 @@ const MOCK = String.raw`(() => {
     if (p === '/api/admin/orders') {
       const tab = u.searchParams.get('tab');
       if (tab === 'ai_premium') return J({ success: true, orders: [order(1), order(2, { status: '납품완료' })] });
-      if (tab === 'failed') return J({ success: true, orders: [order(3, { orderStatus: '확인필요', status: '확인필요', failReason: '확인필요: P0003 숫자 확인', aiTranslation: 'text' })] });
+      // 서버와 같이: 숨긴(admin_hidden) 주문은 tab=failed 에 안 온다
+      if (tab === 'failed') return J({ success: true, orders: [order(3, { orderStatus: '확인필요', status: '확인필요', failReason: '확인필요: P0003 숫자 확인', aiTranslation: 'text' })].filter((o) => !S.hidden[o.orderId]) });
       return J({ success: true, orders: [] });
     }
+    if (p === '/api/admin/orders/hide') { const ids = (rec.json && rec.json.recordIds) || []; ids.forEach((i) => { S.hidden[i] = 1; }); return J({ ok: true, hiddenCount: ids.length }); }
     if (p === '/api/admin/terms') return J({ ok: true, terms: [{ id: 't1', pair: '한국어→영어', source: '계약', target: 'contract', status: '승인', scope: '일반', count: 3, field: '법률', docType: '계약서', lastAt: '2026-10-20' }], facets: { field: ['법률'], docType: ['계약서'], scope: ['일반'], status: ['승인'] } });
     if (p === '/api/admin/reviewers/pending') return J({ success: true, reviewers: [{ id: 'r1', name: '김검수', grade: 'S', expertise: ['법률'], languages: ['영어'], phone: '010-0000-0000', signupAt: '2026-10-01' }] });
     if (p === '/api/admin/term-extract/options') return J({ ok: true, fields: [{ code: 'legal', name: '법률' }, { code: 'medical', name: '의료' }, { code: 'etc', name: '그 밖' }],
@@ -240,6 +242,19 @@ try {
   await click('#tab-failed');
   check(await until(`!!document.querySelector('#failed-list .st.st-check')`), '확인필요 = 금색 테두리 배지');
   check(await ev(`getComputedStyle(document.querySelector('#failed-list .st.st-check')).borderTopColor === 'rgb(176, 141, 87)'`), '확인필요 배지 테두리 #B08D57');
+
+  console.log('\n[3-2] 확인필요·번역실패 카드 [숨기기]');
+  const hideBtn = `[...document.querySelectorAll('#failed-list button')].find(b => b.textContent.trim() === '숨기기')`;
+  check(await ev(`!!${hideBtn}`), '카드에 [숨기기] 버튼');
+  check(await ev(`(() => { const c = getComputedStyle(${hideBtn}); return c.color === 'rgb(157, 183, 245)' && c.borderTopColor === 'rgb(31, 79, 209)'; })()`), '[숨기기] 파란색 (글자 #9DB7F5 · 테두리 #1F4FD1)');
+  await ev(`window.__confirmMsg = ''; window.confirm = (m) => { window.__confirmMsg = m; return false; }; window.__mock.calls.length = 0; ${hideBtn}.click(), 1`);
+  check(await ev(`/IUMM-1003/.test(window.__confirmMsg) && /보존/.test(window.__confirmMsg) && !window.__mock.calls.some(c => c.p === '/api/admin/orders/hide')`), '확인 창(주문번호·보존 안내) → [취소]면 숨기지 않음');
+  await ev(`window.confirm = () => true; ${hideBtn}.click(), 1`);
+  check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/orders/hide' && c.m === 'POST' && JSON.stringify(c.json) === '{"recordIds":["rec3"]}')`), '[확인] → 기존 /api/admin/orders/hide 에 recordIds:[rec3]');
+  check(await until(`/확인필요·번역실패 주문 없음/.test(document.getElementById('failed-list').textContent)`), '숨긴 뒤 목록 다시 불러옴 → 카드 사라짐');
+  await click('#tab-ai');
+  check(await until(`!!document.querySelector('#orders-wrap tr[data-id="rec1"]')`) && !(await ev(`!!document.querySelector('#orders-wrap tr[data-id="rec3"]')`)), 'AI 프리미엄 목록에도 숨긴 확인필요 주문 없음 (다른 주문은 그대로)');
+  await ev(`window.__mock.hidden = {}; 1`);
 
   console.log('\n[4] 용어집 · 검수자');
   await click('#tab-terms');
