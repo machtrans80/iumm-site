@@ -567,7 +567,16 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
   const privAll = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
   const privBody = privAll.slice(privAll.indexOf('</div>', privAll.indexOf('privacy-revision-notice')));
   check(!/공증|아포스티유|등기|영사/.test(privBody), '개인정보처리방침 본문에 공증·아포스티유·등기·영사 없음');
-  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privAll.includes('개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제</li>') && !/공증/.test(privAll) && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '더 이상 제공하지 않는 서비스 관련 조항 삭제'(공증 없음) · 번호 ⑤→④");
+  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privAll.includes('개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제, 문서 삭제 시점과 외부 처리 내용의 정확한 안내</li>') && !/공증/.test(privAll) && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '더 이상 제공하지 않는 서비스 관련 조항 삭제'(공증 없음) · 번호 ⑤→④");
+  // 2026-10-30 보안 마무리: 삭제 시점 = cron 실제(납품+21일 지난 뒤), '완전' 금지(Airtable 변경 기록 미확인), 수탁사별 학습·보관·가림, 국외 이전 문의처
+  check((privBody.match(/납품 후 21일이 지나면 자동으로 삭제/g) || []).length === 3 && !/21일 이내|완전/.test(privBody), "처리방침 제1조 ③·제3조·제6조 = '납품 후 21일이 지나면 자동으로 삭제' · '21일 이내'·'완전' 없음");
+  { const ai = (privBody.match(/<li id="privacy-5-ai">[^]*?<\/ul>/) || [''])[0], ocr = (privBody.match(/<li id="privacy-5-ocr">[^]*?<\/ul>/) || [''])[0];
+    check(ai.includes('AI 학습에 사용하지 않습니다') && ai.includes('Anthropic PBC는 입력·출력을 기본 30일 안에 삭제합니다') && ai.includes('남용 감시 기록을 최대 30일 보관') && ai.includes('더 오래 보관될 수 있습니다') && ai.includes('AI에 보내기 전에 자동으로 가리고'), '제5조 AI 번역·검수 — 학습 안 함 · 보관 30일(예외) · 보내기 전 가림');
+    check(ocr.includes('AI 학습에 사용하지 않습니다') && ocr.includes('이미지와 인식 결과를 저장하지 않고') && ocr.includes('원본 이미지가 가림 처리 없이 전송됩니다'), '제5조 문서 OCR — 학습 안 함 · 저장 안 함 · 원본 이미지 전송(가림은 AI 전)'); }
+  { const c = (privBody.match(/<li id="privacy-6-contacts">[^]*?<\/ul>/) || [''])[0];
+    check(['privacy@airtable.com', 'dsar@openai.com', 'dpo@openai.com', 'privacy@anthropic.com', 'privacy@railway.com', 'support.google.com/policies?p=privpol_privts'].every(s => c.includes(s)), '제6조 이전 받는 자별 문의처 (공식 문서 확인분)'); }
+  check(privAll.includes("<li>제5조: AI 번역·검수, 문서 OCR(문자인식) 수탁사별 AI 학습 사용 여부, 수탁사 측 보관 기간, 보내기 전 처리(개인정보 번호 가림) 명시</li>") && privAll.includes('<li>제6조: 이전 받는 자별 개인정보 문의처 추가</li>') && (privAll.match(/공고일: 2026년 10월 30일 &nbsp;\|&nbsp; 시행일: 2026년 11월 6일/g) || []).length === 1 && privAll.includes('공지일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 6일</span>') && privBody.includes('변경 시 시행 7일 전 서비스 내 공지합니다'), '개정 안내 — 삭제 시점·제5조·제6조 항목 · 공고 10-30 · 시행 11-06 (제11조 7일 전 공지)');
+  check(!/서버에서 완전히 삭제|회원 정보 완전 삭제/.test(html) && !/완전히 삭제/.test(fs.readFileSync(path.resolve(HERE, '../notary/edit.html'), 'utf8')), "고객 화면 '완전히 삭제' 없음 → '자동으로 삭제'");
   const outside = strip(html).replace(privAll, '');
   check(!/공증|아포스티유|번역공증|사본공증|등기/.test(outside), '메인 index.html(개인정보 개정 안내 밖)에 공증·아포스티유·등기 없음');
   check(!/loadMyNotaryOrders|my-notary|_ntr|openNotaryOrder|\/api\/notary/.test(html), '마이페이지 공증 주문 목록·스크립트 없음');

@@ -1353,7 +1353,10 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         <li>제1조 ①: 회원가입 시 입력하는 이름·전화번호·회사명 명시 (회사명 필수 입력으로 변경)</li>
         <li>제2조: 무료 체험 1회 제한 관리 → 무료 테스트 번역 회사당·회원당 1회 제한 관리</li>
         <li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>
-        <li>개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제</li>
+        <li>제1조 ③, 제3조, 제6조: 번역 의뢰 문서 삭제 시점을 '납품 후 21일 이내 삭제'에서 '납품 후 21일이 지나면 자동으로 삭제'로 실제 처리 방식에 맞게 수정</li>
+        <li>제5조: AI 번역·검수, 문서 OCR(문자인식) 수탁사별 AI 학습 사용 여부, 수탁사 측 보관 기간, 보내기 전 처리(개인정보 번호 가림) 명시</li>
+        <li>제6조: 이전 받는 자별 개인정보 문의처 추가</li>
+        <li>개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제, 문서 삭제 시점과 외부 처리 내용의 정확한 안내</li>
         <li>공지일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 6일</span></li>
       </ul>
       <p style="margin:6px 0 0"><a href="/legal/privacy-2026-10-26" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 개인정보처리방침 보기</a></p>
@@ -1377,7 +1380,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     </ul>
     <p><strong style="color:rgba(255,255,255,0.8)">③ 번역 서비스 이용 시 수집 항목</strong></p>
     <ul>
-      <li>번역 의뢰 문서 및 텍스트 (번역 처리 목적에 한함, 21일 이내 삭제)</li>
+      <li>번역 의뢰 문서 및 텍스트 (번역 처리 목적에 한함, 납품 후 21일이 지나면 자동으로 삭제)</li>
       <li>이미지·스캔본·PDF 등 문서 파일 및 해당 파일에서 자동 추출된 텍스트(OCR 문자인식 결과)</li>
       <li>용어집 정보 (번역 품질 향상 목적)</li>
       <li>기업 고객 선택 시: 회사명, 사업자등록번호 (전용 용어집 구분 식별용)</li>
@@ -1403,7 +1406,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <h2>제3조 (개인정보 보유 및 이용 기간)</h2>
     <ul>
       <li>회원 정보: 회원 탈퇴 시까지 (탈퇴 후 즉시 파기)</li>
-      <li><span class="highlight">번역 의뢰 문서·텍스트: 납품 완료 후 21일 이내 완전 삭제</span></li>
+      <li><span class="highlight">번역 의뢰 문서·텍스트: 납품 후 21일이 지나면 자동으로 삭제</span></li>
       <li><strong>납품까지 이르지 못하고 중단된 건도</strong> 접수일로부터 일정 기간이 지나면 문서·OCR 원문·첨부파일이 자동으로 삭제됩니다. 즉 어떤 상태로 종료되든 해당 자료는 서버에 무기한 보관되지 않습니다.</li>
       <li>결제 정보: 「전자상거래 등에서의 소비자보호에 관한 법률」에 따라 5년 보관</li>
       <li>서비스 이용 기록: 「통신비밀보호법」에 따라 3개월 보관</li>
@@ -1422,8 +1425,20 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li><strong>결제 처리</strong>: 주식회사 코리아포트원(PortOne), 토스페이먼츠(주) — 결제 연동 및 승인·취소 처리</li>
       <li><strong>데이터 보관</strong>: Airtable, Inc. — 회원·주문 정보 및 번역 의뢰 문서 보관</li>
-      <li><strong>AI 번역·검수 처리</strong>: OpenAI, L.L.C., Anthropic PBC — 번역 및 품질 검증 자동 처리</li>
-      <li><strong>문서 OCR(문자인식)</strong>: Google LLC (Google Cloud Vision), 네이버클라우드 주식회사 (CLOVA OCR) — 이미지·스캔본·PDF에서 텍스트 자동 추출</li>
+      <li id="privacy-5-ai"><strong>AI 번역·검수 처리</strong>: OpenAI, L.L.C., Anthropic PBC — 번역 및 품질 검증 자동 처리
+        <ul>
+          <li>AI 학습: 두 회사 모두 회사가 API로 보낸 문서를 AI 학습에 사용하지 않습니다 (각 회사의 기업용 약관·데이터 정책 기준).</li>
+          <li>수탁사 측 보관: Anthropic PBC는 입력·출력을 기본 30일 안에 삭제합니다. OpenAI, L.L.C.는 남용 감시 기록을 최대 30일 보관한 뒤 삭제합니다. 다만 이용 정책 위반이 의심되어 검토하는 경우나 법령에 따른 보존 의무가 있는 경우에는 각 회사 정책에 따라 더 오래 보관될 수 있습니다.</li>
+          <li>보내기 전 처리: 주민·외국인등록번호, 여권번호, 전화번호, 계좌번호, 카드번호, 이메일 주소는 AI에 보내기 전에 자동으로 가리고, 번역이 끝난 뒤 원래 값으로 되돌립니다.</li>
+        </ul>
+      </li>
+      <li id="privacy-5-ocr"><strong>문서 OCR(문자인식)</strong>: Google LLC (Google Cloud Vision), 네이버클라우드 주식회사 (CLOVA OCR) — 이미지·스캔본·PDF에서 텍스트 자동 추출
+        <ul>
+          <li>AI 학습: 두 회사 모두 문자 인식에 보낸 이미지와 결과를 AI 학습에 사용하지 않습니다 (각 회사의 서비스 데이터 안내 기준).</li>
+          <li>수탁사 측 보관: 이미지와 인식 결과를 저장하지 않고 처리 후 바로 응답합니다. CLOVA OCR은 서비스 운영을 위한 접속 기록만 남깁니다.</li>
+          <li>보내기 전 처리: 문자 인식을 위해 원본 이미지가 가림 처리 없이 전송됩니다. 개인정보 번호 가림은 인식된 텍스트를 AI 번역·검수에 보내기 전에 적용됩니다.</li>
+        </ul>
+      </li>
       <li><strong>메시지 발송</strong>: (주)솔라피 — 카카오 알림톡·SMS 발송</li>
       <li><strong>서버 운영</strong>: Railway Corp — 서비스 인프라 운영</li>
       <li><strong>소셜 로그인</strong>: 카카오(주) — 소셜 로그인 인증</li>
@@ -1436,10 +1451,19 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li>이전 국가: 미국</li>
       <li>이전 받는 자: Airtable, Inc. / OpenAI, L.L.C. / Anthropic PBC / Railway Corp / Google LLC</li>
+      <li id="privacy-6-contacts">이전 받는 자의 개인정보 문의처:
+        <ul>
+          <li>Airtable, Inc.: privacy@airtable.com</li>
+          <li>OpenAI, L.L.C.: dsar@openai.com (개인정보보호책임자 dpo@openai.com)</li>
+          <li>Anthropic PBC: privacy@anthropic.com</li>
+          <li>Railway Corp: privacy@railway.com</li>
+          <li>Google LLC: 개인정보 문의 양식 (support.google.com/policies?p=privpol_privts)</li>
+        </ul>
+      </li>
       <li>이전 항목: 이메일 주소, 연락처, 주문 정보, <span class="highlight">번역 의뢰 문서·텍스트, 이미지·스캔본·PDF 등 문서 파일 및 OCR 문자인식 결과</span>, 서비스 이용 기록</li>
       <li>이전 목적: 번역·검수 자동 처리, <span class="highlight">문서 OCR 문자인식</span>, 데이터 보관, 서비스 인프라 운영, 문의 접수</li>
       <li>이전 시기: 서비스 이용 시 실시간 (네트워크를 통한 전송)</li>
-      <li>보유·이용 기간: 제3조에 따르며, <span class="highlight">번역 의뢰 문서·텍스트는 납품 완료 후 21일 이내 삭제</span>됩니다.</li>
+      <li>보유·이용 기간: 제3조에 따르며, <span class="highlight">번역 의뢰 문서·텍스트는 납품 후 21일이 지나면 자동으로 삭제</span>됩니다. 이전 받는 자 측 보관은 제5조에 적은 기준을 따릅니다.</li>
     </ul>
     <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px">※ 네이버클라우드 주식회사(CLOVA OCR)는 국내 사업자로 국외 이전 대상이 아니며, 제5조의 처리 위탁에 해당합니다.</p>
     <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px">※ 이용자는 개인정보의 국외 이전을 거부할 수 있으나, 번역 서비스 제공에 필수적인 처리이므로 거부 시 서비스 이용이 제한될 수 있습니다.</p>
@@ -2992,7 +3016,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     <details><summary>맡기기 전에 품질을 확인할 수 있나요?</summary><p>회사당 1회, 1,000자까지 무료 테스트 번역을 해 드립니다.</p></details>
     <details><summary>비밀유지계약을 맺을 수 있나요?</summary><p>네. 요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></details>
     <details><summary>납품 후 수정이 필요하면요?</summary><p>유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다. 원문이 바뀌거나 분량이 늘어난 경우는 새 주문으로 접수됩니다.</p></details>
-    <details><summary>문서가 외부로 새지 않나요?</summary><p>맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가리고, 문서는 납품 21일 후 삭제합니다.</p></details>
+    <details><summary>문서가 외부로 새지 않나요?</summary><p>맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 AI에 보내기 전에 자동으로 가리고, 문서는 납품 21일 후 삭제합니다.</p></details>
     <details><summary>어떤 파일을 올릴 수 있나요?</summary><p>PDF, Word(DOC·DOCX), Excel(XLS·XLSX), TXT 파일과 JPG·PNG·WEBP·TIFF 이미지를 올리실 수 있습니다. 문서 내용을 직접 붙여 넣으셔도 됩니다.</p></details>
     <p class="lp-note"><a class="lp-link" href="#" onclick="showPage('faq');return false">전체 질문 보기</a></p>
   </div>
@@ -3720,7 +3744,7 @@ var SHOW_V3 = false;
               • 카카오 로그인 해제 (재가입 시 새로 동의 필요)<br>
               • 카카오ID 익명화 처리<br>
               • 주문 이력은 전자상거래법에 따라 5년 보관 (이름·이메일·주문 내역)<br>
-              • 주문이 없는 경우 회원 정보 완전 삭제
+              • 주문이 없는 경우 회원 정보 삭제
             </div>
           </div>
           <div style="margin-bottom:24px">
@@ -5543,7 +5567,7 @@ function _myOrderDownload(o){
       var _dstr=dd.getFullYear()+'.'+(dd.getMonth()+1)+'.'+dd.getDate();
       expire='<div style="margin-top:10px;padding:10px 12px;background:rgba(31,79,209,0.06);border:1px solid rgba(31,79,209,0.18);border-radius:6px">'
         +'<p style="font-size:11px;color:var(--gold-light);font-weight:600;margin:0 0 4px">🔒 '+_dstr+' 자동 삭제</p>'
-        +'<p style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.6;margin:0">기밀 보호를 위해 납품 후 21일이 지나면 원문·번역문이 서버에서 완전히 삭제됩니다. 기간 내 다운로드해 주세요.</p>'
+        +'<p style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.6;margin:0">기밀 보호를 위해 납품 후 21일이 지나면 원문·번역문이 서버에서 자동으로 삭제됩니다. 기간 내 다운로드해 주세요.</p>'
         +'</div>';
     }
   }
