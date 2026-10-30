@@ -6062,7 +6062,7 @@ async function completePayment(){
     var srcFd=new FormData();
     srcFd.append('orderNumber', orderNumber);
     window._iummSourceFiles.forEach(function(f){ srcFd.append('sourceFiles', f); });
-    fetch(MEMBER_API_BASE+'/api/order/attach-source-files', { method:'POST', body: srcFd })
+    fetch(MEMBER_API_BASE+'/api/order/attach-source-files', { method:'POST', headers: uploadAuthHeaders(), body: srcFd })
       .then(function(r){return r.json();})
       .then(function(d){console.log('[원문첨부]', d.count+'개 완료');})
       .catch(function(e){console.error('[원문첨부] 실패 (결제는 완료됨):', e.message);});
@@ -6180,7 +6180,7 @@ async function confirmBankTransfer(){
     var bkFd=new FormData();
     bkFd.append('orderNumber', bankOrderNumber);
     window._iummSourceFiles.forEach(function(f){ bkFd.append('sourceFiles', f); });
-    fetch(MEMBER_API_BASE+'/api/order/attach-source-files', { method:'POST', body: bkFd })
+    fetch(MEMBER_API_BASE+'/api/order/attach-source-files', { method:'POST', headers: uploadAuthHeaders(), body: bkFd })
       .then(function(r){return r.json();})
       .then(function(d){console.log('[원문첨부]', d.count+'개 완료');})
       .catch(function(e){console.error('[원문첨부] 실패:', e.message);});
@@ -6306,7 +6306,7 @@ async function runCustomerOcr() {
     fd.append('sourceLang', sourceLang);
     var hanjaMode = document.getElementById('ocr-hanja-mode')?.checked || false;
     fd.append('hanjaMode', String(hanjaMode));
-    var res  = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', body: fd });
+    var res  = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', headers: uploadAuthHeaders(), body: fd });
     var json = await res.json();
     if (!json.success) {
       if (json.totalPages && json.totalPages > 10) {
@@ -6479,6 +6479,12 @@ document.addEventListener('keydown',function(e){
     if((e.ctrlKey||e.metaKey)&&['c','x','a'].includes(e.key.toLowerCase()))e.preventDefault();
   }
 });
+/* 파일 올리기(OCR·원문 추출·원문 첨부·참고자료) — 카카오 로그인 토큰을 붙인다 (2026-10-30)
+   서버는 토큰으로 회원을 확인하고 회원별 하루 한도·주문 주인을 본다. 토큰이 없거나 만료되면 401 + '다시 로그인' 안내 */
+function uploadAuthHeaders(){
+  var t=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
+  return t?{'Authorization':'Bearer '+t}:{};
+}
 /* [D-1c-frontend] 참고자료 업로드 헬퍼 */
 function uploadReference(orderNumber, files){
   var fd=new FormData();
@@ -6487,6 +6493,7 @@ function uploadReference(orderNumber, files){
   for(var i=0;i<files.length;i++) fd.append('files', files[i]);
   return fetch('https://iumm-pipeline-production.up.railway.app/api/upload-reference',{
     method:'POST',
+    headers:uploadAuthHeaders(),
     body:fd
   }).then(function(r){
     if(!r.ok) return r.text().then(function(t){throw new Error('upload-reference '+r.status+': '+t.slice(0,200));});
@@ -6524,14 +6531,14 @@ async function handleExtractFileChange(input) {
       fd.append('files', file);
       fd.append('sourceLang', sourceLang);
       fd.append('hanjaMode', String(hanjaMode));
-      var r = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', body: fd });
+      var r = await fetch(MEMBER_API_BASE + '/api/customer/ocr', { method: 'POST', headers: uploadAuthHeaders(), body: fd });
       var d = await r.json();
       if (!d.success) throw new Error(d.error || 'OCR 실패');
       text = d.text; charCount = d.charCount || text.replace(/\s/g,'').length;
     } else {
       var fd = new FormData();
       fd.append('file', file);
-      var r = await fetch(EXTRACT_API, { method: 'POST', body: fd });
+      var r = await fetch(EXTRACT_API, { method: 'POST', headers: uploadAuthHeaders(), body: fd });
       var d = await r.json();
       if (!d.success) throw new Error(d.error || '추출 실패');
       text = d.text; charCount = d.charCount || text.replace(/\s/g,'').length;
@@ -6627,7 +6634,7 @@ function handleSrcFileExtract(input){
   status.style.color='rgba(31,79,209,0.8)';
   var fd=new FormData();
   fd.append('file',f);
-  fetch(EXTRACT_API,{method:'POST',body:fd})
+  fetch(EXTRACT_API,{method:'POST',headers:uploadAuthHeaders(),body:fd})
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success&&data.text){

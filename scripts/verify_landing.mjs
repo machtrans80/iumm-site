@@ -587,6 +587,16 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
   check(!/notary/i.test(fs.readFileSync(path.resolve(HERE, '../sitemap.xml'), 'utf8')), 'sitemap 에 공증 없음');
 }
 
+console.log('\n[보안] 파일 올리기에 로그인 토큰 (2026-10-30, 서버 upload_guard.js)');
+{
+  const calls = [...html.matchAll(/fetch\(([^;]*?(?:\/api\/customer\/ocr|EXTRACT_API|\/api\/order\/attach-source-files|\/api\/upload-reference)[^;]*?)\)/g)].map(m => m[1]);
+  check(calls.length === 7 && calls.every(c => c.includes('uploadAuthHeaders(')), `고객 화면 OCR·원문 추출·원문 첨부·참고자료 호출 ${calls.length}곳 모두 카카오 토큰(uploadAuthHeaders)`);
+  check(/function uploadAuthHeaders\(\)\{\s*var t=\(typeof Kakao!=='undefined'&&Kakao\.Auth&&Kakao\.Auth\.getAccessToken\)\?Kakao\.Auth\.getAccessToken\(\):null;\s*return t\?\{'Authorization':'Bearer '\+t\}:\{\};/.test(html), 'uploadAuthHeaders = 카카오 access token → Authorization: Bearer');
+  const admin = fs.readFileSync(path.resolve(HERE, '../admin/index.html'), 'utf8');
+  const ac = [...admin.matchAll(/fetch\(([^;]*?(?:BP_EXTRACT_API|\/api\/order\/attach-source-files|\/api\/admin\/upload-reference)[^;]*?)\)/g)].map(m => m[1]);
+  check(ac.length === 3 && ac.every(c => c.includes("'Authorization': 'Bearer ' + adminToken(")), `관리자 화면 원문 추출·원문 첨부·참고자료 ${ac.length}곳 관리자 토큰`);
+}
+
 // ── 8. FAQ 낡은 문구 ──
 
 console.log(`
