@@ -1,0 +1,5 @@
+# 고객 공증 화면 종료 (2026-10-30) — 입구는 메인으로. 관리자 공증 도구가 쓰는 /notary/edit.html 은 남긴다
+/notary / 301
+/notary/ / 301
+/notary/index.html / 301
+/notary/index / 301

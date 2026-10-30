@@ -60,8 +60,8 @@ console.log('\n[1] 서버가 가입 완료로 답함 · 이 브라우저에 정�
   check(ctx.currentUserName === '김대표' && st.toasts.some((t) => /김대표님 환영합니다/.test(t)), '환영 안내(실명)');
 }
 {
-  const { st } = await run({ server: { ok: true, isMember: true, signupCompleted: true, profile: PROFILE }, next: '/notary/' });
-  check(st.replaced === '/notary/' && st.page !== 'userinfo', '하위 페이지에서 왔으면 그쪽으로 복귀');
+  const { st } = await run({ server: { ok: true, isMember: true, signupCompleted: true, profile: PROFILE }, next: '/reviewer/' });
+  check(st.replaced === '/reviewer/' && st.page !== 'userinfo', '하위 페이지에서 왔으면 그쪽으로 복귀');
 }
 
 console.log('\n[2] 신규 · 탈퇴 · 가입 미완료 → 정보 입력');
