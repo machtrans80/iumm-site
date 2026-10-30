@@ -137,7 +137,7 @@
 
     // ② 3~6초 두 전문가
     var s2 = scene();
-    var c2 = cap(s2, '두 전문가가 함께 번역합니다', v ? 360 : 200);
+    var c2 = cap(s2, '한 팀으로 함께 완성합니다', v ? 360 : 200);
     var two = el('div', 'ad-two'); two.style.top = (v ? 760 : 500) + 'px';
     var n1 = el('div', 'ad-node', '<div class="k mb">아이움 AI</div><div class="d">정확하게 기억합니다</div>');
     var lk = el('div', 'ad-link', '<i></i>');
@@ -147,7 +147,7 @@
     // ③ 6~10초 대조 패널(계약서 예시)
     var s3 = scene();
     var cmp = el('div', 'ad-cmp', '<span class="tag">예시 · 계약서</span><div class="row"><div><span class="lang">원문 · 한국어</span><p class="s mb">' + S.ko +
-      '</p></div><div><span class="lang">번역 · 영어</span><p class="s mb">' + S.en + '</p></div></div><ul><li><i></i>용어 일치</li><li><i></i>숫자 대조</li><li><i></i>전문 번역가 최종 확인</li></ul>');
+      '</p></div><div><span class="lang">번역 · 영어</span><p class="s mb">' + S.en + '</p></div></div><ul><li><i></i>용어 일치</li><li><i></i>숫자 대조</li><li><i></i>최종 휴먼터치</li></ul>');
     cmp.style.top = (v ? 380 : 170) + 'px'; s3.appendChild(cmp);
     var keysT = [], keysN = [];
     [].forEach.call(cmp.querySelectorAll('.row > div:first-child .t'), function(x){ keysT.push(x.getAttribute('data-k')); });
@@ -159,7 +159,7 @@
     var c4 = cap(s4, '단순 AI 번역이 아닙니다', v ? 300 : 230);
     var arrow2 = '<svg viewBox="0 0 56 20"><path d="M2 6H52M47 1.5L52 6L47 10.5M54 14H4M9 9.5L4 14L9 18.5"/></svg>';
     var arrow1 = '<svg viewBox="0 0 56 20"><path d="M2 10H52M47 5.5L52 10L47 14.5"/></svg>';
-    var relay = el('div', 'ad-relay', '<span class="n mb">번역 AI</span>' + arrow2 + '<span class="n mb">검수 AI</span>' + arrow1 + '<span class="n mb">근거 확인</span>' + arrow1 + '<span class="n mb me">전문 번역가</span>');
+    var relay = el('div', 'ad-relay', '<span class="n mb">번역 AI</span>' + arrow2 + '<span class="n mb">검수 AI</span>' + arrow1 + '<span class="n mb">근거 확인</span>' + arrow1 + '<span class="n mb me">최종 휴먼터치</span>');
     relay.style.top = (v ? 640 : 520) + 'px'; s4.appendChild(relay);
     var rparts = [].slice.call(relay.children);
     if (v) rparts.forEach(function(x){ if (x.tagName.toLowerCase() === 'svg') x.setAttribute('data-base', 'rotate(90deg) '); });   // 세로 = 화살표를 아래로
@@ -184,7 +184,7 @@
     // ⑦ 21~25초 끝 화면
     var s7 = scene();
     var end = el('div', 'ad-end', '<div class="p mb">글자당 25원부터</div><div class="fr">1,000자 무료 테스트 번역</div>' +
-      '<div class="logo mb" aria-label="IUMM"><span class="a">IU</span><span class="b">MM</span></div><div class="sl" lang="en">Intelligence Unites Mind &amp; Machine</div><div class="url" lang="en">iumm.kr</div>' +
+      '<div class="logo mb" aria-label="IUMM"><span class="a">IU</span><span class="b">MM</span></div><div class="sl" lang="en">Faithful to every word.</div><div class="url" lang="en">iumm.kr</div>' +
       (o.rec ? '' : '<button type="button" class="go" data-ad="free">무료 테스트 번역 신청</button>'));
     end.style.top = (v ? 520 : 150) + 'px'; s7.appendChild(end);
     var eparts = [].slice.call(end.children);
