@@ -45,14 +45,37 @@ check(!/id="promise"|세 가지 약속|lp-promise/.test(html) && !/href="#promis
     '구역 배경 순서 — 남색 → 오프화이트(번역팀·왜 아이움) → 남색 띠(과정) → 오프화이트(분야) → 페일 블루(이유) → 오프화이트(요금·FAQ) → 남색'); }
 const curFlow = land.slice(land.search(/<div class="v3-cur">\s*<h2 class="lp-h2 mb">단순 AI 번역이 아닙니다<\/h2>/));
 check(curFlow.length < land.length && (curFlow.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 9, "현재 번역 과정 9단계 · 큰 제목 '단순 AI 번역이 아닙니다'");
-check(land.includes('<p class="lp-sub">아이움 AI와 전문 번역가가 9단계 검증을 거쳐 완성합니다.</p>'), '과정 부제');
-check(/<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다<\/h2>\s*<p class="lp-sub">단순 AI 번역이 아닙니다\.<\/p>/.test(land), 'V3 10단계 제목 아래 부제 (작은 라벨 없음)');
+check(land.includes('<p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 전문 번역가가 확인합니다.</p>') && (land.match(/<div class="lp-relay" role="img"/g) || []).length === 2 && /\.lp-relay \.c\{[^}]*stroke:var\(--v-gold\)/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-relay\{flex-direction:column/.test(html),
+  '과정 부제(번역 AI·검수 AI 반박) · 흐름 그림(번역 AI ⇄ 검수 AI → 근거 확인 → 전문 번역가, 금색 선·화살표, 모바일 세로) — 현재·V3');
+check(land.includes('<span class="d">번역을 맡은 AI가 분야별 기준에 맞춰 옮깁니다.</span>') && land.includes('<span class="d">번역에 참여하지 않은 다른 AI가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span>') && land.includes('<span class="d">중요한 지적마다 번역한 AI가 근거를 따져 받아들이거나 반박하고, 확인된 지적만 반영합니다.</span>'), '3~5단계 = V2 코드(번역 모델 · 다른 회사 검수 모델 · 치명·중대 반론)');
+check(land.includes('<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다</h2>\n    <p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 전문 번역가가 확인합니다.</p>'), 'V3 10단계 제목 아래 같은 부제');
 check(!/class="lp-label"|class="lp-kicker"/.test(html), '구역 제목 위 작은 라벨 없음');
 check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
-check((land.match(/<div class="lp-field">/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 카드 8장 + 그 밖의 분야 접기');
-check(land.includes('<h2 class="lp-h2 mb">아이움이 특화한 여덟 분야</h2>') && !/lp-fields-more|네 분야 더 보기/.test(html) && /\.lp-field:not\(\.open\) \.more\{display:none\}/.test(html) &&
-      (land.match(/<button type="button" class="fmore" aria-expanded="false">예시·기준 보기<\/button>/g) || []).length === 8, '여덟 분야 — 모바일 2열 8칸 모두 보임, 누르면 예시·기준 펼침 (더 보기 없음)');
-check(/\.lp-fields\{display:grid;grid-template-columns:repeat\(4,1fr\)/.test(html) && /\.lp-field\{padding:22px 0 0;border-top:1px solid/.test(html) && /\.lp-field \.std li\{display:inline\}/.test(html), '분야 타일 = 위쪽 가는 선 · 데스크톱 4×2 · 기준은 한 줄 글자(배지 없음)');
+check((land.match(/<button type="button" class="lp-field[ "]/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 칸 8개(button) + 그 밖의 분야 접기');
+check(/<h2 class="lp-h2 mb">분야마다 쓰는 말이 다릅니다<\/h2>\s*<p class="lp-sub">아이움은 여덟 분야를 특화해, 분야마다 정해진 기준과 용어로 옮깁니다\.<\/p>/.test(land) && !land.includes('아이움이 특화한 여덟 분야</h2>'), "분야 제목 '분야마다 쓰는 말이 다릅니다' + 부제");
+{ // 칸 = 원문 → 아이움 표기(마루 부리·골드 밑줄) → 근거 → 분야명 → 한 줄 소개 · 상세 = 직역 대비 + 견적 버튼
+  const F8 = [['gaming', '이 몸이 그대의 검이 되어 주겠노라', 'この身、そなたの剣となろう', '캐릭터 말투(고어체) 유지', 'I will be your sword.'],
+    ['legal', '손해배상액의 예정', 'liquidated damages', '민법 제398조 영문 표기', 'estimated amount of damages'],
+    ['medical', '중대한 이상사례', 'serious adverse event', 'ICH E2A (severe와 구분)', 'severe adverse event'],
+    ['accounting', '계속기업 관련 중요한 불확실성', 'Material Uncertainty Related to Going Concern', '국제감사기준 ISA 570', 'important uncertainty about the continuing company'],
+    ['patent', '진보성', 'inventive step', 'PCT·EPC 표기 (미국은 <span class="nb">non-obviousness</span>)', 'progressiveness'],
+    ['academic', '~한 것으로 사료된다', 'These findings suggest that…', '학술 영어의 완곡 표현', 'It is considered that…'],
+    ['esg', '이중 중대성 평가', 'double materiality assessment', 'ESRS·EFRAG 표기', 'dual importance evaluation'],
+    ['manual', '위험 · 경고 · 주의', 'DANGER · WARNING · CAUTION', 'ANSI Z535·ISO 3864-2 신호어 체계', 'Danger · Warning · Attention']];
+  for (const [v, src, x, why, lit] of F8) {
+    const t = land.match(new RegExp(`<button type="button" class="lp-field[^"]*" id="ft-${v}" data-field="${v}" aria-expanded="(true|false)" aria-controls="fd-${v}">([^]*?)</button>`));
+    const p = land.match(new RegExp(`<div class="fd" id="fd-${v}"[^>]*>([^]*?)<button type="button" class="lp-btn fq" data-field="${v}">이 분야로 견적 보기</button>`));
+    const order = t && ['class="src">' + src, 'class="x mb"><span class="u" lang="', '>' + x + '</span>', 'class="why">' + why, 'class="f">', 'class="d">'].map((s) => t[2].indexOf(s));
+    check(t && order.every((n, i) => n >= 0 && (i === 0 || n > order[i - 1])) && p && p[1].includes('<span class="k">직역하면</span> <s lang="en">' + lit + '</s>') && p[1].includes('>' + x + '</span>') &&
+      html.includes(`<option value="${v}"`), `분야 칸·상세 '${v}' — 원문→표기→근거→분야명→소개 · 직역 대비 · 견적 버튼(주문 창 분야 값 있음)`);
+  }
+  check(/id="ft-gaming" data-field="gaming" aria-expanded="true"/.test(land) && (land.match(/aria-expanded="true" aria-controls="fd-/g) || []).length === 1, "처음 '게임' 선택");
+  check(land.includes('뜻은 맞지만 캐릭터의 말투가 사라집니다.') && land.includes('ICH 기준에서 severe는 증상의 ‘정도’를 뜻하는 다른 말입니다.') && land.includes('‘주의’는 CAUTION이 정해진 신호어입니다.'), '직역 대비 설명 3곳(게임·의료·매뉴얼)');
+  check(/\.lp-fields \[lang="ja"\][^{]*\{font-family:'Yu Mincho'[^}]*'Noto Serif CJK JP'/.test(html), '일본어 표기 글꼴 대체 (마루 부리에 없는 글자 → 시스템 일본어 명조)');
+  check(/\.lp-field\.sel\{background:var\(--v-navy\)/.test(html) && /\.lp-fd\{[^}]*background:var\(--v-pale\)/.test(html) && /\.lp-field:focus-visible\{outline:3px solid/.test(html), '선택 칸 네이비 · 상세 패널 라이트블루 · 키보드 포커스 표시');
+  check(/@media\(prefers-reduced-motion:reduce\)\{\.lp-field\.sel \.u,\.lp-fd \.fd\.play \.lit s\{animation:none\}\}/.test(html), '움직임 두 가지(밑줄·취소선)는 reduced-motion 이면 정지');
+}
+check(/\.lp-fields\{display:grid;grid-template-columns:repeat\(4,1fr\)/.test(html) && /\.lp-field\{[^}]*border-top:1px solid[^}]*border-radius:0;background:var\(--v-bg\)/.test(html) && /\.lp-fd \.std li\{display:inline\}/.test(html), '분야 칸 = 오프화이트·위쪽 가는 선 · 데스크톱 4×2 · 기준은 한 줄 글자');
 for (const b of ['ICH 가이드라인', 'K-IFRS', 'ISA 국제감사기준', 'WIPO Pearl 특허 용어', '지식재산처 PCT 용어 해설', '학회 공식 용어 우선', 'GRI Standards', 'ISSB IFRS S1·S2', 'KSSB 지속가능성 공시기준', '원작 공식 표기 우선'])
   check(land.includes('<li>' + b + '</li>'), `기준 배지 '${b}'`);
 check(land.includes('주요 시장: 영어 · 중국어(간체·번체) · 일본어 등'), '게임 주요 시장 줄');
@@ -60,7 +83,7 @@ check(land.includes('주요 시장: 영어 · 중국어(간체·번체) · 일�
 console.log('\n[3-2] 기업 고객 · 무료 테스트 · 14일 무상 수정');
 check(land.includes('<h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</h2>') && !/기업이 아이움에 맡기는 이유/.test(html) && (land.match(/<div class="c"><p class="k mb">/g) || []).length === 7, "'아이움에 맡겨야 하는 이유' 6칸 + V3 품질 리포트 1");
 { const ks = [...land.matchAll(/<p class="k mb">([\s\S]*?)<\/p><p class="d">([^<]*)<\/p>/g)].map(m => [m[1].replace(/<[^>]+>/g, ''), m[2]]);
-  const want = ['글자당 원부터', '5,000자 24시간', '자동 가림', 'NDA 체결', '1,000자 무료', '14일 1회 무상 수정', '품질 리포트'];
+  const want = ['글자당 원부터', '5,000자 24시간', '기업용 보안 처리', 'NDA 체결', '1,000자 무료', '14일 1회 무상 수정', '품질 리포트'];
   check(ks.map(k => k[0]).join('|') === want.join('|'), '핵심 사실 = ' + ks.map(k => k[0]).join(' · '));
   check(land.includes('<p class="k mb">글자당 <span data-plan="ai"></span>원부터</p>') && !/추가 요금 없이/.test(html), "단가 = PLAN_PRICE '부터' · '추가 요금 없이' 없음");
   check(ks[1][1] === '스탠다드는 5,000자까지 24시간 이내에 납품합니다.' && html.includes("{max:5000,  label:'5,000자까지',      ai:'24시간 이내', standard:'2일 이내'}"), '납기 = DELIVERY_TABLE(주문 화면 표·견적 칸 공통) 스탠다드 5,000자까지 24시간 이내');
@@ -68,7 +91,8 @@ check(land.includes('<h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</
   check(!/부가세|19시/.test(land.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')), "메인 화면 글자(숨김·V3 포함)에 '부가세'·'19시' 없음");
   check(html.includes('id="estimate-vat-note" style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">부가세 별도</p>') && html.includes('※ 19시 이후 접수 건은 익일 09시 접수 기준으로 납품일이 계산됩니다.') && html.includes('>부가세 (10%)</p>'),
     "견적 칸 '부가세 별도' · 소요시간 표 아래 19시 안내 · 결제 화면 부가세(10%) 줄 그대로");
-  check(ks[2][1].includes('납품 후 21일 안에 삭제합니다.') && land.includes('문서는 납품 후 21일 안에 삭제합니다.'), '21일 삭제 문구 (이유·FAQ)'); }
+  check(ks[2][1] === '학습에 쓰이지 않는 기업용 연결로만 처리합니다. 개인정보 번호는 AI에 보내기 전에 가리고, 파일은 납품 21일 후 삭제합니다.' && land.includes('문서는 납품 21일 후 삭제합니다.') && !/21일 안에/.test(land) && !ks[2][1].includes('회사별 용어뿐'),
+    "21일 삭제 = '납품 21일 후'(cron 실제) · 보안 칸에 '회사별 용어뿐' 문장 없음(용어 수집 개인정보 제외가 완전하지 않음)"); }
 check(/\.lp-why \.k\{[^}]*color:var\(--v-navy\);background:linear-gradient\(var\(--v-gold\),var\(--v-gold\)\) no-repeat 0 100%\/40px 2px/.test(html), '핵심 사실 = 남색 글자 + 골드 짧은 선 (골드 글자는 대비 부족)');
 check(!/원본 형식 그대로/.test(land), "'원본 형식 그대로' 카드 없음 (형식 유지 납품 미지원)");
 check(/onclick="openFreeTest\(\)">무료 테스트 번역 신청<\/button>/.test(land) && /href="https:\/\/pf\.kakao\.com\/_BlpKX\/chat"[^>]*>NDA 체결 문의<\/a>/.test(land), '버튼: 무료 테스트 신청 · NDA 문의(카카오 상담)');
@@ -124,7 +148,13 @@ check(land.includes('<p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1�
 { const pairs = (html.match(/<select id="lang-select"[\s\S]*?<\/select>/)[0].match(/<option[^>]*>한국어 → [^<]+<\/option>/g) || []).length;
   check(pairs === 32, `신뢰 표시 '32개 언어' = 주문 화면 한국어→외국어 목록 ${pairs}개`); }
 check(!/이음|잇습니다|잇고|이어 드립니다/.test(landVis) && !/이음/.test(html.replace(/<!--[\s\S]*?-->/g, '')), "'이음' 브랜드 표현 · '잇다' 문구 없음 (숨김 V3 포함)");
-check(land.includes('<section class="lp-sec tight" id="iumm-about">') && land.includes('<h2 class="lp-h2 mb">빠르면서도, 정확하게</h2>'), '왜 아이움인가 섹션 (제목 빠르면서도, 정확하게)');
+check(land.includes('<section class="lp-sec tight" id="iumm-about">') && land.includes('<h2 class="lp-h2 mb">AI 채팅창에 붙여 넣는 번역과 다릅니다</h2>') && !land.includes('빠르면서도, 정확하게</h2>'), "비교 섹션 (제목 'AI 채팅창에 붙여 넣는 번역과 다릅니다')");
+{ const t = land.match(/<table class="lp-vs">[^]*?<\/table>/);
+  const rows = t ? [...t[0].matchAll(/<tr><th scope="row">([^<]+)<\/th><td data-h="일반 AI 채팅">([^<]+)<\/td><td class="me" data-h="아이움">([^<]+)<\/td><\/tr>/g)].map(m => m[1]) : [];
+  check(rows.join('|') === 'AI 학습|개인정보 번호|파일 보관|검수|마무리' && t[0].includes('<th scope="col" class="me">아이움</th>'), '비교 5줄 (항목 / 일반 AI 채팅 / 아이움)');
+  check(/\.lp-vs td\.me\{font-weight:700;color:var\(--v-navy\)\}/.test(html) && /\.lp-vs td::before\{content:attr\(data-h\)/.test(html), '아이움 열만 남색 · 모바일은 항목별 카드(위 일반 AI 채팅, 아래 아이움)'); }
+{ const q = '일반 AI 채팅에 직접 넣어 번역하는 것과 무엇이 다른가요?';
+  check(land.includes('<details><summary>' + q + '</summary>') && html.includes('Q.</span>' + q + '<span class="faq-arrow">') && (html.match(/보안 점검을 위해 보관한 기록도 기본 30일 안에 삭제됩니다\./g) || []).length === 2, 'FAQ 추가 — 랜딩·전체 FAQ 둘 다 (외부 AI 보관 기본 30일)'); }
 check(land.includes('<p class="s">당신의 가능성을 세계로 연결합니다.</p>'), '마지막 섹션 대표 문구');
 
 console.log('\n[6] 색 — 새 팔레트');
@@ -447,7 +477,7 @@ console.log('\n[V3] 공개 스위치');
   check(tpls.length === 5, 'V3 template 5개 (번역팀 카드 1 · 10단계 · 회사 기억 · 품질 리포트 카드 · FAQ 1)');
   const inT = tpls.map(m => m[2]).join('\n');
   const outT = land.replace(/<template[\s\S]*?<\/template>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
-  for (const w of ['10단계', '귀사를 기억', '용어를 기억하고', '별의 기사', '전용 용어집', '역번역', '판정'])
+  for (const w of ['10단계', '귀사를 기억', '용어를 기억해', '별의 기사', '전용 용어집', '역번역', '판정'])
     check(inT.includes(w) && !outT.includes(w), `V3 문구 '${w}' — template 안에만 (스위치 꺼짐 = 화면·검색 미노출)`);
   check((inT.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, 'V3 공정 10단계');
   check(/<span class="tag">예시<\/span>/.test(inT), "V3 가상 예시에 '예시' 표시");
@@ -505,7 +535,8 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   check(/mouseover/.test(pj) && /closest\('\[data-k\]'\)/.test(pj) && /ArrowRight/.test(pj), '용어 짝 마우스·터치 강조 · 탭 화살표 키');
   // 움직임은 패널 안에서만 — 다른 랜딩 스크립트에 스크롤 연출 없음
   const lpCss = html.slice(html.indexOf('<!-- HERO -->'), html.indexOf('<!-- ── 인트로'));
-  check(!/@keyframes|animation:/.test(lpCss.replace(/\.lp-cmp[^{]*\{[^}]*\}/g, '')), '랜딩 CSS 에 패널 밖 애니메이션 없음');
+  check(!/@keyframes|animation:/.test(lpCss.replace(/\.lp-cmp[^{]*\{[^}]*\}/g, '').replace(/@keyframes lp-(ul|st)\{from\{[^}]*\}to\{[^}]*\}\}/g, '').replace(/\.lp-field\.sel \.u\{animation:lp-ul [^}]*\}|\.lp-fd \.fd\.play \.lit s\{animation:lp-st [^}]*\}|@media\(prefers-reduced-motion:reduce\)\{\.lp-field\.sel[^}]*\}\}/g, '')),
+    '랜딩 CSS 에 대조 패널·분야(밑줄·취소선) 밖 애니메이션 없음');
 
   // 글꼴 — 마루 부리 + Pretendard 두 가지만
   check(/@font-face\{font-family:'MaruBuri';font-style:normal;font-weight:400;font-display:swap;src:url\(https:\/\/hangeul\.pstatic\.net\/hangeul_static\/webfont\/MaruBuri\/MaruBuri-Regular\.woff2\) format\('woff2'\)\}/.test(html) &&
@@ -519,7 +550,7 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   check(/\.lp-sub\{[^}]*max-width:40em;font-size:17px;[^}]*line-height:1\.75/.test(html), '본문 17px · 줄간격 1.75 · 폭 약 40자');
   // 색 · 모양
   check(!/box-shadow/.test(lpCss) && !/radial-gradient/.test(lpCss), '랜딩에 장식 그림자·방사 그라데이션 없음');
-  check([...lpCss.matchAll(/border-radius:([^;}]+)/g)].every(m => /^(6px|6px 6px 0 0|50%)$/.test(m[1].trim())), '모서리 6px (버튼·탭), 원형은 확인 아이콘·이음 점만');
+  check([...lpCss.matchAll(/border-radius:([^;}]+)/g)].every(m => /^(0|6px|6px 6px 0 0|50%)$/.test(m[1].trim())), '모서리 6px (버튼·탭), 원형은 확인 아이콘·이음 점만 (분야 칸은 0 = 둥근 상자 없음)');
   check(!/<(button|a)[^>]*>[^<]*→\s*<\/(button|a)>/.test(land) && !/검수자 선택하기 →/.test(html), "버튼·링크 글자에 '→' 없음");
   check(!/<span class="what">전문 번역가 검수<\/span>/.test(land),"프리미엄 플러스 부제 '전문 번역가 검수' 삭제 (배지는 유지)");
   check(land.includes('<span class="badge">전문 번역가 검수</span>'), '프리미엄 플러스 배지 유지');
@@ -536,7 +567,16 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
   const privAll = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
   const privBody = privAll.slice(privAll.indexOf('</div>', privAll.indexOf('privacy-revision-notice')));
   check(!/공증|아포스티유|등기|영사/.test(privBody), '개인정보처리방침 본문에 공증·아포스티유·등기·영사 없음');
-  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 공증 서비스 종료에 따른 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '공증 서비스 종료에 따른 관련 조항 삭제' · 번호 ⑤→④");
+  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privAll.includes('개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제, 문서 삭제 시점과 외부 처리 내용의 정확한 안내</li>') && !/공증/.test(privAll) && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '더 이상 제공하지 않는 서비스 관련 조항 삭제'(공증 없음) · 번호 ⑤→④");
+  // 2026-10-30 보안 마무리: 삭제 시점 = cron 실제(납품+21일 지난 뒤), '완전' 금지(Airtable 변경 기록 미확인), 수탁사별 학습·보관·가림, 국외 이전 문의처
+  check((privBody.match(/납품 후 21일이 지나면 자동으로 삭제/g) || []).length === 3 && !/21일 이내|완전/.test(privBody), "처리방침 제1조 ③·제3조·제6조 = '납품 후 21일이 지나면 자동으로 삭제' · '21일 이내'·'완전' 없음");
+  { const ai = (privBody.match(/<li id="privacy-5-ai">[^]*?<\/ul>/) || [''])[0], ocr = (privBody.match(/<li id="privacy-5-ocr">[^]*?<\/ul>/) || [''])[0];
+    check(ai.includes('AI 학습에 사용하지 않습니다') && ai.includes('Anthropic PBC는 입력·출력을 기본 30일 안에 삭제합니다') && ai.includes('남용 감시 기록을 최대 30일 보관') && ai.includes('더 오래 보관될 수 있습니다') && ai.includes('AI에 보내기 전에 자동으로 가리고'), '제5조 AI 번역·검수 — 학습 안 함 · 보관 30일(예외) · 보내기 전 가림');
+    check(ocr.includes('AI 학습에 사용하지 않습니다') && ocr.includes('이미지와 인식 결과를 저장하지 않고') && ocr.includes('원본 이미지가 가림 처리 없이 전송됩니다'), '제5조 문서 OCR — 학습 안 함 · 저장 안 함 · 원본 이미지 전송(가림은 AI 전)'); }
+  { const c = (privBody.match(/<li id="privacy-6-contacts">[^]*?<\/ul>/) || [''])[0];
+    check(['privacy@airtable.com', 'dsar@openai.com', 'dpo@openai.com', 'privacy@anthropic.com', 'privacy@railway.com', 'support.google.com/policies?p=privpol_privts'].every(s => c.includes(s)), '제6조 이전 받는 자별 문의처 (공식 문서 확인분)'); }
+  check(privAll.includes("<li>제5조: AI 번역·검수, 문서 OCR(문자인식) 수탁사별 AI 학습 사용 여부, 수탁사 측 보관 기간, 보내기 전 처리(개인정보 번호 가림) 명시</li>") && privAll.includes('<li>제6조: 이전 받는 자별 개인정보 문의처 추가</li>') && (privAll.match(/공고일: 2026년 10월 30일 &nbsp;\|&nbsp; 시행일: 2026년 11월 6일/g) || []).length === 1 && privAll.includes('공지일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 6일</span>') && privBody.includes('변경 시 시행 7일 전 서비스 내 공지합니다'), '개정 안내 — 삭제 시점·제5조·제6조 항목 · 공고 10-30 · 시행 11-06 (제11조 7일 전 공지)');
+  check(!/서버에서 완전히 삭제|회원 정보 완전 삭제/.test(html) && !/완전히 삭제/.test(fs.readFileSync(path.resolve(HERE, '../notary/edit.html'), 'utf8')), "고객 화면 '완전히 삭제' 없음 → '자동으로 삭제'");
   const outside = strip(html).replace(privAll, '');
   check(!/공증|아포스티유|번역공증|사본공증|등기/.test(outside), '메인 index.html(개인정보 개정 안내 밖)에 공증·아포스티유·등기 없음');
   check(!/loadMyNotaryOrders|my-notary|_ntr|openNotaryOrder|\/api\/notary/.test(html), '마이페이지 공증 주문 목록·스크립트 없음');
