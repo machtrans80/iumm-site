@@ -49,10 +49,31 @@ check(land.includes('<p class="lp-sub">아이움 AI와 전문 번역가가 9단�
 check(/<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다<\/h2>\s*<p class="lp-sub">단순 AI 번역이 아닙니다\.<\/p>/.test(land), 'V3 10단계 제목 아래 부제 (작은 라벨 없음)');
 check(!/class="lp-label"|class="lp-kicker"/.test(html), '구역 제목 위 작은 라벨 없음');
 check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
-check((land.match(/<div class="lp-field">/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 카드 8장 + 그 밖의 분야 접기');
-check(land.includes('<h2 class="lp-h2 mb">아이움이 특화한 여덟 분야</h2>') && !/lp-fields-more|네 분야 더 보기/.test(html) && /\.lp-field:not\(\.open\) \.more\{display:none\}/.test(html) &&
-      (land.match(/<button type="button" class="fmore" aria-expanded="false">예시·기준 보기<\/button>/g) || []).length === 8, '여덟 분야 — 모바일 2열 8칸 모두 보임, 누르면 예시·기준 펼침 (더 보기 없음)');
-check(/\.lp-fields\{display:grid;grid-template-columns:repeat\(4,1fr\)/.test(html) && /\.lp-field\{padding:22px 0 0;border-top:1px solid/.test(html) && /\.lp-field \.std li\{display:inline\}/.test(html), '분야 타일 = 위쪽 가는 선 · 데스크톱 4×2 · 기준은 한 줄 글자(배지 없음)');
+check((land.match(/<button type="button" class="lp-field[ "]/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 칸 8개(button) + 그 밖의 분야 접기');
+check(/<h2 class="lp-h2 mb">분야마다 쓰는 말이 다릅니다<\/h2>\s*<p class="lp-sub">아이움은 여덟 분야를 특화해, 분야마다 정해진 기준과 용어로 옮깁니다\.<\/p>/.test(land) && !land.includes('아이움이 특화한 여덟 분야</h2>'), "분야 제목 '분야마다 쓰는 말이 다릅니다' + 부제");
+{ // 칸 = 원문 → 아이움 표기(마루 부리·골드 밑줄) → 근거 → 분야명 → 한 줄 소개 · 상세 = 직역 대비 + 견적 버튼
+  const F8 = [['gaming', '이 몸이 그대의 검이 되어 주겠노라', 'この身、そなたの剣となろう', '캐릭터 말투(고어체) 유지', 'I will be your sword.'],
+    ['legal', '손해배상액의 예정', 'liquidated damages', '민법 제398조 영문 표기', 'estimated amount of damages'],
+    ['medical', '중대한 이상사례', 'serious adverse event', 'ICH E2A (severe와 구분)', 'severe adverse event'],
+    ['accounting', '계속기업 관련 중요한 불확실성', 'Material Uncertainty Related to Going Concern', '국제감사기준 ISA 570', 'important uncertainty about the continuing company'],
+    ['patent', '진보성', 'inventive step', 'PCT·EPC 표기 (미국은 <span class="nb">non-obviousness</span>)', 'progressiveness'],
+    ['academic', '~한 것으로 사료된다', 'These findings suggest that…', '학술 영어의 완곡 표현', 'It is considered that…'],
+    ['esg', '이중 중대성 평가', 'double materiality assessment', 'ESRS·EFRAG 표기', 'dual importance evaluation'],
+    ['manual', '위험 · 경고 · 주의', 'DANGER · WARNING · CAUTION', 'ANSI Z535·ISO 3864-2 신호어 체계', 'Danger · Warning · Attention']];
+  for (const [v, src, x, why, lit] of F8) {
+    const t = land.match(new RegExp(`<button type="button" class="lp-field[^"]*" id="ft-${v}" data-field="${v}" aria-expanded="(true|false)" aria-controls="fd-${v}">([^]*?)</button>`));
+    const p = land.match(new RegExp(`<div class="fd" id="fd-${v}"[^>]*>([^]*?)<button type="button" class="lp-btn fq" data-field="${v}">이 분야로 견적 보기</button>`));
+    const order = t && ['class="src">' + src, 'class="x mb"><span class="u" lang="', '>' + x + '</span>', 'class="why">' + why, 'class="f">', 'class="d">'].map((s) => t[2].indexOf(s));
+    check(t && order.every((n, i) => n >= 0 && (i === 0 || n > order[i - 1])) && p && p[1].includes('<span class="k">직역하면</span> <s lang="en">' + lit + '</s>') && p[1].includes('>' + x + '</span>') &&
+      html.includes(`<option value="${v}"`), `분야 칸·상세 '${v}' — 원문→표기→근거→분야명→소개 · 직역 대비 · 견적 버튼(주문 창 분야 값 있음)`);
+  }
+  check(/id="ft-gaming" data-field="gaming" aria-expanded="true"/.test(land) && (land.match(/aria-expanded="true" aria-controls="fd-/g) || []).length === 1, "처음 '게임' 선택");
+  check(land.includes('뜻은 맞지만 캐릭터의 말투가 사라집니다.') && land.includes('ICH 기준에서 severe는 증상의 ‘정도’를 뜻하는 다른 말입니다.') && land.includes('‘주의’는 CAUTION이 정해진 신호어입니다.'), '직역 대비 설명 3곳(게임·의료·매뉴얼)');
+  check(/\.lp-fields \[lang="ja"\][^{]*\{font-family:'Yu Mincho'[^}]*'Noto Serif CJK JP'/.test(html), '일본어 표기 글꼴 대체 (마루 부리에 없는 글자 → 시스템 일본어 명조)');
+  check(/\.lp-field\.sel\{background:var\(--v-navy\)/.test(html) && /\.lp-fd\{[^}]*background:var\(--v-pale\)/.test(html) && /\.lp-field:focus-visible\{outline:3px solid/.test(html), '선택 칸 네이비 · 상세 패널 라이트블루 · 키보드 포커스 표시');
+  check(/@media\(prefers-reduced-motion:reduce\)\{\.lp-field\.sel \.u,\.lp-fd \.fd\.play \.lit s\{animation:none\}\}/.test(html), '움직임 두 가지(밑줄·취소선)는 reduced-motion 이면 정지');
+}
+check(/\.lp-fields\{display:grid;grid-template-columns:repeat\(4,1fr\)/.test(html) && /\.lp-field\{[^}]*border-top:1px solid[^}]*border-radius:0;background:var\(--v-bg\)/.test(html) && /\.lp-fd \.std li\{display:inline\}/.test(html), '분야 칸 = 오프화이트·위쪽 가는 선 · 데스크톱 4×2 · 기준은 한 줄 글자');
 for (const b of ['ICH 가이드라인', 'K-IFRS', 'ISA 국제감사기준', 'WIPO Pearl 특허 용어', '지식재산처 PCT 용어 해설', '학회 공식 용어 우선', 'GRI Standards', 'ISSB IFRS S1·S2', 'KSSB 지속가능성 공시기준', '원작 공식 표기 우선'])
   check(land.includes('<li>' + b + '</li>'), `기준 배지 '${b}'`);
 check(land.includes('주요 시장: 영어 · 중국어(간체·번체) · 일본어 등'), '게임 주요 시장 줄');
@@ -505,7 +526,8 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   check(/mouseover/.test(pj) && /closest\('\[data-k\]'\)/.test(pj) && /ArrowRight/.test(pj), '용어 짝 마우스·터치 강조 · 탭 화살표 키');
   // 움직임은 패널 안에서만 — 다른 랜딩 스크립트에 스크롤 연출 없음
   const lpCss = html.slice(html.indexOf('<!-- HERO -->'), html.indexOf('<!-- ── 인트로'));
-  check(!/@keyframes|animation:/.test(lpCss.replace(/\.lp-cmp[^{]*\{[^}]*\}/g, '')), '랜딩 CSS 에 패널 밖 애니메이션 없음');
+  check(!/@keyframes|animation:/.test(lpCss.replace(/\.lp-cmp[^{]*\{[^}]*\}/g, '').replace(/@keyframes lp-(ul|st)\{from\{[^}]*\}to\{[^}]*\}\}/g, '').replace(/\.lp-field\.sel \.u\{animation:lp-ul [^}]*\}|\.lp-fd \.fd\.play \.lit s\{animation:lp-st [^}]*\}|@media\(prefers-reduced-motion:reduce\)\{\.lp-field\.sel[^}]*\}\}/g, '')),
+    '랜딩 CSS 에 대조 패널·분야(밑줄·취소선) 밖 애니메이션 없음');
 
   // 글꼴 — 마루 부리 + Pretendard 두 가지만
   check(/@font-face\{font-family:'MaruBuri';font-style:normal;font-weight:400;font-display:swap;src:url\(https:\/\/hangeul\.pstatic\.net\/hangeul_static\/webfont\/MaruBuri\/MaruBuri-Regular\.woff2\) format\('woff2'\)\}/.test(html) &&
@@ -519,7 +541,7 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   check(/\.lp-sub\{[^}]*max-width:40em;font-size:17px;[^}]*line-height:1\.75/.test(html), '본문 17px · 줄간격 1.75 · 폭 약 40자');
   // 색 · 모양
   check(!/box-shadow/.test(lpCss) && !/radial-gradient/.test(lpCss), '랜딩에 장식 그림자·방사 그라데이션 없음');
-  check([...lpCss.matchAll(/border-radius:([^;}]+)/g)].every(m => /^(6px|6px 6px 0 0|50%)$/.test(m[1].trim())), '모서리 6px (버튼·탭), 원형은 확인 아이콘·이음 점만');
+  check([...lpCss.matchAll(/border-radius:([^;}]+)/g)].every(m => /^(0|6px|6px 6px 0 0|50%)$/.test(m[1].trim())), '모서리 6px (버튼·탭), 원형은 확인 아이콘·이음 점만 (분야 칸은 0 = 둥근 상자 없음)');
   check(!/<(button|a)[^>]*>[^<]*→\s*<\/(button|a)>/.test(land) && !/검수자 선택하기 →/.test(html), "버튼·링크 글자에 '→' 없음");
   check(!/<span class="what">전문 번역가 검수<\/span>/.test(land),"프리미엄 플러스 부제 '전문 번역가 검수' 삭제 (배지는 유지)");
   check(land.includes('<span class="badge">전문 번역가 검수</span>'), '프리미엄 플러스 배지 유지');

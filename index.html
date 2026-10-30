@@ -1929,34 +1929,69 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp-flow10 li:last-child::before{bottom:auto;height:32px}
 }
 
-/* ⑤ 여덟 분야 — 위쪽 가는 선 타일(데스크톱 4×2), 분야 이름 마루 부리, 한 줄 소개. 기준은 작은 한 줄 글자.
-   모바일 2열로 여덟 분야 이름·소개를 다 보이고, 누르면 예시·기준이 펼쳐진다 */
-.lp-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 32px}
-.lp-field{padding:22px 0 0;border-top:1px solid rgba(15,37,64,0.28)}
-.lp-field .f{margin:0 0 10px;font-size:24px;font-weight:700;line-height:1.3;color:var(--v-navy);word-break:keep-all}
-.lp-field .d{margin:0 0 12px;font-size:16px;font-weight:500;line-height:1.7;color:var(--v-text);word-break:keep-all}
-.lp-field .d2{margin:0 0 10px;font-size:15px;font-weight:500;line-height:1.7;color:var(--v-sub);word-break:keep-all}
-.lp-field .ex{margin:0 0 8px;font-size:14.5px;font-weight:500;line-height:1.65;color:var(--v-sub);word-break:keep-all}
-.lp-field .std{margin:0;padding:0;list-style:none;font-size:13.5px;font-weight:500;line-height:1.65;color:var(--v-sub);word-break:keep-all}
-.lp-field .std::before{content:'기준 ';font-weight:700;color:var(--v-navy)}
-.lp-field .std li{display:inline}
-.lp-field .std li+li::before{content:' · '}
-.lp-field .fmore{display:none}
+/* ⑤ 여덟 분야 — 칸(button) = 오프화이트·위쪽 가는 선(그림자·둥근 상자·아이콘 없음), 선택 = 네이비·흰 글씨.
+   아이움 표기는 마루 부리 + 골드 밑줄(밑줄로만 — 글자색 골드는 대비 미달). 움직임은 두 가지만:
+   선택할 때 골드 밑줄이 그어짐, 상세 패널의 직역 표기에 취소선이 그어짐. reduced-motion 이면 정지 */
+.lp-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.lp-field{display:flex;flex-direction:column;align-items:flex-start;min-width:0;margin:0;padding:22px 20px 24px;border:0;border-top:1px solid rgba(15,37,64,0.28);border-radius:0;background:var(--v-bg);color:var(--v-text);text-align:left;font:inherit;cursor:pointer}
+.lp-field:hover{border-top-color:var(--v-navy)}
+.lp-field:focus-visible{outline:3px solid var(--v-ink);outline-offset:3px}
+.lp-field .nb{white-space:nowrap}
+.lp-field .src{display:block;font-size:13.5px;font-weight:500;line-height:1.55;color:#5A6472;word-break:keep-all}
+.lp-field .x{display:block;margin:10px 0 12px;font-size:22px;font-weight:700;line-height:1.5;color:var(--v-navy);word-break:keep-all;overflow-wrap:anywhere}
+.lp-field .u,.lp-fd .yes{padding-bottom:2px;background:linear-gradient(var(--v-gold),var(--v-gold)) no-repeat 0 100%/100% 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.lp-field .why{display:block;margin:0 0 18px;font-size:12.5px;font-weight:500;line-height:1.5;color:#5A6472;word-break:keep-all}
+.lp-field .f{display:block;margin:auto 0 6px;font-size:17px;font-weight:800;line-height:1.4;color:var(--v-navy);word-break:keep-all}
+.lp-field .d{display:block;min-height:3.3em;font-size:14.5px;font-weight:500;line-height:1.65;color:var(--v-sub);word-break:keep-all}   /* 소개 두 줄 높이 — 한 줄 칸도 분야명이 같은 높이에 */
+.lp-field.sel{background:var(--v-navy);border-top-color:var(--v-navy);color:#fff}
+.lp-field.sel .src,.lp-field.sel .why{color:rgba(255,255,255,0.78)}
+.lp-field.sel .x,.lp-field.sel .f{color:#fff}
+.lp-field.sel .d{color:rgba(255,255,255,0.86)}
+.lp-field.sel .u{animation:lp-ul .45s ease-out}
+@keyframes lp-ul{from{background-size:0 2px}to{background-size:100% 2px}}
+/* 일본어 표기 — 마루 부리에 없는 글자는 일본어 명조(시스템 CJK)로 */
+.lp-fields [lang="ja"],.lp-fields [lang="ja"] *{font-family:'Yu Mincho','YuMincho','Hiragino Mincho ProN','Noto Serif JP','Noto Serif CJK JP','MS Mincho','MaruBuri',serif !important}
+.lp-fd{grid-column:1/-1;margin-top:8px;padding:44px 48px 48px;background:var(--v-pale)}
+.lp-fd[hidden],.lp-fd .fd[hidden]{display:none}
+.lp-fd .lit{margin:0 0 6px;font-size:17px;font-weight:500;line-height:1.8;color:var(--v-text);word-break:keep-all;overflow-wrap:anywhere}
+.lp-fd .lit .k{margin-right:6px;font-size:13px;font-weight:700;color:var(--v-sub)}
+.lp-fd .lit s{text-decoration:none;color:#56606E;background:linear-gradient(currentColor,currentColor) no-repeat 0 55%/100% 1.5px}
+.lp-fd .fd.play .lit s{animation:lp-st .5s ease-out .15s both}
+@keyframes lp-st{from{background-size:0 1.5px}to{background-size:100% 1.5px}}
+.lp-fd .lit .ar{margin:0 6px;color:var(--v-sub)}
+.lp-fd .lit .yes{font-size:20px;font-weight:700;color:var(--v-navy)}
+.lp-fd .note{margin:0;font-size:14.5px;font-weight:500;line-height:1.7;color:var(--v-sub);word-break:keep-all}
+.lp-fd .f{margin:28px 0 10px;padding-top:26px;border-top:1px solid rgba(15,37,64,0.14);font-size:24px;font-weight:700;line-height:1.3;color:var(--v-navy)}
+.lp-fd .d{margin:0 0 12px;max-width:44em;font-size:16px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
+.lp-fd .ex{margin:0 0 8px;font-size:14.5px;font-weight:500;line-height:1.65;color:var(--v-sub);word-break:keep-all}
+.lp-fd .std{margin:0;padding:0;list-style:none;font-size:13.5px;font-weight:500;line-height:1.65;color:var(--v-sub);word-break:keep-all}
+.lp-fd .std::before{content:'기준 ';font-weight:700;color:var(--v-navy)}
+.lp-fd .std li{display:inline}
+.lp-fd .std li+li::before{content:' · '}
+.lp-fd .fq{margin-top:24px}
+@media(prefers-reduced-motion:reduce){.lp-field.sel .u,.lp-fd .fd.play .lit s{animation:none}}
+@media(forced-colors:active){.lp-fd .lit s{text-decoration:line-through}}
 .lp-other{margin-top:48px;border-top:1px solid var(--v-line);border-bottom:1px solid var(--v-line)}
 .lp-other summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;min-height:56px;padding:14px 0;font-size:17px;font-weight:700;color:var(--v-navy)}
 .lp-other summary::-webkit-details-marker{display:none}
 .lp-other summary::after{content:'+';margin-left:auto;font-size:22px;font-weight:500;color:var(--v-ink)}
 .lp-other[open] summary::after{content:'−'}
 .lp-other p{margin:0;padding:0 0 18px;font-size:16px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
-@media(max-width:1023px){.lp-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:1023px){.lp-fields{grid-template-columns:1fr 1fr}.lp-field .x{font-size:20px}}
 @media(max-width:640px){
-  .lp-fields{gap:32px 16px}
-  .lp-field{padding-top:16px}
-  .lp-field .f{font-size:20px}
-  .lp-field .d{margin-bottom:4px;font-size:15px}
-  .lp-field:not(.open) .more{display:none}
-  .lp-field .more{padding-top:8px}
-  .lp-field .fmore{display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;font-family:inherit;font-size:14px;font-weight:700;color:var(--v-ink);cursor:pointer}
+  .lp-fields{gap:10px}
+  .lp-field{padding:16px 14px 18px}
+  .lp-field .src{font-size:12.5px}
+  .lp-field .x{margin:8px 0 10px;font-size:16px;line-height:1.5}
+  .lp-field .why{margin-bottom:14px;font-size:12px}
+  .lp-field .f{font-size:15px}
+  .lp-field .d{font-size:13.5px;line-height:1.6}
+  .lp-fd{margin-top:0;padding:26px 20px 30px}
+  .lp-fd .lit{font-size:15.5px}
+  .lp-fd .lit .yes{font-size:17px}
+  .lp-fd .f{margin-top:22px;padding-top:20px;font-size:20px}
+  .lp-fd .d{font-size:15px}
+  .lp-fd .fq{width:100%}
 }
 
 /* ⑥ 아이움에 맡겨야 하는 이유 — 여섯 칸(데스크톱 3×2, 모바일 1열). 핵심 사실 = 마루 부리 크게 + 샴페인 골드 확인 선
@@ -2640,90 +2675,138 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   </div>
 </section>
 
-<!-- ⑤ 아이움이 특화한 여덟 분야 — ★'기준'은 파이프라인 스타일시트 '분야별 참고 기준'에 들어간 것만 -->
+<!-- ⑤ 아이움이 특화한 여덟 분야 — ★'기준'은 파이프라인 스타일시트 '분야별 참고 기준'에 들어간 것만.
+     칸(button) = 원문 → 아이움 표기 → 근거 → 분야명 → 한 줄 소개. 표기·근거는 2026-10-30 근거 원문 대조(민법 제398조 영문·ISA 570·ICH E2A·PCT 제33조/EPC 제56조·EFRAG IG 1·ANSI Z535).
+     칸을 누르면 상세(직역 대비·소개·예시·기준·[이 분야로 견적 보기]) — 데스크톱·태블릿은 칸들 아래 패널 하나, 모바일은 누른 칸 줄 바로 아래 -->
 <section class="lp-sec" id="field-standards">
   <div class="lp">
-    <h2 class="lp-h2 mb">아이움이 특화한 여덟 분야</h2>
+    <h2 class="lp-h2 mb">분야마다 쓰는 말이 다릅니다</h2>
+    <p class="lp-sub">아이움은 여덟 분야를 특화해, 분야마다 정해진 기준과 용어로 옮깁니다.</p>
     <div class="lp-fields" id="lp-fields">
-      <div class="lp-field">
-        <p class="f mb">게임</p>
-        <p class="d">세계관과 캐릭터의 말투까지 옮깁니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">원작의 공식 표기를 먼저 따르고, 작품 전체에서 같은 표현을 씁니다.</p>
+      <button type="button" class="lp-field sel" id="ft-gaming" data-field="gaming" aria-expanded="true" aria-controls="fd-gaming">
+        <span class="src">이 몸이 그대의 검이 되어 주겠노라</span>
+        <span class="x mb"><span class="u" lang="ja">この身、そなたの剣となろう</span></span>
+        <span class="why">캐릭터 말투(고어체) 유지</span>
+        <span class="f">게임</span>
+        <span class="d">세계관과 캐릭터의 말투까지 옮깁니다.</span>
+      </button>
+      <button type="button" class="lp-field" id="ft-legal" data-field="legal" aria-expanded="false" aria-controls="fd-legal">
+        <span class="src">손해배상액의 예정</span>
+        <span class="x mb"><span class="u" lang="en">liquidated damages</span></span>
+        <span class="why">민법 제398조 영문 표기</span>
+        <span class="f">법률</span>
+        <span class="d">한 단어의 차이가 결과를 바꾸는 분야입니다.</span>
+      </button>
+      <button type="button" class="lp-field" id="ft-medical" data-field="medical" aria-expanded="false" aria-controls="fd-medical">
+        <span class="src">중대한 이상사례</span>
+        <span class="x mb"><span class="u" lang="en">serious adverse event</span></span>
+        <span class="why">ICH E2A (severe와 구분)</span>
+        <span class="f">의료 · 제약 · 의료관광</span>
+        <span class="d">정확해야 안심할 수 있습니다.</span>
+      </button>
+      <button type="button" class="lp-field" id="ft-accounting" data-field="accounting" aria-expanded="false" aria-controls="fd-accounting">
+        <span class="src">계속기업 관련 중요한 불확실성</span>
+        <span class="x mb"><span class="u" lang="en">Material Uncertainty Related to Going Concern</span></span>
+        <span class="why">국제감사기준 ISA 570</span>
+        <span class="f">회계 · 재무</span>
+        <span class="d">숫자 하나, 계정과목 하나가 신뢰를 좌우합니다.</span>
+      </button>
+      <button type="button" class="lp-field" id="ft-patent" data-field="patent" aria-expanded="false" aria-controls="fd-patent">
+        <span class="src">진보성</span>
+        <span class="x mb"><span class="u" lang="en">inventive step</span></span>
+        <span class="why">PCT·EPC 표기 (미국은 <span class="nb">non-obviousness</span>)</span>
+        <span class="f">특허 · 지식재산</span>
+        <span class="d">청구항의 한 단어가 권리 범위를 바꿉니다.</span>
+      </button>
+      <button type="button" class="lp-field" id="ft-academic" data-field="academic" aria-expanded="false" aria-controls="fd-academic">
+        <span class="src">~한 것으로 사료된다</span>
+        <span class="x mb"><span class="u" lang="en">These findings suggest that…</span></span>
+        <span class="why">학술 영어의 완곡 표현</span>
+        <span class="f">학술 · 논문</span>
+        <span class="d">연구의 언어를 학계의 언어로 옮깁니다.</span>
+      </button>
+      <button type="button" class="lp-field" id="ft-esg" data-field="esg" aria-expanded="false" aria-controls="fd-esg">
+        <span class="src">이중 중대성 평가</span>
+        <span class="x mb"><span class="u" lang="en">double materiality assessment</span></span>
+        <span class="why">ESRS·EFRAG 표기</span>
+        <span class="f">ESG · 지속가능경영</span>
+        <span class="d">해외 투자자와 고객이 읽는 보고서입니다.</span>
+      </button>
+      <button type="button" class="lp-field" id="ft-manual" data-field="manual" aria-expanded="false" aria-controls="fd-manual">
+        <span class="src">위험 · 경고 · 주의</span>
+        <span class="x mb"><span class="u" lang="en">DANGER · WARNING · CAUTION</span></span>
+        <span class="why">ANSI Z535·ISO 3864-2 신호어 체계</span>
+        <span class="f">매뉴얼 · 기술 문서</span>
+        <span class="d">반복이 많은 문서일수록 일관성이 생명입니다.</span>
+      </button>
+      <div class="lp-fd" id="lp-fd">
+        <div class="fd" id="fd-gaming" role="region" aria-labelledby="ft-gaming">
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">I will be your sword.</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="ja">この身、そなたの剣となろう</span></p>
+          <p class="note">뜻은 맞지만 캐릭터의 말투가 사라집니다.</p>
+          <p class="f mb">게임</p>
+          <p class="d">세계관과 캐릭터의 말투까지 옮깁니다. 원작의 공식 표기를 먼저 따르고, 작품 전체에서 같은 표현을 씁니다.</p>
           <p class="ex">예: 게임 내 텍스트 · 스토리 · 스토어 소개문 · 패치 노트</p>
           <p class="ex mk">주요 시장: 영어 · 중국어(간체·번체) · 일본어 등</p>
           <ul class="std"><li>IGDA 게임 현지화 모범 사례</li><li>Microsoft 현지화 스타일 가이드(한·일·중 간체·번체)</li><li>Steamworks 현지화 문서</li><li>원작 공식 표기 우선</li></ul>
+          <button type="button" class="lp-btn fq" data-field="gaming">이 분야로 견적 보기</button>
         </div>
-      </div>
-      <div class="lp-field">
-        <p class="f mb">법률</p>
-        <p class="d">한 단어의 차이가 결과를 바꾸는 분야입니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">법령의 공식 영문 명칭과 법률 용어 사전을 기준으로 옮깁니다.</p>
+        <div class="fd" id="fd-legal" role="region" aria-labelledby="ft-legal" hidden>
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">estimated amount of damages</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="en">liquidated damages</span></p>
+          <p class="f mb">법률</p>
+          <p class="d">한 단어의 차이가 결과를 바꾸는 분야입니다. 법령의 공식 영문 명칭과 법률 용어 사전을 기준으로 옮깁니다.</p>
           <p class="ex">예: 계약서 · 약관 · 법률 의견서 · 소송 서류</p>
           <ul class="std"><li>법제처 국가법령정보센터 영문 법령</li><li>Black's Law Dictionary</li></ul>
+          <button type="button" class="lp-btn fq" data-field="legal">이 분야로 견적 보기</button>
         </div>
-      </div>
-      <div class="lp-field">
-        <p class="f mb">의료 · 제약 · 의료관광</p>
-        <p class="d">정확해야 안심할 수 있습니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">공인 의학 용어 기준으로, 해외 환자와 기관이 바로 이해할 수 있게 옮깁니다.</p>
+        <div class="fd" id="fd-medical" role="region" aria-labelledby="ft-medical" hidden>
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">severe adverse event</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="en">serious adverse event</span></p>
+          <p class="note">ICH 기준에서 severe는 증상의 ‘정도’를 뜻하는 다른 말입니다.</p>
+          <p class="f mb">의료 · 제약 · 의료관광</p>
+          <p class="d">정확해야 안심할 수 있습니다. 공인 의학 용어 기준으로, 해외 환자와 기관이 바로 이해할 수 있게 옮깁니다.</p>
           <p class="ex">예: 병원·시술 안내문 · 의약품 설명서 · 임상 문서 · 의료관광 상담 자료</p>
           <ul class="std"><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류(KCD)</li><li>ICH 가이드라인</li></ul>
+          <button type="button" class="lp-btn fq" data-field="medical">이 분야로 견적 보기</button>
         </div>
-      </div>
-      <div class="lp-field">
-        <p class="f mb">회계 · 재무</p>
-        <p class="d">숫자 하나, 계정과목 하나가 신뢰를 좌우합니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">국제회계기준 용어로 옮기고, 금액은 원문 그대로 지킵니다.</p>
+        <div class="fd" id="fd-accounting" role="region" aria-labelledby="ft-accounting" hidden>
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">important uncertainty about the continuing company</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="en">Material Uncertainty Related to Going Concern</span></p>
+          <p class="f mb">회계 · 재무</p>
+          <p class="d">숫자 하나, 계정과목 하나가 신뢰를 좌우합니다. 국제회계기준 용어로 옮기고, 금액은 원문 그대로 지킵니다.</p>
           <p class="ex">예: 감사보고서 · 재무제표 · 연차보고서 · IR 자료</p>
           <ul class="std"><li>K-IFRS</li><li>IFRS 회계기준</li><li>ISA 국제감사기준</li></ul>
+          <button type="button" class="lp-btn fq" data-field="accounting">이 분야로 견적 보기</button>
         </div>
-      </div>
-      <div class="lp-field">
-        <p class="f mb">특허 · 지식재산</p>
-        <p class="d">청구항의 한 단어가 권리 범위를 바꿉니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">국제 특허 용어 기준으로 원문의 구조를 그대로 옮깁니다.</p>
+        <div class="fd" id="fd-patent" role="region" aria-labelledby="ft-patent" hidden>
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">progressiveness</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="en">inventive step</span></p>
+          <p class="f mb">특허 · 지식재산</p>
+          <p class="d">청구항의 한 단어가 권리 범위를 바꿉니다. 국제 특허 용어 기준으로 원문의 구조를 그대로 옮깁니다.</p>
           <p class="ex">예: 특허 명세서 · 청구항 · 선행기술 자료 · 심사 의견 대응</p>
           <ul class="std"><li>WIPO Pearl 특허 용어</li><li>지식재산처 PCT 용어 해설</li></ul>
+          <button type="button" class="lp-btn fq" data-field="patent">이 분야로 견적 보기</button>
         </div>
-      </div>
-      <div class="lp-field">
-        <p class="f mb">학술 · 논문</p>
-        <p class="d">연구의 언어를 학계의 언어로 옮깁니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">분야별 학술 용어를 지키고, 인용 양식은 원문 그대로 둡니다.</p>
+        <div class="fd" id="fd-academic" role="region" aria-labelledby="ft-academic" hidden>
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">It is considered that…</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="en">These findings suggest that…</span></p>
+          <p class="f mb">학술 · 논문</p>
+          <p class="d">연구의 언어를 학계의 언어로 옮깁니다. 분야별 학술 용어를 지키고, 인용 양식은 원문 그대로 둡니다.</p>
           <p class="ex">예: 학술 논문 · 학위논문 초록 · 연구계획서 · 학회 발표 자료</p>
           <ul class="std"><li>인용 양식 원문 유지(APA·MLA·Chicago·IEEE)</li><li>학회 공식 용어 우선</li></ul>
+          <button type="button" class="lp-btn fq" data-field="academic">이 분야로 견적 보기</button>
         </div>
-      </div>
-      <div class="lp-field">
-        <p class="f mb">ESG · 지속가능경영</p>
-        <p class="d">해외 투자자와 고객이 읽는 보고서입니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">국제 공시 기준의 용어로 옮깁니다.</p>
+        <div class="fd" id="fd-esg" role="region" aria-labelledby="ft-esg" hidden>
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">dual importance evaluation</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="en">double materiality assessment</span></p>
+          <p class="f mb">ESG · 지속가능경영</p>
+          <p class="d">해외 투자자와 고객이 읽는 보고서입니다. 국제 공시 기준의 용어로 옮깁니다.</p>
           <p class="ex">예: 지속가능경영보고서 · ESG 공시 자료 · 기후 관련 보고</p>
           <ul class="std"><li>GRI Standards</li><li>ISSB IFRS S1·S2</li><li>KSSB 지속가능성 공시기준</li></ul>
+          <button type="button" class="lp-btn fq" data-field="esg">이 분야로 견적 보기</button>
         </div>
-      </div>
-      <div class="lp-field">
-        <p class="f mb">매뉴얼 · 기술 문서</p>
-        <p class="d">반복이 많은 문서일수록 일관성이 생명입니다.</p>
-        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
-        <div class="more">
-          <p class="d2">같은 문장은 같은 번역으로, 읽는 사람이 헷갈리지 않게 옮깁니다.</p>
+        <div class="fd" id="fd-manual" role="region" aria-labelledby="ft-manual" hidden>
+          <p class="lit"><span class="k">직역하면</span> <s lang="en">Danger · Warning · Attention</s> <span class="ar" aria-hidden="true">→</span> <span class="yes mb" lang="en">DANGER · WARNING · CAUTION</span></p>
+          <p class="note">‘주의’는 CAUTION이 정해진 신호어입니다.</p>
+          <p class="f mb">매뉴얼 · 기술 문서</p>
+          <p class="d">반복이 많은 문서일수록 일관성이 생명입니다. 같은 문장은 같은 번역으로, 읽는 사람이 헷갈리지 않게 옮깁니다.</p>
           <p class="ex">예: 제품 사용설명서 · 설치·정비 가이드 · 안전 수칙 · 기술 사양서</p>
           <ul class="std"><li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li><li>ASD-STE100 Simplified Technical English</li></ul>
+          <button type="button" class="lp-btn fq" data-field="manual">이 분야로 견적 보기</button>
         </div>
       </div>
     </div>
@@ -2734,21 +2817,47 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   </div>
 </section>
 <script>
-/* 여덟 분야 — 모바일(2열)에서만 칸을 누르면 예시·기준이 펼쳐진다. 데스크톱은 늘 펼친 상태(버튼 숨김) */
+/* 여덟 분야 — 칸을 누르면 그 분야 상세로 바뀐다. 데스크톱·태블릿: 처음 '게임' 선택, 패널은 칸들 아래.
+   모바일(≤640px): 처음엔 닫힘, 누른 칸 줄 바로 아래에서 펼침(다시 누르면 닫힘, 다른 칸은 닫힘).
+   [이 분야로 견적 보기] = 주문 창 분야(#field-select)를 미리 골라 두고 주문 창을 연다 */
 (function(){
-  Array.prototype.forEach.call(document.querySelectorAll('#lp-fields .lp-field'), function(f){
-    var b = f.querySelector('.fmore');
-    if (!b) return;
-    function toggle(){
-      var o = f.classList.toggle('open');
-      b.setAttribute('aria-expanded', o ? 'true' : 'false');
-      b.textContent = o ? '접기' : '예시·기준 보기';
-    }
-    b.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
-    f.addEventListener('click', function(e){
-      if (b.offsetParent === null || (e.target.closest && e.target.closest('a,button'))) return;   // 데스크톱(버튼 숨김)은 무시
-      toggle();
+  var grid = document.getElementById('lp-fields'), wrap = document.getElementById('lp-fd');
+  if (!grid || !wrap) return;
+  var tiles = Array.prototype.slice.call(grid.querySelectorAll('.lp-field'));
+  var mq = window.matchMedia('(max-width:640px)');
+  var cur = null;
+  function place(){
+    var at = null;
+    if (mq.matches && cur) { var i = tiles.indexOf(cur); at = tiles[Math.min(i | 1, tiles.length - 1)].nextSibling; }   // 2열: 그 줄 오른쪽 칸 뒤
+    grid.insertBefore(wrap, at);
+  }
+  function select(t, play){
+    tiles.forEach(function(b){
+      var on = b === t, fd = document.getElementById(b.getAttribute('aria-controls'));
+      b.classList.toggle('sel', on);
+      b.setAttribute('aria-expanded', on ? 'true' : 'false');
+      fd.hidden = !on;
+      fd.classList.remove('play');
+      if (on && play) { void fd.offsetWidth; fd.classList.add('play'); }
     });
+    cur = t; wrap.hidden = !t;
+    place();
+  }
+  tiles.forEach(function(b){
+    b.addEventListener('click', function(){
+      if (mq.matches && cur === b) { select(null); return; }
+      select(b, true);
+    });
+  });
+  function onMq(){ if (!mq.matches && !cur) select(tiles[0], false); else place(); }
+  if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
+  select(mq.matches ? null : tiles[0], false);
+  wrap.addEventListener('click', function(e){
+    var q = e.target.closest && e.target.closest('.fq');
+    if (!q) return;
+    var s = document.getElementById('field-select');
+    if (s) { s.value = q.getAttribute('data-field'); s.dispatchEvent(new Event('change', { bubbles: true })); }
+    if (typeof handleAI === 'function') handleAI();
   });
 })();
 </script>
