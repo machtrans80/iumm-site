@@ -927,7 +927,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div class="legal-page">
     <button class="legal-back-btn" onclick="showPage('main')">← 홈으로</button>
     <h1>이용약관</h1>
-    <p class="legal-date">공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일 &nbsp;|&nbsp; 최초 시행: 2026년 1월 1일</p>
+    <p class="legal-date">공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일 &nbsp;|&nbsp; 최초 시행: 2026년 1월 1일</p>
 
     <div id="terms-revision-notice" style="border:1px solid rgba(31,79,209,0.35);background:rgba(31,79,209,0.06);padding:14px 18px;margin:0 0 32px;border-radius:2px">
       <p style="margin:0 0 6px"><strong style="color:rgba(255,255,255,0.85)">[개정 안내]</strong> 이용약관이 다음과 같이 개정됩니다.</p>
@@ -937,7 +937,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         <li>비밀유지계약: 요청 시 번역 착수 전 체결 가능 (제7조의2 신설)</li>
         <li>제11조 11.3 삭제 및 항 번호 정리, 제9조·제13조 문구 정리</li>
         <li>개정 사유: 무료 테스트·무상 수정 기준 변경, 기업 고객 비밀유지 안내</li>
-        <li>공지일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 7일</span></li>
+        <li>공지일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 6일</span></li>
       </ul>
       <p style="margin:6px 0 0"><a href="/legal/terms-2026-10-26" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 약관 보기</a></p>
     </div>
@@ -1340,7 +1340,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div class="legal-page">
     <button class="legal-back-btn" onclick="showPage('main')">← 홈으로</button>
     <h1>개인정보처리방침</h1>
-    <p class="legal-date">공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일</p>
+    <p class="legal-date">공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일</p>
 
     <div id="privacy-revision-notice" style="border:1px solid rgba(31,79,209,0.35);background:rgba(31,79,209,0.06);padding:14px 18px;margin:0 0 32px;border-radius:2px">
       <p style="margin:0 0 6px"><strong style="color:rgba(255,255,255,0.85)">[개정 안내]</strong> 개인정보처리방침이 다음과 같이 개정됩니다.</p>
@@ -1349,7 +1349,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         <li>제2조: 무료 체험 1회 제한 관리 → 무료 테스트 번역 회사당·회원당 1회 제한 관리</li>
         <li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 공증 서비스 종료에 따른 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>
         <li>개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 공증 서비스 종료</li>
-        <li>공지일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 7일</span></li>
+        <li>공지일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 6일</span></li>
       </ul>
       <p style="margin:6px 0 0"><a href="/legal/privacy-2026-10-26" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 개인정보처리방침 보기</a></p>
     </div>
@@ -1907,11 +1907,13 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 /* ④ 번역 과정 — 남색 띠, 샴페인 골드 세로선 하나(데스크톱 두 단), 상자 없음. 번호(마루 부리)·이름·한 줄 */
 .lp-flow10{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;column-gap:64px}
-.lp-flow10 li{position:relative;padding:0 0 30px 64px}
-.lp-flow10 li::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:var(--v-gold)}
-.lp-flow10 li:first-child::before,.lp-flow10 li:nth-child(6)::before{top:20px}
-.lp-flow10 li:nth-child(5)::before,.lp-flow10 li:last-child::before{bottom:auto;height:20px}
-.lp-flow10 .no{position:absolute;left:0;top:0;display:flex;align-items:center;justify-content:center;width:41px;height:40px;background:var(--v-navy);font-size:24px;font-weight:700;color:#fff}
+/* 선 = 각 단계(li)의 왼쪽 2px 골드. 단계 사이 여백은 li 안(padding)이라 이어 붙어 열마다 한 줄이 된다.
+   열 첫 단계는 번호 높이에서 시작, 열 끝 단계는 번호 높이에서 끝. 번호는 선 오른쪽(선을 가리지 않음) */
+.lp-flow10 li{position:relative;padding:0 0 30px 72px}
+.lp-flow10 li::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--v-gold)}
+.lp-flow10 li:first-child::before,.lp-flow10 li:nth-child(6)::before{top:8px}
+.lp-flow10 li:nth-child(5)::before,.lp-flow10 li:last-child::before{bottom:auto;height:32px}
+.lp-flow10 .no{position:absolute;left:22px;top:0;display:flex;align-items:center;width:40px;height:40px;font-size:24px;font-weight:700;color:#fff}
 .lp-flow10 .t{display:block;margin:6px 0 6px;font-size:18px;font-weight:800;color:#fff;word-break:keep-all}
 .lp-flow10 .d{display:block;max-width:30em;font-size:16px;font-weight:500;line-height:1.7;color:rgba(255,255,255,0.8);word-break:keep-all}
 .lp-example{margin:24px 0 0;padding:24px 0 0;border-top:1px solid rgba(255,255,255,0.22)}
@@ -1924,6 +1926,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   .lp-flow10{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row}
   .lp-flow10 li:nth-child(5)::before{bottom:0;height:auto}
   .lp-flow10 li:nth-child(6)::before{top:0}
+  .lp-flow10 li:last-child::before{bottom:auto;height:32px}
 }
 
 /* ⑤ 여덟 분야 — 위쪽 가는 선 타일(데스크톱 4×2), 분야 이름 마루 부리, 한 줄 소개. 기준은 작은 한 줄 글자.
@@ -2022,7 +2025,8 @@ html[data-v3="on"] .lp-why{grid-template-columns:repeat(4,1fr);gap:48px 28px}
   .lp-team .nm{font-size:26px}
   .lp-why,html[data-v3="on"] .lp-why{grid-template-columns:1fr;gap:36px}
   .lp-why .k{font-size:26px}
-  .lp-flow10 li{padding-left:56px}
+  .lp-flow10 li{padding-left:64px}
+  .lp-flow10 .no{left:18px}
   .lp-plan{padding:24px 22px}
   .lp-plan .pr b{font-size:38px}
   .lp-biz-act .lp-btn{width:100%}
@@ -2758,16 +2762,17 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 </section></template>
 
 <!-- ⑥ 아이움에 맡겨야 하는 이유 — 확인된 사실만 (2026-10-30)
-     · 단가 = PLAN_PRICE(부가세 10% 별도, 프리미엄 플러스 전문 자격사 +20원) → 추가 요금이 없다는 표현은 쓰지 않음
-     · 납기 = 주문 화면 '번역 소요시간 안내' 표 스탠다드 1,000~5,000자 24시간 이내
+     · 단가 = PLAN_PRICE '부터'(프리미엄 플러스·전문 자격사 가산이 있어 추가 요금이 없다는 표현은 쓰지 않음)
+     · 납기 = DELIVERY_TABLE(주문 화면 '번역 소요시간 안내' 표) 스탠다드 5,000자까지 24시간 이내
+     · 부가세·접수 시간 같은 조건 문구는 메인에 넣지 않고 견적·결제 화면에서 보여 준다(대표 원칙)
      · 21일 삭제 = server.js runDataCleanup(매일 04:00, 데이터삭제예정일 = 납품일시 + 21일) 동작 확인
      · 형식 유지 납품은 아직 없어 넣지 않음 -->
 <section class="lp-sec pale" id="business">
   <div class="lp">
     <h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</h2>
     <div class="lp-why">
-      <div class="c"><p class="k mb">글자당 <span data-plan="ai"></span>원</p><p class="d">파일을 올리면 금액이 바로 나옵니다. 정해진 가격 그대로입니다. (스탠다드 기준 · 부가세 별도)</p></div>
-      <div class="c"><p class="k mb">5,000자 24시간</p><p class="d">스탠다드는 5,000자까지 24시간 이내에 납품합니다. 19시 이후 접수는 다음 날 09시 기준입니다.</p></div>
+      <div class="c"><p class="k mb">글자당 <span data-plan="ai"></span>원부터</p><p class="d">파일을 올리면 금액이 바로 나옵니다. 정해진 가격 그대로입니다.</p></div>
+      <div class="c"><p class="k mb">5,000자 24시간</p><p class="d">스탠다드는 5,000자까지 24시간 이내에 납품합니다.</p></div>
       <div class="c"><p class="k mb">자동 가림</p><p class="d">개인정보 번호는 번역 전에 자동으로 가리고, 맡기신 문서는 번역에만 씁니다. 납품 후 21일 안에 삭제합니다.</p></div>
       <div class="c"><p class="k mb">NDA 체결</p><p class="d">요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></div>
       <div class="c"><p class="k mb">1,000자 무료</p><p class="d">맡기기 전에 직접 확인하세요. 회사당 1회, 1,000자까지 무료로 번역해 드립니다.</p></div>
@@ -2785,7 +2790,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 <section class="lp-sec" id="pricing">
   <div class="lp">
     <h2 class="lp-h2 mb">글자 수 기준 정찰제</h2>
-    <p class="lp-sub">파일을 올리면 금액을 바로 확인하실 수 있습니다. 부가세는 별도입니다.</p>
+    <p class="lp-sub">파일을 올리면 금액을 바로 확인하실 수 있습니다.</p>
     <div class="lp-plans">
       <button type="button" class="lp-plan" onclick="handleAI()">
         <span class="nm mb">스탠다드</span>
@@ -2948,7 +2953,7 @@ var SHOW_V3 = false;
       <div id="estimate-result" style="display:none;background:rgba(31,79,209,0.06);border:1px solid rgba(31,79,209,0.2);padding:18px 24px;margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">글자수</p><p id="char-count" style="font-size:20px;font-weight:600">-</p></div>
-          <div style="text-align:right"><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">자동 견적</p><p id="estimate-amount" style="font-size:32px;font-weight:700;color:var(--gold-light)">-</p></div>
+          <div style="text-align:right"><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:1px">자동 견적</p><p id="estimate-amount" style="font-size:32px;font-weight:700;color:var(--gold-light)">-</p><p id="estimate-vat-note" style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">부가세 별도</p></div>
         </div>
         <!-- 최종 결제 금액 (할인 적용 시) -->
         <div id="final-amount-row" style="display:none;border-top:1px solid rgba(31,79,209,0.2);padding-top:10px;margin-bottom:10px;display:none">
@@ -3203,12 +3208,8 @@ var SHOW_V3 = false;
             <th style="padding:3px 5px;text-align:center;font-weight:500;color:#9DB7F5">스탠다드</th>
             <th style="padding:3px 5px;text-align:center;font-weight:500;color:rgba(255,255,255,0.85)">프리미엄 플러스</th>
           </tr></thead>
-          <tbody style="color:rgba(255,255,255,0.68)">
-            <tr><td style="padding:3px 5px">1,000~5,000자</td><td style="padding:3px 5px;text-align:center">24시간 이내</td><td style="padding:3px 5px;text-align:center">2일 이내</td></tr>
-            <tr><td style="padding:3px 5px">5,001~10,000자</td><td style="padding:3px 5px;text-align:center">36시간 이내</td><td style="padding:3px 5px;text-align:center">2~3일</td></tr>
-            <tr><td style="padding:3px 5px">10,001~15,000자</td><td style="padding:3px 5px;text-align:center">48시간 이내</td><td style="padding:3px 5px;text-align:center">3~4일</td></tr>
-            <tr><td style="padding:3px 5px">15,001~20,000자</td><td style="padding:3px 5px;text-align:center">60시간 이내</td><td style="padding:3px 5px;text-align:center">4~5일</td></tr>
-          </tbody>
+          <!-- 행은 DELIVERY_TABLE(견적 칸 calcDelivery 와 같은 데이터)에서 채운다 -->
+          <tbody id="delivery-table-body" style="color:rgba(255,255,255,0.68)"></tbody>
         </table>
         <p style="margin:6px 0 0 0;font-size:10px;color:rgba(255,255,255,0.38)">※ 200만원 초과 시 법인계좌 입금 방식</p>
         <p style="margin:4px 0 0 0;font-size:10px;color:rgba(255,255,255,0.38)">※ 19시 이후 접수 건은 익일 09시 접수 기준으로 납품일이 계산됩니다. (전문가 검수 일정 관계)</p>
@@ -4467,15 +4468,28 @@ function closeModal(id){
   if(id==='payment'){document.getElementById('payment-form').style.display='block';document.getElementById('payment-complete').style.display='none';}
 }
 function switchTab(t){}
-function calcDelivery(words){
-  if(words<=1000) return '1~2일';
-  if(words<=2000) return '2~3일';
-  if(words<=3000) return '3~4일';
-  if(words<=5000) return '4~5일';
-  if(words<=8000) return '5~7일';
-  if(words<=10000) return '7~10일';
-  return '별도 협의';
+/* 납기 기준 — 주문 화면 '번역 소요시간 안내' 표와 견적 칸이 함께 쓰는 단일 출처 (2026-10-30 대표 확정)
+   max = 구간 상한(글자). 1,000자 미만은 첫 구간, 20,000자 초과는 별도 협의.
+   ★서버 관리자 알림(notification/templates.js calcExpectedCompletion)도 같은 값 — 바꿀 때 함께 바꾼다 */
+var DELIVERY_TABLE=[
+  {max:5000,  label:'5,000자까지',      ai:'24시간 이내', standard:'2일 이내'},
+  {max:10000, label:'5,001~10,000자',  ai:'36시간 이내', standard:'2~3일'},
+  {max:15000, label:'10,001~15,000자', ai:'48시간 이내', standard:'3~4일'},
+  {max:20000, label:'15,001~20,000자', ai:'60시간 이내', standard:'4~5일'}
+];
+var DELIVERY_OVER={label:'20,000자 초과', text:'별도 협의'};
+function calcDelivery(words, plan){
+  var k=(plan||currentPlan)==='standard'?'standard':'ai';
+  for(var i=0;i<DELIVERY_TABLE.length;i++){ if(words<=DELIVERY_TABLE[i].max) return DELIVERY_TABLE[i][k]; }
+  return DELIVERY_OVER.text;
 }
+(function(){
+  var tb=document.getElementById('delivery-table-body');
+  if(!tb) return;
+  var td='<td style="padding:3px 5px', c=';text-align:center">';
+  tb.innerHTML=DELIVERY_TABLE.map(function(r){ return '<tr>'+td+'">'+r.label+'</td>'+td+c+r.ai+'</td>'+td+c+r.standard+'</td></tr>'; }).join('')
+    +'<tr>'+td+'">'+DELIVERY_OVER.label+'</td>'+td+c+DELIVERY_OVER.text+'</td>'+td+c+DELIVERY_OVER.text+'</td></tr>';
+})();
 function showEstimate(w){
   // [E-6] 기업회원 협상 단가 우선, 없으면 표준
   var basePrice=currentPlan==="ai"

@@ -60,10 +60,14 @@ check(land.includes('주요 시장: 영어 · 중국어(간체·번체) · 일�
 console.log('\n[3-2] 기업 고객 · 무료 테스트 · 14일 무상 수정');
 check(land.includes('<h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</h2>') && !/기업이 아이움에 맡기는 이유/.test(html) && (land.match(/<div class="c"><p class="k mb">/g) || []).length === 7, "'아이움에 맡겨야 하는 이유' 6칸 + V3 품질 리포트 1");
 { const ks = [...land.matchAll(/<p class="k mb">([\s\S]*?)<\/p><p class="d">([^<]*)<\/p>/g)].map(m => [m[1].replace(/<[^>]+>/g, ''), m[2]]);
-  const want = ['글자당 원', '5,000자 24시간', '자동 가림', 'NDA 체결', '1,000자 무료', '14일 1회 무상 수정', '품질 리포트'];
+  const want = ['글자당 원부터', '5,000자 24시간', '자동 가림', 'NDA 체결', '1,000자 무료', '14일 1회 무상 수정', '품질 리포트'];
   check(ks.map(k => k[0]).join('|') === want.join('|'), '핵심 사실 = ' + ks.map(k => k[0]).join(' · '));
-  check(land.includes('<p class="k mb">글자당 <span data-plan="ai"></span>원</p>') && /부가세 별도/.test(ks[0][1]) && !/추가 요금 없이/.test(html), "단가 = PLAN_PRICE · 부가세 별도 표기 · '추가 요금 없이' 없음");
-  check(/24시간 이내/.test(ks[1][1]) && html.includes('<td style="padding:3px 5px">1,000~5,000자</td><td style="padding:3px 5px;text-align:center">24시간 이내</td>'), '납기 = 주문 화면 소요시간 표(스탠다드 1,000~5,000자 24시간 이내)와 같음');
+  check(land.includes('<p class="k mb">글자당 <span data-plan="ai"></span>원부터</p>') && !/추가 요금 없이/.test(html), "단가 = PLAN_PRICE '부터' · '추가 요금 없이' 없음");
+  check(ks[1][1] === '스탠다드는 5,000자까지 24시간 이내에 납품합니다.' && html.includes("{max:5000,  label:'5,000자까지',      ai:'24시간 이내', standard:'2일 이내'}"), '납기 = DELIVERY_TABLE(주문 화면 표·견적 칸 공통) 스탠다드 5,000자까지 24시간 이내');
+  // 대표 원칙 — 부가세·접수 시간 같은 조건 문구는 메인에 넣지 않고 견적·결제 단계에서 보여 준다
+  check(!/부가세|19시/.test(land.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')), "메인 화면 글자(숨김·V3 포함)에 '부가세'·'19시' 없음");
+  check(html.includes('id="estimate-vat-note" style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">부가세 별도</p>') && html.includes('※ 19시 이후 접수 건은 익일 09시 접수 기준으로 납품일이 계산됩니다.') && html.includes('>부가세 (10%)</p>'),
+    "견적 칸 '부가세 별도' · 소요시간 표 아래 19시 안내 · 결제 화면 부가세(10%) 줄 그대로");
   check(ks[2][1].includes('납품 후 21일 안에 삭제합니다.') && land.includes('문서는 납품 후 21일 안에 삭제합니다.'), '21일 삭제 문구 (이유·FAQ)'); }
 check(/\.lp-why \.k\{[^}]*color:var\(--v-navy\);background:linear-gradient\(var\(--v-gold\),var\(--v-gold\)\) no-repeat 0 100%\/40px 2px/.test(html), '핵심 사실 = 남색 글자 + 골드 짧은 선 (골드 글자는 대비 부족)');
 check(!/원본 형식 그대로/.test(land), "'원본 형식 그대로' 카드 없음 (형식 유지 납품 미지원)");
@@ -86,7 +90,7 @@ check(/function handleFreeTrial\(\)\{ openFreeTest\(\); \}/.test(html), '옛 무
 check(/회사명 <span style="color:#e05555">\*<\/span><\/label>\n\s*<input type="text" id="signup-company"/.test(html) && html.includes("if(!companyVal){showToast('회사명을 입력해주세요')"), '가입 정보 입력 — 회사명 필수');
 check(!/수사|진술|사법공조|증거 자료|공문|공증|아포스티유/.test(terms), '이용약관에 수사·진술·사법공조·증거 자료·공문·공증·아포스티유 없음');
 check(!terms.includes('11.4') && terms.includes('11.3 통화 환산 금지 원칙'), '11.3(수사 예외) 삭제 · 통화 환산 = 11.3');
-check(terms.includes('공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일') && priv.includes('공고일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: 2026년 11월 7일'), '약관·개인정보 공고 10-31 · 시행 11-07 (7일 전 공지)');
+check(terms.includes('공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일') && priv.includes('공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일'), '약관·개인정보 공고 10-30 · 시행 11-06 (7일 전 공지, main 합친 날 기준)');
 check(terms.includes('href="/legal/terms-2026-10-26"') && priv.includes('href="/legal/privacy-2026-10-26"') && fs.existsSync(path.resolve(HERE, '../legal/terms-2026-10-26.html')) && fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-10-26.html')), '이전 약관·개인정보 보기 = 2026-10-26 시행본 보관 파일');
 check(terms.includes('회사당 1회, 1,000자(공백 제외) 이하의 무료 테스트 번역') && terms.includes('무료 테스트 번역은 무상 수정 대상이 아닙니다.'), '약관 5.6 무료 테스트 — 회사당 1회 1,000자 · 수정 대상 아님');
 check(terms.includes('유료 주문은 납품 후 14일 이내 1회 무상으로 수정') && terms.includes('무상 수정 횟수와 별개') && !/5일/.test(terms.slice(terms.indexOf('<h2>제1조')).replace(/15일|25일/g, '')), '약관 5.3·6조·7조 — 14일 1회 · 회사 귀책 별개 · 5일 기한 없음');
@@ -510,6 +514,8 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   check(!/Nanum|Noto Sans|fonts\.googleapis/.test(html) && html.includes('pretendardvariable-dynamic-subset.min.css'), '나눔명조·Noto Sans KR·Google Fonts 없음 — Pretendard + 마루 부리만');
   check(/\.lp-hero h1\{[^}]*font-size:64px;[^}]*line-height:1\.25/.test(html) && /\.lp-h2\{[^}]*font-size:40px;[^}]*line-height:1\.25/.test(html) && /\.lp-hero h1\{font-size:38px\}/.test(html) && /\.lp-h2,\.lp-final \.h\{font-size:28px\}/.test(html),
     '크기 — 첫 화면 제목 64/38 · 구역 제목 40/28 · 줄간격 1.25');
+  check(/\.lp-flow10 li::before\{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var\(--v-gold\)\}/.test(html) && /\.lp-flow10 li\{position:relative;padding:0 0 30px 72px\}/.test(html) && !/\.lp-flow10 \.no\{[^}]*background/.test(html),
+    '번역 과정 선 = 골드 2px 한 줄(단계 사이 여백이 li 안이라 끊김 없음) · 번호가 선을 가리지 않음');
   check(/\.lp-sub\{[^}]*max-width:40em;font-size:17px;[^}]*line-height:1\.75/.test(html), '본문 17px · 줄간격 1.75 · 폭 약 40자');
   // 색 · 모양
   check(!/box-shadow/.test(lpCss) && !/radial-gradient/.test(lpCss), '랜딩에 장식 그림자·방사 그라데이션 없음');
