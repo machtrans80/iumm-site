@@ -534,6 +534,7 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   }
   check(/<span class="cmp-tag">예시<\/span>/.test(hero) && (hero.match(/role="tab"/g) || []).length === 3 && /aria-selected="true">계약서</.test(hero) && /id="cmp-p-game"[^>]*hidden/.test(hero) && /id="cmp-p-manual"[^>]*hidden/.test(hero),
     "패널 '예시' 표시 · 탭 계약서/게임/매뉴얼 (기본 계약서, JS 없이도 계약서가 보임)");
+  check(/\.lp-cmp \.t,\.lp-cmp \.n\{white-space:nowrap\}/.test(html), '대조 패널 밑줄·테두리 묶음(KRW 5,000,000 · thirty (30) days 등)은 줄 중간에서 안 갈라짐');
   check(txt(hero.match(/<ul class="cmp-checks">[\s\S]*?<\/ul>/)[0]).replace(/\s+/g, ' ').trim() === '용어 일치 숫자 대조 최종 휴먼터치', '패널 아래 확인 3개 — 용어 일치 · 숫자 대조 · 최종 휴먼터치');
   check(hero.indexOf('id="lp-entry"') < hero.indexOf('id="lp-cmp"') && /@media\(min-width:1024px\)\{\s*\.lp-hero \.lp\{display:grid;grid-template-columns:minmax\(0,1\.2fr\) minmax\(0,1fr\)/.test(html) && /\.cmp-row\{grid-template-columns:1fr;gap:18px\}/.test(html),
     '데스크톱 = 글 왼쪽·패널 오른쪽 / 모바일 = 글 아래 패널, 원문 위·번역 아래');

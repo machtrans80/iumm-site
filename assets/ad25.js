@@ -50,6 +50,7 @@
     '.ad-cmp .s{margin:0;font-size:44px;line-height:1.7;word-break:keep-all}.ad-v .ad-cmp .s{font-size:46px}',
     '.ad-cmp .t{padding-bottom:2px;background:linear-gradient(#B08D57,#B08D57) no-repeat 0 100%/0% 4px}',
     '.ad-cmp .n{margin:0 2px;padding:0 6px;border:2px solid transparent}',
+    '.ad-cmp .t,.ad-cmp .n{white-space:nowrap}',   // 밑줄·테두리 묶음은 통째로 다음 줄로
     '.ad-cmp ul{display:flex;flex-wrap:wrap;gap:16px 40px;margin:44px 0 0;padding:28px 0 0;list-style:none;border-top:1.5px solid rgba(15,37,64,0.14)}',
     '.ad-cmp li{display:flex;align-items:center;gap:14px;font-size:32px;font-weight:700;color:#0F2540}',
     '.ad-cmp li i{width:34px;height:34px;border-radius:50%;background:#1F4FD1;position:relative}',

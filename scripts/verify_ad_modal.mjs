@@ -20,6 +20,7 @@ console.log('\n[정적]');
 const act = html.slice(html.indexOf('<div class="lp-hero-act" id="lp-entry">'), html.indexOf('</div>', html.indexOf('<div class="lp-hero-act" id="lp-entry">')));
 check(/onclick="handleAI\(\)">파일 올리고 바로 견적 보기<\/button>/.test(act) && /href="#field-standards">분야별 번역 기준 보기<\/a>/.test(act), '기존 첫 화면 버튼 2개 그대로');
 check(/id="ad-open" onclick="openAd\(\)"[^>]*>25초 소개 영상<\/button>/.test(act), '첫 화면 버튼 줄에 [25초 소개 영상]');
+check(/\.ad-cmp \.t,\.ad-cmp \.n\{white-space:nowrap\}/.test(fs.readFileSync(path.resolve(HERE, '../assets/ad25.js'), 'utf8')), '영상 3장면 밑줄·테두리 묶음은 줄 중간에서 안 갈라짐');
 check(!/<script[^>]+src="[^"]*ad25\.js"/.test(html) && /s\.src = 'assets\/ad25\.js'/.test(html), '애니메이션 코드는 처음 불러오지 않고 창을 열 때만 불러옴');
 check(!/autoplay/i.test(html.slice(html.indexOf('id="ad-modal"'), html.indexOf('id="ad-modal"') + 3000)), '자동 재생 없음');
 
