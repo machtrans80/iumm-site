@@ -1,7 +1,7 @@
 // 확인필요(납품 보류) 주문 — 사유 요약·문단 표시·납품 탭 목록에 함께 보이기
 // index.html 의 loadOrders · renderOrderTable · selectOrder · loadFailedOrders 가 부른다.
 (function () {
-  var BLUE = '#3b82f6', BLUE_LIGHT = '#93c5fd';
+  var BLUE = '#1F4FD1', BLUE_LIGHT = '#9DB7F5';
   var _e = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 
   // 코드 검사 사유 → 짧은 이름 (pipeline_v2.js codeCheck 문구)
@@ -72,7 +72,7 @@
   window.holdTagHtml = function (o) {
     var h = holdInfo(o);
     if (!h) return '';
-    return ' <span class="tag" title="' + _e(o.failReason || '') + '" style="background:rgba(59,130,246,0.14);color:' + BLUE_LIGHT + ';border:1px solid rgba(59,130,246,0.45)">' + _e(h.label) + '</span>';
+    return ' <span class="st st-check" title="' + _e(o.failReason || '') + '">' + _e(h.label) + '</span>';
   };
 
   // V2 문단 ID(P0001…) = 원문에서 빈 줄이 아닌 줄의 순번. 번역은 같은 줄 위치를 지킨다(pipeline_v2.js segment·assemble).
@@ -126,10 +126,10 @@
     var srcLines = src.split('\n'), trgLines = trg.split('\n');
     var rows = h.items.map(function (it) {
       var at = it.id != null ? idAt[it.id] : undefined;
-      return '<div style="padding:7px 0;border-top:1px solid rgba(59,130,246,0.18)">' +
+      return '<div style="padding:7px 0;border-top:1px solid rgba(157,183,245,0.18)">' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
           (it.id ? '<button type="button" onclick="holdJump(\'' + it.id + '\')" style="padding:3px 9px;background:' + BLUE + ';color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11.5px;font-weight:600">' + it.id + ' 위치로</button>' : '') +
-          '<span style="font-size:12.5px;color:#dbeafe">' + _e(it.kind) + '</span>' +
+          '<span style="font-size:12.5px;color:#EEF3FB">' + _e(it.kind) + '</span>' +
           '<span style="font-size:12px;color:rgba(255,255,255,0.55)">' + _e(it.text) + '</span>' +
         '</div>' +
         (at !== undefined
@@ -138,7 +138,7 @@
           : '') +
         '</div>';
     }).join('');
-    box.innerHTML = '<div style="font-size:13.5px;font-weight:600;color:#dbeafe">⏸ ' + _e(h.label) + '</div>' +
+    box.innerHTML = '<div style="font-size:13.5px;font-weight:600;color:#EEF3FB">⏸ ' + _e(h.label) + '</div>' +
       '<div style="font-size:12px;color:rgba(255,255,255,0.55);margin:3px 0 6px">자동 검사가 아래 문단을 확인하라고 멈춘 주문입니다. 번역문은 저장돼 있어 이 화면에서 그대로 확인·수정·다운로드·최종 납품할 수 있습니다. 표시된 줄은 파란색으로 칠해 두었습니다.</div>' +
       rows;
     box.style.display = 'block';
@@ -172,7 +172,7 @@
   };
 
   var css = document.createElement('style');
-  css.textContent = 'mark.hold-hit{background:rgba(59,130,246,0.32);color:rgba(0,0,0,0);border-radius:2px;box-shadow:0 0 0 1px rgba(147,197,253,0.6)}' +
-    '#hold-notice{display:none;margin:0;padding:12px 18px;background:rgba(59,130,246,0.08);border-bottom:1px solid rgba(59,130,246,0.35)}';
+  css.textContent = 'mark.hold-hit{background:rgba(157,183,245,0.32);color:rgba(0,0,0,0);border-radius:2px;box-shadow:0 0 0 1px rgba(157,183,245,0.6)}' +
+    '#hold-notice{display:none;margin:0;padding:12px 18px;background:rgba(157,183,245,0.08);border-bottom:1px solid rgba(157,183,245,0.35)}';
   document.head.appendChild(css);
 })();
