@@ -3413,7 +3413,7 @@ async function submitBypassOrder() {
       var bpFd = new FormData();
       bpFd.append('orderNumber', orderNum);
       window._iummBypassSourceFiles.forEach(function(f){ bpFd.append('sourceFiles', f); });
-      fetch(API_BASE + '/api/order/attach-source-files', { method: 'POST', body: bpFd })
+      fetch(API_BASE + '/api/order/attach-source-files', { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: bpFd })
         .then(function(r){ return r.json(); })
         .then(function(d){ console.log('[bypass] 원문첨부', d.count + '개 완료'); })
         .catch(function(e){ console.warn('[bypass] 원문첨부 실패:', e.message); });

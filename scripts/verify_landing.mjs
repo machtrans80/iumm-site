@@ -567,7 +567,7 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
   const privAll = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
   const privBody = privAll.slice(privAll.indexOf('</div>', privAll.indexOf('privacy-revision-notice')));
   check(!/공증|아포스티유|등기|영사/.test(privBody), '개인정보처리방침 본문에 공증·아포스티유·등기·영사 없음');
-  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privAll.includes('개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제, 문서 삭제 시점과 외부 처리 내용의 정확한 안내</li>') && !/공증/.test(privAll) && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '더 이상 제공하지 않는 서비스 관련 조항 삭제'(공증 없음) · 번호 ⑤→④");
+  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privAll.includes('개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제, 문서 삭제 시점과 외부 처리 내용의 정확한 안내, 기업 문의 개인정보 처리 안내</li>') && !/공증/.test(privAll) && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '더 이상 제공하지 않는 서비스 관련 조항 삭제'(공증 없음) · 번호 ⑤→④");
   // 2026-10-30 보안 마무리: 삭제 시점 = cron 실제(납품+21일 지난 뒤), '완전' 금지(Airtable 변경 기록 미확인), 수탁사별 학습·보관·가림, 국외 이전 문의처
   check((privBody.match(/납품 후 21일이 지나면 자동으로 삭제/g) || []).length === 3 && !/21일 이내|완전/.test(privBody), "처리방침 제1조 ③·제3조·제6조 = '납품 후 21일이 지나면 자동으로 삭제' · '21일 이내'·'완전' 없음");
   { const ai = (privBody.match(/<li id="privacy-5-ai">[^]*?<\/ul>/) || [''])[0], ocr = (privBody.match(/<li id="privacy-5-ocr">[^]*?<\/ul>/) || [''])[0];
@@ -585,6 +585,29 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
   check(['/notary / 301', '/notary/ / 301', '/notary/index.html / 301'].every(l => rd.split(/\r?\n/).includes(l)) && !/edit/.test(rd.replace(/^#.*$/m, '')), '_redirects — /notary/ → / 301 (edit.html 은 그대로)');
   check(!fs.existsSync(path.resolve(HERE, '../legal/terms-2026-10-22.html')) && !fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-10-22.html')), '2026-10-22 보관본은 공개 사이트에서 내림 (내부 보관)');
   check(!/notary/i.test(fs.readFileSync(path.resolve(HERE, '../sitemap.xml'), 'utf8')), 'sitemap 에 공증 없음');
+}
+
+console.log('\n[보안] 파일 올리기에 로그인 토큰 (2026-10-30, 서버 upload_guard.js)');
+{
+  const calls = [...html.matchAll(/fetch\(([^;]*?(?:\/api\/customer\/ocr|EXTRACT_API|\/api\/order\/attach-source-files|\/api\/upload-reference)[^;]*?)\)/g)].map(m => m[1]);
+  check(calls.length === 7 && calls.every(c => c.includes('uploadAuthHeaders(')), `고객 화면 OCR·원문 추출·원문 첨부·참고자료 호출 ${calls.length}곳 모두 카카오 토큰(uploadAuthHeaders)`);
+  check(/function uploadAuthHeaders\(\)\{\s*var t=\(typeof Kakao!=='undefined'&&Kakao\.Auth&&Kakao\.Auth\.getAccessToken\)\?Kakao\.Auth\.getAccessToken\(\):null;\s*return t\?\{'Authorization':'Bearer '\+t\}:\{\};/.test(html), 'uploadAuthHeaders = 카카오 access token → Authorization: Bearer');
+  const admin = fs.readFileSync(path.resolve(HERE, '../admin/index.html'), 'utf8');
+  const ac = [...admin.matchAll(/fetch\(([^;]*?(?:BP_EXTRACT_API|\/api\/order\/attach-source-files|\/api\/admin\/upload-reference)[^;]*?)\)/g)].map(m => m[1]);
+  check(ac.length === 3 && ac.every(c => c.includes("'Authorization': 'Bearer ' + adminToken(")), `관리자 화면 원문 추출·원문 첨부·참고자료 ${ac.length}곳 관리자 토큰`);
+  check(html.includes('id="upload-relogin-notice"') && html.includes('보안을 위해 다시 로그인해 주세요.') && html.includes('>카카오로 다시 로그인</button>'), '토큰 없음·만료 → 주문 창 안 다시 로그인 안내 (동작은 verify_upload_relogin.mjs)');
+}
+
+console.log('\n[기업 문의] 처리방침·양식 문구 — 접수 후 21일 삭제 (2026-10-30)');
+{
+  const s12 = html.indexOf('id="privacy-1-2"'); const sec = html.slice(s12, html.indexOf('<h2>제2조', s12));
+  check(/수집 항목: \(필수\) 회사명, 담당자명, 이메일 \/ \(선택\) 직책, 전화번호/.test(sec) && sec.includes('번역 언어, 주요 용어·분야, 계약 형태, 매월 예상 분량, 추가 요청사항'), '제1조의2 수집 항목 = 실제 양식 입력란');
+  check(sec.includes('이용 목적: 견적·상담') && sec.includes('접수 후 21일이 지나면 자동으로 삭제'), '목적 견적·상담 · 보유 접수 후 21일');
+  check(html.includes('기업 문의 기록: 접수 후 21일이 지나면 자동으로 삭제'), '제3조 보유 기간');
+  check(html.includes('문의 내용은 견적·상담에만 사용되며, 접수 후 21일이 지나면 자동으로 삭제됩니다.') && !html.includes('영업 목적으로만'), '기업 문의 양식 문구가 처리방침과 같음');
+  const notice = html.slice(html.indexOf('id="privacy-revision-notice"'), html.indexOf('이전 개인정보처리방침 보기'));
+  check(notice.includes('id="privacy-rev-biz"') && notice.includes('시행일: <span class="highlight">2026년 11월 6일</span>'), '개정 안내에 기업 문의 항목 · 시행일 2026-11-06(공고 10-30 + 7일)');
+  check(!/완전 삭제|완전히 삭제/.test(sec), "'완전 삭제' 표현 없음");
 }
 
 // ── 8. FAQ 낡은 문구 ──
