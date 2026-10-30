@@ -14,11 +14,11 @@
   var _terms = [];
   var _sel = {};
   // 색은 파란색 계열로 통일(진한 파랑=사용 중·충돌, 연한 파랑=후보·기업전용, 회색=대체됨·거절·내부전용)
-  var BLUE = '#3b82f6', BLUE_DEEP = '#1d4ed8', BLUE_LIGHT = '#93c5fd', GRAY = '#9ca3af';
+  var BLUE = '#1F4FD1', BLUE_DEEP = '#1F4FD1', BLUE_LIGHT = '#9DB7F5', GRAY = '#9ca3af';
   var STATUS_COLOR = { '후보': BLUE_LIGHT, '승인': BLUE, '거절': 'rgba(255,255,255,0.35)', '충돌': BLUE, '대체됨': GRAY };
   var SCOPE_COLOR = { '공용': 'rgba(255,255,255,0.6)', '기업전용': BLUE_LIGHT, '내부전용': GRAY };
-  var inp = 'padding:7px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:12.5px;outline:none';
-  var btn = 'padding:4px 10px;border-radius:4px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#fafaf8;font-size:12px;cursor:pointer;margin:1px';
+  var inp = 'padding:7px 10px;background:#132E52;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#FAFAF7;font-size:12.5px;outline:none';
+  var btn = 'padding:4px 10px;border-radius:4px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#FAFAF7;font-size:12px;cursor:pointer;margin:1px';
   var esc = function (s) { return window._ne ? window._ne(s) : String(s == null ? '' : s); };
   var day = function (iso) { if (!iso) return '—'; var d = new Date(iso); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
   var won = function (n) { return '₩' + Number(n || 0).toLocaleString('ko-KR'); };
@@ -48,7 +48,7 @@
     wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">로딩 중…</p>';
     // 묶음이 잘리지 않게 전체를 받는다(서버 기본 500건)
     var r = await adminFetch('/api/admin/terms?' + qs(Object.assign({ limit: 10000 }, TF)));
-    if (!r.ok) { wrap.innerHTML = '<p style="color:#f87171">로드 실패: ' + esc(r.error) + '</p>'; return; }
+    if (!r.ok) { wrap.innerHTML = '<p style="color:#D9BC8C">로드 실패: ' + esc(r.error) + '</p>'; return; }
     _terms = r.terms || []; _sel = {};
     await checkServer();
     _facets = r.facets || {};
@@ -113,7 +113,7 @@
     '.tr .t b{font-size:13.5px}' +
     '.tr .s{font-size:11.5px;color:rgba(255,255,255,0.5);margin-top:2px}' +
     '.tr .a{flex:0 1 auto;display:flex;flex-wrap:wrap;gap:2px;align-items:center}' +
-    '.tr.used{background:rgba(59,130,246,0.09)}' +
+    '.tr.used{background:rgba(157,183,245,0.09)}' +
     '.tr.past{opacity:0.75}' +
     '.tbadge{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:9px;border:1px solid currentColor;margin-left:4px;vertical-align:1px;white-space:nowrap}' +
     '.tg-more{display:block;width:100%;text-align:left;padding:7px 12px;background:transparent;border:0;border-top:1px dashed rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);font-size:12px;cursor:pointer}' +
@@ -121,15 +121,15 @@
     '.tg-cmp>div{flex:1 1 200px;padding:6px 8px;border:1px solid rgba(255,255,255,0.12);border-radius:4px}' +
     '.tbtn[disabled]{opacity:0.35;cursor:not-allowed}' +
     '.tmodal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}' +
-    '.tmodal>div{background:#1a1a1a;border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:18px;max-width:420px;width:100%;font-size:14px;line-height:1.6;color:#fafaf8}' +
+    '.tmodal>div{background:#132E52;border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:18px;max-width:420px;width:100%;font-size:14px;line-height:1.6;color:#FAFAF7}' +
     '.tmodal .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}' +
     '.ttabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.1)}' +
     '.ttab{padding:7px 12px;background:transparent;border:0;border-bottom:2px solid transparent;color:rgba(255,255,255,0.6);font-size:13px;cursor:pointer}' +
-    '.ttab.on{color:#fafaf8;border-bottom-color:' + BLUE + ';font-weight:600}' +
+    '.ttab.on{color:#FAFAF7;border-bottom-color:' + BLUE + ';font-weight:600}' +
     '.ttab .n{font-size:11px;color:' + BLUE_LIGHT + ';margin-left:4px}' +
     '.ttab-sel{display:none;width:100%;margin-bottom:10px}' +
     '.tpager{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;margin:14px 0 4px}' +
-    '.tpager button{min-width:34px;padding:6px 9px;border-radius:4px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#fafaf8;font-size:12.5px;cursor:pointer}' +
+    '.tpager button{min-width:34px;padding:6px 9px;border-radius:4px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#FAFAF7;font-size:12.5px;cursor:pointer}' +
     '.tpager button.on{background:' + BLUE_DEEP + ';border-color:' + BLUE + '}' +
     '.tpager button[disabled]{opacity:0.3;cursor:default}' +
     '@media (max-width:640px){.tr .a{width:100%}.tr .a button{flex:1 1 auto;padding:8px 10px}.ttabs{display:none}.ttab-sel{display:block}}';
@@ -371,7 +371,7 @@
     document.getElementById('corp-detail').style.display = 'none';
     wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">로딩 중…</p>';
     var r = await adminFetch('/api/admin/corp-customers?' + qs(CF));
-    if (!r.ok) { wrap.innerHTML = '<p style="color:#f87171">로드 실패: ' + esc(r.error) + '</p>'; return; }
+    if (!r.ok) { wrap.innerHTML = '<p style="color:#D9BC8C">로드 실패: ' + esc(r.error) + '</p>'; return; }
     var list = r.corps || [];
     if (!list.length) { wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">기업 고객이 없습니다. 주문 화면에서 \'기업 고객\'을 체크한 주문이 들어오면 자동으로 등록됩니다.</p>'; return; }
     wrap.innerHTML = '<table class="orders-table" style="font-size:13px"><thead><tr><th>회사명</th><th>사업자등록번호</th><th>최초 주문일</th><th>최근 주문일</th><th style="text-align:right">주문 건수</th><th style="text-align:right">누적 결제액</th><th>전용 용어 (승인/후보)</th><th>동의 일시</th></tr></thead><tbody>' +
@@ -381,7 +381,7 @@
           '<td>' + c.bizNo.replace(/^(\d{3})(\d{2})(\d{5})$/, '$1-$2-$3') + '</td>' +
           '<td>' + day(c.firstOrderAt) + '</td><td>' + day(c.lastOrderAt) + '</td>' +
           '<td style="text-align:right">' + c.orderCount + '</td><td style="text-align:right">' + won(c.totalPaid) + '</td>' +
-          '<td><span style="color:#16B894">' + c.terms['승인'] + '</span> / <span style="color:#facc15">' + c.terms['후보'] + '</span>' + (c.terms['충돌'] ? ' <span style="color:#f87171">충돌 ' + c.terms['충돌'] + '</span>' : '') + '</td>' +
+          '<td><span style="color:#9DB7F5">' + c.terms['승인'] + '</span> / <span style="color:#D9BC8C">' + c.terms['후보'] + '</span>' + (c.terms['충돌'] ? ' <span style="color:#D9BC8C">충돌 ' + c.terms['충돌'] + '</span>' : '') + '</td>' +
           '<td style="font-size:12px">' + day(c.consentAt) + '</td></tr>';
       }).join('') + '</tbody></table>';
   };
@@ -391,13 +391,13 @@
     var el = document.getElementById('corp-detail');
     el.style.display = 'block'; el.innerHTML = '<p style="color:rgba(255,255,255,0.4)">로딩 중…</p>';
     var r = await adminFetch('/api/admin/corp-customers/' + bizNo);
-    if (!r.ok) { el.innerHTML = '<p style="color:#f87171">' + esc(r.error) + '</p>'; return; }
+    if (!r.ok) { el.innerHTML = '<p style="color:#D9BC8C">' + esc(r.error) + '</p>'; return; }
     var c = r.corp || { company: '', bizNo: bizNo };
     var fmt = bizNo.replace(/^(\d{3})(\d{2})(\d{5})$/, '$1-$2-$3');
     el.innerHTML =
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><h3 style="margin:0;font-size:16px">' + esc(c.company || '—') + ' <span style="font-size:12px;color:rgba(255,255,255,0.5)">' + fmt + '</span></h3>' +
       '<button style="' + btn + '" onclick="termsShowCorp(\'' + bizNo + '\')">용어 관리에서 보기</button>' +
-      '<button style="' + btn + ';margin-left:auto;border-color:#f87171;color:#f87171" onclick="corpDeleteTerms(\'' + bizNo + '\',' + r.terms.length + ')">전용 용어 전체 삭제</button></div>' +
+      '<button style="' + btn + ';margin-left:auto;border-color:#D9BC8C;color:#D9BC8C" onclick="corpDeleteTerms(\'' + bizNo + '\',' + r.terms.length + ')">전용 용어 전체 삭제</button></div>' +
       '<h4 style="font-size:13px;margin:10px 0 6px;color:rgba(255,255,255,0.7)">주문 ' + r.orders.length + '건</h4>' +
       '<table class="orders-table" style="font-size:12.5px"><thead><tr><th>주문번호</th><th>접수일</th><th>번역방향</th><th>문서유형</th><th>상태</th><th style="text-align:right">금액</th></tr></thead><tbody>' +
       (r.orders.map(function (o) { return '<tr><td>' + esc(o.orderNumber) + '</td><td>' + day(o.receivedAt) + '</td><td>' + esc(o.direction) + '</td><td>' + esc(o.docType) + '</td><td>' + esc(o.status) + '</td><td style="text-align:right">' + won(o.amount) + '</td></tr>'; }).join('') || '<tr><td colspan="6" style="color:rgba(255,255,255,0.4)">주문 없음</td></tr>') +
