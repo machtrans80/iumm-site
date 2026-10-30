@@ -1764,6 +1764,7 @@ async function loadFailedOrders() {
                   '<button onclick="downloadHeldTranslation(' + idx + ')" style="padding:6px 14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">번역본 받기</button>' +
                   '<button onclick="releaseHeldOrder(' + idx + ')" style="padding:6px 14px;background:rgba(157,183,245,0.12);color:#9DB7F5;border:1px solid rgba(157,183,245,0.4);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">확인 완료 → 납품대기</button>'
                 : '') +
+              '<button onclick="hideFailedOrder(' + idx + ')" title="화면에서만 숨깁니다 — Airtable 데이터는 그대로" style="padding:6px 14px;background:rgba(31,79,209,0.18);color:#9DB7F5;border:1px solid #1F4FD1;border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap"><i class="ti ti-eye-off" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>숨기기</button>' +
             '</div>' +
             '<div style="font-size:10px;color:rgba(255,255,255,0.35);white-space:nowrap">폼에서 확인 후 재실행</div>' +
           '</div>' +
@@ -1798,6 +1799,18 @@ async function releaseHeldOrder(idx) {
     showToast('✅ ' + o.orderNumber + ' 납품대기로 이동');
     loadFailedOrders();
   } catch (e) { showToast('⚠️ 해제 실패: ' + e.message, 'error'); }
+}
+
+// ── 확인필요·번역실패 → 숨기기 — 납품 탭의 '선택 항목 숨기기'와 같은 API(admin_hidden 체크). 삭제 아님 ──
+async function hideFailedOrder(idx) {
+  var o = (window._failedOrders || [])[idx];
+  if (!o) return;
+  if (!confirm((o.orderNumber || o.orderId) + '\n\n이 주문을 화면에서 숨기시겠습니까?\n\n※ Airtable 데이터는 그대로 보존됩니다.\n※ Airtable에서 admin_hidden 해제로 복구 가능합니다.')) return;
+  try {
+    var res = await adminFetch('/api/admin/orders/hide', { method: 'POST', body: JSON.stringify({ recordIds: [o.orderId] }) });
+    if (res.ok) { showToast('✅ ' + (o.orderNumber || '') + ' 숨김 처리 완료', 'success'); loadFailedOrders(); }
+    else showToast('숨김 실패: ' + (res.error||'오류'), 'error');
+  } catch(e) { showToast('네트워크 오류: ' + e.message, 'error'); }
 }
 
 // ── API 잔액 부족으로 멈춘 주문 → 충전 후 멈춘 단계부터 이어서 처리 ──
