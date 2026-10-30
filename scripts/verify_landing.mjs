@@ -542,7 +542,7 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
   check(!/loadMyNotaryOrders|my-notary|_ntr|openNotaryOrder|\/api\/notary/.test(html), '마이페이지 공증 주문 목록·스크립트 없음');
   check(!fs.existsSync(path.resolve(HERE, '../notary/index.html')) && fs.existsSync(path.resolve(HERE, '../notary/edit.html')), '고객 공증 입구(notary/index.html) 삭제 · 관리자 공증 도구가 여는 edit.html 유지');
   const rd = fs.readFileSync(path.resolve(HERE, '../_redirects'), 'utf8');
-  check(['/notary / 301', '/notary/ / 301', '/notary/index.html / 301'].every(l => rd.split('\n').includes(l)) && !/edit/.test(rd.replace(/^#.*$/m, '')), '_redirects — /notary/ → / 301 (edit.html 은 그대로)');
+  check(['/notary / 301', '/notary/ / 301', '/notary/index.html / 301'].every(l => rd.split(/\r?\n/).includes(l)) && !/edit/.test(rd.replace(/^#.*$/m, '')), '_redirects — /notary/ → / 301 (edit.html 은 그대로)');
   check(!fs.existsSync(path.resolve(HERE, '../legal/terms-2026-10-22.html')) && !fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-10-22.html')), '2026-10-22 보관본은 공개 사이트에서 내림 (내부 보관)');
   check(!/notary/i.test(fs.readFileSync(path.resolve(HERE, '../sitemap.xml'), 'utf8')), 'sitemap 에 공증 없음');
 }
