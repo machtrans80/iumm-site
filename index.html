@@ -29,7 +29,7 @@
 <meta name="twitter:description" content="아이움 AI는 정확하게 기억하고, 전문 번역가는 깊이 이해합니다. 게임 · 법률 · 의료 · 매뉴얼 분야 전문번역 — 파일을 올리면 견적이 바로 나옵니다.">
 <meta name="twitter:image" content="https://iumm.kr/assets/og-image.png?v=4">
 
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://hangeul.pstatic.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
@@ -47,9 +47,9 @@
   --mint-light:#9DB7F5;
 }
 html{scroll-behavior:smooth;scroll-padding-top:64px}
-body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;background:#0F2540;color:#C9D2DC;overflow-x:hidden;line-height:1.7}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#0F2540;color:#C9D2DC;overflow-x:hidden;line-height:1.7}
 /* ── 폰트 전체 통일 (Pretendard) ── */
-*{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
+*{font-family:'Pretendard Variable',Pretendard,sans-serif !important}
 h1,h2,h3,h4,h5,h6{color:#ffffff;font-weight:500;letter-spacing:-0.02em}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:15px 44px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,37,64,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.08)}
 .nav-logo{font-size:23px;font-weight:700;color:#9DB7F5;letter-spacing:0.5px;text-decoration:none;flex-shrink:0;white-space:nowrap}
@@ -291,7 +291,7 @@ select.inp option,select option{background:#0F2540;color:var(--white)}
 #ocr-result-text{user-select:none;-webkit-user-select:none;-moz-user-select:none;cursor:default}
 #pasteText[data-source="auto"],#pasteText[data-source="ocr"]{user-select:none;-webkit-user-select:none;-moz-user-select:none}
 /* [J-1] 정보입력 페이지 섹션 헤더 */
-#page-userinfo h2,#page-login h2{font-family:'Nanum Myeongjo',serif}
+#page-userinfo h2,#page-login h2{font-family:'MaruBuri',serif}
 #page-userinfo .lbl:has(+ .inp:focus),#page-mypage .lbl:has(+ .inp:focus){color:rgba(157,183,245,0.8)}
 /* [J-2] SPA 페이지 폼 섹션 카드 통일 (메인 카드 스타일 차용) */
 #page-userinfo > div > div:nth-child(2){background:rgba(31,79,209,0.025);border:1px solid rgba(31,79,209,0.12);border-radius:12px;padding:28px}
@@ -864,11 +864,11 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
   <div style="max-width:860px;margin:0 auto;padding:60px 32px 80px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
       <div>
-        <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:26px;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:8px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
-        <h2 style="font-family:'Nanum Myeongjo',serif;font-size:28px;font-weight:400;letter-spacing:-0.5px">전문 번역사 소개</h2>
+        <a href="#" onclick="showPage('main');return false" style="font-family:'MaruBuri',serif;font-size:26px;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:8px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
+        <h2 style="font-family:'MaruBuri',serif;font-size:28px;font-weight:400;letter-spacing:-0.5px">전문 번역사 소개</h2>
         <p id="experts-subtitle" style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;margin-top:6px">최종 휴먼터치로 번역의 완성도를 높이는 IUMM 전문 번역사입니다</p>
       </div>
-      <button onclick="showPage('main')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">← 홈으로</button>
+      <button onclick="showPage('main')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:inherit">← 홈으로</button>
     </div>
 
     <!-- ── 준비중 배너 (EXPERTS_COMING_SOON 플래그로 제어) ──────────────
@@ -876,7 +876,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
          이 배너가 숨겨지고 아래 #experts-content 가 그대로 노출된다.
          프로필 데이터·필터·렌더 로직은 손대지 않았으므로 즉시 복구된다. -->
     <div id="experts-coming-soon" style="display:none;text-align:center;padding:72px 32px;border:1px solid rgba(176,141,87,0.28);background:linear-gradient(180deg,rgba(176,141,87,0.06) 0%,rgba(10,22,40,0.4) 100%);border-radius:4px">
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;color:#9DB7F5;margin-bottom:20px;letter-spacing:-0.3px">전문 검수자를 모시고 있습니다</h3>
+      <h3 style="font-family:'MaruBuri',serif;font-size:24px;font-weight:700;color:#9DB7F5;margin-bottom:20px;letter-spacing:-0.3px">전문 검수자를 모시고 있습니다</h3>
       <p style="font-size:14px;color:rgba(255,255,255,0.62);font-weight:300;line-height:2;max-width:520px;margin:0 auto">
         변호사 · 의사 · 변리사 · 회계사 등 분야별 전문 자격사와<br>
         언어별 번역 검수 전문가를 현재 모집하고 있습니다.<br>
@@ -889,22 +889,22 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <div id="experts-content">
     <!-- 언어 필터 -->
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px">
-      <button onclick="filterExperts('전체')" class="lang-filter-btn active" data-lang="전체" style="padding:7px 16px;background:var(--gold);color:var(--black);border:1px solid var(--gold);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">전체</button>
-      <button onclick="filterExperts('영어')" class="lang-filter-btn" data-lang="영어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">영어</button>
-      <button onclick="filterExperts('일본어')" class="lang-filter-btn" data-lang="일본어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">일본어</button>
-      <button onclick="filterExperts('중국어')" class="lang-filter-btn" data-lang="중국어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">중국어</button>
-      <button onclick="filterExperts('프랑스어')" class="lang-filter-btn" data-lang="프랑스어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">프랑스어</button>
-      <button onclick="filterExperts('스페인어')" class="lang-filter-btn" data-lang="스페인어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">스페인어</button>
-      <button onclick="filterExperts('러시아어')" class="lang-filter-btn" data-lang="러시아어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">러시아어</button>
-      <button onclick="filterExperts('포르투갈어')" class="lang-filter-btn" data-lang="포르투갈어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">포르투갈어</button>
-      <button onclick="filterExperts('아랍어')" class="lang-filter-btn" data-lang="아랍어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">아랍어</button>
-      <button onclick="filterExperts('태국어')" class="lang-filter-btn" data-lang="태국어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s">태국어</button>
+      <button onclick="filterExperts('전체')" class="lang-filter-btn active" data-lang="전체" style="padding:7px 16px;background:var(--gold);color:var(--black);border:1px solid var(--gold);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s">전체</button>
+      <button onclick="filterExperts('영어')" class="lang-filter-btn" data-lang="영어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">영어</button>
+      <button onclick="filterExperts('일본어')" class="lang-filter-btn" data-lang="일본어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">일본어</button>
+      <button onclick="filterExperts('중국어')" class="lang-filter-btn" data-lang="중국어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">중국어</button>
+      <button onclick="filterExperts('프랑스어')" class="lang-filter-btn" data-lang="프랑스어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">프랑스어</button>
+      <button onclick="filterExperts('스페인어')" class="lang-filter-btn" data-lang="스페인어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">스페인어</button>
+      <button onclick="filterExperts('러시아어')" class="lang-filter-btn" data-lang="러시아어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">러시아어</button>
+      <button onclick="filterExperts('포르투갈어')" class="lang-filter-btn" data-lang="포르투갈어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">포르투갈어</button>
+      <button onclick="filterExperts('아랍어')" class="lang-filter-btn" data-lang="아랍어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">아랍어</button>
+      <button onclick="filterExperts('태국어')" class="lang-filter-btn" data-lang="태국어" style="padding:7px 16px;background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;font-weight:300;cursor:pointer;font-family:inherit;transition:all 0.2s">태국어</button>
     </div>
 
     <!-- 전문가 목록 -->
     <div id="expert-list" style="display:flex;flex-direction:column;gap:16px"></div>
     <div id="expert-more-btn" style="text-align:center;margin-top:24px;display:none">
-      <button onclick="showMoreExperts()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:10px 32px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">더 보기</button>
+      <button onclick="showMoreExperts()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:10px 32px;border-radius:2px;cursor:pointer;font-size:13px;font-family:inherit">더 보기</button>
     </div>
     </div><!-- /#experts-content -->
   </div>
@@ -913,14 +913,14 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 
 <style>
 .legal-page{max-width:760px;margin:0 auto;padding:70px 32px 80px}
-.legal-page h1{font-family:'Nanum Myeongjo',serif;font-size:28px;font-weight:700;color:#9DB7F5;margin-bottom:8px}
+.legal-page h1{font-family:'MaruBuri',serif;font-size:28px;font-weight:700;color:#9DB7F5;margin-bottom:8px}
 .legal-page .legal-date{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:40px}
 .legal-page h2{font-size:16px;font-weight:700;color:rgba(255,255,255,0.9);margin:32px 0 10px;letter-spacing:0.3px}
 .legal-page p,.legal-page li{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.9;font-weight:300}
 .legal-page ul{padding-left:18px;margin-bottom:8px}
 .legal-page li{margin-bottom:4px}
 .legal-page .highlight{color:rgba(255,180,80,0.9);font-weight:600}
-.legal-back-btn{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;margin-bottom:32px}
+.legal-back-btn{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:inherit;margin-bottom:32px}
 </style>
 <!-- 이용약관 페이지 -->
 <div id="page-terms" style="display:none;position:fixed;inset:0;background:var(--black);z-index:200;overflow-y:auto">
@@ -1268,7 +1268,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <button onclick="closePage('faq')" style="position:fixed;top:24px;right:24px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;z-index:201">✕</button>
     
     <p style="font-size:11px;letter-spacing:3px;color:var(--gold-light);text-transform:uppercase;margin-bottom:16px">FAQ</p>
-    <h1 style="font-family:'Nanum Myeongjo',serif;font-size:clamp(32px,5vw,48px);font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:-1px">자주 묻는 질문</h1>
+    <h1 style="font-family:'MaruBuri',serif;font-size:clamp(32px,5vw,48px);font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:-1px">자주 묻는 질문</h1>
     <p style="font-size:15px;color:rgba(255,255,255,0.55);font-weight:300;margin-bottom:48px;line-height:1.8">아이움 전문 번역 이용에 자주 묻는 질문들을 정리했습니다.<br>찾으시는 답변이 없으면 <a href="mailto:iumm.master@gmail.com" style="color:var(--gold-light);text-decoration:underline">iumm.master@gmail.com</a>으로 문의해주세요.</p>
 
     <!-- 카테고리 탭 (2026-10-29 v2 — 전문 번역 중심) -->
@@ -1347,7 +1347,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <ul style="margin:0">
         <li>제1조 ①: 회원가입 시 입력하는 이름·전화번호·회사명 명시 (회사명 필수 입력으로 변경)</li>
         <li>제2조: 무료 체험 1회 제한 관리 → 무료 테스트 번역 회사당·회원당 1회 제한 관리</li>
-        <li>개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하)</li>
+        <li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 공증 서비스 종료에 따른 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>
+        <li>개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 공증 서비스 종료</li>
         <li>공지일: 2026년 10월 31일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 7일</span></li>
       </ul>
       <p style="margin:6px 0 0"><a href="/legal/privacy-2026-10-26" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:underline">이전 개인정보처리방침 보기</a></p>
@@ -1376,14 +1377,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li>용어집 정보 (번역 품질 향상 목적)</li>
       <li>기업 고객 선택 시: 회사명, 사업자등록번호 (전용 용어집 구분 식별용)</li>
     </ul>
-    <p><strong style="color:rgba(255,255,255,0.8)">④ 공증서류 번역 서비스 이용 시 수집 항목 (민감정보 포함)</strong></p>
-    <ul>
-      <li><span class="highlight">증명서에 기재된 정보 — 성명(한글·한자), 생년월일, 주민등록번호, 등록기준지(본적), 본관, 가족관계, 혼인관계, 국적 등</span></li>
-      <li>수집 근거 및 목적: 가족관계증명서·기본증명서·혼인관계증명서 등 공문서를 <strong>원본과 동일한 내용으로</strong> 번역·공증하기 위함. 해당 서류는 주민등록번호가 전부 공개된 발급본이어야 공증이 가능하므로, 기재 사항을 가리거나 생략할 수 없습니다.</li>
-      <li>아포스티유·등기 발송 진행 시: 수령인 성명·연락처·배송주소, 동의서 및 신분증 사본</li>
-      <li>이용자는 위 민감정보 수집·이용에 동의하지 않을 수 있으나, 동의하지 않는 경우 공증서류 번역 서비스 이용이 제한됩니다.</li>
-    </ul>
-    <p><strong style="color:rgba(255,255,255,0.8)">⑤ 수집 방법</strong>: 서비스 가입·이용 과정에서 이용자 직접 입력, 파일 업로드, 소셜 로그인 연동, 서비스 이용 자동 수집</p>
+    <p><strong style="color:rgba(255,255,255,0.8)">④ 수집 방법</strong>: 서비스 가입·이용 과정에서 이용자 직접 입력, 파일 업로드, 소셜 로그인 연동, 서비스 이용 자동 수집</p>
 
     <h2>제2조 (개인정보 수집·이용 목적)</h2>
     <ul>
@@ -1405,8 +1399,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li>회원 정보: 회원 탈퇴 시까지 (탈퇴 후 즉시 파기)</li>
       <li><span class="highlight">번역 의뢰 문서·텍스트: 납품 완료 후 21일 이내 완전 삭제</span></li>
-      <li><span class="highlight">공증 관련 문서 및 OCR 원문(주민등록번호 등 기재 정보 포함): 발행 완료 후 30일 이내 삭제</span></li>
-      <li>위 두 항목 모두, <strong>납품·발행까지 이르지 못하고 중단된 건도</strong> 접수일로부터 일정 기간이 지나면 문서·OCR 원문·첨부파일이 자동으로 삭제됩니다. 즉 어떤 상태로 종료되든 해당 자료는 서버에 무기한 보관되지 않습니다.</li>
+      <li><strong>납품까지 이르지 못하고 중단된 건도</strong> 접수일로부터 일정 기간이 지나면 문서·OCR 원문·첨부파일이 자동으로 삭제됩니다. 즉 어떤 상태로 종료되든 해당 자료는 서버에 무기한 보관되지 않습니다.</li>
       <li>결제 정보: 「전자상거래 등에서의 소비자보호에 관한 법률」에 따라 5년 보관</li>
       <li>서비스 이용 기록: 「통신비밀보호법」에 따라 3개월 보관</li>
       <li>분쟁·민원 기록: 처리 완료 후 3년 보관</li>
@@ -1425,12 +1418,11 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
       <li><strong>결제 처리</strong>: 주식회사 코리아포트원(PortOne), 토스페이먼츠(주) — 결제 연동 및 승인·취소 처리</li>
       <li><strong>데이터 보관</strong>: Airtable, Inc. — 회원·주문 정보 및 번역 의뢰 문서 보관</li>
       <li><strong>AI 번역·검수 처리</strong>: OpenAI, L.L.C., Anthropic PBC — 번역 및 품질 검증 자동 처리</li>
-      <li><strong>문서 OCR(문자인식)</strong>: Google LLC (Google Cloud Vision), 네이버클라우드 주식회사 (CLOVA OCR) — 이미지·스캔본·PDF에서 텍스트 자동 추출. <span class="highlight">공증서류의 경우 주민등록번호 등 증명서 기재 정보가 포함된 이미지가 전송됩니다.</span></li>
+      <li><strong>문서 OCR(문자인식)</strong>: Google LLC (Google Cloud Vision), 네이버클라우드 주식회사 (CLOVA OCR) — 이미지·스캔본·PDF에서 텍스트 자동 추출</li>
       <li><strong>메시지 발송</strong>: (주)솔라피 — 카카오 알림톡·SMS 발송</li>
       <li><strong>서버 운영</strong>: Railway Corp — 서비스 인프라 운영</li>
       <li><strong>소셜 로그인</strong>: 카카오(주) — 소셜 로그인 인증</li>
       <li><strong>문의·증빙 접수</strong>: Google LLC (Gmail) — 고객 문의 및 세금계산서·현금영수증 발급 요청 접수</li>
-      <li><strong>번역공증 대행</strong>: 번역 및 공증·아포스티유 신청 업무를 자격을 갖춘 번역사·담당자에게 위탁하며, 담당자가 공증인(변호사) 및 아포스티유 발급 기관에 직접 신청합니다.</li>
     </ul>
     <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px">※ 위탁 업체는 서비스 운영 목적 이외에 개인정보를 이용할 수 없으며, 회사는 위탁 업체의 개인정보 보호 실태를 주기적으로 감독합니다.</p>
 
@@ -1439,10 +1431,10 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li>이전 국가: 미국</li>
       <li>이전 받는 자: Airtable, Inc. / OpenAI, L.L.C. / Anthropic PBC / Railway Corp / Google LLC</li>
-      <li>이전 항목: 이메일 주소, 연락처, 주문 정보, <span class="highlight">번역 의뢰 문서·텍스트, 이미지·스캔본·PDF 등 문서 파일 및 OCR 문자인식 결과</span>, 서비스 이용 기록<br><span style="color:rgba(255,255,255,0.55)">— 공증서류 번역의 경우 위 문서 파일에 성명·생년월일·주민등록번호·등록기준지 등 증명서 기재 정보가 포함됩니다.</span></li>
+      <li>이전 항목: 이메일 주소, 연락처, 주문 정보, <span class="highlight">번역 의뢰 문서·텍스트, 이미지·스캔본·PDF 등 문서 파일 및 OCR 문자인식 결과</span>, 서비스 이용 기록</li>
       <li>이전 목적: 번역·검수 자동 처리, <span class="highlight">문서 OCR 문자인식</span>, 데이터 보관, 서비스 인프라 운영, 문의 접수</li>
       <li>이전 시기: 서비스 이용 시 실시간 (네트워크를 통한 전송)</li>
-      <li>보유·이용 기간: 제3조에 따르며, <span class="highlight">번역 의뢰 문서·텍스트는 납품 완료 후 21일 이내, 공증 관련 문서·OCR 원문은 발행 완료 후 30일 이내 삭제</span>됩니다.</li>
+      <li>보유·이용 기간: 제3조에 따르며, <span class="highlight">번역 의뢰 문서·텍스트는 납품 완료 후 21일 이내 삭제</span>됩니다.</li>
     </ul>
     <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px">※ 네이버클라우드 주식회사(CLOVA OCR)는 국내 사업자로 국외 이전 대상이 아니며, 제5조의 처리 위탁에 해당합니다.</p>
     <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px">※ 이용자는 개인정보의 국외 이전을 거부할 수 있으나, 번역 서비스 제공에 필수적인 처리이므로 거부 시 서비스 이용이 제한될 수 있습니다.</p>
@@ -1461,7 +1453,6 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
     <ul>
       <li>모든 데이터 전송 HTTPS(TLS) 암호화</li>
       <li>업로드된 파일은 서버 디스크에 저장하지 않고 메모리에서만 처리하며, 처리 종료와 함께 소멸합니다.</li>
-      <li>공증서류 처리 로그에는 주민등록번호를 마스킹하여 기록하며, OCR로 추출한 문서 본문은 로그에 남기지 않습니다.</li>
       <li>개인정보 접근 권한 최소화 및 접근 기록 보관</li>
       <li>정기적 보안 점검 실시</li>
     </ul>
@@ -1634,8 +1625,8 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <div id="page-userinfo" style="display:none;position:fixed;inset:0;background:var(--black);z-index:200;overflow-y:auto">
   <div style="max-width:520px;margin:0 auto;padding:60px 32px 80px">
     <div style="text-align:center;margin-bottom:36px">
-      <a href="#" style="font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:400;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
-      <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:6px">정보 입력</h2>
+      <a href="#" style="font-family:'MaruBuri',serif;font-size:36px;font-weight:400;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
+      <h2 style="font-family:'MaruBuri',serif;font-size:24px;font-weight:700;margin-bottom:6px">정보 입력</h2>
       <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;line-height:1.8">번역 서비스 이용을 위한 추가 정보가 필요합니다.<br>1회만 입력하시면 다음부터는 자동으로 적용됩니다.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
@@ -1765,7 +1756,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
         <p style="font-size:11px;color:rgba(157,183,245,0.6);margin:0">무료 테스트 번역: 회사당 1회, 1,000자 이하 · 결제 없음</p>
       </div>
       <button class="btn-primary" style="width:100%;margin-top:8px;padding:16px" onclick="completeUserInfo()">입력 완료 → IUMM 시작하기</button>
-      <button onclick="kakaoLogout()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;text-decoration:underline;cursor:pointer;margin-top:8px;font-family:'Noto Sans KR',sans-serif">취소하고 로그아웃</button>
+      <button onclick="kakaoLogout()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;text-decoration:underline;cursor:pointer;margin-top:8px;font-family:inherit">취소하고 로그아웃</button>
     </div>
   </div>
 </div>
@@ -1775,13 +1766,13 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 <div id="page-login" style="display:none;position:fixed;inset:0;background:var(--black);z-index:200;overflow-y:auto">
   <div style="max-width:480px;margin:0 auto;padding:80px 32px">
     <div style="text-align:center;margin-bottom:48px">
-      <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:36px;font-weight:400;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
-      <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;margin-bottom:10px">시작하기</h2>
+      <a href="#" onclick="showPage('main');return false" style="font-family:'MaruBuri',serif;font-size:36px;font-weight:400;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:16px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
+      <h2 style="font-family:'MaruBuri',serif;font-size:24px;font-weight:700;margin-bottom:10px">시작하기</h2>
       <p style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.9">카카오 계정으로 1초 만에 시작하세요<br><span style="color:var(--gold-light);font-size:13px">무료 테스트 번역 — 회사당 1회, 1,000자 이하</span></p>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <p id="login-notice" role="alert" style="display:none;margin:0 0 14px;padding:12px 14px;border-radius:6px;background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.35);color:#ffb4b4;font-size:13px;line-height:1.6;text-align:center"></p>
-      <button onclick="kakaoLogin()" style="width:100%;padding:18px;background:#FEE500;color:#191919;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(254,229,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <button onclick="kakaoLogin()" style="width:100%;padding:18px;background:#FEE500;color:#191919;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(254,229,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 3C6.48 3 2 6.58 2 11c0 2.85 1.84 5.36 4.62 6.81L5.5 21.5l4.46-2.93C10.62 18.85 11.3 19 12 19c5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191919"/>
         </svg>
@@ -1816,150 +1807,175 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
      ★전문 번역 단가는 PLAN_PRICE 한 곳에서만 읽는다(data-plan). 하드코딩 금지.
      ════════════════════════════════════════════════════════════════ -->
 <style>
+/* 글꼴 — 제목·대조 패널·핵심 숫자 = 마루 부리(네이버, SIL OFL 1.1, 공식 배포처 hangeul.pstatic.net), 본문·버튼·메뉴 = Pretendard.
+   필요한 굵기(400·700) woff2 만, font-display:swap (글꼴이 늦어도 글자는 바로 보인다) */
+@font-face{font-family:'MaruBuri';font-style:normal;font-weight:400;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2) format('woff2')}
+@font-face{font-family:'MaruBuri';font-style:normal;font-weight:700;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Bold.woff2) format('woff2')}
+/* ★전역 *{font-family:Pretendard !important} 가 자식마다 다시 걸리므로 자식(*)까지 함께 지정한다 */
+.mb,.mb *,.lp-hero h1.serif{font-family:'MaruBuri',serif !important}
+
 :root{--v-navy:#0F2540;--v-ink:#1F4FD1;--v-ink-hover:#1A43B3;--v-ink-soft:#E6ECFB;--v-bg:#FAFAF7;--v-pale:#EEF3FB;
-  --v-text:#1B2433;--v-sub:#4A5568;--v-gold:#B08D57;--v-line:rgba(15,37,64,0.12)}
-.lp{max-width:1080px;margin:0 auto;padding:0 20px}
-.lp-sec{position:relative;z-index:1;padding:80px 0;background:var(--v-bg);color:var(--v-text)}
+  --v-text:#1B2433;--v-sub:#4A5568;--v-gold:#B08D57;--v-line:rgba(15,37,64,0.14)}
+.lp{max-width:1080px;margin:0 auto;padding:0 24px}
+/* 구역 배경 순서 — 첫 화면(남색) → 번역팀·왜 아이움(오프화이트) → 번역 과정(남색 띠) → 여덟 분야(오프화이트)
+   → 맡겨야 하는 이유(페일 블루) → 요금·FAQ(오프화이트) → 마지막(남색). 그라데이션·장식 그림자 없음 */
+.lp-sec{position:relative;z-index:1;padding:104px 0;background:var(--v-bg);color:var(--v-text)}
 .lp-sec.pale{background:var(--v-pale)}
-.lp-label{margin:0 0 12px;font-size:14px;font-weight:700;letter-spacing:1px;color:var(--v-ink)}
-.lp-h2{margin:0 0 18px;font-size:clamp(26px,3.6vw,36px);font-weight:800;line-height:1.35;letter-spacing:-0.8px;color:var(--v-navy);word-break:keep-all}
-.lp-sub{margin:0 0 36px;font-size:18px;font-weight:500;line-height:1.75;color:var(--v-sub);word-break:keep-all}
-/* 버튼 — 잉크 블루 + 흰 굵은 글씨, 올리면 한 단계 진한 잉크 블루 */
-.lp-btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:14px 28px;border-radius:10px;border:1.5px solid var(--v-ink);background:var(--v-ink);color:#fff;font-size:17px;font-weight:800;text-decoration:none;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s,color .15s;word-break:keep-all}
+.lp-sec.band{background:var(--v-navy);color:#fff}
+.lp-sec.tight{padding-top:0}
+.lp-h2{margin:0 0 20px;font-size:40px;font-weight:700;line-height:1.25;letter-spacing:-0.5px;color:var(--v-navy);word-break:keep-all}
+.lp-sub{margin:0 0 56px;max-width:40em;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-sub);word-break:keep-all}
+.band .lp-h2{color:#fff}
+.band .lp-sub{color:rgba(255,255,255,0.8)}
+/* 버튼 — 잉크 블루 + 흰 굵은 글씨, 올리면 한 단계 진한 잉크 블루. 모서리 6px 는 버튼·입력칸에만 */
+.lp-btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:14px 28px;border-radius:6px;border:1.5px solid var(--v-ink);background:var(--v-ink);color:#fff;font-size:17px;font-weight:800;text-decoration:none;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s,color .15s;word-break:keep-all}
 .lp-btn:hover{background:var(--v-ink-hover);border-color:var(--v-ink-hover);color:#fff}
-.lp-btn:focus-visible{outline:3px solid #9DB7F5;outline-offset:3px}
-.lp-btn.line{background:transparent;color:#fff;border-color:rgba(255,255,255,0.55)}
+.lp-btn.line{background:transparent;color:#fff;border-color:rgba(255,255,255,0.6)}
 .lp-btn.line:hover{background:rgba(255,255,255,0.08);border-color:#fff}
+.lp-btn.line.dark{color:var(--v-ink);border-color:var(--v-ink);background:transparent}
+.lp-btn.line.dark:hover{background:var(--v-ink);color:#fff}
 .lp-link{color:var(--v-ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 .lp-link:hover{color:var(--v-ink-hover)}
+/* 초점 — 밝은 바탕은 잉크 블루, 남색 바탕은 밝은 블루 */
+.lp-sec :focus-visible{outline:3px solid var(--v-ink);outline-offset:3px}
+.lp-hero :focus-visible,.band :focus-visible,.lp-final :focus-visible{outline:3px solid #9DB7F5;outline-offset:3px}
+.lp-hero .lp-cmp :focus-visible{outline-color:var(--v-ink)}
 
-/* ① 첫 화면 — 인트로(#intro)와 같은 남색, 지도가 뒤에 옅게 남는다 */
-.lp-hero{position:relative;z-index:1;padding:24px 0 72px;background:transparent}
-.lp-slogan{margin:0 0 18px;font-size:13px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,0.72)}
-.lp-hero h1{margin:0 0 22px;font-size:clamp(36px,6.2vw,66px);font-weight:800;line-height:1.2;letter-spacing:-1.5px;color:#fff;word-break:keep-all}
-.lp-hero h1.serif{font-family:'Nanum Myeongjo',serif !important;font-weight:700;letter-spacing:-1px}
-.lp-lead{margin:0 0 22px;font-size:clamp(18px,2.1vw,22px);font-weight:500;line-height:1.65;color:rgba(255,255,255,0.9);word-break:keep-all}
-.lp-fieldline{margin:0 0 36px;font-size:17px;font-weight:700;letter-spacing:1px;color:#C9D7FB}
-.lp-hero-act{display:flex;flex-wrap:wrap;gap:12px}
-/* 첫 화면 맨 위 영문 슬로건 · 버튼 아래 신뢰 표시 — 모바일에서도 한 줄 */
+/* ① 첫 화면 — 왼쪽 글, 오른쪽 원문·번역 대조 패널(모바일은 글 아래). 인트로(#intro)와 같은 남색, 지도가 뒤에 옅게 남는다 */
+.lp-hero{position:relative;z-index:1;padding:24px 0 96px;background:transparent}
+.lp-hero .lp{max-width:1200px}
 .lp-slogan{margin:0 0 18px;font-size:14px;font-weight:400;letter-spacing:1.2px;color:#C9D7FB;white-space:nowrap}
 .lp-slogan b{font-weight:700;color:#fff}
+.lp-hero h1{margin:0 0 24px;font-size:64px;font-weight:700;line-height:1.25;letter-spacing:-1px;color:#fff;word-break:keep-all}
+.lp-lead{margin:0 0 20px;max-width:40em;font-size:20px;font-weight:500;line-height:1.75;color:rgba(255,255,255,0.9);word-break:keep-all}
+.lp-fieldline{margin:0 0 32px;font-size:17px;font-weight:600;letter-spacing:0.5px;color:#C9D7FB}
+.lp-fieldline .nb{white-space:nowrap}
+.lp-hero-act{display:flex;flex-wrap:wrap;gap:12px}
 .lp-trust{margin:26px 0 0;font-size:14px;font-weight:600;letter-spacing:0.8px;color:rgba(255,255,255,0.78);white-space:nowrap}
-@media(max-width:640px){
-  .lp-slogan{font-size:11.5px;letter-spacing:0.3px;margin-bottom:14px}
-  .lp-trust{font-size:12.5px;letter-spacing:0.2px;margin-top:20px}
+@media(min-width:1024px){
+  .lp-hero .lp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);column-gap:56px;align-items:center}
 }
+@media(min-width:1024px) and (max-width:1199px){.lp-hero h1{font-size:54px}}
 
-/* ② 아이움 번역팀 — 카드 두 장을 샴페인 골드 선으로 잇는다(모바일은 위아래) */
-.lp-team{position:relative;display:grid;grid-template-columns:1fr 72px 1fr;align-items:stretch}
-.lp-team .card{position:relative;z-index:1;padding:30px 28px;border-radius:16px;background:#fff;border:1px solid var(--v-line);box-shadow:0 6px 20px rgba(15,37,64,0.06)}
-.lp-team .card .who{display:flex;align-items:center;gap:12px;margin:0 0 14px}
-.lp-team .card .ib{flex:none;display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;background:var(--v-ink-soft);color:var(--v-ink)}
-.lp-team .card .ib svg{width:26px;height:26px}
-.lp-team .card .nm{margin:0;font-size:21px;font-weight:800;color:var(--v-navy);letter-spacing:-0.4px}
-.lp-team .card .ds{margin:0;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
-.lp-team .link{position:relative;display:flex;align-items:center;justify-content:center}
-.lp-team .link::before{content:'';position:absolute;left:-2px;right:-2px;top:50%;height:2px;background:var(--v-gold)}
-.lp-team .link i{position:relative;width:14px;height:14px;border-radius:50%;background:var(--v-bg);border:2px solid var(--v-gold)}
-.lp-team-foot{margin:28px 0 0;text-align:center;font-size:18px;font-weight:700;color:var(--v-navy);word-break:keep-all}
+/* 원문·번역 대조 패널 — 용어 짝 = 샴페인 골드 밑줄(일치 표시), 숫자·금액·날짜 = 가는 테두리.
+   움직임은 이 패널 안에서만: 인트로가 끝나 첫 화면이 보일 때 한 번(약 2초), 탭을 바꾸면 짧게. 움직임 줄이기 = 완성 상태 */
+.lp-cmp{--u:1;position:relative;margin-top:48px;padding:22px 28px 22px;background:var(--v-bg);color:var(--v-text)}
+@media(min-width:1024px){.lp-cmp{margin-top:0}}
+.cmp-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 22px;border-bottom:1px solid var(--v-line)}
+.cmp-tag{padding:0 0 12px;font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--v-sub)}
+.cmp-tabs{display:flex;gap:2px}
+.cmp-tabs button{min-height:44px;margin:0 0 -1px;padding:0 12px;border:0;border-bottom:2px solid transparent;border-radius:6px 6px 0 0;background:none;font-family:inherit;font-size:15px;font-weight:700;color:var(--v-sub);cursor:pointer}
+.cmp-tabs button:hover{color:var(--v-ink)}
+.cmp-tabs button[aria-selected="true"]{color:var(--v-navy);border-bottom-color:var(--v-ink)}
+.cmp-row{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.cmp-lang{display:block;margin:0 0 8px;font-size:13px;font-weight:700;color:var(--v-sub)}
+.cmp-s{margin:0;font-size:19px;font-weight:400;line-height:1.8;color:var(--v-navy);word-break:keep-all}
+.cmp-col[lang="en"] .cmp-s{font-size:17px;word-break:normal}
+.cmp-col{transition:opacity calc(.5s * var(--u)) ease,transform calc(.5s * var(--u)) ease}
+.cmp-col[lang="en"]{transition-delay:calc(.35s * var(--u))}
+.lp-cmp .t{padding:0 0 1px;background:linear-gradient(var(--v-gold),var(--v-gold)) no-repeat 0 100%/100% 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone;cursor:default;transition:background-size calc(.45s * var(--u)) ease calc(.9s * var(--u))}
+.lp-cmp .cmp-col[lang="en"] .t{transition-delay:calc(1.05s * var(--u))}
+.lp-cmp .n{margin:0 1px;padding:0 3px;border:1px solid rgba(15,37,64,0.5);-webkit-box-decoration-break:clone;box-decoration-break:clone;cursor:default;transition:border-color calc(.35s * var(--u)) ease calc(1.25s * var(--u))}
+.lp-cmp .t.hl{background-color:rgba(176,141,87,0.22)}
+.lp-cmp .n.hl{background-color:var(--v-pale);border-color:var(--v-ink)}
+.cmp-checks{display:flex;flex-wrap:wrap;gap:10px 24px;margin:22px 0 0;padding:16px 0 0;list-style:none;border-top:1px solid var(--v-line)}
+.cmp-checks li{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--v-navy);transition:opacity calc(.3s * var(--u)) ease}
+.cmp-checks li:nth-child(1){transition-delay:calc(1.5s * var(--u))}
+.cmp-checks li:nth-child(2){transition-delay:calc(1.7s * var(--u))}
+.cmp-checks li:nth-child(3){transition-delay:calc(1.9s * var(--u))}
+.cmp-checks i{position:relative;flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--v-gold)}
+.cmp-checks i::after{content:'';position:absolute;left:5.5px;top:2.5px;width:5px;height:9px;border:solid var(--v-gold);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.lp-cmp.pre .cmp-col{opacity:0;transform:translateY(8px)}
+.lp-cmp.pre .t{background-size:0% 2px}
+.lp-cmp.pre .n{border-color:transparent}
+.lp-cmp.pre .cmp-checks li{opacity:0.25}
+.lp-cmp.pre,.lp-cmp.pre *{transition:none !important}
+@media(prefers-reduced-motion:reduce){.lp-cmp *{transition:none !important}}
 
-/* ③ 아이움이란 */
-.lp-about p:not(.lp-label){margin:0 0 12px;font-size:19px;font-weight:500;line-height:1.85;color:var(--v-text);word-break:keep-all}
-.lp-about p:not(.lp-label):last-child{margin:0}
+/* ② 아이움 번역팀 — 상자 없이 넓은 간격, 두 이름을 샴페인 골드 선으로 잇는다(모바일은 위아래) */
+.lp-team{display:grid;grid-template-columns:1fr 120px 1fr;align-items:start}
+.lp-h2+.lp-team,.lp-h2+.lp-fields,.lp-h2+.lp-why{margin-top:48px}
+.lp-team .nm{margin:0 0 14px;font-size:30px;font-weight:700;line-height:1.25;color:var(--v-navy)}
+.lp-team .ds{margin:0;max-width:24em;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
+.lp-team .link{position:relative;height:38px}
+.lp-team .link::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:var(--v-gold)}
+.lp-team .link i{position:absolute;left:50%;top:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--v-bg);border:1.5px solid var(--v-gold)}
+.lp-team-foot{margin:56px 0 0;font-size:18px;font-weight:700;line-height:1.75;color:var(--v-navy);word-break:keep-all}
 
-/* ④ 세 가지 약속 */
-.lp-promise{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.lp-promise .pm{padding:26px 24px;border-radius:14px;background:#fff;border:1px solid var(--v-line)}
-.lp-promise .t{margin:0 0 10px;font-size:20px;font-weight:800;color:var(--v-navy)}
-.lp-promise .t::before{content:'';display:block;width:28px;height:3px;border-radius:2px;background:var(--v-ink);margin-bottom:14px}
-.lp-promise .d{margin:0;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
+/* ③ 왜 아이움인가 — 번역팀과 같은 바탕으로 이어진다 */
+.lp-about p{margin:0;max-width:40em;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
 
-/* ⑤ 한 문서가 납품되기까지 — 4단계 */
-/* V3 공개 스위치(SHOW_V3) — 꺼진 동안 V3 문구는 <template> 안에만 있다(화면·검색에 안 보임) */
-.lp-flow10{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;column-gap:28px}
-.lp-flow10 li{position:relative;display:flex;gap:16px;padding:0 0 18px}
-.lp-flow10 li::before{content:'';position:absolute;left:21px;top:44px;bottom:-2px;width:2px;background:var(--v-gold)}
-.lp-flow10 li:nth-child(5)::before,.lp-flow10 li:last-child::before{display:none}
-.lp-flow10 .no{flex:none;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid var(--v-gold);color:var(--v-navy);font-size:17px;font-weight:800}
-.lp-flow10 .bx{flex:1;padding:14px 18px 16px;border-radius:14px;background:#fff;border:1px solid var(--v-line)}
-.lp-flow10 .t{display:block;margin:0 0 6px;font-size:17px;font-weight:800;color:var(--v-navy);word-break:keep-all}
-.lp-flow10 .d{display:block;font-size:15.5px;font-weight:500;line-height:1.65;color:var(--v-text);word-break:keep-all}
-.lp-example{margin:22px 0 0;padding:22px 24px;border-radius:14px;background:#fff;border:1px dashed var(--v-gold)}
-.lp-example .tag{display:inline-block;margin:0 0 10px;padding:2px 10px;border-radius:999px;border:1.5px solid var(--v-gold);font-size:13px;font-weight:700;color:var(--v-navy)}
-.lp-example p{margin:6px 0 0;font-size:16px;font-weight:500;line-height:1.7;color:var(--v-text);word-break:keep-all}
-.lp-example b{color:var(--v-navy)}
-.lp-mem{background:var(--v-navy)}
-.lp-mem .lp-label{color:#C9D7FB}
-.lp-mem .lp-h2{color:#fff}
-.lp-mem p.b{margin:0;max-width:760px;font-size:18px;font-weight:500;line-height:1.85;color:rgba(255,255,255,0.9);word-break:keep-all}
+/* ④ 번역 과정 — 남색 띠, 샴페인 골드 세로선 하나(데스크톱 두 단), 상자 없음. 번호(마루 부리)·이름·한 줄 */
+.lp-flow10{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;column-gap:64px}
+.lp-flow10 li{position:relative;padding:0 0 30px 64px}
+.lp-flow10 li::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:var(--v-gold)}
+.lp-flow10 li:first-child::before,.lp-flow10 li:nth-child(6)::before{top:20px}
+.lp-flow10 li:nth-child(5)::before,.lp-flow10 li:last-child::before{bottom:auto;height:20px}
+.lp-flow10 .no{position:absolute;left:0;top:0;display:flex;align-items:center;justify-content:center;width:41px;height:40px;background:var(--v-navy);font-size:24px;font-weight:700;color:#fff}
+.lp-flow10 .t{display:block;margin:6px 0 6px;font-size:18px;font-weight:800;color:#fff;word-break:keep-all}
+.lp-flow10 .d{display:block;max-width:30em;font-size:16px;font-weight:500;line-height:1.7;color:rgba(255,255,255,0.8);word-break:keep-all}
+.lp-example{margin:24px 0 0;padding:24px 0 0;border-top:1px solid rgba(255,255,255,0.22)}
+.lp-example .tag{display:block;margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.5px;color:#C9D7FB}
+.lp-example p{margin:6px 0 0;font-size:16px;font-weight:500;line-height:1.7;color:rgba(255,255,255,0.9);word-break:keep-all}
+.lp-example b{color:#fff}
+.lp-example .mut{color:rgba(255,255,255,0.65)}
+.lp-mem p.b{margin:0;max-width:40em;font-size:17px;font-weight:500;line-height:1.75;color:rgba(255,255,255,0.88);word-break:keep-all}
 @media(max-width:860px){
   .lp-flow10{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row}
-  .lp-flow10 li:nth-child(5)::before{display:block}
+  .lp-flow10 li:nth-child(5)::before{bottom:0;height:auto}
+  .lp-flow10 li:nth-child(6)::before{top:0}
 }
-.lp-flow{list-style:none;margin:0;padding:0;position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.lp-flow::before{content:'';position:absolute;left:12%;right:12%;top:27px;height:2px;background:var(--v-ink);opacity:.35}
-.lp-flow li{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
-.lp-flow .no{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:var(--v-ink);color:#fff;font-size:22px;font-weight:800;box-shadow:0 0 0 6px var(--v-pale)}
-.lp-flow .bx{margin-top:16px;flex:1;width:100%;padding:20px 18px 22px;border-radius:14px;background:#fff;border:1px solid var(--v-line)}
-.lp-flow .t{display:block;margin:0 0 8px;font-size:18px;font-weight:800;color:var(--v-navy);word-break:keep-all}
-.lp-flow .d{display:block;font-size:16px;font-weight:500;line-height:1.65;color:var(--v-text);word-break:keep-all}
 
-/* ⑥ 여덟 분야 — 데스크톱 4×2, 모바일 4장 + 더 보기 */
-.lp-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.lp-fields .lp-field{padding:22px 20px 20px}
-.lp-fields .lp-field .f{font-size:19px;line-height:1.35;word-break:keep-all}
-.lp-fields .lp-field .d{font-size:15.5px;line-height:1.7}
-.lp-fields .lp-field .ex{font-size:14.5px}
-.lp-fields .lp-field .ex.mk{margin-top:-6px}
-.lp-fields .lp-field .std li{font-size:13.5px;padding:4px 10px}
-.lp-more{display:none}
-.lp-fieldline .nb{white-space:nowrap}
-.lp-kicker{margin:0 0 8px;font-size:15px;font-weight:700;color:var(--v-ink);letter-spacing:.2px}
-/* ⑦-2 기업 고객 */
-.lp-biz{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-html[data-v3="on"] .lp-biz{grid-template-columns:repeat(4,1fr)}
-.lp-biz .bz{padding:24px 22px;border-radius:16px;background:#fff;border:1px solid var(--v-line);border-top:3px solid var(--v-gold)}
-.lp-biz .t{margin:0 0 10px;font-size:19px;font-weight:800;color:var(--v-navy);word-break:keep-all}
-.lp-biz .d{margin:0;font-size:16px;font-weight:500;line-height:1.7;color:var(--v-text);word-break:keep-all}
-.lp-biz-act{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
-.lp-btn.line.dark{color:var(--v-navy);border-color:var(--v-navy);background:transparent}
-.lp-btn.line.dark:hover{background:var(--v-navy);color:#fff}
-@media(max-width:1100px){.lp-fields{grid-template-columns:1fr 1fr}html[data-v3="on"] .lp-biz{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){
-  .lp-fields{grid-template-columns:1fr}
-  .lp-fields:not(.all) .lp-field:nth-child(n+5){display:none}
-  .lp-more{display:block;width:100%;margin-top:14px;min-height:52px;border-radius:14px;border:1px solid var(--v-line);background:#fff;font-size:16px;font-weight:700;color:var(--v-ink);cursor:pointer;font-family:inherit}
-  .lp-biz,html[data-v3="on"] .lp-biz{grid-template-columns:1fr}
-  .lp-biz-act .lp-btn{width:100%}
-}
-.lp-field{padding:26px 26px 24px;border-radius:16px;background:#fff;border:1px solid var(--v-line);box-shadow:0 4px 16px rgba(15,37,64,0.05)}
-.lp-field .hd{display:flex;align-items:center;gap:12px;margin:0 0 12px}
-.lp-field .ib{flex:none;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;background:var(--v-ink-soft);color:var(--v-ink)}
-.lp-field .ib svg{width:25px;height:25px}
-.lp-field .f{margin:0;font-size:21px;font-weight:800;color:var(--v-navy)}
-.lp-field .d{margin:0 0 14px;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
-.lp-field .ex{margin:0 0 14px;font-size:16px;font-weight:500;line-height:1.6;color:var(--v-sub);word-break:keep-all}
-.lp-field .std{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:14px 0 0;list-style:none;border-top:1px dashed var(--v-line)}
-.lp-field .std li{padding:5px 12px;border-radius:999px;background:var(--v-pale);border:1px solid rgba(31,79,209,0.22);font-size:15px;font-weight:600;color:var(--v-navy);line-height:1.45;word-break:keep-all}
-.lp-other{margin-top:16px;border-radius:14px;background:#fff;border:1px solid var(--v-line)}
-.lp-other summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;min-height:56px;padding:14px 22px;font-size:17px;font-weight:700;color:var(--v-navy)}
+/* ⑤ 여덟 분야 — 위쪽 가는 선 타일(데스크톱 4×2), 분야 이름 마루 부리, 한 줄 소개. 기준은 작은 한 줄 글자.
+   모바일 2열로 여덟 분야 이름·소개를 다 보이고, 누르면 예시·기준이 펼쳐진다 */
+.lp-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 32px}
+.lp-field{padding:22px 0 0;border-top:1px solid rgba(15,37,64,0.28)}
+.lp-field .f{margin:0 0 10px;font-size:24px;font-weight:700;line-height:1.3;color:var(--v-navy);word-break:keep-all}
+.lp-field .d{margin:0 0 12px;font-size:16px;font-weight:500;line-height:1.7;color:var(--v-text);word-break:keep-all}
+.lp-field .d2{margin:0 0 10px;font-size:15px;font-weight:500;line-height:1.7;color:var(--v-sub);word-break:keep-all}
+.lp-field .ex{margin:0 0 8px;font-size:14.5px;font-weight:500;line-height:1.65;color:var(--v-sub);word-break:keep-all}
+.lp-field .std{margin:0;padding:0;list-style:none;font-size:13.5px;font-weight:500;line-height:1.65;color:var(--v-sub);word-break:keep-all}
+.lp-field .std::before{content:'기준 ';font-weight:700;color:var(--v-navy)}
+.lp-field .std li{display:inline}
+.lp-field .std li+li::before{content:' · '}
+.lp-field .fmore{display:none}
+.lp-other{margin-top:48px;border-top:1px solid var(--v-line);border-bottom:1px solid var(--v-line)}
+.lp-other summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;min-height:56px;padding:14px 0;font-size:17px;font-weight:700;color:var(--v-navy)}
 .lp-other summary::-webkit-details-marker{display:none}
 .lp-other summary::after{content:'+';margin-left:auto;font-size:22px;font-weight:500;color:var(--v-ink)}
 .lp-other[open] summary::after{content:'−'}
-.lp-other p{margin:0;padding:0 22px 18px;font-size:16px;font-weight:500;line-height:1.7;color:var(--v-text);word-break:keep-all}
+.lp-other p{margin:0;padding:0 0 18px;font-size:16px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
+@media(max-width:1023px){.lp-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){
+  .lp-fields{gap:32px 16px}
+  .lp-field{padding-top:16px}
+  .lp-field .f{font-size:20px}
+  .lp-field .d{margin-bottom:4px;font-size:15px}
+  .lp-field:not(.open) .more{display:none}
+  .lp-field .more{padding-top:8px}
+  .lp-field .fmore{display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;font-family:inherit;font-size:14px;font-weight:700;color:var(--v-ink);cursor:pointer}
+}
 
-/* ⑦ 요금 */
-.lp-plans{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.lp-plan{position:relative;display:flex;flex-direction:column;gap:10px;width:100%;text-align:left;font-family:inherit;cursor:pointer;padding:28px 26px;border-radius:16px;background:#fff;border:1.5px solid var(--v-line);color:var(--v-text);transition:border-color .15s,box-shadow .15s}
-.lp-plan:hover{border-color:var(--v-ink);box-shadow:0 8px 22px rgba(31,79,209,0.12)}
-.lp-plan:focus-visible{outline:3px solid #9DB7F5;outline-offset:3px}
-.lp-plan.plus{border-color:var(--v-gold)}
-.lp-plan .nm{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:21px;font-weight:800;color:var(--v-navy)}
-.lp-plan .badge{padding:3px 10px;border-radius:999px;border:1.5px solid var(--v-gold);background:#fff;font-size:13px;font-weight:700;color:var(--v-navy)}
+/* ⑥ 아이움에 맡겨야 하는 이유 — 여섯 칸(데스크톱 3×2, 모바일 1열). 핵심 사실 = 마루 부리 크게 + 샴페인 골드 확인 선
+   ★골드 글자는 밝은 바탕에서 대비 2.8:1 로 WCAG AA(큰 글자 3:1)에 못 미쳐, 글자는 남색·골드는 아래 짧은 선으로만 쓴다 */
+.lp-why{display:grid;grid-template-columns:repeat(3,1fr);gap:56px 40px}
+html[data-v3="on"] .lp-why{grid-template-columns:repeat(4,1fr);gap:48px 28px}
+.lp-why .c{padding:24px 0 0;border-top:1px solid rgba(15,37,64,0.2)}
+.lp-why .k{margin:0 0 14px;padding:0 0 14px;font-size:30px;font-weight:700;line-height:1.25;color:var(--v-navy);background:linear-gradient(var(--v-gold),var(--v-gold)) no-repeat 0 100%/40px 2px;word-break:keep-all}
+.lp-why .d{margin:0;font-size:16px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
+.lp-biz-act{display:flex;flex-wrap:wrap;gap:12px;margin-top:56px}
+@media(max-width:1023px){.lp-why,html[data-v3="on"] .lp-why{grid-template-columns:1fr 1fr}}
+
+/* ⑦ 요금 — 두 요금 나란히, 가격은 마루 부리 크게 */
+.lp-plans{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.lp-plan{position:relative;display:flex;flex-direction:column;gap:12px;width:100%;text-align:left;font-family:inherit;cursor:pointer;padding:32px 30px;border-radius:6px;background:#fff;border:1px solid rgba(15,37,64,0.22);color:var(--v-text);transition:border-color .15s}
+.lp-plan:hover{border-color:var(--v-ink)}
+.lp-plan .nm{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:24px;font-weight:700;color:var(--v-navy)}
+.lp-plan .badge{padding:2px 8px;border:1px solid var(--v-ink);font-size:13px;font-weight:700;color:var(--v-ink)}
 .lp-plan .what{font-size:16px;font-weight:700;color:var(--v-ink)}
-.lp-plan .for{font-size:16px;font-weight:500;line-height:1.65;color:var(--v-text);word-break:keep-all}
-.lp-plan .pr{margin-top:auto;padding-top:6px;font-size:16px;font-weight:600;color:var(--v-sub)}
-.lp-plan .pr b{font-size:clamp(26px,3vw,32px);font-weight:800;color:var(--v-navy);margin:0 2px}
+.lp-plan .for{font-size:16px;font-weight:500;line-height:1.7;color:var(--v-text);word-break:keep-all}
+.lp-plan .pr{margin-top:auto;padding-top:10px;font-size:16px;font-weight:600;color:var(--v-sub)}
+.lp-plan .pr b{font-size:44px;font-weight:700;line-height:1.2;color:var(--v-navy);margin:0 2px}
 .lp-plan .go{font-size:16px;font-weight:700;color:var(--v-ink)}
 
 /* ⑧ 자주 묻는 질문 */
@@ -1969,36 +1985,53 @@ html[data-v3="on"] .lp-biz{grid-template-columns:repeat(4,1fr)}
 .lp-faq summary::before{content:'Q. ';white-space:pre;color:var(--v-ink)}
 .lp-faq summary::after{margin-left:auto;padding-left:10px;color:var(--v-ink)}
 .lp-faq details[open]{background:transparent}
-.lp-faq details p{margin:10px 0 0;font-size:17px;font-weight:500;line-height:1.8;color:var(--v-text);word-break:keep-all}
-.lp-note{margin:18px 0 0;font-size:16px}
+.lp-faq details p{margin:10px 0 0;max-width:40em;font-size:17px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
+.lp-note{margin:24px 0 0;font-size:16px}
 
 /* ⑨ 마지막 */
-.lp-final{position:relative;z-index:1;padding:80px 0;background:var(--v-navy);text-align:center}
-.lp-final .h{margin:0 0 12px;font-size:clamp(26px,3.8vw,38px);font-weight:800;color:#fff;letter-spacing:-0.8px;word-break:keep-all}
-.lp-final .s{margin:0 0 30px;font-size:18px;font-weight:500;color:rgba(255,255,255,0.88);word-break:keep-all}
+.lp-final{position:relative;z-index:1;padding:104px 0;background:var(--v-navy);text-align:center}
+.lp-final .h{margin:0 0 14px;font-size:40px;font-weight:700;line-height:1.25;color:#fff;letter-spacing:-0.5px;word-break:keep-all}
+.lp-final .s{margin:0 0 32px;font-size:18px;font-weight:500;color:rgba(255,255,255,0.88);word-break:keep-all}
 
-@media(max-width:1024px){
-  .lp-flow{grid-template-columns:1fr;gap:14px}
-  .lp-flow::before{left:27px;right:auto;top:28px;bottom:28px;width:2px;height:auto}
-  .lp-flow li{flex-direction:row;align-items:flex-start;text-align:left;gap:16px}
-  .lp-flow .bx{margin-top:0}
-}
 @media(max-width:860px){
-  .lp-team{grid-template-columns:1fr;grid-template-rows:auto 48px auto}
-  .lp-team .link::before{left:50%;right:auto;top:-2px;bottom:-2px;width:2px;height:auto;transform:translateX(-1px)}
-  .lp-promise,.lp-fields,.lp-plans{grid-template-columns:1fr}
+  .lp-team{grid-template-columns:1fr;grid-template-rows:auto 56px auto}
+  .lp-team .link{height:auto}
+  .lp-team .link::before{left:5px;right:auto;top:8px;bottom:8px;width:1px;height:auto}
+  .lp-team .link i{display:none}
+  .lp-plans{grid-template-columns:1fr}
 }
 @media(max-width:640px){
   .lp{padding:0 16px}
   .lp-hero h1{font-size:38px}
+  .lp-lead{font-size:17px}
   .lp-hero-act .lp-btn{width:100%}
-  .lp-team .card,.lp-field,.lp-plan{padding:22px 20px}
-  .lp-sub,.lp-about p:not(.lp-label){font-size:17px}
+  .lp-slogan{font-size:11.5px;letter-spacing:0.3px;margin-bottom:14px}
+  .lp-trust{font-size:12.5px;letter-spacing:0.2px;margin-top:20px}
+  .lp-cmp{margin-top:40px;padding:18px 18px 18px}
+  .cmp-top{flex-wrap:wrap}
+  .cmp-tabs button{padding:0 10px;font-size:14px}
+  .cmp-row{grid-template-columns:1fr;gap:18px}
+  .cmp-s{font-size:17px}
+  .cmp-col[lang="en"] .cmp-s{font-size:16px}
+  .cmp-checks{gap:8px 16px}
+  .cmp-checks li{font-size:14px}
+  .lp-h2,.lp-final .h{font-size:28px}
+  .lp-sub,.lp-about p,.lp-team .ds,.lp-faq details p,.lp-mem p.b{font-size:16px}
+  .lp-sub{margin-bottom:40px}
+  .lp-h2+.lp-team,.lp-h2+.lp-fields,.lp-h2+.lp-why{margin-top:32px}
+  .lp-team .nm{font-size:26px}
+  .lp-why,html[data-v3="on"] .lp-why{grid-template-columns:1fr;gap:36px}
+  .lp-why .k{font-size:26px}
+  .lp-flow10 li{padding-left:56px}
+  .lp-plan{padding:24px 22px}
+  .lp-plan .pr b{font-size:38px}
+  .lp-biz-act .lp-btn{width:100%}
 }
 /* ★전역 모바일 규칙(section{padding:… !important})이 랜딩 여백을 덮는다 — 랜딩 구역만 되돌린다 */
 @media(max-width:768px){
-  section.lp-hero{padding:24px 0 48px !important}
-  section.lp-sec,section.lp-final{padding:56px 0 !important}
+  section.lp-hero{padding:24px 0 64px !important}
+  section.lp-sec,section.lp-final{padding:72px 0 !important}
+  section.lp-sec.tight{padding-top:0 !important}
 }
 </style>
 
@@ -2356,6 +2389,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 
 <section class="lp-hero" id="top">
   <div class="lp">
+    <div class="lp-hero-txt">
     <p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>ind &amp; <b>M</b>achine</p>
     <h1 class="serif">두 전문가가<br>함께 번역합니다</h1>
     <p class="lp-lead">아이움 AI는 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>
@@ -2365,6 +2399,41 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
       <a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기</a>
     </div>
     <p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1만 건 이상</p>
+    </div>
+    <!-- 원문·번역 대조 패널 (예시) — 문장은 대표 지정 그대로. 용어 짝 data-k 가 같으면 함께 강조 -->
+    <div class="lp-cmp" id="lp-cmp">
+      <div class="cmp-top">
+        <span class="cmp-tag">예시</span>
+        <div class="cmp-tabs" role="tablist" aria-label="예시 문서 종류">
+          <button type="button" role="tab" id="cmp-t-contract" aria-controls="cmp-p-contract" aria-selected="true">계약서</button>
+          <button type="button" role="tab" id="cmp-t-game" aria-controls="cmp-p-game" aria-selected="false" tabindex="-1">게임</button>
+          <button type="button" role="tab" id="cmp-t-manual" aria-controls="cmp-p-manual" aria-selected="false" tabindex="-1">매뉴얼</button>
+        </div>
+      </div>
+      <div class="cmp-pane" id="cmp-p-contract" role="tabpanel" aria-labelledby="cmp-t-contract">
+        <div class="cmp-row">
+          <div class="cmp-col" lang="ko"><span class="cmp-lang">원문 · 한국어</span><p class="cmp-s mb"><span class="t" data-k="a">갑</span>은 <span class="t" data-k="b">본 계약</span> 체결일로부터 <span class="n" data-k="m">30일</span> 이내에 <span class="t" data-k="c">계약금</span> <span class="n" data-k="p">5,000,000원</span>을 <span class="t" data-k="d">을</span>에게 지급한다.</p></div>
+          <div class="cmp-col" lang="en"><span class="cmp-lang">번역 · 영어</span><p class="cmp-s mb"><span class="t" data-k="a">Party A</span> shall pay <span class="t" data-k="d">Party B</span> a <span class="t" data-k="c">deposit</span> of <span class="n" data-k="p">KRW 5,000,000</span> within <span class="n" data-k="m">thirty (30) days</span> from the date of execution of <span class="t" data-k="b">this Agreement</span>.</p></div>
+        </div>
+      </div>
+      <div class="cmp-pane" id="cmp-p-game" role="tabpanel" aria-labelledby="cmp-t-game" hidden>
+        <div class="cmp-row">
+          <div class="cmp-col" lang="ko"><span class="cmp-lang">원문 · 한국어</span><p class="cmp-s mb"><span class="t" data-k="a">전설의 검</span>을 얻으려면 <span class="t" data-k="b">북쪽 성채</span>의 <span class="t" data-k="c">수호자</span>를 쓰러뜨려야 한다.</p></div>
+          <div class="cmp-col" lang="en"><span class="cmp-lang">번역 · 영어</span><p class="cmp-s mb">To obtain the <span class="t" data-k="a">Legendary Sword</span>, you must defeat the <span class="t" data-k="c">Guardian</span> of the <span class="t" data-k="b">Northern Citadel</span>.</p></div>
+        </div>
+      </div>
+      <div class="cmp-pane" id="cmp-p-manual" role="tabpanel" aria-labelledby="cmp-t-manual" hidden>
+        <div class="cmp-row">
+          <div class="cmp-col" lang="ko"><span class="cmp-lang">원문 · 한국어</span><p class="cmp-s mb"><span class="t" data-k="a">전원 코드</span>를 뽑고 <span class="n" data-k="m">10분</span>이 지난 뒤 <span class="t" data-k="b">필터</span>를 분리하십시오.</p></div>
+          <div class="cmp-col" lang="en"><span class="cmp-lang">번역 · 영어</span><p class="cmp-s mb">Unplug the <span class="t" data-k="a">power cord</span> and wait <span class="n" data-k="m">10 minutes</span> before removing the <span class="t" data-k="b">filter</span>.</p></div>
+        </div>
+      </div>
+      <ul class="cmp-checks">
+        <li><i aria-hidden="true"></i>용어 일치</li>
+        <li><i aria-hidden="true"></i>숫자 대조</li>
+        <li><i aria-hidden="true"></i>전문 번역가 최종 확인</li>
+      </ul>
+    </div>
   </div>
 </section>
 <script>
@@ -2430,21 +2499,84 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   if (btn) btn.addEventListener('click', function(){ lastInput = 0; land(zone()[2]); });
 })();
 </script>
+<script>
+/* 원문·번역 대조 패널 (2026-10-30)
+   ★움직임은 패널 안에서만. 인트로가 끝나 첫 화면(#top > .lp)이 다 보이고 패널이 화면에 들어오면 한 번(약 2초):
+     문장 → 용어 밑줄 → 숫자 테두리 → 확인 3개. 탭을 바꾸면 같은 순서를 짧게(0.45배). 움직임 줄이기 = 처음부터 완성 상태.
+   ★용어 짝 — 같은 data-k 는 올리거나(마우스) 누르면(터치) 함께 강조. 탭은 좌우 화살표·Home·End 로도 움직인다 */
+(function(){
+  var box = document.getElementById('lp-cmp');
+  if (!box) return;
+  var tabs = Array.prototype.slice.call(box.querySelectorAll('[role="tab"]'));
+  var reduce = false, played = false;
+  try { reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch(e){}
+  function run(u){
+    if (reduce) return;
+    box.style.setProperty('--u', u);
+    box.classList.add('pre');
+    void box.offsetWidth;   // 숨김 상태를 한 번 그린 뒤 풀어야 전환이 처음부터 돈다
+    box.classList.remove('pre');
+  }
+  function show(i, focus){
+    tabs.forEach(function(t, k){
+      var on = k === i;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tabs[i].focus();
+    if (played) run('0.45');
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ show(i); });
+    t.addEventListener('keydown', function(e){
+      var n = tabs.length, j = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i + n - 1) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1;
+      if (j < 0) return;
+      e.preventDefault(); show(j, true);
+    });
+  });
+  function mark(el, on){
+    var pane = el.closest('.cmp-pane'), k = el.getAttribute('data-k');
+    Array.prototype.forEach.call(pane.querySelectorAll('[data-k="' + k + '"]'), function(x){ x.classList.toggle('hl', on); });
+  }
+  function clear(){ Array.prototype.forEach.call(box.querySelectorAll('.hl'), function(x){ x.classList.remove('hl'); }); }
+  box.addEventListener('mouseover', function(e){ var el = e.target.closest && e.target.closest('[data-k]'); if (el) mark(el, true); });
+  box.addEventListener('mouseout', function(e){ var el = e.target.closest && e.target.closest('[data-k]'); if (el) mark(el, false); });
+  box.addEventListener('click', function(e){ var el = e.target.closest && e.target.closest('[data-k]'); clear(); if (el) mark(el, true); });
+
+  if (reduce) return;
+  box.classList.add('pre');
+  var wrap = box.parentNode, ticking = false;
+  function check(){
+    ticking = false;
+    if (played) return;
+    var r = box.getBoundingClientRect();
+    if (r.top > window.innerHeight * 0.85 || r.bottom < 0) return;          // 아직 화면 밖
+    if (parseFloat(getComputedStyle(wrap).opacity) < 0.99) return;         // 인트로가 아직 첫 화면을 가리는 중
+    played = true;
+    window.removeEventListener('scroll', onScroll);
+    run('1');
+  }
+  function onScroll(){ if (!ticking) { ticking = true; requestAnimationFrame(check); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('load', onScroll);
+  onScroll();
+})();
+</script>
 
 <!-- ② 아이움 번역팀 -->
 <section class="lp-sec" id="team">
   <div class="lp">
-    <p class="lp-label">아이움 번역팀</p>
-    <h2 class="lp-h2">한 팀으로 함께 완성합니다</h2>
+    <h2 class="lp-h2 mb">한 팀으로 함께 완성합니다</h2>
     <div class="lp-team">
       <div class="card">
-        <div class="who"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/><path d="M9 1.5V4M15 1.5V4M9 20v2.5M15 20v2.5M1.5 9H4M1.5 15H4M20 9h2.5M20 15h2.5"/></svg></span><p class="nm">아이움 AI</p></div>
+        <p class="nm mb">아이움 AI</p>
         <p class="ds">분야별 기준과 검증된 용어로 옮기고, 문장 하나하나를 원문과 대조합니다.</p>
         <template data-v3="replace"><p class="ds">분야별 기준을 지키고, 귀사의 용어를 기억하고, 문장 하나하나를 원문과 대조합니다.</p></template>
       </div>
       <div class="link" aria-hidden="true"><i></i></div>
       <div class="card">
-        <div class="who"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></span><p class="nm">전문 번역가</p></div>
+        <p class="nm mb">전문 번역가</p>
         <p class="ds">맥락과 뉘앙스를 읽고, 문화에 맞게 다듬고, 마지막 책임을 집니다.</p>
       </div>
     </div>
@@ -2453,154 +2585,194 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 </section>
 
 <!-- ③ 왜 아이움인가 -->
-<section class="lp-sec pale" id="iumm-about">
+<section class="lp-sec tight" id="iumm-about">
   <div class="lp lp-about">
-    <p class="lp-label">왜 아이움인가</p>
-    <h2 class="lp-h2">빠르면서도, 정확하게</h2>
+    <h2 class="lp-h2 mb">빠르면서도, 정확하게</h2>
     <p>빠르기만 한 번역은 믿기 어렵고, 꼼꼼하기만 한 번역은 기다리기 어렵습니다. 아이움은 AI의 속도와 전문가의 정확함을 한 팀으로 묶었습니다.</p>
   </div>
 </section>
 
-<!-- ④ 세 가지 약속 -->
-<section class="lp-sec" id="promise">
+<!-- ④ 번역 과정 — 현재 9단계는 운영 중인 V2 코드 기준(2026-10-29 확인), V3 10단계는 template
+     1단계 '문서 분석' = 고객이 고른 분야(normalizeField) + 문서 종류 분류(doc_type.js) + 개인정보 번호 가림(pii_mask.js) — 2026-10-30 코드 확인 -->
+<section class="lp-sec band" id="process">
   <div class="lp">
-    <p class="lp-label">세 가지 약속</p>
-    <h2 class="lp-h2">빠르게, 합리적으로, 안전하게</h2>
-    <div class="lp-promise">
-      <div class="pm"><p class="t">빠르게</p><p class="d">파일을 올리면 견적이 바로 나오고, 번역은 곧바로 시작됩니다.</p></div>
-      <div class="pm"><p class="t">합리적으로</p><p class="d">아이움 AI와 전문 번역가가 역할을 나눠 일하기 때문에, 전문번역을 부담 없는 단가로 맡기실 수 있습니다.</p></div>
-      <div class="pm"><p class="t">안전하게</p><p class="d">맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가립니다.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ⑤ 번역 과정 — 현재 9단계는 운영 중인 V2 코드 기준(2026-10-29 확인), V3 10단계는 template -->
-<section class="lp-sec pale" id="process">
-  <div class="lp">
-    <p class="lp-label">번역 과정</p>
     <div class="v3-cur">
-    <h2 class="lp-h2">단순 AI 번역이 아닙니다</h2>
+    <h2 class="lp-h2 mb">단순 AI 번역이 아닙니다</h2>
     <p class="lp-sub">아이움 AI와 전문 번역가가 9단계 검증을 거쳐 완성합니다.</p>
     <ol class="lp-flow10">
-      <li><span class="no">1</span><span class="bx"><span class="t">문서 분석</span><span class="d">문서 종류를 파악하고, 개인정보 번호는 처리 전에 자동으로 가립니다. 영어 번역은 대상 시장의 표기에 맞춥니다.</span></span></li>
-      <li><span class="no">2</span><span class="bx"><span class="t">용어 선별</span><span class="d">분야별로 검증된 용어와 고객사 지정 용어를 먼저 골라 번역에 적용합니다.</span></span></li>
-      <li><span class="no">3</span><span class="bx"><span class="t">분야별 번역</span><span class="d">아이움 AI가 분야별 기준에 맞춰 옮깁니다.</span></span></li>
-      <li><span class="no">4</span><span class="bx"><span class="t">교차 검수</span><span class="d">번역과 분리된 별도 검수가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span></span></li>
-      <li><span class="no">5</span><span class="bx"><span class="t">반론과 수정</span><span class="d">중요한 지적은 근거를 따져, 맞는 지적만 반영합니다.</span></span></li>
-      <li><span class="no">6</span><span class="bx"><span class="t">일관성 점검</span><span class="d">문서 전체에서 같은 말이 같은 표현으로 쓰였는지 확인합니다.</span></span></li>
-      <li><span class="no">7</span><span class="bx"><span class="t">정밀 점검</span><span class="d">숫자·금액·날짜·괄호·지정 용어를 원문과 하나하나 대조합니다.</span></span></li>
-      <li><span class="no">8</span><span class="bx"><span class="t">품질 점수</span><span class="d">검수와 점검 결과로 번역 품질 점수를 매깁니다.</span></span></li>
-      <li><span class="no">9</span><span class="bx"><span class="t">전문 번역가 최종 확인</span><span class="d">전문 번역가가 마지막으로 확인하고 납품합니다.</span></span></li>
+      <li><span class="no mb">1</span><span class="bx"><span class="t">문서 분석</span><span class="d">고객이 고른 분야와 문서 종류에 맞는 번역 기준을 적용하고, 개인정보 번호는 처리 전에 자동으로 가립니다.</span></span></li>
+      <li><span class="no mb">2</span><span class="bx"><span class="t">용어 선별</span><span class="d">분야별로 검증된 용어와 고객사 지정 용어를 먼저 골라 번역에 적용합니다.</span></span></li>
+      <li><span class="no mb">3</span><span class="bx"><span class="t">분야별 번역</span><span class="d">아이움 AI가 분야별 기준에 맞춰 옮깁니다.</span></span></li>
+      <li><span class="no mb">4</span><span class="bx"><span class="t">교차 검수</span><span class="d">번역과 분리된 별도 검수가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span></span></li>
+      <li><span class="no mb">5</span><span class="bx"><span class="t">반론과 수정</span><span class="d">중요한 지적은 근거를 따져, 맞는 지적만 반영합니다.</span></span></li>
+      <li><span class="no mb">6</span><span class="bx"><span class="t">일관성 점검</span><span class="d">문서 전체에서 같은 말이 같은 표현으로 쓰였는지 확인합니다.</span></span></li>
+      <li><span class="no mb">7</span><span class="bx"><span class="t">정밀 점검</span><span class="d">숫자·금액·날짜·괄호·지정 용어를 원문과 하나하나 대조합니다.</span></span></li>
+      <li><span class="no mb">8</span><span class="bx"><span class="t">품질 점수</span><span class="d">검수와 점검 결과로 번역 품질 점수를 매깁니다.</span></span></li>
+      <li><span class="no mb">9</span><span class="bx"><span class="t">전문 번역가 최종 확인</span><span class="d">전문 번역가가 마지막으로 확인하고 납품합니다.</span></span></li>
     </ol>
     </div>
     <template data-v3="replace"><div class="v3-on">
-    <p class="lp-kicker">단순 AI 번역이 아닙니다</p>
-    <h2 class="lp-h2">한 문장이 10단계를 거쳐 납품됩니다</h2>
+    <h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다</h2>
+    <p class="lp-sub">단순 AI 번역이 아닙니다.</p>
     <ol class="lp-flow10">
-      <li><span class="no">1</span><span class="bx"><span class="t">문서 분석</span><span class="d">분야·문체·대상 독자를 파악하고, 개인정보 번호는 처리 전에 자동으로 가립니다.</span></span></li>
-      <li><span class="no">2</span><span class="bx"><span class="t">용어 고정</span><span class="d">문서 전체의 용어를 먼저 뽑아, 서로 다른 검증 과정이 반박·확인한 뒤 한 가지 표현으로 확정합니다.</span></span></li>
-      <li><span class="no">3</span><span class="bx"><span class="t">분야별 번역</span><span class="d">확정된 용어와 앞뒤 문맥을 이어 가며 번역합니다.</span></span></li>
-      <li><span class="no">4</span><span class="bx"><span class="t">교차 검수</span><span class="d">번역과 분리된 검수가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span></span></li>
-      <li><span class="no">5</span><span class="bx"><span class="t">반론과 수정</span><span class="d">지적마다 근거를 따져, 맞는 지적만 반영합니다.</span></span></li>
-      <li><span class="no">6</span><span class="bx"><span class="t">판정</span><span class="d">끝까지 의견이 갈리는 부분은 별도 판정으로 결론을 냅니다.</span></span></li>
-      <li><span class="no">7</span><span class="bx"><span class="t">역번역 대조</span><span class="d">번역문을 원문 언어로 되돌려, 뜻이 정확히 옮겨졌는지 문단마다 확인합니다.</span></span></li>
-      <li><span class="no">8</span><span class="bx"><span class="t">일관성 점검</span><span class="d">용어·숫자·괄호를 고정한 채, 문서 전체의 표현을 통일하고 자연스럽게 다듬습니다.</span></span></li>
-      <li><span class="no">9</span><span class="bx"><span class="t">품질 점수</span><span class="d">정확성·용어·자연스러움·문체·표준과 역번역 일치도로 점수를 매기고, 95점에 못 미치면 다시 작업합니다.</span></span></li>
-      <li><span class="no">10</span><span class="bx"><span class="t">전문 번역가 최종 확인</span><span class="d">전문 번역가가 마지막으로 확인해 납품하고, 확정된 용어는 귀사 전용 용어집에 쌓여 다음 주문으로 이어집니다.</span></span></li>
+      <li><span class="no mb">1</span><span class="bx"><span class="t">문서 분석</span><span class="d">고객이 고른 분야와 문서 종류에 맞는 번역 기준을 적용하고, 개인정보 번호는 처리 전에 자동으로 가립니다.</span></span></li>
+      <li><span class="no mb">2</span><span class="bx"><span class="t">용어 고정</span><span class="d">문서 전체의 용어를 먼저 뽑아, 서로 다른 검증 과정이 반박·확인한 뒤 한 가지 표현으로 확정합니다.</span></span></li>
+      <li><span class="no mb">3</span><span class="bx"><span class="t">분야별 번역</span><span class="d">확정된 용어와 앞뒤 문맥을 이어 가며 번역합니다.</span></span></li>
+      <li><span class="no mb">4</span><span class="bx"><span class="t">교차 검수</span><span class="d">번역과 분리된 검수가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span></span></li>
+      <li><span class="no mb">5</span><span class="bx"><span class="t">반론과 수정</span><span class="d">지적마다 근거를 따져, 맞는 지적만 반영합니다.</span></span></li>
+      <li><span class="no mb">6</span><span class="bx"><span class="t">판정</span><span class="d">끝까지 의견이 갈리는 부분은 별도 판정으로 결론을 냅니다.</span></span></li>
+      <li><span class="no mb">7</span><span class="bx"><span class="t">역번역 대조</span><span class="d">번역문을 원문 언어로 되돌려, 뜻이 정확히 옮겨졌는지 문단마다 확인합니다.</span></span></li>
+      <li><span class="no mb">8</span><span class="bx"><span class="t">일관성 점검</span><span class="d">용어·숫자·괄호를 고정한 채, 문서 전체의 표현을 통일하고 자연스럽게 다듬습니다.</span></span></li>
+      <li><span class="no mb">9</span><span class="bx"><span class="t">품질 점수</span><span class="d">정확성·용어·자연스러움·문체·표준과 역번역 일치도로 점수를 매기고, 95점에 못 미치면 다시 작업합니다.</span></span></li>
+      <li><span class="no mb">10</span><span class="bx"><span class="t">전문 번역가 최종 확인</span><span class="d">전문 번역가가 마지막으로 확인해 납품하고, 확정된 용어는 귀사 전용 용어집에 쌓여 다음 주문으로 이어집니다.</span></span></li>
     </ol>
     <div class="lp-example">
       <span class="tag">예시</span>
       <p>가상의 게임 「별의 기사」</p>
-      <p>일반 번역: "성검" → Holy Sword / Sacred Blade / Divine Sword <span style="color:var(--v-sub)">(문서마다 다름)</span></p>
-      <p><b>아이움: "성검" → Starblade</b> <span style="color:var(--v-sub)">(작품 전체 · 모든 업데이트에서 동일)</span></p>
+      <p>일반 번역: "성검" → Holy Sword / Sacred Blade / Divine Sword <span class="mut">(문서마다 다름)</span></p>
+      <p><b>아이움: "성검" → Starblade</b> <span class="mut">(작품 전체 · 모든 업데이트에서 동일)</span></p>
     </div>
     </div></template>
   </div>
 </section>
 
-<!-- ⑥ 아이움이 특화한 여덟 분야 — ★'기준' 배지는 파이프라인 스타일시트 '분야별 참고 기준'에 들어간 것만 -->
+<!-- ⑤ 아이움이 특화한 여덟 분야 — ★'기준'은 파이프라인 스타일시트 '분야별 참고 기준'에 들어간 것만 -->
 <section class="lp-sec" id="field-standards">
   <div class="lp">
-    <p class="lp-label">분야별 번역 기준</p>
-    <h2 class="lp-h2">아이움이 특화한 여덟 분야</h2>
+    <h2 class="lp-h2 mb">아이움이 특화한 여덟 분야</h2>
     <div class="lp-fields" id="lp-fields">
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a4 4 0 014 4v2a3 3 0 01-5.4 1.8L15 14H9l-1.6 1.8A3 3 0 012 14v-2a4 4 0 014-4z"/><path d="M7 11v2M6 12h2M15.5 11.5h.01M17.5 12.5h.01"/></svg></span><p class="f">게임</p></div>
-        <p class="d">세계관과 캐릭터의 말투까지 옮깁니다. 원작의 공식 표기를 먼저 따르고, 작품 전체에서 같은 표현을 씁니다.</p>
-        <p class="ex">예: 게임 내 텍스트 · 스토리 · 스토어 소개문 · 패치 노트</p>
-        <p class="ex mk">주요 시장: 영어 · 중국어(간체·번체) · 일본어 등</p>
-        <ul class="std"><li>IGDA 게임 현지화 모범 사례</li><li>Microsoft 현지화 스타일 가이드(한·일·중 간체·번체)</li><li>Steamworks 현지화 문서</li><li>원작 공식 표기 우선</li></ul>
+        <p class="f mb">게임</p>
+        <p class="d">세계관과 캐릭터의 말투까지 옮깁니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">원작의 공식 표기를 먼저 따르고, 작품 전체에서 같은 표현을 씁니다.</p>
+          <p class="ex">예: 게임 내 텍스트 · 스토리 · 스토어 소개문 · 패치 노트</p>
+          <p class="ex mk">주요 시장: 영어 · 중국어(간체·번체) · 일본어 등</p>
+          <ul class="std"><li>IGDA 게임 현지화 모범 사례</li><li>Microsoft 현지화 스타일 가이드(한·일·중 간체·번체)</li><li>Steamworks 현지화 문서</li><li>원작 공식 표기 우선</li></ul>
+        </div>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M5 6h14"/><path d="M5 6l-3 6a3 3 0 006 0zM19 6l-3 6a3 3 0 006 0z"/></svg></span><p class="f">법률</p></div>
-        <p class="d">한 단어의 차이가 결과를 바꾸는 분야입니다. 법령의 공식 영문 명칭과 법률 용어 사전을 기준으로 옮깁니다.</p>
-        <p class="ex">예: 계약서 · 약관 · 법률 의견서 · 소송 서류</p>
-        <ul class="std"><li>법제처 국가법령정보센터 영문 법령</li><li>Black's Law Dictionary</li></ul>
+        <p class="f mb">법률</p>
+        <p class="d">한 단어의 차이가 결과를 바꾸는 분야입니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">법령의 공식 영문 명칭과 법률 용어 사전을 기준으로 옮깁니다.</p>
+          <p class="ex">예: 계약서 · 약관 · 법률 의견서 · 소송 서류</p>
+          <ul class="std"><li>법제처 국가법령정보센터 영문 법령</li><li>Black's Law Dictionary</li></ul>
+        </div>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg></span><p class="f">의료 · 제약 · 의료관광</p></div>
-        <p class="d">정확해야 안심할 수 있습니다. 공인 의학 용어 기준으로, 해외 환자와 기관이 바로 이해할 수 있게 옮깁니다.</p>
-        <p class="ex">예: 병원·시술 안내문 · 의약품 설명서 · 임상 문서 · 의료관광 상담 자료</p>
-        <ul class="std"><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류(KCD)</li><li>ICH 가이드라인</li></ul>
+        <p class="f mb">의료 · 제약 · 의료관광</p>
+        <p class="d">정확해야 안심할 수 있습니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">공인 의학 용어 기준으로, 해외 환자와 기관이 바로 이해할 수 있게 옮깁니다.</p>
+          <p class="ex">예: 병원·시술 안내문 · 의약품 설명서 · 임상 문서 · 의료관광 상담 자료</p>
+          <ul class="std"><li>대한의사협회 의학용어집</li><li>한국표준질병·사인분류(KCD)</li><li>ICH 가이드라인</li></ul>
+        </div>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><p class="f">회계 · 재무</p></div>
-        <p class="d">숫자 하나, 계정과목 하나가 신뢰를 좌우합니다. 국제회계기준 용어로 옮기고, 금액은 원문 그대로 지킵니다.</p>
-        <p class="ex">예: 감사보고서 · 재무제표 · 연차보고서 · IR 자료</p>
-        <ul class="std"><li>K-IFRS</li><li>IFRS 회계기준</li><li>ISA 국제감사기준</li></ul>
+        <p class="f mb">회계 · 재무</p>
+        <p class="d">숫자 하나, 계정과목 하나가 신뢰를 좌우합니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">국제회계기준 용어로 옮기고, 금액은 원문 그대로 지킵니다.</p>
+          <p class="ex">예: 감사보고서 · 재무제표 · 연차보고서 · IR 자료</p>
+          <ul class="std"><li>K-IFRS</li><li>IFRS 회계기준</li><li>ISA 국제감사기준</li></ul>
+        </div>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg></span><p class="f">특허 · 지식재산</p></div>
-        <p class="d">청구항의 한 단어가 권리 범위를 바꿉니다. 국제 특허 용어 기준으로 원문의 구조를 그대로 옮깁니다.</p>
-        <p class="ex">예: 특허 명세서 · 청구항 · 선행기술 자료 · 심사 의견 대응</p>
-        <ul class="std"><li>WIPO Pearl 특허 용어</li><li>지식재산처 PCT 용어 해설</li></ul>
+        <p class="f mb">특허 · 지식재산</p>
+        <p class="d">청구항의 한 단어가 권리 범위를 바꿉니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">국제 특허 용어 기준으로 원문의 구조를 그대로 옮깁니다.</p>
+          <p class="ex">예: 특허 명세서 · 청구항 · 선행기술 자료 · 심사 의견 대응</p>
+          <ul class="std"><li>WIPO Pearl 특허 용어</li><li>지식재산처 PCT 용어 해설</li></ul>
+        </div>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5L12 3l10 3.5L12 10z"/><path d="M6 8.2V14c0 1.7 2.7 3 6 3s6-1.3 6-3V8.2M22 6.5V12"/></svg></span><p class="f">학술 · 논문</p></div>
-        <p class="d">연구의 언어를 학계의 언어로 옮깁니다. 분야별 학술 용어를 지키고, 인용 양식은 원문 그대로 둡니다.</p>
-        <p class="ex">예: 학술 논문 · 학위논문 초록 · 연구계획서 · 학회 발표 자료</p>
-        <ul class="std"><li>인용 양식 원문 유지(APA·MLA·Chicago·IEEE)</li><li>학회 공식 용어 우선</li></ul>
+        <p class="f mb">학술 · 논문</p>
+        <p class="d">연구의 언어를 학계의 언어로 옮깁니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">분야별 학술 용어를 지키고, 인용 양식은 원문 그대로 둡니다.</p>
+          <p class="ex">예: 학술 논문 · 학위논문 초록 · 연구계획서 · 학회 발표 자료</p>
+          <ul class="std"><li>인용 양식 원문 유지(APA·MLA·Chicago·IEEE)</li><li>학회 공식 용어 우선</li></ul>
+        </div>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15"/><path d="M5 19l7-7"/></svg></span><p class="f">ESG · 지속가능경영</p></div>
-        <p class="d">해외 투자자와 고객이 읽는 보고서입니다. 국제 공시 기준의 용어로 옮깁니다.</p>
-        <p class="ex">예: 지속가능경영보고서 · ESG 공시 자료 · 기후 관련 보고</p>
-        <ul class="std"><li>GRI Standards</li><li>ISSB IFRS S1·S2</li><li>KSSB 지속가능성 공시기준</li></ul>
+        <p class="f mb">ESG · 지속가능경영</p>
+        <p class="d">해외 투자자와 고객이 읽는 보고서입니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">국제 공시 기준의 용어로 옮깁니다.</p>
+          <p class="ex">예: 지속가능경영보고서 · ESG 공시 자료 · 기후 관련 보고</p>
+          <ul class="std"><li>GRI Standards</li><li>ISSB IFRS S1·S2</li><li>KSSB 지속가능성 공시기준</li></ul>
+        </div>
       </div>
       <div class="lp-field">
-        <div class="hd"><span class="ib"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M15 4v5h5M8 13h8M8 17h5"/></svg></span><p class="f">매뉴얼 · 기술 문서</p></div>
-        <p class="d">반복이 많은 문서일수록 일관성이 생명입니다. 같은 문장은 같은 번역으로, 읽는 사람이 헷갈리지 않게 옮깁니다.</p>
-        <p class="ex">예: 제품 사용설명서 · 설치·정비 가이드 · 안전 수칙 · 기술 사양서</p>
-        <ul class="std"><li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li><li>ASD-STE100 Simplified Technical English</li></ul>
+        <p class="f mb">매뉴얼 · 기술 문서</p>
+        <p class="d">반복이 많은 문서일수록 일관성이 생명입니다.</p>
+        <button type="button" class="fmore" aria-expanded="false">예시·기준 보기</button>
+        <div class="more">
+          <p class="d2">같은 문장은 같은 번역으로, 읽는 사람이 헷갈리지 않게 옮깁니다.</p>
+          <p class="ex">예: 제품 사용설명서 · 설치·정비 가이드 · 안전 수칙 · 기술 사양서</p>
+          <ul class="std"><li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li><li>ASD-STE100 Simplified Technical English</li></ul>
+        </div>
       </div>
     </div>
-    <button type="button" class="lp-more" id="lp-fields-more" aria-expanded="false" aria-controls="lp-fields" onclick="var g=document.getElementById('lp-fields'),o=g.classList.toggle('all');this.setAttribute('aria-expanded',o);this.textContent=o?'접기':'네 분야 더 보기';">네 분야 더 보기</button>
     <details class="lp-other">
       <summary>그 밖의 분야</summary>
       <p>그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.</p>
     </details>
   </div>
 </section>
+<script>
+/* 여덟 분야 — 모바일(2열)에서만 칸을 누르면 예시·기준이 펼쳐진다. 데스크톱은 늘 펼친 상태(버튼 숨김) */
+(function(){
+  Array.prototype.forEach.call(document.querySelectorAll('#lp-fields .lp-field'), function(f){
+    var b = f.querySelector('.fmore');
+    if (!b) return;
+    function toggle(){
+      var o = f.classList.toggle('open');
+      b.setAttribute('aria-expanded', o ? 'true' : 'false');
+      b.textContent = o ? '접기' : '예시·기준 보기';
+    }
+    b.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+    f.addEventListener('click', function(e){
+      if (b.offsetParent === null || (e.target.closest && e.target.closest('a,button'))) return;   // 데스크톱(버튼 숨김)은 무시
+      toggle();
+    });
+  });
+})();
+</script>
 
-<!-- ⑦ 회사 기억 — V3 버전에서만 -->
-<template data-v3="insert"><section class="lp-sec lp-mem" id="company-memory">
+<!-- ⑤-2 회사 기억 — V3 버전에서만 -->
+<template data-v3="insert"><section class="lp-sec band lp-mem" id="company-memory">
   <div class="lp">
-    <p class="lp-label">회사 기억</p>
-    <h2 class="lp-h2">아이움은 귀사를 기억합니다</h2>
+    <h2 class="lp-h2 mb">아이움은 귀사를 기억합니다</h2>
     <p class="b">회사 이름, 제품명, 작품 속 고유 명칭, 사내 용어. 고객사마다 전용 용어집을 쌓아, 다음 주문에서도 같은 표현으로 번역합니다. 용어는 오직 그 고객사의 번역에만 쓰입니다.</p>
   </div>
 </section></template>
 
-<!-- ⑦-2 기업 고객 — 지금 되는 것만(원본 형식 유지 납품은 아직 없어 카드에서 뺌, 2026-10-29) -->
+<!-- ⑥ 아이움에 맡겨야 하는 이유 — 확인된 사실만 (2026-10-30)
+     · 단가 = PLAN_PRICE(부가세 10% 별도, 프리미엄 플러스 전문 자격사 +20원) → 추가 요금이 없다는 표현은 쓰지 않음
+     · 납기 = 주문 화면 '번역 소요시간 안내' 표 스탠다드 1,000~5,000자 24시간 이내
+     · 21일 삭제 = server.js runDataCleanup(매일 04:00, 데이터삭제예정일 = 납품일시 + 21일) 동작 확인
+     · 형식 유지 납품은 아직 없어 넣지 않음 -->
 <section class="lp-sec pale" id="business">
   <div class="lp">
-    <p class="lp-label">기업 고객</p>
-    <h2 class="lp-h2">기업이 아이움에 맡기는 이유</h2>
-    <div class="lp-biz">
-      <div class="bz"><p class="t">비밀유지계약(NDA)</p><p class="d">요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></div>
-      <div class="bz"><p class="t">무료 테스트 번역</p><p class="d">맡기기 전에 직접 확인하세요. 회사당 1회, 1,000자까지 무료로 번역해 드립니다.</p></div>
-      <div class="bz"><p class="t">14일 무상 수정</p><p class="d">유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다.</p></div>
-      <template data-v3="insert"><div class="bz"><p class="t">품질 리포트</p><p class="d">납품할 때 항목별 품질 점수와 용어 일치 결과를 함께 드립니다.</p></div></template>
+    <h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</h2>
+    <div class="lp-why">
+      <div class="c"><p class="k mb">글자당 <span data-plan="ai"></span>원</p><p class="d">파일을 올리면 금액이 바로 나옵니다. 정해진 가격 그대로입니다. (스탠다드 기준 · 부가세 별도)</p></div>
+      <div class="c"><p class="k mb">5,000자 24시간</p><p class="d">스탠다드는 5,000자까지 24시간 이내에 납품합니다. 19시 이후 접수는 다음 날 09시 기준입니다.</p></div>
+      <div class="c"><p class="k mb">자동 가림</p><p class="d">개인정보 번호는 번역 전에 자동으로 가리고, 맡기신 문서는 번역에만 씁니다. 납품 후 21일 안에 삭제합니다.</p></div>
+      <div class="c"><p class="k mb">NDA 체결</p><p class="d">요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></div>
+      <div class="c"><p class="k mb">1,000자 무료</p><p class="d">맡기기 전에 직접 확인하세요. 회사당 1회, 1,000자까지 무료로 번역해 드립니다.</p></div>
+      <div class="c"><p class="k mb">14일 1회 무상 수정</p><p class="d">유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다.</p></div>
+      <template data-v3="insert"><div class="c"><p class="k mb">품질 리포트</p><p class="d">납품할 때 항목별 품질 점수와 용어 일치 결과를 함께 드립니다.</p></div></template>
     </div>
     <div class="lp-biz-act">
       <button type="button" class="lp-btn" onclick="openFreeTest()">무료 테스트 번역 신청</button>
@@ -2609,51 +2781,48 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
   </div>
 </section>
 
-<!-- ⑧ 요금 — 단가는 PLAN_PRICE(data-plan) -->
+<!-- ⑦ 요금 — 단가는 PLAN_PRICE(data-plan) -->
 <section class="lp-sec" id="pricing">
   <div class="lp">
-    <p class="lp-label">요금</p>
-    <h2 class="lp-h2">글자 수 기준 정찰제</h2>
-    <p class="lp-sub">파일을 올리면 금액을 바로 확인하실 수 있습니다.</p>
+    <h2 class="lp-h2 mb">글자 수 기준 정찰제</h2>
+    <p class="lp-sub">파일을 올리면 금액을 바로 확인하실 수 있습니다. 부가세는 별도입니다.</p>
     <div class="lp-plans">
       <button type="button" class="lp-plan" onclick="handleAI()">
-        <span class="nm">스탠다드</span>
+        <span class="nm mb">스탠다드</span>
         <span class="what">교차 검수 · 최종 휴먼터치</span>
         <span class="for">매뉴얼, 게임 텍스트, 사내 문서처럼 분량이 많고 반복되는 업무 문서에</span>
-        <span class="pr">글자당 <b><span data-plan="ai"></span>원</b></span>
-        <span class="go">스탠다드로 견적 보기 →</span>
+        <span class="pr">글자당 <b class="mb"><span data-plan="ai"></span>원</b></span>
+        <span class="go">스탠다드로 견적 보기</span>
       </button>
       <button type="button" class="lp-plan plus" onclick="handleStandard()">
-        <span class="nm">프리미엄 플러스 <span class="badge">전문 번역가 검수</span></span>
-        <span class="what">전문 번역가 검수</span>
+        <span class="nm"><span class="mb">프리미엄 플러스</span> <span class="badge">전문 번역가 검수</span></span>
         <span class="for">계약서, 의료 안내문, 출시용 텍스트처럼 대외적으로 책임이 따르는 문서에</span>
-        <span class="pr">글자당 <b><span data-plan="standard"></span>원</b></span>
-        <span class="go">프리미엄 플러스로 견적 보기 →</span>
+        <span class="pr">글자당 <b class="mb"><span data-plan="standard"></span>원</b></span>
+        <span class="go">프리미엄 플러스로 견적 보기</span>
       </button>
     </div>
   </div>
 </section>
 
-<!-- ⑨ 자주 묻는 질문 -->
+<!-- ⑧ 자주 묻는 질문 -->
 <section class="lp-sec lp-faq" id="faq-summary">
   <div class="lp">
-    <p class="lp-label">FAQ</p>
-    <h2 class="lp-h2">자주 묻는 질문</h2>
+    <h2 class="lp-h2 mb">자주 묻는 질문</h2>
     <details><summary>AI 번역인가요?</summary><p>아이움 AI와 전문 번역가가 한 팀으로 번역합니다. 아이움 AI가 분야 기준에 맞춰 옮기고 원문과 대조하면, 전문 번역가가 마지막으로 확인하고 납품합니다.</p></details>
     <template data-v3="insert"><details><summary>같은 회사 문서인데 매번 표현이 달라지지 않나요?</summary><p>고객사마다 전용 용어집이 쌓여, 다음 주문에서도 같은 표현을 씁니다.</p></details></template>
     <details><summary>맡기기 전에 품질을 확인할 수 있나요?</summary><p>회사당 1회, 1,000자까지 무료 테스트 번역을 해 드립니다.</p></details>
     <details><summary>비밀유지계약을 맺을 수 있나요?</summary><p>네. 요청하시면 번역 전에 비밀유지계약을 체결합니다.</p></details>
     <details><summary>납품 후 수정이 필요하면요?</summary><p>유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다. 원문이 바뀌거나 분량이 늘어난 경우는 새 주문으로 접수됩니다.</p></details>
-    <details><summary>문서가 외부로 새지 않나요?</summary><p>맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가립니다.</p></details>
+    <details><summary>문서가 외부로 새지 않나요?</summary><p>맡기신 문서는 번역에만 쓰입니다. 개인정보 번호는 처리 전에 자동으로 가리고, 문서는 납품 후 21일 안에 삭제합니다.</p></details>
     <details><summary>어떤 파일을 올릴 수 있나요?</summary><p>PDF, Word(DOC·DOCX), Excel(XLS·XLSX), TXT 파일과 JPG·PNG·WEBP·TIFF 이미지를 올리실 수 있습니다. 문서 내용을 직접 붙여 넣으셔도 됩니다.</p></details>
-    <p class="lp-note"><a class="lp-link" href="#" onclick="showPage('faq');return false">전체 질문 보기 →</a></p>
+    <p class="lp-note"><a class="lp-link" href="#" onclick="showPage('faq');return false">전체 질문 보기</a></p>
   </div>
 </section>
 
-<!-- ⑩ 마지막 -->
+<!-- ⑨ 마지막 -->
 <section class="lp-final" id="cta-final">
   <div class="lp">
-    <p class="h">두 전문가가 함께, 빠르고 정확하게.</p>
+    <p class="h mb">두 전문가가 함께, 빠르고 정확하게.</p>
     <p class="s">당신의 가능성을 세계로 연결합니다.</p>
     <button type="button" class="lp-btn" onclick="handleAI()">파일 올리고 바로 견적 보기</button>
   </div>
@@ -2742,7 +2911,7 @@ var SHOW_V3 = false;
           <button type="button" class="btn-clear-source" onclick="clearPasteText()">내용 지우기</button>
         </div>
         <div style="position:relative">
-          <textarea id="pasteText" data-source="manual" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="onPasteTextInput(this)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
+          <textarea id="pasteText" data-source="manual" placeholder="번역할 텍스트를 여기에 붙여넣으세요 (Ctrl+A → Ctrl+C → 여기에 Ctrl+V)" oninput="onPasteTextInput(this)" style="width:100%;height:160px;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;font-family:inherit;outline:none;resize:none;line-height:1.7;margin-bottom:0"></textarea>
           <div id="extracted-notice" style="display:none;position:absolute;top:6px;right:8px;display:none;align-items:center;gap:8px">
             <span style="font-size:10px;color:var(--mint-light)"><i class="ti ti-lock" style="vertical-align:-1px;margin-right:2px"></i>자동 추출됨</span>
             <button onclick="unlockExtracted()" style="font-size:10px;color:rgba(255,255,255,0.4);background:none;border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:2px 7px;cursor:pointer">수정하기</button>
@@ -2902,8 +3071,8 @@ var SHOW_V3 = false;
       <div style="margin-bottom:18px" id="reviewer-row">
         <label class="lbl">전문 번역 검수자 선택</label>
         <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
-          <button onclick="showReviewerPanel()" style="padding:11px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.7);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:left" id="reviewer-btn">검수자 선택하기 →</button>
-          <button onclick="selectOrderMode('맡기기')" id="btn-맡기기" style="padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.5);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap">IUMM에 맡기기</button>
+          <button onclick="showReviewerPanel()" style="padding:11px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.7);font-size:13px;font-family:inherit;cursor:pointer;text-align:left" id="reviewer-btn">검수자 선택하기</button>
+          <button onclick="selectOrderMode('맡기기')" id="btn-맡기기" style="padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:2px;color:rgba(255,255,255,0.5);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap">IUMM에 맡기기</button>
         </div>
       </div>
       <!-- 선택 사항 (접힘) -->
@@ -2920,11 +3089,11 @@ var SHOW_V3 = false;
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
             <div>
               <label class="lbl" style="color:rgba(255,255,255,0.65)">용어집 입력 (원문) <span style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:300">— 고유 용어 적용</span></label>
-              <textarea id="glossarySource" placeholder="원문 용어&#10;한 줄에 하나씩" style="width:100%;height:88px;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7"></textarea>
+              <textarea id="glossarySource" placeholder="원문 용어&#10;한 줄에 하나씩" style="width:100%;height:88px;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:12px;font-family:inherit;outline:none;resize:none;line-height:1.7"></textarea>
             </div>
             <div>
               <label class="lbl" style="color:rgba(255,255,255,0.65)">용어집 입력 (번역어)</label>
-              <textarea id="glossaryTarget" placeholder="번역 용어&#10;한 줄에 하나씩" style="width:100%;height:88px;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;line-height:1.7"></textarea>
+              <textarea id="glossaryTarget" placeholder="번역 용어&#10;한 줄에 하나씩" style="width:100%;height:88px;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:12px;font-family:inherit;outline:none;resize:none;line-height:1.7"></textarea>
             </div>
           </div>
           <!-- 참고자료 첨부 [C-3] -->
@@ -3063,20 +3232,20 @@ var SHOW_V3 = false;
 <div id="reviewer-panel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:400;overflow-y:auto">
   <div style="max-width:640px;margin:40px auto;background:#111;border:1px solid rgba(31,79,209,0.2);padding:40px 36px;position:relative">
     <button onclick="document.getElementById('reviewer-panel').style.display='none'" style="position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
-    <h3 style="font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;color:var(--gold-light);margin-bottom:6px">전문 번역 검수자 선택</h3>
+    <h3 style="font-family:'MaruBuri',serif;font-size:20px;font-weight:700;color:var(--gold-light);margin-bottom:6px">전문 번역 검수자 선택</h3>
     <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:20px;font-weight:300;line-height:1.8">번역이 끝나면 최종 휴먼터치로 완성도를 높여 납품합니다.</p>
     <!-- 언어 필터 -->
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">
-      <button onclick="filterReviewers('전체')" class="rlang-btn active" data-lang="전체" style="padding:5px 12px;background:var(--gold);color:var(--black);border:1px solid var(--gold);border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">전체</button>
-      <button onclick="filterReviewers('영어')" class="rlang-btn" data-lang="영어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">영어</button>
-      <button onclick="filterReviewers('일본어')" class="rlang-btn" data-lang="일본어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">일본어</button>
-      <button onclick="filterReviewers('중국어')" class="rlang-btn" data-lang="중국어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">중국어</button>
-      <button onclick="filterReviewers('프랑스어')" class="rlang-btn" data-lang="프랑스어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">프랑스어</button>
-      <button onclick="filterReviewers('스페인어')" class="rlang-btn" data-lang="스페인어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">스페인어</button>
+      <button onclick="filterReviewers('전체')" class="rlang-btn active" data-lang="전체" style="padding:5px 12px;background:var(--gold);color:var(--black);border:1px solid var(--gold);border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">전체</button>
+      <button onclick="filterReviewers('영어')" class="rlang-btn" data-lang="영어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit">영어</button>
+      <button onclick="filterReviewers('일본어')" class="rlang-btn" data-lang="일본어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit">일본어</button>
+      <button onclick="filterReviewers('중국어')" class="rlang-btn" data-lang="중국어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit">중국어</button>
+      <button onclick="filterReviewers('프랑스어')" class="rlang-btn" data-lang="프랑스어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit">프랑스어</button>
+      <button onclick="filterReviewers('스페인어')" class="rlang-btn" data-lang="스페인어" style="padding:5px 12px;background:transparent;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit">스페인어</button>
     </div>
     <p style="font-size:12px;color:var(--gold-light);margin-bottom:12px;font-weight:400"><i class="ti ti-info-circle" style="margin-right:3px"></i>최대 <strong>2명</strong>(최선·차선)까지 선택하세요. 먼저 수락하는 검수자에게 우선 배정됩니다.</p>
     <div id="reviewer-list-panel" style="display:flex;flex-direction:column;gap:12px"></div>
-    <button onclick="closeReviewerPanel()" style="margin-top:20px;width:100%;padding:13px;background:var(--gold);color:var(--black);border:none;border-radius:2px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">선택 완료</button>
+    <button onclick="closeReviewerPanel()" style="margin-top:20px;width:100%;padding:13px;background:var(--gold);color:var(--black);border:none;border-radius:2px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">선택 완료</button>
   </div>
 </div>
 
@@ -3085,7 +3254,7 @@ var SHOW_V3 = false;
   <div style="max-width:480px;margin:60px auto;background:#111;border:1px solid rgba(31,79,209,0.2);padding:44px 40px;position:relative">
     <button onclick="closeModal('payment')" style="position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <div id="payment-form">
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;color:var(--gold-light);margin-bottom:6px">최종 결제</h3>
+      <h3 style="font-family:'MaruBuri',serif;font-size:20px;font-weight:700;color:var(--gold-light);margin-bottom:6px">최종 결제</h3>
       <p style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:28px;font-weight:300">결제 후 즉시 번역 작업이 시작됩니다</p>
       <!-- 결제 금액 -->
       <div style="background:rgba(31,79,209,0.06);border:1px solid rgba(31,79,209,0.2);padding:18px 22px;margin-bottom:24px">
@@ -3106,7 +3275,7 @@ var SHOW_V3 = false;
         <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;display:flex;justify-content:space-between;align-items:center">
           <p style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:500">최종 결제 금액</p>
           <div style="text-align:right">
-            <p id="payment-amount" style="font-family:'Nanum Myeongjo',serif;font-size:28px;font-weight:700;color:var(--gold-light)">-</p>
+            <p id="payment-amount" style="font-family:'MaruBuri',serif;font-size:28px;font-weight:700;color:var(--gold-light)">-</p>
             <p style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:300">부가세 포함</p>
           </div>
         </div>
@@ -3180,7 +3349,7 @@ var SHOW_V3 = false;
   <div style="max-width:460px;margin:80px auto;background:#111;border:1px solid rgba(31,79,209,0.3);padding:44px 40px;position:relative">
     <button onclick="closeBankModal()" style="position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <div id="bank-transfer-form">
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;color:var(--gold-light);margin-bottom:8px">법인 계좌 입금 안내</h3>
+      <h3 style="font-family:'MaruBuri',serif;font-size:20px;font-weight:700;color:var(--gold-light);margin-bottom:8px">법인 계좌 입금 안내</h3>
       <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px;font-weight:300">1회 결제 한도(200만원)를 초과하여 계좌입금으로 안내드립니다</p>
       <div style="background:rgba(31,79,209,0.06);border:1px solid rgba(31,79,209,0.25);padding:20px 22px;margin-bottom:20px">
         <p style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:14px">입금 계좌 정보</p>
@@ -3209,11 +3378,11 @@ var SHOW_V3 = false;
       </p>
       <p style="color:rgba(255,255,255,0.6);font-size:12px;text-align:center;margin:16px 0 0 0">감사합니다.</p>
       <button onclick="confirmBankTransfer()" class="btn-primary" style="width:100%;padding:16px;font-size:15px">입금 완료 · 작업 의뢰하기</button>
-      <button onclick="closeBankModal()" style="width:100%;padding:12px;font-size:13px;background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);cursor:pointer;margin-top:10px;font-family:'Noto Sans KR',sans-serif">취소</button>
+      <button onclick="closeBankModal()" style="width:100%;padding:12px;font-size:13px;background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);cursor:pointer;margin-top:10px;font-family:inherit">취소</button>
     </div>
     <div id="bank-transfer-complete" style="display:none;text-align:center;padding:32px 0">
       <div style="font-size:52px;margin-bottom:20px">✓</div>
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:700;color:var(--gold-light);margin-bottom:12px">의뢰가 접수되었습니다</h3>
+      <h3 style="font-family:'MaruBuri',serif;font-size:22px;font-weight:700;color:var(--gold-light);margin-bottom:12px">의뢰가 접수되었습니다</h3>
       <p style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.9;font-weight:300">입금 확인 후 번역 작업이 시작됩니다.<br>담당자가 1~2시간 내 이메일로 안내드립니다.</p>
       <button onclick="closeAllAndResetBank()" class="btn-secondary" style="margin-top:28px;padding:14px 40px">확인</button>
     </div>
@@ -3225,7 +3394,7 @@ var SHOW_V3 = false;
   <div style="max-width:560px;margin:40px auto;background:#111;border:1px solid rgba(55,138,221,0.2);padding:48px 40px;position:relative">
     <button onclick="closeModal('bizinquiry')" style="position:absolute;top:20px;right:24px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <div id="biz-form">
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:700;margin-bottom:8px;color:#85b7eb">비즈니스 문의</h3>
+      <h3 style="font-family:'MaruBuri',serif;font-size:22px;font-weight:700;margin-bottom:8px;color:#85b7eb">비즈니스 문의</h3>
       <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;font-weight:300">대량 주문·단가 협의(연간 · 월간 계약)를 도와드립니다. 담당자가 빠르게 연락드립니다.<br><span style="font-size:12px;color:rgba(255,255,255,0.5)">귀사 전용 용어집은 문의 없이 주문 화면에서 '기업 고객'을 체크하시면 바로 시작됩니다.</span></p>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -3258,7 +3427,7 @@ var SHOW_V3 = false;
             <option value="20만 단어 이상" style="background:#1a1a1a;color:#fafaf8">20만 단어 이상</option>
           </select>
         </div>
-        <div><label class="lbl">추가 요청사항</label><textarea id="biz-extra" class="inp" rows="2" style="resize:vertical;padding:11px 14px;font-family:'Noto Sans KR',sans-serif" placeholder="NDA 필요, 특수 파일 형식 등"></textarea></div>
+        <div><label class="lbl">추가 요청사항</label><textarea id="biz-extra" class="inp" rows="2" style="resize:vertical;padding:11px 14px;font-family:inherit" placeholder="NDA 필요, 특수 파일 형식 등"></textarea></div>
         <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:rgba(55,138,221,0.05);border:1px solid rgba(55,138,221,0.15);border-radius:4px">
           <input type="checkbox" id="biz-consent" style="margin-top:3px;accent-color:#85b7eb;flex-shrink:0">
           <label for="biz-consent" style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;cursor:pointer">
@@ -3266,13 +3435,13 @@ var SHOW_V3 = false;
             <span style="font-size:11px;color:rgba(255,255,255,0.4)">문의 내용은 영업 목적으로만 사용되며, 21일 후 자동 삭제됩니다. (<a href="#" onclick="showPage('privacy');return false" style="color:rgba(85,172,221,0.8);text-decoration:underline">개인정보처리방침</a>)</span>
           </label>
         </div>
-        <button id="biz-submit-btn" onclick="submitBizInquiry()" style="background:rgba(55,138,221,0.2);color:#85b7eb;border:1px solid rgba(55,138,221,0.4);width:100%;padding:15px;border-radius:2px;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:4px">문의하기</button>
+        <button id="biz-submit-btn" onclick="submitBizInquiry()" style="background:rgba(55,138,221,0.2);color:#85b7eb;border:1px solid rgba(55,138,221,0.4);width:100%;padding:15px;border-radius:2px;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:inherit;margin-top:4px">문의하기</button>
         <div id="biz-error-msg" style="display:none;color:#e05555;font-size:13px;text-align:center;padding:4px 0"></div>
       </div>
     </div>
     <div id="biz-complete" style="display:none;text-align:center;padding:48px 0">
       <div style="font-size:52px;margin-bottom:20px">✉️</div>
-      <h3 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700;color:#85b7eb;margin-bottom:14px">문의가 접수되었습니다</h3>
+      <h3 style="font-family:'MaruBuri',serif;font-size:24px;font-weight:700;color:#85b7eb;margin-bottom:14px">문의가 접수되었습니다</h3>
       <p style="font-size:15px;color:rgba(255,255,255,0.55);line-height:1.9;font-weight:300">추후 담당자가 연락을 드립니다.<br>빠른 시일 내에 맞춤 견적을 안내해드리겠습니다.</p>
       <button onclick="closeModal('bizinquiry')" class="btn-secondary" style="margin-top:32px;padding:14px 40px">확인</button>
     </div>
@@ -3284,8 +3453,8 @@ var SHOW_V3 = false;
   <div style="max-width:640px;margin:0 auto;width:100%">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:44px">
       <div>
-        <a href="#" onclick="showPage('main');return false" style="font-family:'Nanum Myeongjo',serif;font-size:22px;font-weight:900;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:6px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
-        <h2 style="font-family:'Nanum Myeongjo',serif;font-size:24px;font-weight:700">마이페이지<span id="biz-member-badge"></span></h2>
+        <a href="#" onclick="showPage('main');return false" style="font-family:'MaruBuri',serif;font-size:22px;font-weight:900;color:var(--gold-light);letter-spacing:3px;text-decoration:none;display:inline-block;margin-bottom:6px"><span style="color:#9DB7F5">IU</span><span style="color:#ffffff">MM</span></a>
+        <h2 style="font-family:'MaruBuri',serif;font-size:24px;font-weight:700">마이페이지<span id="biz-member-badge"></span></h2>
         <!-- [E-7] 자격 갱신 안내 -->
         <div id="renewal-section" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:6px;max-width:360px">
           <div style="color:#ffc107;font-size:13px;font-weight:700;margin-bottom:5px"><i class="ti ti-clock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>자격 갱신 안내</div>
@@ -3294,16 +3463,16 @@ var SHOW_V3 = false;
         </div>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="kakaoLogout()" style="background:none;border:1px solid rgba(224,85,85,0.25);color:rgba(224,85,85,0.7);padding:8px 16px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">로그아웃</button>
-        <button onclick="showPage('main')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif">← 홈으로</button>
+        <button onclick="kakaoLogout()" style="background:none;border:1px solid rgba(224,85,85,0.25);color:rgba(224,85,85,0.7);padding:8px 16px;border-radius:2px;cursor:pointer;font-size:13px;font-family:inherit">로그아웃</button>
+        <button onclick="showPage('main')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 20px;border-radius:2px;cursor:pointer;font-size:13px;font-family:inherit">← 홈으로</button>
       </div>
     </div>
 
     <!-- 탭 -->
     <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:36px">
-      <button id="my-tab-info" onclick="switchMyTab('info')" style="padding:12px 24px;background:none;border:none;border-bottom:2px solid var(--gold);color:var(--gold-light);font-size:14px;font-weight:500;cursor:pointer;font-family:'Noto Sans KR',sans-serif">회원 정보</button>
-      <button id="my-tab-orders" onclick="switchMyTab('orders')" style="padding:12px 24px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-size:14px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif">주문 목록</button>
-      <button id="my-tab-favs" onclick="switchMyTab('favs')" style="padding:12px 24px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-size:14px;font-weight:300;cursor:pointer;font-family:'Noto Sans KR',sans-serif">즐겨찾는 전문가</button>
+      <button id="my-tab-info" onclick="switchMyTab('info')" style="padding:12px 24px;background:none;border:none;border-bottom:2px solid var(--gold);color:var(--gold-light);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">회원 정보</button>
+      <button id="my-tab-orders" onclick="switchMyTab('orders')" style="padding:12px 24px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-size:14px;font-weight:300;cursor:pointer;font-family:inherit">주문 목록</button>
+      <button id="my-tab-favs" onclick="switchMyTab('favs')" style="padding:12px 24px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-size:14px;font-weight:300;cursor:pointer;font-family:inherit">즐겨찾는 전문가</button>
     </div>
 
     <!-- 회원 정보 탭 -->
@@ -3393,13 +3562,8 @@ var SHOW_V3 = false;
 
     </div>
 
-    <!-- 주문 목록 탭 (실데이터 — loadMyOrders / loadMyNotaryOrders) -->
+    <!-- 주문 목록 탭 (실데이터 — loadMyOrders) -->
     <div id="my-panel-orders" style="display:none">
-      <!-- 공증 서류 번역 (별도 모듈 — 있을 때만 노출) -->
-      <div id="my-notary-section" style="display:none;margin-bottom:26px">
-        <p style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);margin-bottom:12px">공증 서류 번역</p>
-        <div id="my-notary-list" style="display:flex;flex-direction:column;gap:14px"></div>
-      </div>
       <div id="my-orders-list" style="display:flex;flex-direction:column;gap:14px">
         <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;padding:20px 0">주문 내역을 불러오는 중…</p>
       </div>
@@ -3425,7 +3589,7 @@ var SHOW_V3 = false;
               <p style="font-size:17px;font-weight:600;margin-bottom:4px">김민준</p>
               <p style="font-size:12px;color:var(--gold-light);font-weight:300">법률·계약 전문</p>
             </div>
-            <button onclick="toggleFavoriteFromMypage('김민준','법률·계약 전문')" id="myfav-김민준" style="background:none;border:1px solid rgba(255,255,255,0.2);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;border-radius:2px;font-family:'Noto Sans KR',sans-serif">♡ 즐겨찾기</button>
+            <button onclick="toggleFavoriteFromMypage('김민준','법률·계약 전문')" id="myfav-김민준" style="background:none;border:1px solid rgba(255,255,255,0.2);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;border-radius:2px;font-family:inherit">♡ 즐겨찾기</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div style="padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
@@ -3454,7 +3618,7 @@ var SHOW_V3 = false;
               <p style="font-size:17px;font-weight:600;margin-bottom:4px">이서연</p>
               <p style="font-size:12px;color:var(--gold-light);font-weight:300">의료·제약 전문</p>
             </div>
-            <button onclick="toggleFavoriteFromMypage('이서연','의료·제약 전문')" id="myfav-이서연" style="background:none;border:1px solid rgba(255,255,255,0.2);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;border-radius:2px;font-family:'Noto Sans KR',sans-serif">♡ 즐겨찾기</button>
+            <button onclick="toggleFavoriteFromMypage('이서연','의료·제약 전문')" id="myfav-이서연" style="background:none;border:1px solid rgba(255,255,255,0.2);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;border-radius:2px;font-family:inherit">♡ 즐겨찾기</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div style="padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
@@ -3483,7 +3647,7 @@ var SHOW_V3 = false;
               <p style="font-size:17px;font-weight:600;margin-bottom:4px">박지호</p>
               <p style="font-size:12px;color:var(--gold-light);font-weight:300">기술·IT 전문</p>
             </div>
-            <button onclick="toggleFavoriteFromMypage('박지호','기술·IT 전문')" id="myfav-박지호" style="background:none;border:1px solid rgba(255,255,255,0.2);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;border-radius:2px;font-family:'Noto Sans KR',sans-serif">♡ 즐겨찾기</button>
+            <button onclick="toggleFavoriteFromMypage('박지호','기술·IT 전문')" id="myfav-박지호" style="background:none;border:1px solid rgba(255,255,255,0.2);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;border-radius:2px;font-family:inherit">♡ 즐겨찾기</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div style="padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
@@ -3671,11 +3835,11 @@ function renderExpertCard(e,isReviewer){
     return '<div data-langs="'+e.langs.join(',')+'" data-expert="'+(e.isExpert?'true':'false')+'" style="padding:24px 28px;border:1px solid '+(e.isExpert?'rgba(176,141,87,0.3)':'rgba(255,255,255,0.07)')+';background:'+(e.isExpert?'rgba(176,141,87,0.04)':'rgba(255,255,255,0.02)')+'">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">'+
       '<div>'+
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><p style="font-family:\'Nanum Myeongjo\',serif;font-size:20px;font-weight:400">'+e.name+'</p>'+expertBadge+'</div>'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><p style="font-family:\'MaruBuri\',serif;font-size:20px;font-weight:400">'+e.name+'</p>'+expertBadge+'</div>'+
       '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px"><p style="font-size:12px;color:var(--gold-light);font-weight:300;letter-spacing:0.5px">'+e.specialty+'</p>'+specialty2Tag+langBadges+'</div>'+
       (e.isExpert?'<div style="margin-bottom:4px">'+verifiedLabel+'</div>':'')+
       '</div>'+
-      '<button onclick="toggleFavoriteFromMypage(\''+e.name+'\',\''+e.specialty+'\')" id="expfav-'+e.name+'" style="background:none;border:1px solid rgba(255,255,255,0.15);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:12px;cursor:pointer;border-radius:2px;font-family:\'Noto Sans KR\',sans-serif;'+favStyle2+'">'+favIcon2+'</button></div>'+
+      '<button onclick="toggleFavoriteFromMypage(\''+e.name+'\',\''+e.specialty+'\')" id="expfav-'+e.name+'" style="background:none;border:1px solid rgba(255,255,255,0.15);padding:6px 14px;color:rgba(255,255,255,0.5);font-size:12px;cursor:pointer;border-radius:2px;font-family:inherit;'+favStyle2+'">'+favIcon2+'</button></div>'+
       '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">'+
       '<div style="padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)"><p style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-bottom:4px">자격증</p><p style="font-size:11px;color:rgba(255,255,255,0.85);font-weight:400">'+e.cert+'</p></div>'+
       '<div style="padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)"><p style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-bottom:4px">최종학력</p><p style="font-size:11px;color:rgba(255,255,255,0.85);font-weight:400">'+e.edu+'</p></div>'+
@@ -3845,8 +4009,8 @@ function openPrivacyAtAnchor(anchorId){
   });
 }
 
-// ─── 로그인 후 복귀 경로 (/notary/ 등 별도 페이지에서 넘어온 경우) ──────────
-// /?next=/notary/ 로 들어오면 로그인 화면을 띄우고, 로그인이 끝나면 그 경로로 돌려보낸다.
+// ─── 로그인 후 복귀 경로 (별도 페이지에서 넘어온 경우) ──────────
+// /?next=/경로 로 들어오면 로그인 화면을 띄우고, 로그인이 끝나면 그 경로로 돌려보낸다.
 // 별도 페이지가 자체 로그인을 갖지 않고 이 로그인 하나만 쓰게 하기 위한 장치다.
 // ★오픈 리다이렉트 방지: 같은 사이트 절대경로("/…")만 허용하고 "//other.com" 은 거른다.
 function safeNext(v){
@@ -3912,7 +4076,7 @@ function handleInitialHash(){
   if (anchorId.indexOf('article-11-2') === 0) { openTermsAtAnchor(anchorId); return; }
   if (anchorId.indexOf('privacy-2-2') === 0) { openPrivacyAtAnchor(anchorId); return; }
   /* ★/privacy·/terms 경로는 Pages 에 라우팅이 없어 404 가 난다(_redirects 없음).
-     하위 페이지(/notary/ 등)에서 약관·처리방침으로 보낼 때는
+     하위 페이지에서 약관·처리방침으로 보낼 때는
      반드시 실제 파일인 /index.html#privacy 형태로 링크할 것. */
   if (anchorId === 'privacy') { showPage('privacy'); return; }
   if (anchorId === 'terms')   { showPage('terms');   return; }
@@ -4207,7 +4371,7 @@ function clearEstimate(){
   document.getElementById('estimate-amount').textContent='-';
   if(document.getElementById('pasteText')) document.getElementById('pasteText').value='';
   if(document.getElementById('manual-chars')) document.getElementById('manual-chars').value='';
-  document.getElementById('reviewer-btn').textContent='검수자 선택하기 →';
+  document.getElementById('reviewer-btn').textContent='검수자 선택하기';
   // 검수자 선택 정보도 초기화 (플랜 전환 시 필수)
   selectedReviewerName='';
   selectedReviewerId='';
@@ -4598,7 +4762,7 @@ function selectOrderMode(mode){
   selectedReviewers=[];
   var btn=document.getElementById('reviewer-btn');
   var btnM=document.getElementById('btn-맡기기');
-  if(btn) btn.textContent='검수자 선택하기 →';
+  if(btn) btn.textContent='검수자 선택하기';
   if(btnM){
     btnM.style.background=mode==='맡기기'?'rgba(176,141,87,0.15)':'rgba(255,255,255,0.04)';
     btnM.style.borderColor=mode==='맡기기'?'rgba(176,141,87,0.5)':'rgba(255,255,255,0.1)';
@@ -4626,7 +4790,7 @@ function selectReviewer(el,name,id){
   selectedReviewerId=first?first.id:'';
   selectedReviewerIsExpert=first?!!first.isExpert:false;
   var btn=document.getElementById('reviewer-btn');
-  if(btn) btn.textContent=selectedReviewers.length===0?'검수자 선택하기 →':('✓ '+selectedReviewers.map(function(r){return r.name;}).join(', ')+' ('+selectedReviewers.length+'명)');
+  if(btn) btn.textContent=selectedReviewers.length===0?'검수자 선택하기':('✓ '+selectedReviewers.map(function(r){return r.name;}).join(', ')+' ('+selectedReviewers.length+'명)');
   // 가격 갱신
   var charText=(document.getElementById('char-count')||{}).textContent||'0';
   var chars=parseInt(charText.replace(/[^0-9]/g,''))||0;
@@ -4846,13 +5010,13 @@ function renderFavorites(){
     div.innerHTML=
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">'
         +'<div>'
-          +'<p style="font-family:\'Nanum Myeongjo\',serif;font-size:17px;font-weight:400;margin-bottom:4px">'+expert.name+'</p>'
+          +'<p style="font-family:\'MaruBuri\',serif;font-size:17px;font-weight:400;margin-bottom:4px">'+expert.name+'</p>'
           +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'
             +'<p style="font-size:11px;color:var(--gold-light);font-weight:300">'+expert.specialty+'</p>'
             +langBadges
           +'</div>'
         +'</div>'
-        +'<button onclick="removeFavorite(\''+f.name+'\')" style="flex-shrink:0;background:none;border:1px solid rgba(224,85,85,0.3);color:rgba(224,85,85,0.6);font-size:11px;padding:5px 12px;cursor:pointer;border-radius:2px;font-family:\'Noto Sans KR\',sans-serif;white-space:nowrap">♥ 해제</button>'
+        +'<button onclick="removeFavorite(\''+f.name+'\')" style="flex-shrink:0;background:none;border:1px solid rgba(224,85,85,0.3);color:rgba(224,85,85,0.6);font-size:11px;padding:5px 12px;cursor:pointer;border-radius:2px;font-family:inherit;white-space:nowrap">♥ 해제</button>'
       +'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
         +'<div style="padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)"><p style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-bottom:4px">자격증</p><p style="font-size:11px;color:rgba(255,255,255,0.8)">'+expert.cert+'</p></div>'
@@ -4885,7 +5049,7 @@ function switchMyTab(t){
       btn.style.fontWeight=t===tab?'500':'300';
     }
   });
-  if(t==='orders'){ loadMyOrders(); loadMyNotaryOrders(); }
+  if(t==='orders'){ loadMyOrders(); }
 }
 function toggleFavoriteFromMypage(name,specialty){
   var ids=['myfav-','expfav-','fav-'];
@@ -5290,242 +5454,6 @@ async function loadMyOrders(){
   }catch(e){ list.innerHTML='<p style="font-size:13px;color:#e05555;font-weight:300;padding:20px 0">오류: '+_esc(e.message)+'</p>'; }
 }
 
-// ─── 공증 서류 번역 주문 (별도 모듈 /api/notary) ──────────────
-// 편집 중 창을 닫아도 여기서 이어서 진행할 수 있어야 한다.
-// 공증 주문이 없으면 섹션 자체를 숨긴다 → 기존 마이페이지 화면 무변화.
-function _ntrBadge(o){
-  // 등기 발송 상품(T2/T3)은 발행 이후 배송 단계를 보여준다. 그 전엔 기존 라벨 그대로.
-  var label = o.stageLabel || o.statusLabel || '';
-  var c;
-  if (o.stageKey === 'shipped')     c = 'rgba(31,79,209,0.16);color:#9DB7F5';
-  else if (o.stageKey === 'ready')  c = 'rgba(31,79,209,0.16);color:var(--gold-light)';
-  else if (o.stageKey === 'progress') c = 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.75)';
-  else c = o.statusKey==='done' ? 'rgba(31,79,209,0.16);color:#9DB7F5'
-        : o.statusKey==='editing' ? 'rgba(224,167,58,0.16);color:#E0A73A'
-        : o.statusKey==='failed' ? 'rgba(224,85,85,0.16);color:#e05555'
-        : 'rgba(255,255,255,0.08);color:rgba(255,255,255,0.75)';
-  return '<span style="display:inline-block;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;background:'+c+'">'
-    + _esc(label) + '</span>';
-}
-
-/** 배송 단계별 안내 — 고객이 지금 무엇을 할 수 있는지 알려준다 */
-function _ntrStageNote(o){
-  if(o.stageKey==='shipped'){
-    return '<div style="margin-top:10px;padding:11px 13px;background:rgba(31,79,209,0.07);border-left:3px solid #1F4FD1;border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.82);line-height:1.75">'
-      +'서류를 등기로 발송해 드렸습니다.<br>'
-      +'<strong style="color:#9DB7F5">실물 서류 수령 전에도 스캔본으로 해외 제출이 가능합니다.</strong></div>';
-  }
-  if(o.stageKey==='ready'){
-    return '<div style="margin-top:10px;padding:11px 13px;background:rgba(31,79,209,0.07);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.82);line-height:1.75">'
-      +(o.tier==='APO'?'아포스티유가 완료되었습니다.':(o.tier==='T3'||o.tier==='CPA')?'공증 및 아포스티유가 완료되었습니다.':'공증이 완료되었습니다.')
-      +' <strong style="color:#9DB7F5">스캔본을 먼저 내려받으실 수 있습니다.</strong> 실물은 곧 등기로 발송해 드립니다.</div>';
-  }
-  if(o.stageKey==='progress'){
-    return '<div style="margin-top:10px;font-size:11.5px;color:rgba(255,255,255,0.55);line-height:1.7">'
-      +(o.tier==='APO'?'아포스티유 절차를':o.tier==='CPA'?'사본공증·아포스티유 절차를':o.route==='수동'?'번역·공증 절차를':'공증 절차를')
-      +' 진행하고 있습니다. 완료되면 스캔본과 발송번호를 이곳에서 확인하실 수 있습니다.</div>';
-  }
-  return '';
-}
-
-/** 번역본 내려받기 — 번역만(수동) 주문. 서버가 준비 여부를 409/410 으로 가른다 */
-async function openNotaryTranslation(orderNumberEnc){
-  var orderNumber=decodeURIComponent(orderNumberEnc);
-  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
-  if(!token){ showToast('카카오 로그인 후 이용해주세요','error'); return; }
-  var box=document.getElementById('ntr-scan-'+orderNumber);
-  if(!box) return;
-  if(box.dataset.open==='1'){ box.style.display='none'; box.dataset.open='0'; return; }
-  box.style.display=''; box.dataset.open='1';
-  box.innerHTML='<p style="font-size:11.5px;color:rgba(255,255,255,0.5)">불러오는 중…</p>';
-  try{
-    var r=await fetch(MEMBER_API_BASE+'/api/notary/order/'+encodeURIComponent(orderNumber)+'/translation',
-      {headers:{'Authorization':'Bearer '+token}});
-    var d=await r.json();
-    if(!d.ok){ box.innerHTML='<p style="font-size:11.5px;color:#e05555">'+_esc(d.error||'번역본을 불러오지 못했습니다')+'</p>'; return; }
-    box.innerHTML='<p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px">번역본</p>'
-      +d.files.map(function(f){
-        return '<a href="'+_esc(f.url)+'" target="_blank" rel="noopener" download '
-          +'style="display:inline-block;margin:0 8px 8px 0;padding:8px 14px;border-radius:6px;border:1px solid rgba(31,79,209,0.35);'
-          +'background:rgba(31,79,209,0.08);color:#9DB7F5;font-size:11.5px;font-weight:600;text-decoration:none">⬇ '
-          +_esc(f.name)+'</a>';
-      }).join('');
-  }catch(e){
-    box.innerHTML='<p style="font-size:11.5px;color:#e05555">번역본을 불러오지 못했습니다.</p>';
-  }
-}
-
-/** 스캔본 목록 열기 — 대표가 스캔본을 등록하면 바로 열린다 (서버가 409/410 로 가른다) */
-async function openNotaryScan(orderNumberEnc){
-  var orderNumber=decodeURIComponent(orderNumberEnc);
-  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
-  if(!token){ showToast('카카오 로그인 후 이용해주세요','error'); return; }
-  var box=document.getElementById('ntr-scan-'+orderNumber);
-  if(box && box.dataset.open==='1'){ box.style.display='none'; box.dataset.open='0'; return; }
-  if(!box) return;
-  box.style.display=''; box.dataset.open='1';
-  box.innerHTML='<p style="font-size:11.5px;color:rgba(255,255,255,0.5)">불러오는 중…</p>';
-  try{
-    var r=await fetch(MEMBER_API_BASE+'/api/notary/order/'+encodeURIComponent(orderNumber)+'/scan',
-      {headers:{'Authorization':'Bearer '+token}});
-    var d=await r.json();
-    if(!d.ok){ box.innerHTML='<p style="font-size:11.5px;color:#e05555">'+_esc(d.error||'스캔본을 불러오지 못했습니다')+'</p>'; return; }
-    var exp='';
-    if(d.scanDeleteDate){
-      var xd=new Date(d.scanDeleteDate);
-      if(!isNaN(xd)) exp='<p style="margin-top:8px;font-size:10.5px;color:rgba(255,255,255,0.45)">🔒 '
-        +xd.getFullYear()+'.'+(xd.getMonth()+1)+'.'+xd.getDate()+'까지 다운로드 가능 (발송 후 30일)</p>';
-    }
-    box.innerHTML='<p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px">공증 완료본 스캔</p>'
-      +d.files.map(function(f){
-        return '<a href="'+_esc(f.url)+'" target="_blank" rel="noopener" download '
-          +'style="display:inline-block;margin:0 8px 8px 0;padding:8px 14px;border-radius:6px;border:1px solid rgba(31,79,209,0.35);'
-          +'background:rgba(31,79,209,0.08);color:var(--gold-light);font-size:11.5px;font-weight:600;text-decoration:none">⬇ '
-          +_esc(f.name)+'</a>';
-      }).join('')+exp;
-  }catch(e){
-    box.innerHTML='<p style="font-size:11.5px;color:#e05555">스캔본을 불러오지 못했습니다.</p>';
-  }
-}
-
-async function openNotaryOrder(orderNumberEnc, mode){
-  var orderNumber = decodeURIComponent(orderNumberEnc);
-  var suffix = mode==='upsell' ? '&upsell=1' : '';
-  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
-  if(!token){ showToast('카카오 로그인 후 이용해주세요','error'); return; }
-  // 편집 링크가 만료됐을 수 있으니 본인 확인 후 새 토큰을 받아서 연다
-  try{
-    var r=await fetch(MEMBER_API_BASE+'/api/notary/order/'+encodeURIComponent(orderNumber)+'/reissue-token',
-      {method:'POST',headers:{'Authorization':'Bearer '+token}});
-    var d=await r.json();
-    if(d&&d.ok&&d.token){
-      location.href='/notary/edit.html?o='+encodeURIComponent(orderNumber)+'&t='+encodeURIComponent(d.token)+suffix;
-      return;
-    }
-  }catch(e){}
-  // 재발급이 안 되면 로그인 기반으로 열어본다
-  location.href='/notary/edit.html?o='+encodeURIComponent(orderNumber)+(suffix?'?'+suffix.slice(1):'');
-}
-async function loadMyNotaryOrders(){
-  var sec=document.getElementById('my-notary-section');
-  var list=document.getElementById('my-notary-list');
-  if(!sec||!list) return;
-  var token=(typeof Kakao!=='undefined'&&Kakao.Auth&&Kakao.Auth.getAccessToken)?Kakao.Auth.getAccessToken():null;
-  if(!token){ sec.style.display='none'; return; }
-  try{
-    var r=await fetch(MEMBER_API_BASE+'/api/notary/my/orders',{headers:{'Authorization':'Bearer '+token}});
-    var d=await r.json();
-    var orders=(d&&d.ok&&d.orders)?d.orders:[];
-    if(!orders.length){ sec.style.display='none'; return; }
-    sec.style.display='';
-    // 상단 알림 — 아포스티유 준비 서류 미제출 건
-    var needDocs=orders.filter(function(o){ return o.needsApostilleDocs; }).length;
-    var top=document.getElementById('my-notary-docs-alert');
-    if(!top){ top=document.createElement('div'); top.id='my-notary-docs-alert'; list.parentNode.insertBefore(top,list); }
-    top.innerHTML=needDocs?'<div style="margin-bottom:12px;padding:12px 14px;background:rgba(229,72,77,0.1);border:1px solid rgba(229,72,77,0.35);border-radius:6px;font-size:13px;color:#fff">'
-      +'⚠ 아포스티유 준비 서류(동의서·신분증)를 기다리는 주문이 <strong>'+needDocs+'건</strong> 있습니다. 아래 주문에서 올려 주세요.</div>':'';
-    list.innerHTML=orders.map(function(o){
-      var enc=encodeURIComponent(o.orderNumber);
-      var btns='';
-      if(o.editable){
-        btns+='<button onclick="openNotaryOrder(\''+enc+'\')" style="padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--gold);color:#fff;font-family:inherit">확인·수정 계속하기</button>';
-      } else if(o.viewable){
-        btns+='<button onclick="openNotaryOrder(\''+enc+'\')" style="padding:9px 16px;border-radius:6px;border:1px solid rgba(255,255,255,0.18);cursor:pointer;font-size:12px;font-weight:600;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);font-family:inherit">번역본 보기 · 인쇄</button>';
-      }
-      var warn = o.hangulWarning && o.editable
-        ? '<div style="margin-top:10px;padding:9px 12px;background:rgba(224,85,85,0.08);border-left:3px solid #e05555;border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.8)">확인이 필요한 항목이 있습니다. 편집 화면에서 붉게 표시된 부분을 확인해 주세요.</div>'
-        : '';
-      // ── 스캔본 등록(ready)·발송완료: 스캔본 확인 + 아직 열려 있으면 아포스티유 추가 ──
-      if(o.stageKey==='shipped'||o.stageKey==='ready'){
-        btns+='<button onclick="openNotaryScan(\''+enc+'\')" style="padding:9px 16px;border-radius:6px;border:1px solid rgba(31,79,209,0.4);cursor:pointer;font-size:12px;font-weight:700;background:rgba(31,79,209,0.1);color:var(--gold-light);font-family:inherit">스캔본 확인 · 다운로드</button>';
-      }
-      // ★아포스티유 추가는 공증 완료 전까지만. 스캔본이 등록되면 서버가 false 로 내려 자동으로 사라진다.
-      if(o.canAddApostille){
-        // ★금액은 서버가 내려주는 업셀 정보(pricing.js 단일 출처)만 쓴다 — 하드코딩 금지.
-        //   표기는 상품 카드·과정 화면과 같이 공급가 기준이다 — 부가세는 결제 화면에서만 분해한다.
-        //   서버가 upgrade 를 안 내려주면 금액 없이 버튼만 띄운다 — 틀린 금액을 보이는 것보다 낫다.
-        var upWon=(o.upgrade&&typeof o.upgrade.supply==='number')?' (+'+o.upgrade.supply.toLocaleString()+'원 부가세 별도)':'';
-        btns+='<button onclick="openNotaryOrder(\''+enc+'\',\'upsell\')" style="padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--gold);color:#fff;font-family:inherit">아포스티유 추가'+upWon+'</button>';
-      }
-      var apoNote = o.canAddApostille
-        ? '<div style="margin-top:10px;padding:9px 12px;background:rgba(31,79,209,0.06);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;font-size:11.5px;color:rgba(255,255,255,0.78);line-height:1.7">아포스티유가 필요하시면 <strong>발송 전에</strong> 추가하세요. 서류 발송 후에는 추가할 수 없습니다.</div>'
-        : '';
-      var track = o.trackingNo
-        ? '<div style="margin-top:10px;padding:10px 13px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:5px">'
-            +'<p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:3px">발송번호 (등기)</p>'
-            +'<p style="font-size:13px;font-weight:600;color:#fafaf8;letter-spacing:0.3px">'+_esc(o.trackingNo)+'</p>'
-            +'<p style="margin-top:5px;font-size:10.5px;color:rgba(255,255,255,0.45)">우체국 등기 조회에서 위 번호로 배송 상황을 확인하실 수 있습니다.</p>'
-          +'</div>'
-        : '';
-      // 번역만(수동) — 번역본 내려받기
-      if(o.translationReady){
-        btns+='<button onclick="openNotaryTranslation(\''+enc+'\')" style="padding:9px 16px;border-radius:6px;border:1px solid rgba(31,79,209,0.4);cursor:pointer;font-size:12px;font-weight:700;background:rgba(31,79,209,0.1);color:#9DB7F5;font-family:inherit">번역본 내려받기</button>';
-      }
-      // 스캔본·번역본 목록이 펼쳐질 자리
-      var scanBox = (o.stageKey==='shipped'||o.stageKey==='ready'||o.translationReady)
-        ? '<div id="ntr-scan-'+_esc(o.orderNumber)+'" data-open="0" style="display:none;margin-top:10px;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:5px"></div>'
-        : '';
-      var expire='';
-      if(o.deleteDate){
-        var dd=new Date(o.deleteDate);
-        if(!isNaN(dd)){
-          expire='<div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.45)">🔒 '
-            +dd.getFullYear()+'.'+(dd.getMonth()+1)+'.'+dd.getDate()+' 자동 삭제 (발행 후 30일)</div>';
-        }
-      }
-      return '<div style="padding:20px 22px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">'
-        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">'
-          +'<div><p style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:4px">'
-            +_esc(_myOrderDate(o.receivedAt))+' · 주문번호 '+_esc(o.orderNumber)+'</p>'
-          +'<p style="font-size:15px;font-weight:500">'+_esc(o.docType||'공증 서류')+' · '+_esc(o.country||'')+'</p></div>'
-          +_ntrBadge(o)
-        +'</div>'
-        +'<div class="order-info-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'
-          +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">상품</p><p style="font-size:12px;color:rgba(255,255,255,0.8)">'+_esc(({T1:'번역만',T2:'번역공증',T3:'번역공증 + 아포스티유',APO:'아포스티유 단독',CPA:'사본공증 + 아포스티유'})[o.tier]||o.tier||'-')+'</p></div>'
-          +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">결제금액 (부가세 포함)</p><p style="font-size:12px;font-weight:500;color:var(--gold-light)">'+(o.amount||0).toLocaleString()+'원</p></div>'
-          +'<div><p style="font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:4px">아포스티유</p><p style="font-size:12px;color:rgba(255,255,255,0.8)">'+((o.tier==='T3'||o.tier==='APO'||o.tier==='CPA')?'포함':'해당 없음')+'</p></div>'
-        +'</div>'
-        +_ntrSchedLine(o)
-        +_ntrDocsAlert(o)
-        +warn+_ntrStageNote(o)+apoNote+track+expire
-        +(btns?'<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">'+btns+'</div>':'')
-        +scanBox
-      +'</div>';
-    }).join('');
-  }catch(e){
-    // 공증은 부가 기능이다 — 실패해도 기존 주문 목록을 가리지 않는다
-    sec.style.display='none';
-    console.warn('notary orders load failed:', e);
-  }
-}
-/* 공증 예정수령일 · 급행 — 서버 계산값 그대로 (영업일 기준 예정) */
-function _ntrDay(d){
-  if(!d) return '';
-  var W=['일','월','화','수','목','금','토'];
-  var t=new Date(d+'T00:00:00Z');
-  return (t.getUTCMonth()+1)+'월 '+t.getUTCDate()+'일('+W[t.getUTCDay()]+')';
-}
-/* 아포스티유 준비 서류 미제출 — 카드 안 버튼 + 목록 상단 알림 */
-function _ntrDocsAlert(o){
-  if(!o.needsApostilleDocs) return '';
-  return '<div style="margin-top:10px;padding:10px 12px;background:rgba(229,72,77,0.08);border-left:3px solid #e5484d;border-radius:0 4px 4px 0;font-size:12px;color:rgba(255,255,255,0.85)">'
-    +'<strong style="color:#ff8a8d">아포스티유 준비 서류를 올려 주세요</strong> — 동의서·신분증이 올라와야 아포스티유 일정이 시작됩니다.'
-    +' <a href="/notary/?docs='+encodeURIComponent(o.orderNumber)+'" style="color:var(--gold-light);font-weight:700">준비 서류 올리기 →</a></div>';
-}
-function _ntrSchedLine(o){
-  if(o.awaitingOriginal){
-    return '<div style="margin-top:12px;padding:9px 12px;background:rgba(255,255,255,0.03);border-radius:4px;font-size:12.5px;color:rgba(255,255,255,0.85)">'
-      +'받으실 예정일 <strong style="color:#fff">원본 도착 후 계산</strong>'
-      +'<span style="color:rgba(255,255,255,0.45);font-size:11px"> · 원본을 빠른등기로 보내 주세요</span></div>';
-  }
-  if(!o.expectedDay) return '';
-  var badge=o.express?' <span style="display:inline-block;padding:1px 7px;border-radius:4px;background:#e5484d;color:#fff;font-size:11px;font-weight:700;vertical-align:middle">급행</span>':'';
-  var changed=o.expectedChanged&&o.previousExpectedDay
-    ?'<p style="margin-top:4px;font-size:11.5px;color:#ffb4a8">처리 일정이 바뀌어 예정일이 '+_esc(_ntrDay(o.previousExpectedDay))+' → '+_esc(_ntrDay(o.expectedDay))+'(으)로 조정되었습니다.</p>':'';
-  return '<div style="margin-top:12px;padding:9px 12px;background:rgba(255,255,255,0.03);border-radius:4px;font-size:12.5px;color:rgba(255,255,255,0.85)">'
-    +'받으실 예정일 <strong style="color:#fff">'+_esc(_ntrDay(o.expectedDay))+'</strong>'+badge
-    +'<span style="color:rgba(255,255,255,0.45);font-size:11px"> · 영업일 기준 예정</span>'+changed+'</div>';
-}
 async function requestRenewal(){
   if(!confirm('무료로 2년 연장하시겠습니까?'))return;
   var token=localStorage.getItem('iumm_member_token');
@@ -5634,7 +5562,7 @@ function showPaymentConfirmModal(amountNum){
 
     var modal=document.createElement('div');
     modal.id='payment-confirm-modal';
-    modal.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:\'Noto Sans KR\',sans-serif';
+    modal.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;font-family:inherit';
     modal.innerHTML=''
       +'<div data-act="cancel" style="position:absolute;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)"></div>'
       +'<div style="position:relative;background:var(--black-deeper);border:1px solid rgba(31,79,209,0.45);border-radius:12px;padding:28px;max-width:520px;width:92%;max-height:90vh;overflow-y:auto">'
@@ -6756,6 +6684,6 @@ function openTranslationOrder(){
 </script>
 
 <!-- 카카오톡 문의 — 전 화면 공통 조각 (주문 모달·마이페이지·약관이 열려도 보인다) -->
-<script src="/assets/kakao-fab.js?v=4" defer></script>
+<script src="/assets/kakao-fab.js?v=5" defer></script>
 </body>
 </html>

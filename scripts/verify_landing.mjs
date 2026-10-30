@@ -36,21 +36,36 @@ check(planEls[0].textContent === 25 && planEls[1].textContent === 40, '요금 �
 check(!/currentPlan\s*===?\s*["']ai["']\s*\?\s*25\s*:\s*40/.test(html), '주문 모달 25:40 하드코딩 없음');
 
 console.log('\n[3] 구성 · 순서');
-const order = ['id="top"', 'id="team"', 'id="iumm-about"', 'id="promise"', 'id="process"', 'id="field-standards"', 'id="business"', 'id="pricing"', 'id="faq-summary"', 'id="cta-final"'].map(x => land.indexOf(x));
-check(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), '첫 화면 → 번역팀 → 아이움이란 → 약속 → 과정 → 분야 → 기업 고객 → 요금 → FAQ → 마지막');
-const curFlow = land.slice(land.search(/<div class="v3-cur">\s*<h2 class="lp-h2">단순 AI 번역이 아닙니다<\/h2>/));
+const order = ['id="top"', 'id="team"', 'id="iumm-about"', 'id="process"', 'id="field-standards"', 'id="business"', 'id="pricing"', 'id="faq-summary"', 'id="cta-final"'].map(x => land.indexOf(x));
+check(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), '첫 화면 → 번역팀 → 왜 아이움 → 과정 → 분야 → 맡겨야 하는 이유 → 요금 → FAQ → 마지막');
+check(!/id="promise"|세 가지 약속|lp-promise/.test(html) && !/href="#promise"/.test(html), "'세 가지 약속' 구역·링크 없음 (2026-10-30)");
+{ const secBg = (id) => (land.match(new RegExp('<section class="([^"]*)" id="' + id + '"')) || [])[1] || '';
+  check(secBg('team') === 'lp-sec' && secBg('iumm-about') === 'lp-sec tight' && secBg('process') === 'lp-sec band' && secBg('field-standards') === 'lp-sec' &&
+        secBg('business') === 'lp-sec pale' && secBg('pricing') === 'lp-sec' && secBg('faq-summary') === 'lp-sec lp-faq' && /class="lp-final" id="cta-final"/.test(land),
+    '구역 배경 순서 — 남색 → 오프화이트(번역팀·왜 아이움) → 남색 띠(과정) → 오프화이트(분야) → 페일 블루(이유) → 오프화이트(요금·FAQ) → 남색'); }
+const curFlow = land.slice(land.search(/<div class="v3-cur">\s*<h2 class="lp-h2 mb">단순 AI 번역이 아닙니다<\/h2>/));
 check(curFlow.length < land.length && (curFlow.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 9, "현재 번역 과정 9단계 · 큰 제목 '단순 AI 번역이 아닙니다'");
 check(land.includes('<p class="lp-sub">아이움 AI와 전문 번역가가 9단계 검증을 거쳐 완성합니다.</p>'), '과정 부제');
-check(/<p class="lp-kicker">단순 AI 번역이 아닙니다<\/p>\s*<h2 class="lp-h2">한 문장이 10단계를 거쳐 납품됩니다<\/h2>/.test(land), 'V3 10단계 위 작은 제목');
+check(/<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다<\/h2>\s*<p class="lp-sub">단순 AI 번역이 아닙니다\.<\/p>/.test(land), 'V3 10단계 제목 아래 부제 (작은 라벨 없음)');
+check(!/class="lp-label"|class="lp-kicker"/.test(html), '구역 제목 위 작은 라벨 없음');
 check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
 check((land.match(/<div class="lp-field">/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 카드 8장 + 그 밖의 분야 접기');
-check(land.includes('<h2 class="lp-h2">아이움이 특화한 여덟 분야</h2>') && land.includes('id="lp-fields-more"') && /\.lp-fields:not\(\.all\) \.lp-field:nth-child\(n\+5\)\{display:none\}/.test(html), '여덟 분야 제목 · 모바일 4장 + 더 보기');
+check(land.includes('<h2 class="lp-h2 mb">아이움이 특화한 여덟 분야</h2>') && !/lp-fields-more|네 분야 더 보기/.test(html) && /\.lp-field:not\(\.open\) \.more\{display:none\}/.test(html) &&
+      (land.match(/<button type="button" class="fmore" aria-expanded="false">예시·기준 보기<\/button>/g) || []).length === 8, '여덟 분야 — 모바일 2열 8칸 모두 보임, 누르면 예시·기준 펼침 (더 보기 없음)');
+check(/\.lp-fields\{display:grid;grid-template-columns:repeat\(4,1fr\)/.test(html) && /\.lp-field\{padding:22px 0 0;border-top:1px solid/.test(html) && /\.lp-field \.std li\{display:inline\}/.test(html), '분야 타일 = 위쪽 가는 선 · 데스크톱 4×2 · 기준은 한 줄 글자(배지 없음)');
 for (const b of ['ICH 가이드라인', 'K-IFRS', 'ISA 국제감사기준', 'WIPO Pearl 특허 용어', '지식재산처 PCT 용어 해설', '학회 공식 용어 우선', 'GRI Standards', 'ISSB IFRS S1·S2', 'KSSB 지속가능성 공시기준', '원작 공식 표기 우선'])
   check(land.includes('<li>' + b + '</li>'), `기준 배지 '${b}'`);
 check(land.includes('주요 시장: 영어 · 중국어(간체·번체) · 일본어 등'), '게임 주요 시장 줄');
 
 console.log('\n[3-2] 기업 고객 · 무료 테스트 · 14일 무상 수정');
-check(land.includes('<h2 class="lp-h2">기업이 아이움에 맡기는 이유</h2>') && (land.match(/<div class="bz">/g) || []).length === 4, '기업 고객 카드 (공개 3 + V3 품질 리포트 1)');
+check(land.includes('<h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</h2>') && !/기업이 아이움에 맡기는 이유/.test(html) && (land.match(/<div class="c"><p class="k mb">/g) || []).length === 7, "'아이움에 맡겨야 하는 이유' 6칸 + V3 품질 리포트 1");
+{ const ks = [...land.matchAll(/<p class="k mb">([\s\S]*?)<\/p><p class="d">([^<]*)<\/p>/g)].map(m => [m[1].replace(/<[^>]+>/g, ''), m[2]]);
+  const want = ['글자당 원', '5,000자 24시간', '자동 가림', 'NDA 체결', '1,000자 무료', '14일 1회 무상 수정', '품질 리포트'];
+  check(ks.map(k => k[0]).join('|') === want.join('|'), '핵심 사실 = ' + ks.map(k => k[0]).join(' · '));
+  check(land.includes('<p class="k mb">글자당 <span data-plan="ai"></span>원</p>') && /부가세 별도/.test(ks[0][1]) && !/추가 요금 없이/.test(html), "단가 = PLAN_PRICE · 부가세 별도 표기 · '추가 요금 없이' 없음");
+  check(/24시간 이내/.test(ks[1][1]) && html.includes('<td style="padding:3px 5px">1,000~5,000자</td><td style="padding:3px 5px;text-align:center">24시간 이내</td>'), '납기 = 주문 화면 소요시간 표(스탠다드 1,000~5,000자 24시간 이내)와 같음');
+  check(ks[2][1].includes('납품 후 21일 안에 삭제합니다.') && land.includes('문서는 납품 후 21일 안에 삭제합니다.'), '21일 삭제 문구 (이유·FAQ)'); }
+check(/\.lp-why \.k\{[^}]*color:var\(--v-navy\);background:linear-gradient\(var\(--v-gold\),var\(--v-gold\)\) no-repeat 0 100%\/40px 2px/.test(html), '핵심 사실 = 남색 글자 + 골드 짧은 선 (골드 글자는 대비 부족)');
 check(!/원본 형식 그대로/.test(land), "'원본 형식 그대로' 카드 없음 (형식 유지 납품 미지원)");
 check(/onclick="openFreeTest\(\)">무료 테스트 번역 신청<\/button>/.test(land) && /href="https:\/\/pf\.kakao\.com\/_BlpKX\/chat"[^>]*>NDA 체결 문의<\/a>/.test(land), '버튼: 무료 테스트 신청 · NDA 문의(카카오 상담)');
 check(!/후불|월 정산|외상/.test(html.replace(/<!--[\s\S]*?-->/g, '')), '후불·월 정산·외상 없음');
@@ -105,7 +120,7 @@ check(land.includes('<p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1�
 { const pairs = (html.match(/<select id="lang-select"[\s\S]*?<\/select>/)[0].match(/<option[^>]*>한국어 → [^<]+<\/option>/g) || []).length;
   check(pairs === 32, `신뢰 표시 '32개 언어' = 주문 화면 한국어→외국어 목록 ${pairs}개`); }
 check(!/이음|잇습니다|잇고|이어 드립니다/.test(landVis) && !/이음/.test(html.replace(/<!--[\s\S]*?-->/g, '')), "'이음' 브랜드 표현 · '잇다' 문구 없음 (숨김 V3 포함)");
-check(land.includes('<p class="lp-label">왜 아이움인가</p>') && land.includes('<h2 class="lp-h2">빠르면서도, 정확하게</h2>'), '왜 아이움인가 섹션');
+check(land.includes('<section class="lp-sec tight" id="iumm-about">') && land.includes('<h2 class="lp-h2 mb">빠르면서도, 정확하게</h2>'), '왜 아이움인가 섹션 (제목 빠르면서도, 정확하게)');
 check(land.includes('<p class="s">당신의 가능성을 세계로 연결합니다.</p>'), '마지막 섹션 대표 문구');
 
 console.log('\n[6] 색 — 새 팔레트');
@@ -433,7 +448,9 @@ console.log('\n[V3] 공개 스위치');
   check((inT.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, 'V3 공정 10단계');
   check(/<span class="tag">예시<\/span>/.test(inT), "V3 가상 예시에 '예시' 표시");
   check(!/제출/.test(outT) && !/제출/.test(inT), "'제출' 표현 없음 (대상 독자·대상 시장)");
-  check(outT.includes('문서 종류를 파악하고, 개인정보 번호는 처리 전에 자동으로 가립니다. 영어 번역은 대상 시장의 표기에 맞춥니다.'), '현재 버전 1단계 문구 (V2 실제 단계)');
+  const S1 = '<span class="t">문서 분석</span><span class="d">고객이 고른 분야와 문서 종류에 맞는 번역 기준을 적용하고, 개인정보 번호는 처리 전에 자동으로 가립니다.</span>';
+  check(outT.includes(S1) && inT.includes(S1), "1단계 '문서 분석' = 코드 기준 문구 (V2·V3 같음)");
+  check(!/영국식|미국식|대상 시장|대상 독자|제출처|제출 국가/.test(html), "'영국식·미국식·대상 시장·대상 독자·제출처·제출 국가' 없음 (숨김·template 포함)");
   // 켜지는 조건 — 운영 주소는 ?v3=1 이 있어도 꺼짐, 브랜치 미리보기만 켜짐
   const sw = script.slice(script.indexOf('var SHOW_V3'), script.indexOf('/* 메인 랜딩 v2'));
   const run = (hostname, search, flag) => {
@@ -446,6 +463,82 @@ console.log('\n[V3] 공개 스위치');
   check(run('site-v2-two-experts.iumm-site.pages.dev', '?v3=1') === 1, '미리보기 브랜치 + ?v3=1 → 켜짐');
   check(run('site-v2-two-experts.iumm-site.pages.dev', '') === 0, '미리보기 브랜치 기본 → 꺼짐');
   check(run('iumm.kr', '', true) === 1, 'SHOW_V3 = true → 운영에서 켜짐');
+}
+
+// ── 2026-10-30 디자인 개편 ──
+console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
+{
+  const hero = land.slice(land.indexOf('<section class="lp-hero" id="top">'), land.indexOf('</section>', land.indexOf('<section class="lp-hero" id="top">')));
+  const txt = (h) => h.replace(/<[^>]+>/g, '');
+  const pane = (id) => { const m = hero.match(new RegExp('<div class="cmp-pane" id="cmp-p-' + id + '"[\\s\\S]*?<div class="cmp-col" lang="ko">[\\s\\S]*?<p class="cmp-s mb">([\\s\\S]*?)</p></div>\\s*<div class="cmp-col" lang="en">[\\s\\S]*?<p class="cmp-s mb">([\\s\\S]*?)</p></div>')); return m ? [m[1], m[2]] : ['', '']; };
+  const EX = {
+    contract: ['갑은 본 계약 체결일로부터 30일 이내에 계약금 5,000,000원을 을에게 지급한다.', 'Party A shall pay Party B a deposit of KRW 5,000,000 within thirty (30) days from the date of execution of this Agreement.',
+      [['갑', 'Party A'], ['을', 'Party B'], ['본 계약', 'this Agreement'], ['계약금', 'deposit']], [['30일', 'thirty (30) days'], ['5,000,000원', 'KRW 5,000,000']]],
+    game: ['전설의 검을 얻으려면 북쪽 성채의 수호자를 쓰러뜨려야 한다.', 'To obtain the Legendary Sword, you must defeat the Guardian of the Northern Citadel.',
+      [['전설의 검', 'Legendary Sword'], ['북쪽 성채', 'Northern Citadel'], ['수호자', 'Guardian']], []],
+    manual: ['전원 코드를 뽑고 10분이 지난 뒤 필터를 분리하십시오.', 'Unplug the power cord and wait 10 minutes before removing the filter.',
+      [['전원 코드', 'power cord'], ['필터', 'filter']], [['10분', '10 minutes']]] };
+  for (const [id, [ko, en, terms, nums]] of Object.entries(EX)) {
+    const [k, e] = pane(id);
+    const pairs = (cls, h) => Object.fromEntries([...h.matchAll(new RegExp('<span class="' + cls + '" data-k="(\\w)">([^<]+)</span>', 'g'))].map(m => [m[1], m[2]]));
+    const tk = pairs('t', k), te = pairs('t', e), nk = pairs('n', k), ne = pairs('n', e);
+    const got = (a, b) => Object.keys(a).map(x => [a[x], b[x]]).sort().join('|');
+    check(txt(k) === ko && txt(e) === en && got(tk, te) === terms.slice().sort().join('|') && got(nk, ne) === nums.slice().sort().join('|'),
+      `예시 ${id} — 문장 그대로 · 용어 짝 ${terms.length} · 숫자 짝 ${nums.length}`);
+  }
+  check(/<span class="cmp-tag">예시<\/span>/.test(hero) && (hero.match(/role="tab"/g) || []).length === 3 && /aria-selected="true">계약서</.test(hero) && /id="cmp-p-game"[^>]*hidden/.test(hero) && /id="cmp-p-manual"[^>]*hidden/.test(hero),
+    "패널 '예시' 표시 · 탭 계약서/게임/매뉴얼 (기본 계약서, JS 없이도 계약서가 보임)");
+  check(txt(hero.match(/<ul class="cmp-checks">[\s\S]*?<\/ul>/)[0]).replace(/\s+/g, ' ').trim() === '용어 일치 숫자 대조 전문 번역가 최종 확인', '패널 아래 확인 3개 — 용어 일치 · 숫자 대조 · 전문 번역가 최종 확인');
+  check(hero.indexOf('id="lp-entry"') < hero.indexOf('id="lp-cmp"') && /@media\(min-width:1024px\)\{\s*\.lp-hero \.lp\{display:grid;grid-template-columns:minmax\(0,1fr\) minmax\(0,1\.1fr\)/.test(html) && /\.cmp-row\{grid-template-columns:1fr;gap:18px\}/.test(html),
+    '데스크톱 = 글 왼쪽·패널 오른쪽 / 모바일 = 글 아래 패널, 원문 위·번역 아래');
+  check(/\.lp-cmp \.t\{[^}]*background:linear-gradient\(var\(--v-gold\),var\(--v-gold\)\) no-repeat 0 100%\/100% 2px/.test(html) && /\.lp-cmp \.n\{[^}]*border:1px solid rgba\(15,37,64,0\.5\)/.test(html),
+    '용어 = 골드 밑줄 · 숫자·금액·날짜 = 가는 테두리');
+  const pj = (land.match(/<script>\s*\/\* 원문·번역 대조 패널[\s\S]*?<\/script>/) || [''])[0];
+  check(/prefers-reduced-motion: reduce/.test(pj) && /if \(reduce\) return;\s*box\.classList\.add\('pre'\)/.test(pj) && /@media\(prefers-reduced-motion:reduce\)\{\.lp-cmp \*\{transition:none !important\}\}/.test(html),
+    '움직임 줄이기 = 처음부터 완성 상태 (숨김 상태를 걸지 않음)');
+  check(/getComputedStyle\(wrap\)\.opacity\) < 0\.99/.test(pj) && /run\('1'\)/.test(pj) && /if \(played\) run\('0\.45'\)/.test(pj) && /\.cmp-checks li:nth-child\(3\)\{transition-delay:calc\(1\.9s \* var\(--u\)\)\}/.test(html),
+    '인트로가 끝나 첫 화면이 다 보일 때 한 번(약 2초) · 탭 전환은 0.45배로 짧게');
+  check(/mouseover/.test(pj) && /closest\('\[data-k\]'\)/.test(pj) && /ArrowRight/.test(pj), '용어 짝 마우스·터치 강조 · 탭 화살표 키');
+  // 움직임은 패널 안에서만 — 다른 랜딩 스크립트에 스크롤 연출 없음
+  const lpCss = html.slice(html.indexOf('<!-- HERO -->'), html.indexOf('<!-- ── 인트로'));
+  check(!/@keyframes|animation:/.test(lpCss.replace(/\.lp-cmp[^{]*\{[^}]*\}/g, '')), '랜딩 CSS 에 패널 밖 애니메이션 없음');
+
+  // 글꼴 — 마루 부리 + Pretendard 두 가지만
+  check(/@font-face\{font-family:'MaruBuri';font-style:normal;font-weight:400;font-display:swap;src:url\(https:\/\/hangeul\.pstatic\.net\/hangeul_static\/webfont\/MaruBuri\/MaruBuri-Regular\.woff2\) format\('woff2'\)\}/.test(html) &&
+        /@font-face\{font-family:'MaruBuri';font-style:normal;font-weight:700;font-display:swap;src:url\(https:\/\/hangeul\.pstatic\.net\/hangeul_static\/webfont\/MaruBuri\/MaruBuri-Bold\.woff2\) format\('woff2'\)\}/.test(html) &&
+        (html.match(/@font-face/g) || []).length === 2, '마루 부리 = 네이버 공식 배포처 woff2 · 400·700 두 굵기 · swap');
+  check(!/Nanum|Noto Sans|fonts\.googleapis/.test(html) && html.includes('pretendardvariable-dynamic-subset.min.css'), '나눔명조·Noto Sans KR·Google Fonts 없음 — Pretendard + 마루 부리만');
+  check(/\.lp-hero h1\{[^}]*font-size:64px;[^}]*line-height:1\.25/.test(html) && /\.lp-h2\{[^}]*font-size:40px;[^}]*line-height:1\.25/.test(html) && /\.lp-hero h1\{font-size:38px\}/.test(html) && /\.lp-h2,\.lp-final \.h\{font-size:28px\}/.test(html),
+    '크기 — 첫 화면 제목 64/38 · 구역 제목 40/28 · 줄간격 1.25');
+  check(/\.lp-sub\{[^}]*max-width:40em;font-size:17px;[^}]*line-height:1\.75/.test(html), '본문 17px · 줄간격 1.75 · 폭 약 40자');
+  // 색 · 모양
+  check(!/box-shadow/.test(lpCss) && !/radial-gradient/.test(lpCss), '랜딩에 장식 그림자·방사 그라데이션 없음');
+  check([...lpCss.matchAll(/border-radius:([^;}]+)/g)].every(m => /^(6px|6px 6px 0 0|50%)$/.test(m[1].trim())), '모서리 6px (버튼·탭), 원형은 확인 아이콘·이음 점만');
+  check(!/<(button|a)[^>]*>[^<]*→\s*<\/(button|a)>/.test(land) && !/검수자 선택하기 →/.test(html), "버튼·링크 글자에 '→' 없음");
+  check(!/<span class="what">전문 번역가 검수<\/span>/.test(land),"프리미엄 플러스 부제 '전문 번역가 검수' 삭제 (배지는 유지)");
+  check(land.includes('<span class="badge">전문 번역가 검수</span>'), '프리미엄 플러스 배지 유지');
+  // 상담하기 버튼
+  const fab = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
+  check(/<span>상담하기<\/span><\/button>/.test(fab) && /aria-expanded/.test(fab) && /\.fab-main\{[^']*background:#0F2540/.test(fab) && /a\.ntalk\{background:#03C75A/.test(fab) && /a\.kakao\{background:#FEE500/.test(fab) && /Escape/.test(fab) && !/box-shadow/.test(fab),
+    "떠 있는 상담 버튼 = 남색 '상담하기' 하나 → 네이버 톡톡·카카오톡 두 경로 펼침 (Esc·바깥 누르면 닫힘)");
+  check(html.includes('/assets/kakao-fab.js?v=5'), '상담 버튼 캐시 버전 v=5');
+}
+
+console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
+{
+  const strip = (s) => s.replace(/<!--[\s\S]*?-->/g, '');
+  const privAll = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
+  const privBody = privAll.slice(privAll.indexOf('</div>', privAll.indexOf('privacy-revision-notice')));
+  check(!/공증|아포스티유|등기|영사/.test(privBody), '개인정보처리방침 본문에 공증·아포스티유·등기·영사 없음');
+  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 공증 서비스 종료에 따른 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '공증 서비스 종료에 따른 관련 조항 삭제' · 번호 ⑤→④");
+  const outside = strip(html).replace(privAll, '');
+  check(!/공증|아포스티유|번역공증|사본공증|등기/.test(outside), '메인 index.html(개인정보 개정 안내 밖)에 공증·아포스티유·등기 없음');
+  check(!/loadMyNotaryOrders|my-notary|_ntr|openNotaryOrder|\/api\/notary/.test(html), '마이페이지 공증 주문 목록·스크립트 없음');
+  check(!fs.existsSync(path.resolve(HERE, '../notary/index.html')) && fs.existsSync(path.resolve(HERE, '../notary/edit.html')), '고객 공증 입구(notary/index.html) 삭제 · 관리자 공증 도구가 여는 edit.html 유지');
+  const rd = fs.readFileSync(path.resolve(HERE, '../_redirects'), 'utf8');
+  check(['/notary / 301', '/notary/ / 301', '/notary/index.html / 301'].every(l => rd.split('\n').includes(l)) && !/edit/.test(rd.replace(/^#.*$/m, '')), '_redirects — /notary/ → / 301 (edit.html 은 그대로)');
+  check(!fs.existsSync(path.resolve(HERE, '../legal/terms-2026-10-22.html')) && !fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-10-22.html')), '2026-10-22 보관본은 공개 사이트에서 내림 (내부 보관)');
+  check(!/notary/i.test(fs.readFileSync(path.resolve(HERE, '../sitemap.xml'), 'utf8')), 'sitemap 에 공증 없음');
 }
 
 // ── 8. FAQ 낡은 문구 ──
