@@ -5178,7 +5178,10 @@ function goToPayment(){
   if(!checkCorpBeforePayment()) return;
   // 원문 파일·참고자료는 결제 뒤에 올라간다 — 로그인이 만료됐으면 결제 전에 다시 로그인을 안내
   var hasUploads=(window._iummSourceFiles&&window._iummSourceFiles.length>0)||(window._referenceFiles&&window._referenceFiles.length>0);
-  if(hasUploads&&!ensureUploadToken()) return;
+  if(hasUploads&&!window._uploadTokenLiveOk){
+    checkUploadTokenLive(function(){ window._uploadTokenLiveOk=true; try{ goToPayment(); } finally { window._uploadTokenLiveOk=false; } });
+    return;
+  }
   // estimate-amount에 이미 최종 금액이 계산되어 있음
   // (showEstimate, updatePagePrice, selectReviewer 에서 모두 업데이트)
   var amtText=document.getElementById('estimate-amount').textContent.replace(/[^0-9]/g,'');
@@ -6532,6 +6535,17 @@ function ensureUploadToken(){
   if(uploadAuthHeaders().Authorization){ hideUploadRelogin(); return true; }
   showUploadRelogin();
   return false;
+}
+// 카카오 SDK v1 은 만료된 토큰도 그대로 돌려준다 → 결제 전에는 카카오에 유효한지 물어본다(기존 SDK, 무료)
+//   만료(-401)면 다시 로그인 안내, 그 밖의 오류(네트워크 등)는 결제를 막지 않는다
+function checkUploadTokenLive(done){
+  if(!ensureUploadToken()) return;
+  if(typeof Kakao==='undefined'||!Kakao.API||!Kakao.API.request){ done(); return; }
+  Kakao.API.request({
+    url:'/v1/user/access_token_info',
+    success:function(){ hideUploadRelogin(); done(); },
+    fail:function(e){ if(e&&e.code===-401) showUploadRelogin(); else done(); }
+  });
 }
 // 기존 카카오 로그인(팝업)을 그대로 쓴다 — 페이지가 바뀌지 않아 주문 창과 입력 내용은 그대로 남는다
 function uploadRelogin(){

@@ -20,7 +20,7 @@ const code = grab('function consumeLoginNext(){', '// 페이지 진입 시 URL h
 
 check(html.includes('보안을 위해 다시 로그인해 주세요.') && html.includes('>카카오로 다시 로그인</button>'), "주문 창 안내 문구 '보안을 위해 다시 로그인해 주세요.' + [카카오로 다시 로그인] 버튼");
 
-function setup({ token = null, server401 = false } = {}) {
+function setup({ token = null, server401 = false, kakaoInfo = 'ok' } = {}) {
   const el = (v = '') => ({ value: v, style: { display: 'none' }, textContent: '', innerHTML: '', dataset: {}, checked: false, scrollIntoView() {} });
   const els = {
     'modal-order': el(), 'upload-relogin-notice': el(), 'login-notice': el(),
@@ -53,7 +53,9 @@ function setup({ token = null, server401 = false } = {}) {
     Kakao: {
       isInitialized: () => true, init() {},
       Auth: { login(o) { st.token = 'NEW_TOKEN'; o.success({ access_token: 'NEW_TOKEN' }); }, getAccessToken: () => st.token },
-      API: { request(o) { o.success({ id: 111, kakao_account: { email: 'kim@alpha.co.kr', profile: { nickname: '카톡닉' } } }); } },
+      API: { request(o) {
+        if (o.url === '/v1/user/access_token_info') { st.infoCalls = (st.infoCalls || 0) + 1; return kakaoInfo === 'ok' ? o.success({ expires_in: 3600 }) : o.fail(kakaoInfo === 'expired' ? { code: -401 } : { code: -1 }); }
+        o.success({ id: 111, kakao_account: { email: 'kim@alpha.co.kr', profile: { nickname: '카톡닉' } } }); } },
     },
   };
   ctx.window = ctx;
@@ -118,7 +120,14 @@ console.log('\n[5] 결제 직전: 원문 파일·참고자료가 있고 토큰�
   check(ctx._paymentOpened === true, '올릴 파일이 없으면 그대로 결제로 진행');
   const t = setup({ token: 'TOKEN' }); t.ctx._referenceFiles = [{ name: 'ref.docx' }];
   t.ctx.goToPayment();
-  check(t.ctx._paymentOpened === true, '토큰이 있으면 그대로 결제로 진행');
+  check(t.ctx._paymentOpened === true && t.st.infoCalls === 1, '토큰이 카카오에서 유효하면 결제로 진행(유효 확인 1번)');
+  const x = setup({ token: 'EXPIRED_TOKEN', kakaoInfo: 'expired' }); x.ctx._referenceFiles = [{ name: 'ref.docx' }];
+  x.ctx.goToPayment();
+  check(!x.ctx._paymentOpened && !x.st.closed.includes('order') && x.els['upload-relogin-notice'].style.display === 'block', '토큰은 남아 있으나 카카오가 만료(-401)라고 하면 결제 전에 다시 로그인 안내 (2026-10-30 운영 확인에서 발견)');
+  const n = setup({ token: 'TOKEN', kakaoInfo: 'neterr' }); n.ctx._iummSourceFiles = [{ name: 'a.pdf' }];
+  n.ctx.goToPayment();
+  check(n.ctx._paymentOpened === true, '카카오 확인이 네트워크 오류면 결제를 막지 않음');
+  check(!x.ctx._uploadTokenLiveOk && t.ctx._uploadTokenLiveOk === false, '확인 표시는 한 번 쓰고 해제');
 }
 
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
