@@ -5,38 +5,42 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IUMM 관리자</title>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- 글꼴은 고객 홈페이지(index.html)와 같은 방식: Pretendard(jsdelivr) + MaruBuri(hangeul.pstatic.net @font-face) -->
+<link rel="preconnect" href="https://hangeul.pstatic.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --black:#0a0a0a;--white:#fafaf8;--gold:#c9a84c;--gold-light:#e8d5a3;
-  --gray:#888;--border:rgba(201,168,76,0.15);--red:#e05555;--green:#97c459;
-  --card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.08);
+  /* 홈페이지와 같은 팔레트 (2026-10-31) — 네이비 #0F2540 · 파랑 #1F4FD1 · 오프화이트 #FAFAF7 · 연파랑 #EEF3FB · 금색 #B08D57(강조만)
+     예전 변수 이름(--gold 등)은 그대로 두고 값만 바꾼다 → 화면 곳곳의 var(--gold) 가 강조 연파랑으로 바뀐다 (고객 홈페이지와 같은 방식) */
+  --navy:#0F2540;--navy-deep:#0A1628;--blue:#1F4FD1;--offwhite:#FAFAF7;--lightblue:#EEF3FB;--brand-gold:#B08D57;
+  --black:#0F2540;--white:#FAFAF7;--gold:#9DB7F5;--gold-light:#EEF3FB;
+  --gray:#9AA8B6;--border:rgba(157,183,245,0.18);--red:#D9BC8C;--green:#9DB7F5;
+  --card-bg:rgba(255,255,255,0.04);--card-border:rgba(255,255,255,0.1);
 }
 html,body{height:100%;background:var(--black);color:var(--white);font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;line-height:1.6}
 
 /* ─ 로그인 ─ */
 #login-view{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
 .login-box{width:100%;max-width:400px}
-.login-logo{font-family:'Nanum Myeongjo',serif;font-size:32px;font-weight:800;color:var(--gold);letter-spacing:4px;text-align:center;margin-bottom:6px}
+.login-logo{font-family:'MaruBuri',serif;font-size:32px;font-weight:800;color:var(--gold);letter-spacing:4px;text-align:center;margin-bottom:6px}
 .login-logo span{color:var(--white)}
-.login-sub{text-align:center;font-size:12px;color:rgba(201,168,76,0.6);letter-spacing:3px;margin-bottom:36px}
+.login-sub{text-align:center;font-size:12px;color:rgba(157,183,245,0.6);letter-spacing:3px;margin-bottom:36px}
 .login-form{background:var(--card-bg);border:1px solid var(--border);padding:32px;border-radius:4px}
-.inp{width:100%;padding:14px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:16px;transition:border-color 0.2s}
-.inp:focus{border-color:rgba(201,168,76,0.5)}
+.inp{width:100%;padding:14px 16px;background:#132E52;border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:16px;transition:border-color 0.2s}
+.inp:focus{border-color:rgba(157,183,245,0.5)}
 .btn-login{width:100%;padding:14px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
 .btn-login:hover{background:var(--gold-light)}
 .err{font-size:13px;color:var(--red);margin-top:12px;text-align:center;min-height:20px}
 
 /* ─ 대시보드 ─ */
 #admin-view{display:none;flex-direction:column;min-height:100vh}
-.admin-nav{background:rgba(10,10,10,0.96);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-.admin-logo{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:800;color:var(--gold);letter-spacing:3px}
+.admin-nav{background:rgba(15,37,64,0.96);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.admin-logo{font-family:'MaruBuri',serif;font-size:20px;font-weight:800;color:var(--gold);letter-spacing:3px}
 .admin-logo span{color:var(--white)}
 .btn-logout{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.45);padding:6px 14px;border-radius:2px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
-.btn-logout:hover{border-color:rgba(224,85,85,0.4);color:rgba(224,85,85,0.8)}
+.btn-logout:hover{border-color:rgba(176,141,87,0.4);color:rgba(176,141,87,0.8)}
 
 .admin-body{flex:1;padding:28px;max-width:1100px;margin:0 auto;width:100%}
 
@@ -46,32 +50,21 @@ html,body{height:100%;background:var(--black);color:var(--white);font-family:'Pr
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
 .tab-btn:hover:not(.active){color:rgba(255,255,255,0.7)}
 
-/* ─ 업무 모드 스위치 (전문 번역 / 번역공증) ─
-   탭이 많아 한 줄에 다 쌓이면 무엇이 무엇인지 안 보인다.
-   업무 단위로 먼저 가르고, 그 안의 탭만 보여준다. */
-.mode-bar{display:flex;gap:8px;margin-bottom:14px}
-.mode-btn{flex:0 0 auto;padding:11px 26px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);
-  border-radius:6px;color:rgba(255,255,255,0.45);font-size:13px;font-weight:600;cursor:pointer;
-  font-family:'Noto Sans KR',sans-serif;transition:all 0.18s;letter-spacing:-0.2px}
-.mode-btn:hover:not(.active){color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.05)}
-.mode-btn.active{background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.45);color:var(--gold)}
-.mode-btn .mode-sub{display:block;font-size:10.5px;font-weight:400;opacity:0.6;margin-top:2px;letter-spacing:0}
-body.admin-focus .mode-bar{display:none}
 
 /* ─ 주문 테이블 ─ */
 .orders-table{width:100%;border-collapse:collapse;font-size:13px}
 .orders-table th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--card-border);color:var(--gray);font-weight:400;font-size:11px;letter-spacing:0.5px}
 .orders-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);vertical-align:middle}
 .orders-table tr:hover td{background:rgba(255,255,255,0.02);cursor:pointer}
-.orders-table tr.selected td{background:rgba(201,168,76,0.06);border-bottom-color:rgba(201,168,76,0.2)}
+.orders-table tr.selected td{background:rgba(157,183,245,0.06);border-bottom-color:rgba(157,183,245,0.2)}
 .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px}
-.tag-pp{background:rgba(201,168,76,0.12);color:var(--gold)}
+.tag-pp{background:rgba(157,183,245,0.12);color:var(--gold)}
 .tag-ap{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5)}
 .empty-row td{text-align:center;color:var(--gray);padding:36px;font-weight:300}
 
 /* ─ 컨펌 패널 ─ */
-#confirm-panel{display:none;margin-top:24px;border:1px solid rgba(201,168,76,0.2);border-radius:4px;overflow:hidden}
-.panel-header{background:rgba(201,168,76,0.06);padding:14px 20px;border-bottom:1px solid rgba(201,168,76,0.15);display:flex;justify-content:space-between;align-items:center}
+#confirm-panel{display:none;margin-top:24px;border:1px solid rgba(157,183,245,0.2);border-radius:4px;overflow:hidden}
+.panel-header{background:rgba(157,183,245,0.06);padding:14px 20px;border-bottom:1px solid rgba(157,183,245,0.15);display:flex;justify-content:space-between;align-items:center}
 .panel-title{font-size:14px;font-weight:500;color:var(--white)}
 .panel-meta{font-size:12px;color:var(--gray)}
 .panel-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
@@ -79,21 +72,21 @@ body.admin-focus .mode-bar{display:none}
 .panel-pane + .panel-pane{border-left:1px solid var(--card-border)}
 .panel-pane-label{padding:10px 16px;border-bottom:1px solid var(--card-border);font-size:11px;color:var(--gray);letter-spacing:0.5px}
 .panel-counter{padding:5px 16px;border-top:1px solid var(--card-border);font-size:11px;color:rgba(255,255,255,0.3);text-align:right;flex-shrink:0}
-.panel-counter.ratio-warn{color:#ef4444}
-.panel-ta{width:100%;background:#0e0e0e;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,calc(100vh - 380px))}
+.panel-counter.ratio-warn{color:#D9BC8C}
+.panel-ta{width:100%;background:#0A1628;border:none;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;resize:none;outline:none;min-height:max(360px,calc(100vh - 380px))}
 /* ── 진행률 막대 ── */
 .panel-progress-bar{height:4px;background:rgba(255,255,255,0.05);flex-shrink:0}
-.panel-progress-fill{height:100%;background:rgba(22,184,148,0.5);width:0%;transition:width 0.15s}
+.panel-progress-fill{height:100%;background:rgba(157,183,245,0.5);width:0%;transition:width 0.15s}
 /* ── 검색 바 ── */
 .panel-search-bar{display:none;padding:6px 16px;border-bottom:1px solid var(--card-border);background:rgba(255,255,255,0.03);gap:8px;align-items:center;flex-shrink:0}
 .panel-search-bar.open{display:flex}
 .panel-search-inp{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:3px;color:var(--white);font-size:12px;padding:4px 10px;outline:none;font-family:'Noto Sans KR',sans-serif}
-.panel-search-inp:focus{border-color:rgba(22,184,148,0.5)}
+.panel-search-inp:focus{border-color:rgba(157,183,245,0.5)}
 .search-count{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap}
-.search-count.mismatch{color:#ef4444}
+.search-count.mismatch{color:#D9BC8C}
 /* ── Diff 뷰어 ── */
-.panel-diff{display:none;min-height:0;height:100%;overflow-y:auto;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;background:#0e0e0e;color:rgba(255,255,255,0.85);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
-mark.diff-add{background:rgba(255,220,0,0.3);color:inherit;border-radius:2px;font-style:normal}
+.panel-diff{display:none;min-height:0;height:100%;overflow-y:auto;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;background:#0A1628;color:rgba(255,255,255,0.85);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
+mark.diff-add{background:rgba(176,141,87,0.3);color:inherit;border-radius:2px;font-style:normal}
 mark.diff-del{background:transparent;color:rgba(255,255,255,0.3);text-decoration:line-through;font-style:normal}
 /* ── 검색 하이라이트 오버레이 ── */
 .ta-wrap-s{position:relative;flex:1;display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden}
@@ -101,9 +94,9 @@ mark.diff-del{background:transparent;color:rgba(255,255,255,0.3);text-decoration
 .ta-overlay{position:absolute;inset:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;pointer-events:none;user-select:none;-webkit-user-select:none;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;white-space:pre-wrap;word-break:break-word;background:transparent;color:rgba(0,0,0,0);box-sizing:border-box;display:none}
 .ta-overlay::-webkit-scrollbar{display:none}
 .ta-overlay.visible{display:block}
-mark.search-hit{background:rgba(255,220,0,0.35);color:rgba(0,0,0,0);border-radius:2px}
+mark.search-hit{background:rgba(176,141,87,0.35);color:rgba(0,0,0,0);border-radius:2px}
 .panel-ta.editable{color:var(--white)}
-.panel-ta.editable:focus{background:#111}
+.panel-ta.editable:focus{background:#0A1628}
 /* ─ 집중 모드 ─ */
 .focus-mode-btn{padding:5px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s}
 .focus-mode-btn:hover{background:rgba(255,255,255,0.1);color:var(--white)}
@@ -116,7 +109,7 @@ body.admin-focus #final-upload-section,
 body.admin-focus #eval-section,
 body.admin-focus #rv-info-section,
 body.admin-focus .panel-footer{display:none !important}
-body.admin-focus #confirm-panel{position:fixed;inset:0;z-index:9999;margin:0;border-radius:0;border:none;background:#0a0a0a;display:flex !important;flex-direction:column;overflow:hidden}
+body.admin-focus #confirm-panel{position:fixed;inset:0;z-index:9999;margin:0;border-radius:0;border:none;background:#0A1628;display:flex !important;flex-direction:column;overflow:hidden}
 body.admin-focus #confirm-panel .panel-header{flex-shrink:0}
 body.admin-focus #confirm-panel .panel-body{flex:1;min-height:0;overflow:hidden;height:100%}
 body.admin-focus #confirm-panel .panel-pane{min-height:0;overflow:hidden;height:100%}
@@ -125,7 +118,7 @@ body.admin-focus #confirm-panel .panel-ta{flex:1;min-height:0;height:100%;overfl
 body.admin-focus .focus-exit-hint{display:inline}
 /* ─ 스크롤 동기화 토글 ─ */
 .sync-toggle{font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer;user-select:none;padding:4px 8px;border-radius:3px;transition:color 0.2s}
-.sync-toggle.active{color:rgba(22,184,148,0.8)}
+.sync-toggle.active{color:rgba(157,183,245,0.8)}
 .sync-toggle:hover{color:rgba(255,255,255,0.6)}
 .panel-footer{padding:10px 16px;border-top:1px solid var(--card-border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
 .panel-info{font-size:13px;color:rgba(255,255,255,0.5)}
@@ -136,10 +129,10 @@ body.admin-focus .focus-exit-hint{display:inline}
 .btn-deliver:disabled{opacity:0.4;cursor:not-allowed}
 
 /* ─ 토스트 ─ */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:#1c1c1c;border:1px solid rgba(255,255,255,0.12);color:var(--white);padding:13px 28px;border-radius:4px;font-size:14px;z-index:600;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:#132E52;border:1px solid rgba(255,255,255,0.12);color:var(--white);padding:13px 28px;border-radius:4px;font-size:14px;z-index:600;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
-.toast.success{border-color:rgba(151,196,89,0.45);color:var(--green)}
-.toast.error{border-color:rgba(224,85,85,0.45);color:var(--red)}
+.toast.success{border-color:rgba(157,183,245,0.45);color:var(--green)}
+.toast.error{border-color:rgba(176,141,87,0.45);color:var(--red)}
 
 @media(max-width:768px){
   .panel-body{grid-template-columns:1fr}
@@ -149,7 +142,7 @@ body.admin-focus .focus-exit-hint{display:inline}
 /* ── 검수자 결과 섹션 ── */
 #rv-info-section{border-top:1px solid var(--card-border);padding:14px 20px;display:flex;gap:20px;align-items:flex-start}
 .rv-section-label{font-size:11px;color:var(--gold);letter-spacing:0.5px;font-weight:500;margin-bottom:7px;text-transform:uppercase}
-.rv-comment-box{background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.2);border-radius:4px;padding:11px 13px;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;white-space:pre-wrap;min-height:48px}
+.rv-comment-box{background:rgba(176,141,87,0.05);border:1px solid rgba(176,141,87,0.2);border-radius:4px;padding:11px 13px;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;white-space:pre-wrap;min-height:48px}
 .rv-cl-toggle-row{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0}
 .rv-cl-toggle-row:hover .rv-section-label{color:var(--gold-light)}
 .rv-cl-body{margin-top:8px;display:none;column-count:3;column-gap:10px}
@@ -158,10 +151,10 @@ body.admin-focus .focus-exit-hint{display:inline}
 /* ── 검수자 승인 탭 추가 스타일 ── */
 .reviewers-table { width:100%; border-collapse:collapse; font-size:13px }
 .reviewers-table th, .reviewers-table td { padding:10px 12px; text-align:left; border-bottom:1px solid var(--border) }
-.reviewers-table thead th { background:rgba(201,168,76,0.08); color:var(--gold); font-weight:500; font-size:12px; letter-spacing:0.5px }
+.reviewers-table thead th { background:rgba(157,183,245,0.08); color:var(--gold); font-weight:500; font-size:12px; letter-spacing:0.5px }
 .reviewers-table tbody tr { cursor:pointer; transition:background 0.15s }
-.reviewers-table tbody tr:hover { background:rgba(201,168,76,0.05) }
-.reviewers-table tbody tr.selected { background:rgba(201,168,76,0.1) }
+.reviewers-table tbody tr:hover { background:rgba(157,183,245,0.05) }
+.reviewers-table tbody tr.selected { background:rgba(157,183,245,0.1) }
 /* 모달 오버레이 */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; padding:20px; overflow-y:auto }
 .modal-overlay.active { display:flex }
@@ -176,14 +169,14 @@ body.admin-focus .focus-exit-hint{display:inline}
 .modal-row { display:flex; gap:12px; margin-bottom:6px; font-size:13px }
 .modal-row .label { color:var(--gray); min-width:90px; flex-shrink:0 }
 .modal-row .value { color:var(--white); flex:1; word-break:break-all }
-.modal-tag { display:inline-block; padding:3px 10px; background:rgba(201,168,76,0.1); color:var(--gold); border-radius:10px; font-size:11px; margin-right:4px; margin-bottom:4px }
+.modal-tag { display:inline-block; padding:3px 10px; background:rgba(157,183,245,0.1); color:var(--gold); border-radius:10px; font-size:11px; margin-right:4px; margin-bottom:4px }
 .modal-grade { display:flex; flex-direction:column; gap:8px; margin-top:8px }
 .modal-grade label { display:flex; align-items:center; gap:8px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid var(--card-border); border-radius:6px; cursor:pointer; font-size:13px }
-.modal-grade label:hover { background:rgba(201,168,76,0.05); border-color:rgba(201,168,76,0.3) }
+.modal-grade label:hover { background:rgba(157,183,245,0.05); border-color:rgba(157,183,245,0.3) }
 .modal-grade label input[type="radio"] { accent-color:var(--gold) }
-.modal-grade label.checked { background:rgba(201,168,76,0.08); border-color:var(--gold) }
-.modal-cert-link { display:inline-block; padding:6px 12px; background:rgba(201,168,76,0.1); color:var(--gold); border-radius:4px; text-decoration:none; font-size:12px; margin-right:6px; margin-bottom:6px; border:1px solid rgba(201,168,76,0.2) }
-.modal-cert-link:hover { background:rgba(201,168,76,0.18) }
+.modal-grade label.checked { background:rgba(157,183,245,0.08); border-color:var(--gold) }
+.modal-cert-link { display:inline-block; padding:6px 12px; background:rgba(157,183,245,0.1); color:var(--gold); border-radius:4px; text-decoration:none; font-size:12px; margin-right:6px; margin-bottom:6px; border:1px solid rgba(157,183,245,0.2) }
+.modal-cert-link:hover { background:rgba(157,183,245,0.18) }
 .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end }
 .btn-approve { padding:10px 24px; background:var(--green); color:var(--black); border:none; border-radius:6px; font-weight:500; cursor:pointer; font-size:14px }
 .btn-approve:hover { opacity:0.85 }
@@ -196,16 +189,16 @@ body.admin-focus .focus-exit-hint{display:inline}
 .btn:disabled{opacity:0.35;cursor:not-allowed}
 .btn-secondary{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.75)}
 .btn-secondary:hover{background:rgba(255,255,255,0.1);color:var(--white)}
-.btn-info{background:rgba(151,196,89,0.1);border-color:rgba(151,196,89,0.3);color:rgba(151,196,89,0.9)}
-.btn-info:hover{background:rgba(151,196,89,0.18)}
-.btn-danger{background:rgba(224,85,85,0.08);border-color:rgba(224,85,85,0.3);color:var(--red)}
-.btn-danger:hover{background:rgba(224,85,85,0.15)}
-.btn-mint{background:rgba(22,184,148,0.1);border-color:rgba(22,184,148,0.3);color:rgba(22,184,148,0.9)}
-.btn-mint:hover{background:rgba(22,184,148,0.18)}
-.btn-dl{padding:0 12px;height:38px;background:rgba(201,168,76,0.08);color:var(--gold);border:1px solid rgba(201,168,76,0.25);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
-.btn-dl:hover{background:rgba(201,168,76,0.16)}
-.btn-ul{display:inline-flex;align-items:center;height:38px;padding:0 12px;background:rgba(151,196,89,0.08);color:var(--green);border:1px solid rgba(151,196,89,0.25);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;white-space:nowrap;gap:4px}
-.btn-ul:hover{background:rgba(151,196,89,0.16)}
+.btn-info{background:rgba(157,183,245,0.1);border-color:rgba(157,183,245,0.3);color:rgba(157,183,245,0.9)}
+.btn-info:hover{background:rgba(157,183,245,0.18)}
+.btn-danger{background:rgba(176,141,87,0.08);border-color:rgba(176,141,87,0.3);color:var(--red)}
+.btn-danger:hover{background:rgba(176,141,87,0.15)}
+
+
+.btn-dl{padding:0 12px;height:38px;background:rgba(157,183,245,0.08);color:var(--gold);border:1px solid rgba(157,183,245,0.25);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.btn-dl:hover{background:rgba(157,183,245,0.16)}
+.btn-ul{display:inline-flex;align-items:center;height:38px;padding:0 12px;background:rgba(157,183,245,0.08);color:var(--green);border:1px solid rgba(157,183,245,0.25);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;white-space:nowrap;gap:4px}
+.btn-ul:hover{background:rgba(157,183,245,0.16)}
 .btn-group-sep{width:1px;height:24px;background:rgba(255,255,255,0.1);flex-shrink:0;margin:0 4px}
 
 /* ── GPT 검수 탭 ── */
@@ -213,52 +206,52 @@ body.admin-focus .focus-exit-hint{display:inline}
 .gr-section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;padding:22px 24px;margin-bottom:16px}
 .gr-section-title{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;margin-bottom:12px}
 .gr-label{display:block;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px}
-.gr-ta{width:100%;padding:12px 14px;background:#0e0e0e;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s}
-.gr-ta:focus{border-color:rgba(201,168,76,0.4)}
-.gr-ta[readonly]{background:#0a0a0a;color:rgba(255,255,255,0.45);cursor:default}
+.gr-ta{width:100%;padding:12px 14px;background:#0A1628;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s}
+.gr-ta:focus{border-color:rgba(157,183,245,0.4)}
+.gr-ta[readonly]{background:#0A1628;color:rgba(255,255,255,0.45);cursor:default}
 .gr-score{font-size:48px;font-weight:300;color:var(--gold);text-align:center;padding:8px 0}
 .gr-score-label{font-size:11px;color:rgba(255,255,255,0.4);text-align:center;margin-top:-8px;margin-bottom:8px}
 .gr-summary{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:4px;margin-bottom:16px}
-.gr-change-item{padding:10px 14px;border-left:2px solid rgba(201,168,76,0.4);margin-bottom:10px;background:rgba(255,255,255,0.02);border-radius:0 4px 4px 0}
+.gr-change-item{padding:10px 14px;border-left:2px solid rgba(157,183,245,0.4);margin-bottom:10px;background:rgba(255,255,255,0.02);border-radius:0 4px 4px 0}
 .gr-change-para{font-size:11px;color:var(--gold);margin-bottom:4px;font-weight:500}
-.gr-change-before{font-size:12px;color:#f87171;margin-bottom:2px;text-decoration:line-through;opacity:0.8}
-.gr-change-after{font-size:12px;color:#86efac;margin-bottom:4px}
+.gr-change-before{font-size:12px;color:#D9BC8C;margin-bottom:2px;text-decoration:line-through;opacity:0.8}
+.gr-change-after{font-size:12px;color:#C9D7FB;margin-bottom:4px}
 .gr-change-reason{font-size:11px;color:rgba(255,255,255,0.45);font-style:italic}
 .gr-btn{display:inline-flex;align-items:center;gap:6px;padding:0 18px;height:40px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:500;font-family:'Noto Sans KR',sans-serif;border:none;transition:all 0.15s}
-.gr-btn-primary{background:rgba(22,184,148,0.15);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.35)}
-.gr-btn-primary:hover:not(:disabled){background:rgba(22,184,148,0.25)}
+.gr-btn-primary{background:rgba(157,183,245,0.15);color:rgba(157,183,245,0.9);border:1px solid rgba(157,183,245,0.35)}
+.gr-btn-primary:hover:not(:disabled){background:rgba(157,183,245,0.25)}
 .gr-btn-primary:disabled{opacity:0.4;cursor:not-allowed}
 .gr-btn-sm{display:inline-flex;align-items:center;gap:4px;padding:0 12px;height:32px;border-radius:3px;cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s}
-.gr-btn-copy{background:rgba(201,168,76,0.08);color:var(--gold);border:1px solid rgba(201,168,76,0.25)}
-.gr-btn-copy:hover{background:rgba(201,168,76,0.16)}
-.gr-btn-dl{background:rgba(151,196,89,0.08);color:var(--green);border:1px solid rgba(151,196,89,0.25)}
-.gr-btn-dl:hover{background:rgba(151,196,89,0.16)}
+.gr-btn-copy{background:rgba(157,183,245,0.08);color:var(--gold);border:1px solid rgba(157,183,245,0.25)}
+.gr-btn-copy:hover{background:rgba(157,183,245,0.16)}
+.gr-btn-dl{background:rgba(157,183,245,0.08);color:var(--green);border:1px solid rgba(157,183,245,0.25)}
+.gr-btn-dl:hover{background:rgba(157,183,245,0.16)}
 
 /* ── 우회 주문 탭 ── */
 #bypass-wrap{display:none;padding:4px 0 32px}
 .bp-section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:6px;padding:22px 24px;margin-bottom:20px}
 .bp-section-title{font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .bp-label{display:block;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:6px;letter-spacing:0.3px}
-.bp-inp{width:100%;padding:11px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color 0.2s}
-.bp-inp:focus{border-color:rgba(201,168,76,0.4)}
-.bp-inp option{background:#1a1a1a;color:var(--white)}
-.bp-ta{width:100%;padding:12px 14px;background:#0e0e0e;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s}
-.bp-ta:focus{border-color:rgba(201,168,76,0.4)}
+.bp-inp{width:100%;padding:11px 14px;background:#132E52;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color 0.2s}
+.bp-inp:focus{border-color:rgba(157,183,245,0.4)}
+.bp-inp option{background:#132E52;color:var(--white)}
+.bp-ta{width:100%;padding:12px 14px;background:#0A1628;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.85);font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s}
+.bp-ta:focus{border-color:rgba(157,183,245,0.4)}
 .bp-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .bp-row.single{grid-template-columns:1fr;margin-bottom:14px}
 .bp-col{display:flex;flex-direction:column}
-.ocr-zone{border:2px dashed rgba(201,168,76,0.25);border-radius:6px;padding:28px 20px;text-align:center;transition:all 0.2s;cursor:pointer;position:relative}
-.ocr-zone:hover,.ocr-zone.over{border-color:rgba(201,168,76,0.55);background:rgba(201,168,76,0.04)}
+.ocr-zone{border:2px dashed rgba(157,183,245,0.25);border-radius:6px;padding:28px 20px;text-align:center;transition:all 0.2s;cursor:pointer;position:relative}
+.ocr-zone:hover,.ocr-zone.over{border-color:rgba(157,183,245,0.55);background:rgba(157,183,245,0.04)}
 .ocr-zone-label{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:8px}
 .ocr-zone-sub{font-size:11px;color:rgba(255,255,255,0.25)}
 .ocr-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-.btn-ocr{padding:9px 20px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;margin-top:10px}
-.btn-ocr:hover{background:rgba(201,168,76,0.22)}
+.btn-ocr{padding:9px 20px;background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;margin-top:10px}
+.btn-ocr:hover{background:rgba(157,183,245,0.22)}
 .btn-ocr:disabled{opacity:0.4;cursor:not-allowed}
 .btn-bp-submit{width:100%;padding:15px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;margin-top:4px}
 .btn-bp-submit:hover{background:var(--gold-light)}
 .btn-bp-submit:disabled{opacity:0.4;cursor:not-allowed}
-.bp-result{display:none;margin-top:16px;padding:16px 20px;background:rgba(151,196,89,0.06);border:1px solid rgba(151,196,89,0.2);border-radius:4px}
+.bp-result{display:none;margin-top:16px;padding:16px 20px;background:rgba(157,183,245,0.06);border:1px solid rgba(157,183,245,0.2);border-radius:4px}
 .bp-result-order{font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px}
 .bp-result-info{font-size:13px;color:rgba(255,255,255,0.6)}
 .bp-ocr-status{font-size:12px;margin-top:8px;min-height:18px}
@@ -268,28 +261,28 @@ body.admin-focus .focus-exit-hint{display:inline}
 /* ── 전체 주문 탭 ── */
 #all-orders-wrap{display:none;padding:4px 0 32px}
 .ao-search-bar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.ao-search-inp{flex:1;min-width:180px;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none}
-.ao-search-inp:focus{border-color:rgba(201,168,76,0.4)}
+.ao-search-inp{flex:1;min-width:180px;padding:9px 14px;background:#132E52;border:1px solid rgba(255,255,255,0.1);border-radius:3px;color:var(--white);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none}
+.ao-search-inp:focus{border-color:rgba(157,183,245,0.4)}
 .ao-count{font-size:11px;color:rgba(255,255,255,0.3);flex-shrink:0}
 /* ── [E-2] 기업회원 뱃지 + 회원 목록 ── */
 .biz-badge-admin{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid;margin-left:6px}
-.biz-badge-admin.표준{background:rgba(22,184,148,0.12);color:#16B894;border-color:rgba(22,184,148,0.4)}
-.biz-badge-admin.프리미엄{background:rgba(201,168,76,0.15);color:#c9a84c;border-color:rgba(201,168,76,0.4)}
-.biz-badge-admin.엔터프라이즈{background:rgba(139,92,246,0.15);color:#8b5cf6;border-color:rgba(139,92,246,0.4)}
+.biz-badge-admin.표준{background:rgba(157,183,245,0.12);color:#9DB7F5;border-color:rgba(157,183,245,0.4)}
+.biz-badge-admin.프리미엄{background:rgba(157,183,245,0.15);color:#c9a84c;border-color:rgba(157,183,245,0.4)}
+.biz-badge-admin.엔터프라이즈{background:rgba(176,141,87,0.15);color:#D9BC8C;border-color:rgba(176,141,87,0.4)}
 .member-list-table{width:100%;border-collapse:collapse;font-size:13px}
 .member-list-table th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--card-border);color:var(--gray);font-size:11px;font-weight:400}
 .member-list-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);cursor:pointer}
 .member-list-table tr:hover td{background:rgba(255,255,255,0.03)}
 /* ── 참고자료 뱃지 ── */
 .ref-badge{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;margin-left:6px;cursor:help;vertical-align:middle}
-.ref-badge.ref-success{background:rgba(22,184,148,0.15);color:#16B894;border:1px solid rgba(22,184,148,0.4)}
-.ref-badge.ref-fail{background:rgba(220,38,38,0.15);color:#dc2626;border:1px solid rgba(220,38,38,0.4)}
+.ref-badge.ref-success{background:rgba(157,183,245,0.15);color:#9DB7F5;border:1px solid rgba(157,183,245,0.4)}
+.ref-badge.ref-fail{background:rgba(176,141,87,0.15);color:#D9BC8C;border:1px solid rgba(176,141,87,0.4)}
 /* ── AI 점수 섹션 ── */
-#ai-score-section{padding:14px 20px;border-top:1px solid rgba(201,168,76,0.12);background:rgba(201,168,76,0.03)}
+#ai-score-section{padding:14px 20px;border-top:1px solid rgba(157,183,245,0.12);background:rgba(157,183,245,0.03)}
 .score-grid{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
 .score-badge{text-align:center;min-width:72px}
 .score-badge-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.score-badge-num{font-size:28px;font-weight:700;color:var(--gold);font-family:'Nanum Myeongjo',serif;line-height:1}
+.score-badge-num{font-size:28px;font-weight:700;color:var(--gold);font-family:'MaruBuri',serif;line-height:1}
 .score-badge-sub{font-size:10px;color:rgba(255,255,255,0.25)}
 .score-detail-grid{flex:1;min-width:180px}
 .score-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,0.55);padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
@@ -304,8 +297,136 @@ body.admin-focus .focus-exit-hint{display:inline}
 /* [J-16/17] 명조체 전수 → Pretendard + brand-header 로고 */
 *,*::before,*::after{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif !important}
 .brand-header{display:inline-flex;align-items:baseline;gap:8px;text-decoration:none;cursor:pointer}
-.brand-name{font-size:22px;font-weight:800;color:#16B894;letter-spacing:-0.02em}
+.brand-name{font-size:22px;font-weight:800;color:#9DB7F5;letter-spacing:-0.02em}
 .brand-suffix{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.12em;text-transform:uppercase;align-self:center}
+/* ══════════════════════════════════════════════════════════════
+   2026-10-31 관리자 화면 정리 — 홈페이지 톤 · 메뉴 묶음 · 상태 색 · 좁은 화면 · 키보드 초점
+   색: 네이비 #0F2540 · 파랑 #1F4FD1 · 오프화이트 #FAFAF7 · 연파랑 #EEF3FB · 금색 #B08D57(강조만)
+   민트·초록·빨강은 쓰지 않는다. 상태: 진행 중 = 연파랑, 완료 = 네이비, 확인필요 = 금색 테두리
+   ══════════════════════════════════════════════════════════════ */
+@font-face{font-family:'MaruBuri';font-style:normal;font-weight:400;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2) format('woff2')}
+@font-face{font-family:'MaruBuri';font-style:normal;font-weight:700;font-display:swap;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Bold.woff2) format('woff2')}
+html,body{background:var(--navy);color:var(--offwhite);overflow-x:hidden}
+.ti::before{font-family:'tabler-icons' !important}
+.admin-nav{background:rgba(10,22,40,0.97);border-bottom:1px solid rgba(157,183,245,0.18)}
+.brand-name{color:#9DB7F5}
+.login-form{background:rgba(255,255,255,0.04);border-color:rgba(157,183,245,0.2);border-radius:8px}
+.inp,.bp-inp,.ao-search-inp{background:#0A1628;border-color:rgba(157,183,245,0.22)}
+.inp:focus,.bp-inp:focus,.bp-ta:focus,.gr-ta:focus,.ao-search-inp:focus,.panel-search-inp:focus{border-color:#9DB7F5}
+.panel-ta,.panel-diff,.gr-ta,.bp-ta{background:#0A1628}
+.toast{background:#132E52;border-color:rgba(157,183,245,0.3)}
+.btn-logout:hover{border-color:rgba(176,141,87,0.6);color:#D9BC8C}
+/* 주요 실행 버튼 — 파랑 바탕 + 오프화이트 글자 */
+.btn-login,.btn-bp-submit,.btn-deliver,.btn-primary{background:var(--blue);color:var(--offwhite);border:1px solid var(--blue)}
+.btn-login:hover,.btn-bp-submit:hover,.btn-deliver:hover,.btn-primary:hover:not(:disabled){background:#2A5BE0;border-color:#2A5BE0}
+.gr-btn-primary{background:var(--blue);color:var(--offwhite);border:1px solid var(--blue)}
+.gr-btn-primary:hover:not(:disabled){background:#2A5BE0}
+.btn-approve{background:#EEF3FB;color:#0F2540}
+.btn-reject{background:transparent;color:#E6D3B0;border:1px solid #B08D57}
+.btn-blue{background:rgba(157,183,245,0.1);border-color:rgba(157,183,245,0.35);color:#C9D7FB}
+.btn-blue:hover{background:rgba(157,183,245,0.18)}
+.btn-primary,.btn-plain{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 18px;border-radius:6px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.btn-plain{background:transparent;color:#EEF3FB;border:1px solid rgba(157,183,245,0.45)}
+.btn-plain:hover:not(:disabled){background:rgba(157,183,245,0.12)}
+.btn-primary:disabled,.btn-plain:disabled{opacity:0.4;cursor:not-allowed}
+
+/* 작업 버튼 3개 — 첫 화면에서 가장 크게. 장식 없음 */
+.work-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px}
+.work-btn{min-height:88px;padding:16px 18px;background:var(--blue);color:var(--offwhite);border:1px solid var(--blue);border-radius:8px;
+  font-size:24px;font-weight:700;letter-spacing:-0.02em;line-height:1.3;cursor:pointer;font-family:inherit;transition:background 0.15s,color 0.15s}
+.work-btn:hover{background:#2A5BE0;border-color:#2A5BE0}
+.work-btn.active{background:var(--offwhite);color:var(--navy);border-color:var(--offwhite)}
+body.admin-focus .work-bar{display:none}
+
+/* 메뉴 묶음 — 작업 · 주문·고객 · 용어 · 검수자 · 기록 */
+.tabs.menu-groups{display:flex;flex-wrap:wrap;gap:10px;border-bottom:none;margin-bottom:24px;padding-bottom:0}
+.menu-group{display:flex;flex-wrap:wrap;align-items:center;gap:2px 4px;padding:6px 10px;border:1px solid rgba(157,183,245,0.16);border-radius:8px;background:rgba(255,255,255,0.03);min-width:0}
+.menu-group-title{font-size:12px;font-weight:700;color:var(--brand-gold);letter-spacing:0.02em;margin-right:6px;white-space:nowrap}
+.menu-group .tab-btn{color:rgba(250,250,247,0.72);font-size:12.5px;border-radius:5px;border-bottom:2px solid transparent}
+.menu-group .tab-btn:hover:not(.active){color:#FAFAF7;background:rgba(157,183,245,0.08)}
+.menu-group .tab-btn.active{color:#EEF3FB;background:rgba(157,183,245,0.16);border-bottom-color:#9DB7F5}
+.menu-badge{display:inline-block;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#B08D57;color:#0F2540;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px}
+.tab-btn.active{color:#EEF3FB;border-bottom-color:#9DB7F5}
+
+/* 상태 표시 — 빨강·초록 대신 파랑 계열 + 금색 테두리 */
+.st{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11.5px;font-weight:600;line-height:1.6;white-space:nowrap}
+.st-progress{background:#EEF3FB;color:#0F2540;border:1px solid #EEF3FB}
+.st-done{background:#0F2540;color:#FAFAF7;border:1px solid rgba(250,250,247,0.4)}
+.st-check{background:rgba(176,141,87,0.08);color:#E6D3B0;border:1px solid #B08D57}
+.st-error{background:#B08D57;color:#0F2540;border:1px solid #B08D57}
+
+/* 검수 엔진 */
+.engine-row{display:flex;flex-wrap:wrap;gap:8px 18px;margin:2px 0 8px}
+.engine-opt{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:#FAFAF7;cursor:pointer}
+.engine-opt input{accent-color:#1F4FD1;width:16px;height:16px}
+.gr-info{font-size:12.5px;color:rgba(250,250,247,0.7);line-height:1.6}
+.gr-estimate{font-size:13px;color:#EEF3FB;margin-top:8px;min-height:18px}
+.gr-estimate.warn{color:#E6D3B0;padding:8px 12px;border:1px solid #B08D57;border-radius:6px;background:rgba(176,141,87,0.08)}
+.gr-change-before{color:#E6D3B0}
+.gr-change-after{color:#C9D7FB}
+
+/* 용어 추출 */
+.tx-rule{padding:12px 14px;border-left:3px solid #9DB7F5;background:rgba(157,183,245,0.07);border-radius:6px;font-size:13px;line-height:1.7;color:rgba(250,250,247,0.88);margin-bottom:16px}
+.tx-rule strong{color:#EEF3FB}
+.tx-rule-strong{margin-top:6px;color:#E6D3B0;font-weight:600}
+.tx-filelist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tx-file{font-size:12px;padding:3px 9px;border-radius:12px;background:rgba(157,183,245,0.12);color:#EEF3FB;word-break:break-all}
+.tx-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:6px}
+.tx-msg{font-size:13px;color:rgba(250,250,247,0.75)}
+.tx-msg.warn{color:#E6D3B0}
+.tx-note{font-size:12px;color:rgba(250,250,247,0.55);margin-top:10px;line-height:1.6}
+.tx-budget{font-size:12.5px;color:rgba(250,250,247,0.75);margin-top:6px}
+.tx-budget strong{color:#EEF3FB}
+.tx-estimate{margin-top:14px;padding:14px 16px;border:1px solid rgba(157,183,245,0.22);border-radius:8px;background:rgba(10,22,40,0.5)}
+.tx-sub{font-size:12px;font-weight:700;color:#9DB7F5;margin:10px 0 6px}
+.tx-sub:first-child{margin-top:0}
+.tx-list{list-style:none;font-size:12.5px;line-height:1.7;color:rgba(250,250,247,0.85)}
+.tx-list li{padding:2px 0;word-break:break-all}
+.tx-rejected li{color:#E6D3B0}
+.tx-cost,.tx-sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
+.tx-cost>div,.tx-sum>div{padding:9px 12px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(157,183,245,0.14);display:flex;flex-direction:column;gap:2px}
+.tx-cost span,.tx-sum span{font-size:11.5px;color:rgba(250,250,247,0.6)}
+.tx-cost strong,.tx-sum strong{font-size:16px;color:#FAFAF7}
+.tx-job-meta{font-size:12px;color:rgba(250,250,247,0.6);margin-bottom:8px;word-break:break-all}
+.tx-progress{white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.6;max-height:220px;overflow:auto;padding:10px 12px;background:#0A1628;border:1px solid rgba(157,183,245,0.14);border-radius:6px;color:rgba(250,250,247,0.85)}
+
+/* 크레딧 사용 기록 */
+.credit-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.credit-card{padding:14px 16px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(157,183,245,0.16)}
+.credit-k{font-size:12px;color:rgba(250,250,247,0.6)}
+.credit-v{font-size:22px;font-weight:700;color:#FAFAF7;margin-top:2px}
+.credit-table tr.credit-out td{color:rgba(250,250,247,0.5)}
+.credit-table tr:hover td{cursor:default}
+.tbl-box{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px}
+
+/* 제목 글꼴 — MaruBuri (고객 홈페이지와 같은 글꼴) */
+.login-logo,.admin-logo,.credit-v,.gr-score{font-family:'MaruBuri',serif !important}
+
+/* 표가 넓으면 그 상자 안에서만 가로로 밀린다 (페이지 전체는 가로 스크롤 없음) */
+#orders-wrap,#members-wrap,#settlement-wrap,#unassigned-wrap,#terms-wrap,#corp-wrap,#ntr-list,#ntrd-list,#failed-list{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.admin-body{min-width:0}
+
+/* 키보드 초점 — 파랑 테두리 + 밝은 안쪽 띠 (네이비 바탕에서도 보이게) */
+:focus-visible{outline:3px solid #1F4FD1 !important;outline-offset:2px;box-shadow:0 0 0 2px #EEF3FB}
+button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
+
+/* 좁은 화면 (640px 이하) — 메뉴는 줄바꿈·세로로, 표는 상자 안에서 가로 스크롤 */
+@media(max-width:640px){
+  .admin-nav{padding:10px 14px}
+  .admin-body{padding:14px 12px}
+  .work-bar{grid-template-columns:1fr;gap:8px}
+  .work-btn{min-height:60px;font-size:20px}
+  .tabs.menu-groups{flex-direction:column;gap:8px}
+  .menu-group{width:100%}
+  .menu-group-title{width:100%;margin:0 0 2px}
+  .orders-table,.member-list-table,.reviewers-table,.credit-table{min-width:620px}
+  .bp-section,.gr-section{padding:16px 14px}
+  .bp-row{grid-template-columns:1fr}
+  .credit-cards{grid-template-columns:1fr}
+  .toast{white-space:normal;max-width:calc(100vw - 32px)}
+  .rv-cl-body{column-count:1}
+  #rv-info-section{flex-direction:column}
+}
 </style>
 </head>
 <body>
@@ -329,37 +450,148 @@ body.admin-focus .focus-exit-hint{display:inline}
     <button class="btn-logout" onclick="doAdminLogout()">로그아웃</button>
   </nav>
   <div class="admin-body">
-    <!-- ── 업무 모드 스위치 ──────────────────────────────────
-         탭은 그대로 두고 보이는 묶음만 가른다. 기본은 전문 번역 업무라
-         기존 화면이 그대로 열린다. -->
-    <div class="mode-bar">
-      <button class="mode-btn active" id="mode-tx"  onclick="setAdminMode('tx')">전문 번역 업무<span class="mode-sub">주문 · 검수 · 정산 · 회원</span></button>
-      <button class="mode-btn"        id="mode-ntr" onclick="setAdminMode('ntr')">번역공증 업무<span class="mode-sub">공증 배송 · 직접 번역</span></button>
+    <!-- ── 첫 화면 맨 위: 작업 3개 (2026-10-31 메뉴 정리) ─────────────
+         가장 자주 하는 일 셋. 각 버튼은 아래 메뉴의 같은 탭을 연다(switchTab 그대로). -->
+    <div class="work-bar" role="group" aria-label="작업">
+      <button type="button" class="work-btn" id="work-bypass" data-tab="bypass" onclick="switchTab('bypass')">우회 번역</button>
+      <button type="button" class="work-btn" id="work-ntr" data-tab="notary_ship" onclick="switchTab('notary_ship')">번역공증 작업</button>
+      <button type="button" class="work-btn" id="work-review" data-tab="gpt_review" onclick="switchTab('gpt_review')">검수</button>
     </div>
-    <!-- 업종별 주문 수 (2026-10-29) — 주문 화면 '업종'(선택 입력)이 들어간 주문만 센다. GET /api/admin/stats/industry -->
-    <div id="industry-stats" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px;font-size:12.5px;color:rgba(255,255,255,0.75)">
-      <button type="button" onclick="loadIndustryStats()" style="padding:5px 12px;border-radius:4px;border:1px solid rgba(157,183,245,0.45);background:rgba(31,79,209,0.15);color:#C9D7FB;cursor:pointer;font-size:12px;font-family:inherit">업종별 주문 수</button>
-      <span id="industry-stats-out" style="color:rgba(255,255,255,0.6)"></span>
+    <!-- ── 메뉴 묶음 ─────────────────────────────────────────
+         탭 버튼의 id·onclick 은 예전과 같다. 묶음(작업 · 주문·고객 · 용어 · 검수자 · 기록)만 새로 나눴다.
+         예전 '전문 번역 업무 / 번역공증 업무' 스위치는 없애고 모든 묶음을 한 번에 보인다. -->
+    <div class="tabs menu-groups" role="navigation" aria-label="관리자 메뉴">
+      <div class="menu-group" data-group="work">
+        <span class="menu-group-title">작업</span>
+        <button data-mode="tx" class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')">우회 번역</button>
+        <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')">번역공증 작업<span id="ntr-badge" class="menu-badge" style="display:none">0</span></button>
+        <button data-mode="ntr" class="tab-btn" id="tab-ntrd" onclick="switchTab('notary_direct')">직접 번역 (결제 없이)</button>
+        <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')">검수</button>
+      </div>
+      <div class="menu-group" data-group="orders">
+        <span class="menu-group-title">주문·고객</span>
+        <button data-mode="tx" class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
+        <button data-mode="tx" class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
+        <button data-mode="tx" class="tab-btn" id="tab-bp" onclick="switchTab('bank_pending')">입금대기<span id="bp-badge" class="menu-badge" style="display:none">0</span></button>
+        <button data-mode="tx" class="tab-btn" id="tab-failed" onclick="switchTab('failed')">확인필요·번역실패</button>
+        <button data-mode="tx" class="tab-btn" id="tab-ft" onclick="switchTab('free_test')">무료 테스트</button>
+        <button data-mode="tx" class="tab-btn" id="tab-rev" onclick="switchTab('revisions')">수정 요청</button>
+        <button data-mode="tx" class="tab-btn" id="tab-corp" onclick="switchTab('corp')">기업 고객</button>
+        <button data-mode="tx" class="tab-btn" id="tab-members" onclick="switchTab('members')">회원 관리</button>
+      </div>
+      <div class="menu-group" data-group="terms">
+        <span class="menu-group-title">용어</span>
+        <button data-mode="tx" class="tab-btn" id="tab-terms" onclick="switchTab('terms')">용어집</button>
+        <button data-mode="tx" class="tab-btn" id="tab-tx" onclick="switchTab('term_extract')">용어 추출</button>
+      </div>
+      <div class="menu-group" data-group="reviewers">
+        <span class="menu-group-title">검수자</span>
+        <button data-mode="tx" class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
+        <button data-mode="tx" class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
+        <button data-mode="tx" class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
+        <button data-mode="tx" class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')">배정 (미배정)</button>
+      </div>
+      <div class="menu-group" data-group="records">
+        <span class="menu-group-title">기록</span>
+        <button data-mode="tx" class="tab-btn" id="tab-credit" onclick="switchTab('credit')">크레딧 사용 기록</button>
+        <button data-mode="tx" class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
+        <button data-mode="tx" class="tab-btn" id="tab-stats" onclick="switchTab('stats')">업종별 주문 수</button>
+      </div>
     </div>
-    <div class="tabs">
-      <button class="tab-btn" data-mode="tx" id="tab-bp" onclick="switchTab('bank_pending')" style="color:#f59e0b"><i class="ti ti-wallet" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>입금대기<span id="bp-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#d97706;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
-      <button data-mode="tx" class="tab-btn active" id="tab-ai" onclick="switchTab('ai_premium')">AI 프리미엄 납품 대기</button>
-      <button data-mode="tx" class="tab-btn" id="tab-pp" onclick="switchTab('premium_plus')">프리미엄 플러스 컨펌</button>
-      <button data-mode="tx" class="tab-btn" id="tab-rv" onclick="switchTab('reviewers')">검수자 승인</button>
-      <button data-mode="tx" class="tab-btn" id="tab-rv-approved" onclick="switchTab('reviewers_approved')">승인된 검수자</button>
-      <button data-mode="tx" class="tab-btn" id="tab-rv-rejected" onclick="switchTab('reviewers_rejected')">반려된 검수자</button>
-      <button data-mode="tx" class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
-      <button data-mode="tx" class="tab-btn" id="tab-ua" onclick="switchTab('unassigned')" style="color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>미배정</button>
-      <button data-mode="tx" class="tab-btn" id="tab-failed" onclick="switchTab('failed')" style="color:#60a5fa"><i class="ti ti-alert-circle" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>확인필요·번역실패</button>
-      <button data-mode="tx" class="tab-btn" id="tab-bypass" onclick="switchTab('bypass')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>우회 주문</button>
-      <button data-mode="tx" class="tab-btn" id="tab-gpt" onclick="switchTab('gpt_review')" style="color:rgba(22,184,148,0.85)">🤖 GPT 검수</button>
-      <button data-mode="tx" class="tab-btn" id="tab-members" onclick="switchTab('members')" style="color:#3b82f6"><i class="ti ti-users" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>회원 관리</button>
-      <button data-mode="tx" class="tab-btn" id="tab-terms" onclick="switchTab('terms')" style="color:#60a5fa"><i class="ti ti-language" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>용어 관리</button>
-      <button data-mode="tx" class="tab-btn" id="tab-rev" onclick="switchTab('revisions')" style="color:#f59e0b"><i class="ti ti-pencil" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>수정 요청</button>
-      <button data-mode="tx" class="tab-btn" id="tab-ft" onclick="switchTab('free_test')" style="color:#9DB7F5"><i class="ti ti-gift" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>무료 테스트</button>
-      <button data-mode="tx" class="tab-btn" id="tab-corp" onclick="switchTab('corp')" style="color:#60a5fa"><i class="ti ti-building" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>기업고객</button>
-      <button data-mode="ntr" class="tab-btn" id="tab-ntr" onclick="switchTab('notary_ship')" style="color:#D4AF37"><i class="ti ti-package" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>공증 배송 관리<span id="ntr-badge" style="display:none;margin-left:5px;min-width:16px;height:16px;padding:0 5px;border-radius:8px;background:#b8860b;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;vertical-align:1px">0</span></button>
-      <button data-mode="ntr" class="tab-btn" id="tab-ntrd" onclick="switchTab('notary_direct')" style="color:var(--gold);opacity:0.75"><i class="ti ti-lock" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>직접 번역 (결제 없이)</button>
+
+    <!-- 업종별 주문 수 (2026-10-29) — 주문 화면 '업종'(선택 입력)이 들어간 주문만 센다. GET /api/admin/stats/industry
+         2026-10-31: 메뉴 '기록 › 업종별 주문 수' 로 옮김 (기능·주소 그대로) -->
+    <div id="stats-wrap" style="display:none;padding:4px 0 32px">
+      <div id="industry-stats" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px;font-size:12.5px;color:rgba(255,255,255,0.75)">
+        <button type="button" onclick="loadIndustryStats()" style="padding:5px 12px;border-radius:4px;border:1px solid rgba(157,183,245,0.45);background:rgba(31,79,209,0.15);color:#C9D7FB;cursor:pointer;font-size:12px;font-family:inherit">업종별 주문 수</button>
+        <span id="industry-stats-out" style="color:rgba(255,255,255,0.6)"></span>
+      </div>
+    </div>
+
+    <!-- ── 용어 추출 (2026-10-31) ─────────────────────────────
+         원문+번역 파일에서 용어 후보를 뽑아 용어집에 쌓는다. 서버: /api/admin/term-extract/*
+         예상 비용을 먼저 보고, 예산 안일 때만 [추출 시작]이 켜진다. -->
+    <div id="tx-wrap" style="display:none;padding:4px 0 32px">
+      <div class="bp-section">
+        <div class="bp-section-title">용어 추출</div>
+        <div class="tx-rule">
+          <p id="tx-naming">원문+번역 한 쌍은 파일 이름 끝을 <strong>_원문</strong> / <strong>_번역</strong> 으로 (예: 계약서_원문.docx + 계약서_번역.docx). 원문과 번역이 함께 있는 대조 문서는 그대로 올리면 됩니다(예: 계약서_대조.docx). 여러 쌍을 한 번에 올릴 수 있습니다.</p>
+          <p id="tx-onlysrc" class="tx-rule-strong">원문만 있는 파일은 받지 않습니다.</p>
+        </div>
+
+        <div class="bp-row single">
+          <div class="bp-col">
+            <label class="bp-label" for="tx-files">파일 (여러 개 선택 가능 · <span id="tx-exts">pdf · docx · doc · xlsx · xls · txt</span>)</label>
+            <input type="file" id="tx-files" class="bp-inp" multiple accept=".pdf,.docx,.doc,.xlsx,.xls,.txt" onchange="txFilesChanged()">
+            <div id="tx-filelist" class="tx-filelist"></div>
+          </div>
+        </div>
+
+        <div class="bp-row">
+          <div class="bp-col">
+            <label class="bp-label" for="tx-pair">언어쌍</label>
+            <select id="tx-pair" class="bp-inp" onchange="txReset()"></select>
+          </div>
+          <div class="bp-col">
+            <label class="bp-label" for="tx-field">분야</label>
+            <select id="tx-field" class="bp-inp" onchange="txReset()"><option value="">불러오는 중…</option></select>
+          </div>
+        </div>
+
+        <div class="bp-row">
+          <div class="bp-col">
+            <label class="bp-label" for="tx-scope">범위</label>
+            <select id="tx-scope" class="bp-inp" onchange="txScopeChanged()">
+              <option value="general">일반</option>
+              <option value="corp">기업전용</option>
+              <option value="internal">내부전용</option>
+            </select>
+          </div>
+          <div class="bp-col" id="tx-corp-row" style="display:none">
+            <label class="bp-label" for="tx-company">회사명 · 사업자등록번호 (기업전용)</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input type="text" id="tx-company" class="bp-inp" placeholder="회사명" style="flex:1;min-width:140px" oninput="txReset()">
+              <input type="text" id="tx-bizno" class="bp-inp" placeholder="000-00-00000" inputmode="numeric" maxlength="12" style="max-width:160px" oninput="txReset()">
+            </div>
+          </div>
+        </div>
+
+        <div class="tx-actions">
+          <button type="button" class="btn-plain" id="tx-estimate-btn" onclick="txEstimate()">예상 비용 보기</button>
+          <button type="button" class="btn-primary" id="tx-start-btn" onclick="txStart()" disabled>추출 시작</button>
+          <span id="tx-msg" class="tx-msg" role="status"></span>
+        </div>
+        <p class="tx-note">배치로 처리해 몇 분~수십 분 걸릴 수 있습니다. 올린 파일과 중간 결과는 처리 후 서버에서 지웁니다.</p>
+        <div id="tx-budget" class="tx-budget"></div>
+        <div id="tx-estimate" class="tx-estimate" style="display:none"></div>
+      </div>
+
+      <div class="bp-section" id="tx-job" style="display:none">
+        <div class="bp-section-title">진행 상황 <span id="tx-job-status"></span></div>
+        <div id="tx-job-meta" class="tx-job-meta"></div>
+        <pre id="tx-job-progress" class="tx-progress"></pre>
+        <div id="tx-job-result"></div>
+      </div>
+    </div>
+
+    <!-- ── 크레딧 사용 기록 (2026-10-31) — GET /api/admin/credit-budget ── -->
+    <div id="credit-wrap" style="display:none;padding:4px 0 32px">
+      <div class="bp-section">
+        <div class="bp-section-title" style="display:flex;align-items:center">크레딧 사용 기록 <span style="flex:1"></span>
+          <button type="button" class="tab-btn" onclick="loadCreditBudget()">새로고침</button></div>
+        <div class="credit-cards">
+          <div class="credit-card"><div class="credit-k">사용액</div><div class="credit-v" id="credit-spent">—</div></div>
+          <div class="credit-card"><div class="credit-k">남은 예산 (US$50 기준)</div><div class="credit-v" id="credit-remaining">—</div></div>
+          <div class="credit-card"><div class="credit-k">크레딧 만료일</div><div class="credit-v" id="credit-expires">—</div></div>
+        </div>
+        <div id="credit-note" class="tx-note"></div>
+        <div class="tbl-box">
+          <table class="orders-table credit-table">
+            <thead><tr><th>시각</th><th>작업</th><th>모델</th><th>배치</th><th>호출</th><th>입력 토큰</th><th>출력 토큰</th><th>비용(US$)</th><th>메모</th></tr></thead>
+            <tbody id="credit-tbody"><tr class="empty-row"><td colspan="9">탭을 열면 불러옵니다</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- ── 공증 배송 관리 ────────────────────────────────────
@@ -371,7 +603,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <button class="tab-btn ntr-f"        data-f="progress" onclick="ntrFilter('progress')">진행 중</button>
         <button class="tab-btn ntr-f"        data-f="ready"    onclick="ntrFilter('ready')">발송대기</button>
         <button class="tab-btn ntr-f"        data-f="shipped"  onclick="ntrFilter('shipped')">발송완료</button>
-        <button class="tab-btn ntr-f"        data-f="manual"   onclick="ntrFilter('manual')" style="color:#fb923c">번역 대기 (수동)</button>
+        <button class="tab-btn ntr-f"        data-f="manual"   onclick="ntrFilter('manual')" style="color:#D9BC8C">번역 대기 (수동)</button>
         <span style="width:14px"></span>
         <button class="tab-btn ntr-t active" data-t="all" onclick="ntrTier('all')">전체</button>
         <button class="tab-btn ntr-t"        data-t="T1"  onclick="ntrTier('T1')">T1 번역만</button>
@@ -384,8 +616,8 @@ body.admin-focus .focus-exit-hint{display:inline}
         <button class="tab-btn" onclick="loadNotaryShipping()">새로고침</button>
       </div>
       <!-- ★수동 번역 대기 = 대표 1인 병목. 건수·가장 오래된 경과일을 항상 맨 위에 띄운다 -->
-      <div id="ntr-express" style="display:none;margin-bottom:10px;padding:11px 14px;border-left:3px solid #e5484d;background:rgba(229,72,77,0.1);font-size:13px;color:#fafaf8"></div>
-      <div id="ntr-manual" style="display:none;margin-bottom:14px;padding:11px 14px;border-left:3px solid #fb923c;background:rgba(251,146,60,0.08);font-size:13px;color:#fafaf8"></div>
+      <div id="ntr-express" style="display:none;margin-bottom:10px;padding:11px 14px;border-left:3px solid #B08D57;background:rgba(176,141,87,0.1);font-size:13px;color:#FAFAF7"></div>
+      <div id="ntr-manual" style="display:none;margin-bottom:14px;padding:11px 14px;border-left:3px solid #D9BC8C;background:rgba(176,141,87,0.08);font-size:13px;color:#FAFAF7"></div>
       <div id="ntr-list"></div>
     </div>
 
@@ -402,7 +634,7 @@ body.admin-focus .focus-exit-hint{display:inline}
           <i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>
           직접 번역 — 결제 없이 (관리자 전용)
         </div>
-        <div style="background:rgba(201,168,76,0.06);border-left:3px solid var(--gold);padding:12px 16px;border-radius:4px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8;margin-bottom:18px">
+        <div style="background:rgba(157,183,245,0.06);border-left:3px solid var(--gold);padding:12px 16px;border-radius:4px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8;margin-bottom:18px">
           오프라인 손님 서류를 <strong style="color:var(--gold)">번역만</strong> 처리합니다
           (공증 · 우편 · 아포스티유 없음).<br>
           생성된 건은 <strong>NTR-ADM-</strong> 주문번호로 구분되어
@@ -474,8 +706,8 @@ body.admin-focus .focus-exit-hint{display:inline}
     <!-- 기업고객 탭 (주문 화면 '기업 고객' 체크 → 사업자등록번호별 전용 용어집) — admin/terms.js -->
     <div id="corp-wrap" style="display:none;padding:4px 0 32px">
       <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center">
-        <input type="text" placeholder="회사명·사업자등록번호 검색" style="flex:1;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:13px;outline:none" onchange="corpFilter('q',this.value.trim())">
-        <select style="padding:9px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:13px" onchange="corpFilter('sort',this.value)">
+        <input type="text" placeholder="회사명·사업자등록번호 검색" style="flex:1;padding:9px 14px;background:#132E52;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#FAFAF7;font-size:13px;outline:none" onchange="corpFilter('q',this.value.trim())">
+        <select style="padding:9px 12px;background:#132E52;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#FAFAF7;font-size:13px" onchange="corpFilter('sort',this.value)">
           <option value="recent">최근 주문순</option><option value="orders">주문 건수순</option>
         </select>
       </div>
@@ -486,7 +718,7 @@ body.admin-focus .focus-exit-hint{display:inline}
     <!-- [E-2] 회원 관리 탭 -->
     <div id="members-wrap" style="display:none;padding:4px 0 32px">
       <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
-        <input id="member-search-inp" type="text" placeholder="이메일/이름/회사명 검색" style="flex:1;padding:9px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:13px;outline:none" oninput="debounceMemberSearch(this.value)">
+        <input id="member-search-inp" type="text" placeholder="이메일/이름/회사명 검색" style="flex:1;padding:9px 14px;background:#132E52;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#FAFAF7;font-size:13px;outline:none" oninput="debounceMemberSearch(this.value)">
         <span id="member-count" style="font-size:12px;color:rgba(255,255,255,0.35);white-space:nowrap"></span>
       </div>
       <table class="member-list-table">
@@ -502,16 +734,16 @@ body.admin-focus .focus-exit-hint{display:inline}
           </div>
           <button onclick="document.getElementById('member-detail').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px">✕</button>
         </div>
-        <div style="background:rgba(59,130,246,0.08);border-left:3px solid #3b82f6;padding:14px 18px;border-radius:8px">
-          <div style="font-weight:700;color:#3b82f6;margin-bottom:12px;font-size:14px"><i class="ti ti-building" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>기업회원 관리</div>
+        <div style="background:rgba(157,183,245,0.08);border-left:3px solid #1F4FD1;padding:14px 18px;border-radius:8px">
+          <div style="font-weight:700;color:#1F4FD1;margin-bottom:12px;font-size:14px"><i class="ti ti-building" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>기업회원 관리</div>
           <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer">
-            <input type="checkbox" id="biz-toggle" onchange="document.getElementById('biz-details').style.display=this.checked?'block':'none'" style="accent-color:#3b82f6;width:16px;height:16px">
+            <input type="checkbox" id="biz-toggle" onchange="document.getElementById('biz-details').style.display=this.checked?'block':'none'" style="accent-color:#1F4FD1;width:16px;height:16px">
             <span style="font-size:14px">기업회원 부여</span>
           </label>
           <div id="biz-details" style="display:none">
             <div style="margin-bottom:10px">
               <label style="font-size:12px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">등급</label>
-              <select id="biz-grade" style="padding:8px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px">
+              <select id="biz-grade" style="padding:8px 12px;background:#132E52;border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;border-radius:4px;font-size:13px">
                 <option value="표준">표준</option>
                 <option value="프리미엄">프리미엄</option>
                 <option value="엔터프라이즈">엔터프라이즈</option>
@@ -519,7 +751,7 @@ body.admin-focus .focus-exit-hint{display:inline}
             </div>
             <div style="margin-bottom:10px">
               <label style="font-size:12px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">사업자등록번호</label>
-              <input id="biz-regnum" type="text" placeholder="123-45-67890" style="width:100%;padding:8px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
+              <input id="biz-regnum" type="text" placeholder="123-45-67890" style="width:100%;padding:8px 12px;background:#132E52;border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
             </div>
             <div id="biz-granted-at" style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:10px"></div>
             <!-- E-6 협상 단가 -->
@@ -528,20 +760,20 @@ body.admin-focus .focus-exit-hint{display:inline}
               <div style="display:flex;gap:10px">
                 <div style="flex:1">
                   <label style="font-size:11px;color:rgba(255,255,255,0.4)">AI프리미엄 (표준 25)</label>
-                  <input id="biz-rate-ai" type="number" min="1" max="200" placeholder="25" style="width:100%;padding:7px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
+                  <input id="biz-rate-ai" type="number" min="1" max="200" placeholder="25" style="width:100%;padding:7px 10px;background:#132E52;border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
                 </div>
                 <div style="flex:1">
                   <label style="font-size:11px;color:rgba(255,255,255,0.4)">프리미엄플러스 (표준 40)</label>
-                  <input id="biz-rate-pp" type="number" min="1" max="200" placeholder="40" style="width:100%;padding:7px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
+                  <input id="biz-rate-pp" type="number" min="1" max="200" placeholder="40" style="width:100%;padding:7px 10px;background:#132E52;border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;border-radius:4px;font-size:13px;box-sizing:border-box;outline:none">
                 </div>
               </div>
             </div>
           </div>
-          <button onclick="saveBizMember()" style="background:#3b82f6;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">저장</button>
+          <button onclick="saveBizMember()" style="background:#1F4FD1;color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600">저장</button>
         </div>
         <!-- E-5e 누적 참고자료 (기업회원만) -->
-        <div id="biz-refs-wrap" style="display:none;margin-top:14px;padding:14px;background:rgba(22,184,148,0.05);border:1px solid rgba(22,184,148,0.15);border-radius:8px">
-          <div style="font-weight:700;color:#16B894;margin-bottom:10px;font-size:13px"><i class="ti ti-files" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>누적 참고자료</div>
+        <div id="biz-refs-wrap" style="display:none;margin-top:14px;padding:14px;background:rgba(157,183,245,0.05);border:1px solid rgba(157,183,245,0.15);border-radius:8px">
+          <div style="font-weight:700;color:#9DB7F5;margin-bottom:10px;font-size:13px"><i class="ti ti-files" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>누적 참고자료</div>
           <div id="biz-refs-list"><span style="font-size:12px;color:rgba(255,255,255,0.4)">불러오는 중…</span></div>
         </div>
       </div>
@@ -562,26 +794,26 @@ body.admin-focus .focus-exit-hint{display:inline}
           <!-- 헤더: 제목 + 월 선택 -->
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
             <h2 style="font-size:20px;font-weight:500;color:var(--gold);margin:0">정산 관리</h2>
-            <input type="month" id="settlement-month" value="" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:8px 12px;border-radius:6px;font-size:13px;font-family:inherit">
+            <input type="month" id="settlement-month" value="" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;padding:8px 12px;border-radius:6px;font-size:13px;font-family:inherit">
           </div>
           <!-- 요약 카드 4개 -->
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:32px">
             <div class="settlement-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
               <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">💰 매출</div>
-              <div id="card-sales-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
+              <div id="card-sales-amount" style="font-size:22px;font-weight:500;color:#FAFAF7;margin-bottom:4px">₩0</div>
               <div id="card-sales-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건</div>
             </div>
             <div class="settlement-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
               <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">⚖️ 조정</div>
-              <div id="card-adj-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
+              <div id="card-adj-amount" style="font-size:22px;font-weight:500;color:#FAFAF7;margin-bottom:4px">₩0</div>
               <div id="card-adj-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건</div>
             </div>
             <div class="settlement-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px">
               <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">💸 정산</div>
-              <div id="card-settle-amount" style="font-size:22px;font-weight:500;color:#fafaf8;margin-bottom:4px">₩0</div>
+              <div id="card-settle-amount" style="font-size:22px;font-weight:500;color:#FAFAF7;margin-bottom:4px">₩0</div>
               <div id="card-settle-count" style="font-size:12px;color:rgba(255,255,255,0.4)">0건 (대기 0건)</div>
             </div>
-            <div class="settlement-card" style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:20px">
+            <div class="settlement-card" style="background:rgba(157,183,245,0.08);border:1px solid rgba(157,183,245,0.3);border-radius:8px;padding:20px">
               <div style="font-size:11px;color:var(--gold);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase">📊 마진</div>
               <div id="card-margin" style="font-size:22px;font-weight:500;color:var(--gold);margin-bottom:4px">₩0</div>
               <div style="font-size:12px;color:rgba(255,255,255,0.4)">매출 - 정산</div>
@@ -600,7 +832,7 @@ body.admin-focus .focus-exit-hint{display:inline}
           <div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
               <h3 style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);margin:0;letter-spacing:1px">⚖️ 조정 항목</h3>
-              <button onclick="openAdjustmentModal()" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:8px 16px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">+ 추가</button>
+              <button onclick="openAdjustmentModal()" style="background:rgba(157,183,245,0.12);border:1px solid rgba(157,183,245,0.3);color:var(--gold);padding:8px 16px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">+ 추가</button>
             </div>
             <div id="adjustments-list" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;min-height:80px">
               <div style="text-align:center;color:rgba(255,255,255,0.4);padding:24px">조정 항목 없음</div>
@@ -608,40 +840,40 @@ body.admin-focus .focus-exit-hint{display:inline}
           </div>
           <!-- 조정 항목 추가 모달 -->
           <div id="adjustment-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
-            <div style="background:#0a0a0a;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:32px;width:500px;max-width:90%;max-height:90vh;overflow:auto">
+            <div style="background:#0A1628;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:32px;width:500px;max-width:90%;max-height:90vh;overflow:auto">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
                 <h3 style="margin:0;color:var(--gold);font-size:18px;font-weight:500">조정 항목 추가</h3>
                 <button onclick="closeAdjustmentModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
               </div>
               <div style="margin-bottom:16px">
                 <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">일자</label>
-                <input type="date" id="adj-date" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit">
+                <input type="date" id="adj-date" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;padding:10px;border-radius:6px;font-family:inherit">
               </div>
               <div style="margin-bottom:16px">
                 <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">항목</label>
-                <select id="adj-item" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit">
-                  <option value="환불" style="background:#0a0a0a">환불 (지출, -)</option>
-                  <option value="보상" style="background:#0a0a0a">보상 (지출, -)</option>
-                  <option value="기타비용" style="background:#0a0a0a">기타비용 (지출, -)</option>
-                  <option value="가산수익" style="background:#0a0a0a">가산수익 (수익, +)</option>
+                <select id="adj-item" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;padding:10px;border-radius:6px;font-family:inherit">
+                  <option value="환불" style="background:#0A1628">환불 (지출, -)</option>
+                  <option value="보상" style="background:#0A1628">보상 (지출, -)</option>
+                  <option value="기타비용" style="background:#0A1628">기타비용 (지출, -)</option>
+                  <option value="가산수익" style="background:#0A1628">가산수익 (수익, +)</option>
                 </select>
               </div>
               <div style="margin-bottom:16px">
                 <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">금액 (지출은 음수로 입력: 예 -50000)</label>
-                <input type="number" id="adj-amount" placeholder="-50000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit">
+                <input type="number" id="adj-amount" placeholder="-50000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;padding:10px;border-radius:6px;font-family:inherit">
               </div>
               <div style="margin-bottom:16px">
                 <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">사유 (선택)</label>
-                <textarea id="adj-reason" rows="3" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit;resize:vertical"></textarea>
+                <textarea id="adj-reason" rows="3" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;padding:10px;border-radius:6px;font-family:inherit;resize:vertical"></textarea>
               </div>
               <div style="margin-bottom:24px">
                 <label style="display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px">관련 주문 record ID (선택)</label>
-                <input type="text" id="adj-related" placeholder="rec... (Airtable 주문 record ID)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;padding:10px;border-radius:6px;font-family:inherit;font-size:12px">
+                <input type="text" id="adj-related" placeholder="rec... (Airtable 주문 record ID)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;padding:10px;border-radius:6px;font-family:inherit;font-size:12px">
                 <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px">주문 테이블에서 rec... ID를 복사해 붙여넣으세요. 빈칸 가능.</div>
               </div>
               <div style="display:flex;gap:12px;justify-content:flex-end">
                 <button onclick="closeAdjustmentModal()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:inherit">취소</button>
-                <button onclick="submitAdjustment()" style="background:rgba(201,168,76,0.2);border:1px solid var(--gold);color:var(--gold);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:500">추가</button>
+                <button onclick="submitAdjustment()" style="background:rgba(157,183,245,0.2);border:1px solid var(--gold);color:var(--gold);padding:10px 20px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:500">추가</button>
               </div>
             </div>
           </div>
@@ -654,21 +886,21 @@ body.admin-focus .focus-exit-hint{display:inline}
       <!-- 통합 파일 추출 섹션 -->
       <div class="bp-section">
         <div class="bp-section-title">📂 원문 파일 추출 (자동추출 + OCR)</div>
-        <div style="padding:10px 14px;background:rgba(217,119,6,0.1);border-left:3px solid #d97706;border-radius:6px;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
+        <div style="padding:10px 14px;background:rgba(176,141,87,0.1);border-left:3px solid #B08D57;border-radius:6px;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
           지원: Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT, 50MB 이하<br>
-          <strong style="color:#ffa726">⚠ HWP(한글) 파일</strong> — HWP 한글 파일의 형식은 본문 텍스트를 복사하여 아래 원문 텍스트 입력란에 붙여넣기<br>
+          <strong style="color:#D9BC8C">⚠ HWP(한글) 파일</strong> — HWP 한글 파일의 형식은 본문 텍스트를 복사하여 아래 원문 텍스트 입력란에 붙여넣기<br>
           📌 <strong>여러 파일은 파일별로 별도 주문해 주세요.</strong><br>
-          <strong style="color:#ff8c8c">⚠ 본문 직접 확인 + 수정 필수.</strong>
+          <strong style="color:#E6D3B0">⚠ 본문 직접 확인 + 수정 필수.</strong>
         </div>
-        <div style="margin-bottom:10px;padding:8px 10px;background:rgba(22,184,148,0.06);border:1px solid rgba(22,184,148,0.2);border-radius:4px">
+        <div style="margin-bottom:10px;padding:8px 10px;background:rgba(157,183,245,0.06);border:1px solid rgba(157,183,245,0.2);border-radius:4px">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8)">
-            <input type="checkbox" id="bp-extract-hanja-mode" style="accent-color:#16B894">
-            <span><strong style="color:#16B894">한자어 혼용 문서</strong> — 체크 시 Google Vision 사용 (한자 인식 강함)</span>
+            <input type="checkbox" id="bp-extract-hanja-mode" style="accent-color:#9DB7F5">
+            <span><strong style="color:#9DB7F5">한자어 혼용 문서</strong> — 체크 시 Google Vision 사용 (한자 인식 강함)</span>
           </label>
         </div>
         <input type="file" id="bp-extract-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="bpExtractFileChange(this)">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <label for="bp-extract-file" style="padding:8px 16px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:13px">파일 선택</label>
+          <label for="bp-extract-file" style="padding:8px 16px;background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:13px">파일 선택</label>
           <span id="bp-extract-filename" style="font-size:12px;color:rgba(255,255,255,0.7)"></span>
         </div>
         <div id="bp-extract-status" style="font-size:12px;margin-top:8px;min-height:16px"></div>
@@ -798,7 +1030,7 @@ body.admin-focus .focus-exit-hint{display:inline}
             </select>
           </div>
           <div class="bp-col" style="align-self:flex-end">
-            <div id="bp-plan-hint" style="display:none;padding:8px 12px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.25);border-radius:6px;font-size:12px;color:var(--gold);line-height:1.5">
+            <div id="bp-plan-hint" style="display:none;padding:8px 12px;background:rgba(176,141,87,0.08);border:1px solid rgba(176,141,87,0.25);border-radius:6px;font-size:12px;color:var(--gold);line-height:1.5">
               <i class="ti ti-alert-triangle" style="font-size:12px;vertical-align:-1px;margin-right:3px;color:var(--gold)"></i>프리미엄 플러스: AI 번역 완료 후 승인된 검수자에게 자동 배정됩니다.<br>
               배정 가능 검수자가 없으면 미배정 처리됩니다.
             </div>
@@ -824,14 +1056,14 @@ body.admin-focus .focus-exit-hint{display:inline}
         <div style="font-size:11.5px;color:rgba(255,255,255,0.4);margin:-4px 0 4px">내부전용: 이 주문의 용어는 내부전용으로만 쌓이고 내부전용 주문에만 쓰입니다. 체크하면 기업 고객 입력은 무시됩니다.</div>
 
         <!-- 참고자료 미저장 경고 (실패 건 불러오기 시, 참고자료가 비어있을 때만) -->
-        <div id="bp-noref-warning" style="display:none;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;background:rgba(248,113,113,0.09);border:1px solid rgba(248,113,113,0.35);border-radius:6px;font-size:12.5px;color:#fca5a5;line-height:1.55">
+        <div id="bp-noref-warning" style="display:none;align-items:flex-start;gap:8px;margin-top:14px;padding:11px 14px;background:rgba(176,141,87,0.09);border:1px solid rgba(176,141,87,0.35);border-radius:6px;font-size:12.5px;color:#E6D3B0;line-height:1.55">
           <i class="ti ti-alert-triangle" style="font-size:15px;margin-top:1px"></i>
           <span><strong>참고자료가 저장돼 있지 않습니다.</strong> 이 주문은 참고자료가 저장되지 않은 상태로 실패했습니다. 필요하면 아래 참고자료 섹션에 지금 입력한 뒤 재실행하세요.</span>
         </div>
 
         <!-- 참고자료 섹션 -->
-        <details id="bp-reference-details" style="margin-top:16px;padding:14px 16px;background:rgba(22,184,148,0.05);border:1px solid rgba(22,184,148,0.20);border-radius:8px">
-          <summary style="cursor:pointer;color:#16B894;font-weight:600;font-size:13px;user-select:none">
+        <details id="bp-reference-details" style="margin-top:16px;padding:14px 16px;background:rgba(157,183,245,0.05);border:1px solid rgba(157,183,245,0.20);border-radius:8px">
+          <summary style="cursor:pointer;color:#9DB7F5;font-weight:600;font-size:13px;user-select:none">
             📎 참고자료 (선택사항) — 번역 시 참고할 자료 추가
           </summary>
           <div style="margin-top:12px">
@@ -856,7 +1088,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         </details>
 
         <!-- 재실행 모드 배너 (번역실패 탭에서 불러왔을 때) -->
-        <div id="bp-reprocess-banner" style="display:none;align-items:center;gap:10px;margin-top:16px;padding:10px 14px;background:rgba(22,184,148,0.08);border:1px solid rgba(22,184,148,0.30);border-radius:6px;font-size:12px;color:#16B894">
+        <div id="bp-reprocess-banner" style="display:none;align-items:center;gap:10px;margin-top:16px;padding:10px 14px;background:rgba(157,183,245,0.08);border:1px solid rgba(157,183,245,0.30);border-radius:6px;font-size:12px;color:#9DB7F5">
           <i class="ti ti-refresh" style="font-size:15px"></i>
           <span style="flex:1"><strong>재실행 모드</strong> — 기존 레코드 <strong id="bp-reprocess-ordernum"></strong> 에 현재 폼 값을 반영해 파이프라인을 다시 실행합니다. (새 주문번호 생성 안 함)</span>
           <button onclick="exitReprocessMode()" style="padding:4px 10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">모드 해제</button>
@@ -876,9 +1108,9 @@ body.admin-focus .focus-exit-hint{display:inline}
     <!-- ── 미배정 탭 콘텐츠 ── -->
     <!-- ── 번역실패 탭 콘텐츠 ── -->
     <div id="failed-wrap" style="display:none;padding:4px 0 32px">
-      <div style="margin-bottom:16px;padding:12px 16px;background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.35);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
-        <strong style="color:#93c5fd">확인필요</strong> — 번역은 끝나 저장됐고, 자동 검사가 표시한 문단만 확인하면 되는 주문입니다. <strong style="color:#dbeafe">번역문 열기</strong>로 열어 확인·수정·최종 납품하세요.<br>
-        <strong style="color:#93c5fd">파이프라인 오류</strong> — 번역 자체가 실패한 주문입니다(API 오류·길이 초과 등). 폼에 불러와 재실행하거나, 고객에게 분할 의뢰를 안내하세요.
+      <div style="margin-bottom:16px;padding:12px 16px;background:rgba(157,183,245,0.07);border:1px solid rgba(157,183,245,0.35);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
+        <strong style="color:#9DB7F5">확인필요</strong> — 번역은 끝나 저장됐고, 자동 검사가 표시한 문단만 확인하면 되는 주문입니다. <strong style="color:#EEF3FB">번역문 열기</strong>로 열어 확인·수정·최종 납품하세요.<br>
+        <strong style="color:#9DB7F5">파이프라인 오류</strong> — 번역 자체가 실패한 주문입니다(API 오류·길이 초과 등). 폼에 불러와 재실행하거나, 고객에게 분할 의뢰를 안내하세요.
       </div>
       <div id="failed-list" style="display:flex;flex-direction:column;gap:12px">
         <div style="color:rgba(255,255,255,0.4);text-align:center;padding:32px">로딩 중…</div>
@@ -886,8 +1118,8 @@ body.admin-focus .focus-exit-hint{display:inline}
     </div>
 
     <div id="unassigned-wrap" style="display:none;padding:4px 0 32px">
-      <div style="margin-bottom:16px;padding:12px 16px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
-        <i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i><strong style="color:#ef4444">수동 배정 필요</strong> — 미배정(경로1 실패) / 맡기기(경로2) / 후보선정중 주문입니다.<br>
+      <div style="margin-bottom:16px;padding:12px 16px;background:rgba(176,141,87,0.07);border:1px solid rgba(176,141,87,0.25);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">
+        <i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i><strong style="color:#D9BC8C">수동 배정 필요</strong> — 미배정(경로1 실패) / 맡기기(경로2) / 후보선정중 주문입니다.<br>
         단일 배정: 검수자 1명 선택 → [배정하기] / 동시발송: 복수 체크 → [동시 발송] → 수락한 사람 중 [최종 선택]
       </div>
       <div id="unassigned-list" style="display:flex;flex-direction:column;gap:16px">
@@ -924,9 +1156,20 @@ body.admin-focus .focus-exit-hint{display:inline}
           oninput="var c=this.value.length;document.getElementById('gpt-raw-count').textContent=c.toLocaleString()+'자'"></textarea>
       </div>
 
+      <!-- 검수 엔진 (2026-10-31) — Claude(기본) / GPT(기존). Claude 는 실행 전에 예상 비용·남은 예산을 확인한다 -->
+      <div class="gr-section">
+        <div class="gr-label" id="review-engine-label">검수 엔진</div>
+        <div class="engine-row" role="radiogroup" aria-labelledby="review-engine-label">
+          <label class="engine-opt"><input type="radio" name="review-engine" id="review-engine-claude" value="claude" checked onchange="reviewEngineChanged()"> Claude (기본)</label>
+          <label class="engine-opt"><input type="radio" name="review-engine" id="review-engine-gpt" value="gpt" onchange="reviewEngineChanged()"> GPT (기존)</label>
+        </div>
+        <p class="gr-info" id="review-engine-info">번역한 AI와 다른 회사 AI로 검수하면 놓친 부분을 더 잘 찾습니다.</p>
+        <div id="review-estimate" class="gr-estimate" role="status"></div>
+      </div>
+
       <!-- 실행 버튼 -->
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
-        <button class="gr-btn gr-btn-primary" id="gpt-submit-btn" onclick="submitGptReview()"><i class="ti ti-settings" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>GPT 검수 시작</button>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap">
+        <button class="gr-btn gr-btn-primary" id="gpt-submit-btn" onclick="submitGptReview()">검수 시작</button>
         <span id="gpt-status-msg" style="font-size:13px;color:rgba(255,255,255,0.45)"></span>
       </div>
 
@@ -965,7 +1208,7 @@ body.admin-focus .focus-exit-hint{display:inline}
           <button id="diff-btn" onclick="toggleAdminDiff()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif"><i class="ti ti-files" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>Diff</button>
           <button onclick="openAdminSearch()" style="padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:3px;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif"><i class="ti ti-search" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>검색</button>
           <!-- 집중모드에서만 보이는 버튼 -->
-          <button id="focus-save-btn" style="display:none;padding:6px 14px;background:rgba(22,184,148,0.15);color:rgba(22,184,148,0.9);border:1px solid rgba(22,184,148,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="saveTranslationDraft()">💾 임시저장</button>
+          <button id="focus-save-btn" style="display:none;padding:6px 14px;background:rgba(157,183,245,0.15);color:rgba(157,183,245,0.9);border:1px solid rgba(157,183,245,0.4);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif" onclick="saveTranslationDraft()">💾 임시저장</button>
           <button class="focus-mode-btn" onclick="toggleFocusMode()" id="focus-btn">⛶ 집중 모드</button>
           <span class="focus-exit-hint">ESC로 해제</span>
         </div>
@@ -1007,10 +1250,10 @@ body.admin-focus .focus-exit-hint{display:inline}
       <!-- AI 품질 점수 섹션 -->
       <div id="ai-score-section" style="display:none">
         <!-- GPT 최종 검수 점수 배너 (gptFinalScore 있을 때만 표시) -->
-        <div id="gpt-score-banner" style="display:none;margin:0 0 10px;padding:10px 14px;background:rgba(22,184,148,0.07);border:1px solid rgba(22,184,148,0.22);border-radius:5px">
-          <div style="font-size:13px;font-weight:600;color:rgba(22,184,148,0.9)">
+        <div id="gpt-score-banner" style="display:none;margin:0 0 10px;padding:10px 14px;background:rgba(157,183,245,0.07);border:1px solid rgba(157,183,245,0.22);border-radius:5px">
+          <div style="font-size:13px;font-weight:600;color:rgba(157,183,245,0.9)">
             <i class="ti ti-sparkles" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>최종 검수 점수: <span id="gpt-score-num" style="font-size:20px">—</span> / 100
-            <span id="gpt-score-delta" style="font-size:12px;color:rgba(22,184,148,0.65);margin-left:6px"></span>
+            <span id="gpt-score-delta" style="font-size:12px;color:rgba(157,183,245,0.65);margin-left:6px"></span>
           </div>
           <div id="gpt-score-detail-txt" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px"></div>
         </div>
@@ -1037,7 +1280,7 @@ body.admin-focus .focus-exit-hint{display:inline}
       <div id="final-upload-section" style="display:none;margin:0 16px 0;padding:14px 16px;background:rgba(255,255,255,0.03);border-radius:6px">
         <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:10px;font-weight:600"><i class="ti ti-paperclip" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>최종본 업로드 (여러 파일 가능, 파일당 25MB 이하)</div>
         <input type="file" id="final-files-input" multiple style="display:none" onchange="handleFinalFilesSelected(event)">
-        <button onclick="document.getElementById('final-files-input').click()" style="padding:8px 16px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.4);border-radius:4px;cursor:pointer;font-size:12px"><i class="ti ti-paperclip" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>파일 선택</button>
+        <button onclick="document.getElementById('final-files-input').click()" style="padding:8px 16px;background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.4);border-radius:4px;cursor:pointer;font-size:12px"><i class="ti ti-paperclip" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>파일 선택</button>
         <div id="final-files-preview" style="margin-top:10px"></div>
       </div>
       <!-- 고객 평가 결과 (납품완료 후 평가 시 표시) -->
@@ -1046,7 +1289,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <span id="eval-stars" style="font-size:15px;letter-spacing:1px"></span>
           <span id="eval-rating-text" style="font-size:13px;font-weight:700;color:var(--gold)"></span>
-          <span id="eval-confirmed-badge" style="display:none;font-size:11px;padding:2px 8px;background:rgba(151,196,89,0.15);color:var(--green);border:1px solid rgba(151,196,89,0.3);border-radius:10px">메인 노출 중</span>
+          <span id="eval-confirmed-badge" style="display:none;font-size:11px;padding:2px 8px;background:rgba(157,183,245,0.15);color:var(--green);border:1px solid rgba(157,183,245,0.3);border-radius:10px">메인 노출 중</span>
           <span id="eval-date" style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto"></span>
         </div>
         <div id="eval-comment" style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.5"></div>
@@ -1089,7 +1332,7 @@ body.admin-focus .focus-exit-hint{display:inline}
         <!-- 액션 그룹 -->
         <button id="btn-confirm-review" class="btn btn-info" style="display:none" onclick="confirmReview()">✅ 메인 노출 컨펌</button>
         <button id="btn-delete" class="btn btn-danger" style="display:none" onclick="deleteOrder()">🗑 삭제</button>
-        <button id="btn-save-draft" class="btn btn-mint" style="display:none" onclick="saveTranslationDraft()">💾 임시저장</button>
+        <button id="btn-save-draft" class="btn btn-blue" style="display:none" onclick="saveTranslationDraft()">💾 임시저장</button>
         <button id="btn-company-fix" class="btn btn-info" style="display:none" onclick="requestCompanyFix()" title="시스템 오류·원문 누락 — 고객 무상 수정 1회와 별개">회사 귀책 수정</button>
         <button class="btn-deliver" id="btn-deliver" onclick="confirmFinalDelivery()">✓ 최종 납품</button>
       </div>
@@ -1208,27 +1451,16 @@ async function loadIndustryStats() {
     }).join('') + '<span style="color:rgba(255,255,255,0.45)">합계 ' + r.total + '건 · 결제완료·입금대기, 업종 입력된 주문만</span>';
   } catch(e) { out.textContent = '오류: ' + e.message; }
 }
+/* 2026-10-31 메뉴 정리 — 업무 모드 스위치는 없앴다. 모든 묶음(작업 · 주문·고객 · 용어 · 검수자 · 기록)이
+   항상 보이므로 탭을 숨기지 않는다. 함수 이름은 다른 곳(#terms 새로 고침 등)에서 부르므로 남겨 둔다. */
 function setAdminMode(mode, keepTab) {
-  ADMIN_MODE = mode;
-  document.getElementById('mode-tx').className  = 'mode-btn' + (mode==='tx'  ? ' active' : '');
-  document.getElementById('mode-ntr').className = 'mode-btn' + (mode==='ntr' ? ' active' : '');
-  var shownActive = false;
-  [].forEach.call(document.querySelectorAll('.tabs .tab-btn'), function(b){
-    var on = (b.getAttribute('data-mode') || 'tx') === mode;
-    b.style.display = on ? '' : 'none';
-    if (on && b.className.indexOf('active') >= 0) shownActive = true;
-  });
-  try { localStorage.setItem('adminMode', mode); } catch(e){}
-  /* 숨겨진 탭이 열린 채로 남으면 화면과 탭이 어긋난다 → 그 모드의 기본 탭으로 */
-  if (!keepTab && !shownActive) switchTab(MODE_HOME[mode] || 'ai_premium');
+  ADMIN_MODE = (mode === 'ntr') ? 'ntr' : 'tx';
+  if (!keepTab) switchTab(MODE_HOME[ADMIN_MODE] || 'ai_premium');
 }
 
-/** 로그인 직후 복원 — 마지막에 보던 업무로 연다 */
+/** 로그인 직후 — 모든 메뉴가 보이므로 따로 고를 것이 없다. 첫 탭(AI 프리미엄 납품 대기)으로 연다 */
 function restoreAdminMode() {
-  var m = 'tx';
-  try { m = localStorage.getItem('adminMode') || 'tx'; } catch(e){}
-  if (m !== 'tx' && m !== 'ntr') m = 'tx';
-  setAdminMode(m);
+  ADMIN_MODE = 'tx';
 }
 
 function switchTab(tab) {
@@ -1265,10 +1497,23 @@ function switchTab(tab) {
   var isMembers = tab === 'members';
   var isNtr = tab === 'notary_ship';
   var isNtrd = tab === 'notary_direct';
+  // 2026-10-31 새 탭 — 용어 추출 · 크레딧 사용 기록 · 업종별 주문 수(옮김)
+  var isTx = tab === 'term_extract', isCredit = tab === 'credit', isStats = tab === 'stats';
+  document.getElementById('tab-tx').className = 'tab-btn' + (isTx ? ' active' : '');
+  document.getElementById('tab-credit').className = 'tab-btn' + (isCredit ? ' active' : '');
+  document.getElementById('tab-stats').className = 'tab-btn' + (isStats ? ' active' : '');
+  document.getElementById('tx-wrap').style.display = isTx ? 'block' : 'none';
+  document.getElementById('credit-wrap').style.display = isCredit ? 'block' : 'none';
+  document.getElementById('stats-wrap').style.display = isStats ? 'block' : 'none';
+  [].forEach.call(document.querySelectorAll('.work-btn'), function(b){
+    var on = b.getAttribute('data-tab') === tab;
+    b.classList.toggle('active', on);
+    if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
   document.getElementById('members-wrap').style.display = isMembers ? 'block' : 'none';
   document.getElementById('ntr-wrap').style.display = isNtr ? 'block' : 'none';
   document.getElementById('ntrd-wrap').style.display = isNtrd ? 'block' : 'none';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isNtrd || isTerms || isCorp) ? 'none' : 'block';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isNtrd || isTerms || isCorp || isTx || isCredit || isStats) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
@@ -1301,6 +1546,12 @@ function switchTab(tab) {
     loadTerms();
   } else if (tab === 'corp') {
     loadCorps();
+  } else if (isTx) {
+    txInit();
+  } else if (isCredit) {
+    loadCreditBudget();
+  } else if (isStats) {
+    // 업종별 주문 수: 버튼을 눌러 불러온다 (예전과 같음)
   } else {
     loadOrders();
   }
@@ -1339,17 +1590,17 @@ async function loadOrders() {
 function b2bTagsHtml(o) {
   var t = '';
   if (o.isFreeTest) t += ' <span class="tag" style="background:rgba(31,79,209,0.15);color:#9DB7F5;border:1px solid rgba(157,183,245,0.35)">무료 테스트</span>';
-  if (o.freeMail) t += ' <span class="tag" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.35)" title="무료 메일 주소로 신청">무료메일</span>';
+  if (o.freeMail) t += ' <span class="tag" style="background:rgba(176,141,87,0.12);color:#D9BC8C;border:1px solid rgba(176,141,87,0.35)" title="무료 메일 주소로 신청">무료메일</span>';
   if (o.company) t += ' <span style="font-size:11px;color:rgba(255,255,255,0.55)">' + escHtmlB2b(o.company) + (o.industry ? ' · ' + escHtmlB2b(o.industry) : '') + '</span>';
   if (o.revisionState) {
     var open = o.revisionState === '요청됨';
-    t += ' <span class="tag" style="background:' + (open ? 'rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.35)' : 'rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)') + '">수정 ' + (o.revisionCount || 0) + '/1 ' + (open ? '요청됨' : '재납품완료') + '</span>';
-    if (o.companyFixCount) t += ' <span class="tag" style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.35)" title="시스템 오류·원문 누락 — 고객 횟수와 별개">회사 귀책 ' + o.companyFixCount + '</span>';
+    t += ' <span class="tag" style="background:' + (open ? 'rgba(176,141,87,0.12);color:#D9BC8C;border:1px solid rgba(176,141,87,0.35)' : 'rgba(157,183,245,0.12);color:#9DB7F5;border:1px solid rgba(157,183,245,0.3)') + '">수정 ' + (o.revisionCount || 0) + '/1 ' + (open ? '요청됨' : '재납품완료') + '</span>';
+    if (o.companyFixCount) t += ' <span class="tag" style="background:rgba(176,141,87,0.12);color:#D9BC8C;border:1px solid rgba(176,141,87,0.35)" title="시스템 오류·원문 누락 — 고객 횟수와 별개">회사 귀책 ' + o.companyFixCount + '</span>';
     if (currentTab === 'revisions') {
       // 서버가 배열로 준다(parseRevisionLog). 예전 문자열 응답도 받는다
       var log = Array.isArray(o.revisionLog) ? o.revisionLog : []; if (typeof o.revisionLog === 'string') { try { log = JSON.parse(o.revisionLog || '[]'); } catch (e) {} }
       t += '<div style="margin-top:6px;font-size:11.5px;line-height:1.6;color:rgba(255,255,255,0.75)">' + log.map(function (e) {
-        return (e.type === 'company' ? '<span style="color:#f59e0b">회사 귀책</span>' : e.n + '회차') + ' · ' + ymd(e.at) + (e.paragraph ? ' · ' + escHtmlB2b(e.paragraph) : '') + ' — ' + escHtmlB2b(e.reason || '') + (e.minutes != null ? ' <span style="color:#22c55e">(' + e.minutes + '분)</span>' : '');
+        return (e.type === 'company' ? '<span style="color:#D9BC8C">회사 귀책</span>' : e.n + '회차') + ' · ' + ymd(e.at) + (e.paragraph ? ' · ' + escHtmlB2b(e.paragraph) : '') + ' — ' + escHtmlB2b(e.reason || '') + (e.minutes != null ? ' <span style="color:#9DB7F5">(' + e.minutes + '분)</span>' : '');
       }).join('<br>') + (o.revisionMinutes ? '<br><span style="color:rgba(255,255,255,0.5)">처리 시간 합계 ' + o.revisionMinutes + '분</span>' : '') + '</div>';
     }
   }
@@ -1381,11 +1632,11 @@ function renderOrderTable() {
   var pageOrders = orders.slice(start, start + ORDER_PAGE_SIZE);
 
   var batchBar = showBatch
-    ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(22,184,148,0.04);border:1px solid rgba(22,184,148,0.1);border-radius:4px;margin-bottom:8px">'
+    ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(157,183,245,0.04);border:1px solid rgba(157,183,245,0.1);border-radius:4px;margin-bottom:8px">'
       + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.7)">'
       + '<input type="checkbox" id="select-all-orders" onchange="toggleSelectAllOrders(this)">'
       + '전체 선택 (<span id="selected-count">0</span>건 선택)</label>'
-      + '<button onclick="batchHideOrders()" style="padding:5px 14px;background:rgba(217,119,6,0.15);color:#d97706;border:1px solid rgba(217,119,6,0.4);border-radius:4px;cursor:pointer;font-size:12px;font-family:\'Noto Sans KR\',sans-serif">선택 항목 숨기기</button>'
+      + '<button onclick="batchHideOrders()" style="padding:5px 14px;background:rgba(176,141,87,0.15);color:#B08D57;border:1px solid rgba(176,141,87,0.4);border-radius:4px;cursor:pointer;font-size:12px;font-family:\'Noto Sans KR\',sans-serif">선택 항목 숨기기</button>'
       + '</div>'
     : '';
 
@@ -1398,7 +1649,7 @@ function renderOrderTable() {
   } else {
     rowsHtml = pageOrders.map(function(o) {
       var planTag = (o.plan||'').includes('plus') || (o.plan||'').includes('플러스') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
-      var statusTag = o.status === '납품완료' ? ' <span class="tag" style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">납품완료</span>' : '';
+      var statusTag = o.status === '납품완료' ? ' <span class="st st-done">납품완료</span>' : '';
       statusTag += holdTagHtml(o);
       statusTag += b2bTagsHtml(o);
       var ratingCell = o.isEvaluated && o.customerRating != null ? '⭐ ' + o.customerRating + '.0' + (o.isReviewConfirmed ? ' ✅' : '') : '—';
@@ -1423,7 +1674,7 @@ function renderOrderTable() {
     pageNav = '<div style="display:flex;gap:4px;justify-content:center;margin-top:12px">';
     for (var p = 1; p <= totalPages; p++) {
       var active = p === _orderPage;
-      pageNav += '<button onclick="goToOrderPage(' + p + ')" style="padding:5px 11px;background:' + (active ? '#16B894' : 'rgba(255,255,255,0.07)') + ';color:' + (active ? '#fff' : 'rgba(255,255,255,0.7)') + ';border:1px solid ' + (active ? '#16B894' : 'rgba(255,255,255,0.15)') + ';border-radius:4px;cursor:pointer;font-size:12px;font-family:\'Noto Sans KR\',sans-serif">' + p + '</button>';
+      pageNav += '<button onclick="goToOrderPage(' + p + ')" style="padding:5px 11px;background:' + (active ? '#9DB7F5' : 'rgba(255,255,255,0.07)') + ';color:' + (active ? '#fff' : 'rgba(255,255,255,0.7)') + ';border:1px solid ' + (active ? '#9DB7F5' : 'rgba(255,255,255,0.15)') + ';border-radius:4px;cursor:pointer;font-size:12px;font-family:\'Noto Sans KR\',sans-serif">' + p + '</button>';
     }
     pageNav += '</div>';
   }
@@ -1481,27 +1732,27 @@ async function loadFailedOrders() {
       var h = holdInfo(o);
       // 색은 파란색 계열로만 구분: 확인필요 = 연한 파랑 테두리, 파이프라인 오류 = 진한 파랑 배지
       var badge = h
-        ? '<span style="display:inline-block;margin-top:5px;padding:2px 9px;border-radius:10px;font-size:11.5px;color:#93c5fd;border:1px solid rgba(59,130,246,0.55);background:rgba(59,130,246,0.1)">' + _bpEsc(h.label) + '</span>'
-        : '<span style="display:inline-block;margin-top:5px;padding:2px 9px;border-radius:10px;font-size:11.5px;color:#fff;background:#1d4ed8;border:1px solid #3b82f6">파이프라인 오류' + (o.status && o.status !== '번역실패' ? ' · ' + _bpEsc(o.status) : '') + '</span>';
-      return '<div style="padding:16px 20px;border:1px solid ' + (h ? 'rgba(59,130,246,0.4)' : 'rgba(29,78,216,0.75)') + ';border-radius:6px;background:rgba(59,130,246,' + (h ? '0.04' : '0.08') + ')">' +
+        ? '<span class="st st-check" style="margin-top:5px">' + _bpEsc(h.label) + '</span>'
+        : '<span class="st st-error" style="margin-top:5px">파이프라인 오류' + (o.status && o.status !== '번역실패' ? ' · ' + _bpEsc(o.status) : '') + '</span>';
+      return '<div style="padding:16px 20px;border:1px solid ' + (h ? 'rgba(157,183,245,0.4)' : 'rgba(31,79,209,0.75)') + ';border-radius:6px;background:rgba(157,183,245,' + (h ? '0.04' : '0.08') + ')">' +
         '<div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">' +
           '<div style="flex:1;min-width:200px">' +
-            '<div style="font-size:13px;font-weight:600;color:#dbeafe">' + _bpEsc(o.orderNumber || o.orderId.slice(0,12)) + '</div>' +
+            '<div style="font-size:13px;font-weight:600;color:#EEF3FB">' + _bpEsc(o.orderNumber || o.orderId.slice(0,12)) + '</div>' +
             '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">' +
               _bpEsc(o.customerEmail || '이메일 없음') + ' · ' + (o.charCount || 0).toLocaleString() + '자 · ' + _bpEsc(o.direction || '') +
             '</div>' + badge +
-            (reason ? '<div style="font-size:11px;color:#bfdbfe;margin-top:6px;padding:5px 9px;background:rgba(59,130,246,0.09);border-radius:4px;font-family:ui-monospace,monospace;word-break:break-all;white-space:pre-wrap">' + (h ? '사유: ' : '실패사유: ') + _bpEsc(reason) + '</div>' : '') +
+            (reason ? '<div style="font-size:11px;color:#EEF3FB;margin-top:6px;padding:5px 9px;background:rgba(157,183,245,0.09);border-radius:4px;font-family:ui-monospace,monospace;word-break:break-all;white-space:pre-wrap">' + (h ? '사유: ' : '실패사유: ') + _bpEsc(reason) + '</div>' : '') +
           '</div>' +
           '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">' +
             '<div style="font-size:12px;color:rgba(255,255,255,0.5)">' + (o.receivedAt ? new Date(o.receivedAt).toLocaleDateString('ko-KR') : '') + '</div>' +
             '<div style="display:flex;gap:6px">' +
-              '<button onclick="loadFailedToBypassForm(' + idx + ')" style="padding:6px 14px;background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap"><i class="ti ti-external-link" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>폼에 불러오기</button>' +
+              '<button onclick="loadFailedToBypassForm(' + idx + ')" style="padding:6px 14px;background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap"><i class="ti ti-external-link" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>폼에 불러오기</button>' +
               ((o.orderStatus === '확인필요' && /^API 잔액 부족/.test(reason))
-                ? '<button onclick="resumeCreditHalted(' + idx + ')" style="padding:6px 14px;background:rgba(59,130,246,0.14);color:#93c5fd;border:1px solid rgba(59,130,246,0.45);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">충전 완료 → 이어서 처리</button>'
+                ? '<button onclick="resumeCreditHalted(' + idx + ')" style="padding:6px 14px;background:rgba(157,183,245,0.14);color:#9DB7F5;border:1px solid rgba(157,183,245,0.45);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">충전 완료 → 이어서 처리</button>'
                 : (o.orderStatus === '확인필요' && (o.gptFinalReview || o.aiTranslation))
-                ? '<button onclick="openHeldOrder(' + idx + ')" style="padding:6px 14px;background:#3b82f6;color:#fff;border:1px solid #3b82f6;border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap">번역문 열기</button>' +
+                ? '<button onclick="openHeldOrder(' + idx + ')" style="padding:6px 14px;background:#1F4FD1;color:#fff;border:1px solid #1F4FD1;border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap">번역문 열기</button>' +
                   '<button onclick="downloadHeldTranslation(' + idx + ')" style="padding:6px 14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">번역본 받기</button>' +
-                  '<button onclick="releaseHeldOrder(' + idx + ')" style="padding:6px 14px;background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.4);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">확인 완료 → 납품대기</button>'
+                  '<button onclick="releaseHeldOrder(' + idx + ')" style="padding:6px 14px;background:rgba(157,183,245,0.12);color:#9DB7F5;border:1px solid rgba(157,183,245,0.4);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">확인 완료 → 납품대기</button>'
                 : '') +
             '</div>' +
             '<div style="font-size:10px;color:rgba(255,255,255,0.35);white-space:nowrap">폼에서 확인 후 재실행</div>' +
@@ -1510,7 +1761,7 @@ async function loadFailedOrders() {
       '</div>';
     }).join('');
   } catch(e) {
-    listEl.innerHTML = '<div style="color:#f87171;text-align:center;padding:32px">⚠️ ' + e.message + '</div>';
+    listEl.innerHTML = '<div style="color:#D9BC8C;text-align:center;padding:32px">⚠️ ' + e.message + '</div>';
   }
 }
 
@@ -1645,14 +1896,14 @@ async function loadBankPending() {
   wrap.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,0.5);padding:16px">로딩 중…</p>';
   try {
     var res = await adminFetch('/api/admin/orders?tab=bank_pending');
-    if (!res.success) { wrap.innerHTML = '<p style="font-size:13px;color:#f87171;padding:16px">로드 실패: ' + _bpEsc(res.error||'') + '</p>'; return; }
+    if (!res.success) { wrap.innerHTML = '<p style="font-size:13px;color:#D9BC8C;padding:16px">로드 실패: ' + _bpEsc(res.error||'') + '</p>'; return; }
     var orders = res.orders || [];
     _bpUpdateBadge(orders.length);
     if (!orders.length) {
       wrap.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,0.45);padding:24px;text-align:center">입금대기 중인 주문이 없습니다.</p>';
       return;
     }
-    var head = '<div style="padding:8px 2px 14px"><p style="font-size:14px;font-weight:700;color:#f59e0b;margin-bottom:3px"><i class="ti ti-wallet" style="vertical-align:-1px;margin-right:4px"></i>200만원 초과 입금 대기 주문 (' + orders.length + '건)</p><p style="font-size:11px;color:rgba(255,255,255,0.4)">법인 계좌 입금 확인 후 \'입금 확인 · AI 번역 착수\'를 눌러 처리하세요.</p></div>';
+    var head = '<div style="padding:8px 2px 14px"><p style="font-size:14px;font-weight:700;color:#D9BC8C;margin-bottom:3px"><i class="ti ti-wallet" style="vertical-align:-1px;margin-right:4px"></i>200만원 초과 입금 대기 주문 (' + orders.length + '건)</p><p style="font-size:11px;color:rgba(255,255,255,0.4)">법인 계좌 입금 확인 후 \'입금 확인 · AI 번역 착수\'를 눌러 처리하세요.</p></div>';
     var row = function(lbl, val) {
       return '<div style="display:flex;font-size:12px;line-height:1.7"><span style="flex:0 0 76px;color:rgba(255,255,255,0.4)">' + lbl + '</span><span style="color:rgba(255,255,255,0.85);word-break:break-all">' + val + '</span></div>';
     };
@@ -1662,10 +1913,10 @@ async function loadBankPending() {
       var gloss = (o.customerGlossary && o.customerGlossary !== '없음')
         ? '<div style="margin-top:8px"><span style="font-size:11px;color:rgba(255,255,255,0.4)">고객 용어집</span><pre style="margin:4px 0 0;white-space:pre-wrap;word-break:break-all;font-size:11px;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.03);border-radius:4px;padding:8px 10px;font-family:inherit">' + _bpEsc(o.customerGlossary) + '</pre></div>'
         : '';
-      return '<div style="background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.3);border-radius:10px;padding:16px 18px;margin-bottom:14px">'
+      return '<div style="background:rgba(176,141,87,0.05);border:1px solid rgba(176,141,87,0.3);border-radius:10px;padding:16px 18px;margin-bottom:14px">'
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08)">'
           + '<strong style="font-size:15px;color:var(--gold)">' + on + '</strong>'
-          + '<span style="font-size:16px;font-weight:700;color:#22c55e">₩' + (o.paymentAmount||0).toLocaleString() + '</span>'
+          + '<span style="font-size:16px;font-weight:700;color:#9DB7F5">₩' + (o.paymentAmount||0).toLocaleString() + '</span>'
         + '</div>'
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;margin-bottom:10px">'
           + row('회원', _bpEsc(o.customerName||'—'))
@@ -1682,12 +1933,12 @@ async function loadBankPending() {
         + '<div><span style="font-size:11px;color:rgba(255,255,255,0.4)">원문</span><pre style="margin:4px 0 0;white-space:pre-wrap;word-break:break-all;font-size:12px;color:rgba(255,255,255,0.82);background:rgba(255,255,255,0.03);border-radius:4px;padding:10px 12px;max-height:180px;overflow-y:auto;font-family:inherit">' + (src||'<span style="color:rgba(255,255,255,0.3)">(원문 없음)</span>') + '</pre></div>'
         + gloss
         + '<div style="display:flex;gap:10px;margin-top:14px">'
-          + '<button onclick="confirmBankPayment(\'' + o.orderId + '\',\'' + (o.orderNumber||'').replace(/'/g,"\\'") + '\')" style="flex:1;padding:11px;font-size:13px;background:#16B894;color:#fff;border:none;border-radius:7px;cursor:pointer;font-weight:700;font-family:\'Noto Sans KR\',sans-serif">✓ 입금 확인 · AI 번역 착수</button>'
+          + '<button onclick="confirmBankPayment(\'' + o.orderId + '\',\'' + (o.orderNumber||'').replace(/'/g,"\\'") + '\')" style="flex:1;padding:11px;font-size:13px;background:#9DB7F5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-weight:700;font-family:\'Noto Sans KR\',sans-serif">✓ 입금 확인 · AI 번역 착수</button>'
           + '<button onclick="cancelBankPayment(\'' + o.orderId + '\',\'' + (o.orderNumber||'').replace(/'/g,"\\'") + '\')" style="flex:0 0 90px;padding:11px;font-size:13px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;border-radius:7px;cursor:pointer;font-weight:600;font-family:\'Noto Sans KR\',sans-serif">✗ 취소</button>'
         + '</div>'
       + '</div>';
     }).join('');
-  } catch(e) { wrap.innerHTML = '<p style="font-size:13px;color:#f87171;padding:16px">오류: ' + _bpEsc(e.message) + '</p>'; }
+  } catch(e) { wrap.innerHTML = '<p style="font-size:13px;color:#D9BC8C;padding:16px">오류: ' + _bpEsc(e.message) + '</p>'; }
 }
 
 async function confirmBankPayment(orderId, orderNumber) {
@@ -1900,7 +2151,7 @@ function _updateProg(taId, fillId) {
   if(!ta||!f)return;
   var pct=(ta.scrollHeight<=ta.clientHeight)?100:Math.round(ta.scrollTop/(ta.scrollHeight-ta.clientHeight)*100);
   f.style.width=pct+'%';
-  f.style.background=pct>=99?'rgba(22,184,148,0.9)':'rgba(22,184,148,0.5)';
+  f.style.background=pct>=99?'rgba(157,183,245,0.9)':'rgba(157,183,245,0.5)';
 }
 function initProgressBars(){
   var s=document.getElementById('panel-source'),t=document.getElementById('panel-translation');
@@ -1950,7 +2201,7 @@ function toggleAdminDiff(){
       return '<mark class="diff-del">'+e+'</mark>';
     }).join('\n');
     ta.style.display='none'; dv.style.display='block';
-    btn.textContent='✎ 편집 모드'; btn.style.background='rgba(255,220,0,0.12)';
+    btn.textContent='✎ 편집 모드'; btn.style.background='rgba(176,141,87,0.12)';
   } else {
     ta.style.display=''; dv.style.display='none';
     btn.textContent='📋 Diff'; btn.style.background='';
@@ -2245,7 +2496,7 @@ function renderFinalFilesPreview() {
     return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,0.04);border-radius:4px;margin-bottom:4px;font-size:12px">' +
       '<span style="flex:1;color:rgba(255,255,255,0.85)">📄 ' + f.filename + '</span>' +
       '<span style="color:rgba(255,255,255,0.4)">' + Math.round(f.size/1024) + 'KB</span>' +
-      '<button onclick="removeFinalFile(' + i + ')" style="background:transparent;color:#e05555;border:none;cursor:pointer;font-size:14px;padding:0 4px">✕</button>' +
+      '<button onclick="removeFinalFile(' + i + ')" style="background:transparent;color:#D9BC8C;border:none;cursor:pointer;font-size:14px;padding:0 4px">✕</button>' +
       '</div>';
   }).join('');
 }
@@ -2335,10 +2586,10 @@ function updateConfirmReviewBtn(isConfirmed) {
   if (!btn) return;
   if (isConfirmed) {
     btn.textContent = '🚫 컨펌 취소';
-    btn.style.cssText = 'display:inline-block;padding:8px 18px;background:rgba(224,85,85,0.08);color:var(--red);border:1px solid rgba(224,85,85,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Noto Sans KR\',sans-serif';
+    btn.style.cssText = 'display:inline-block;padding:8px 18px;background:rgba(176,141,87,0.08);color:var(--red);border:1px solid rgba(176,141,87,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Noto Sans KR\',sans-serif';
   } else {
     btn.textContent = '✅ 메인 노출 컨펌';
-    btn.style.cssText = 'display:inline-block;padding:8px 18px;background:rgba(151,196,89,0.12);color:var(--green);border:1px solid rgba(151,196,89,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Noto Sans KR\',sans-serif';
+    btn.style.cssText = 'display:inline-block;padding:8px 18px;background:rgba(157,183,245,0.12);color:var(--green);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Noto Sans KR\',sans-serif';
   }
 }
 
@@ -2553,7 +2804,7 @@ async function loadApprovedReviewers() {
       var lng = (r.languages||[]).slice(0,2).join(', ') + ((r.languages||[]).length > 2 ? ' 외' : '');
       var rating = typeof r.rating === 'number' ? r.rating.toFixed(1) : '5.0';
       var availBtn = r.available
-        ? '<button onclick="event.stopPropagation();toggleAvailability(\''+r.id+'\',true)" style="padding:2px 8px;background:rgba(151,196,89,0.2);color:#97c459;border:1px solid rgba(151,196,89,0.4);border-radius:3px;cursor:pointer;font-size:11px">활성</button>'
+        ? '<button onclick="event.stopPropagation();toggleAvailability(\''+r.id+'\',true)" style="padding:2px 8px;background:rgba(157,183,245,0.2);color:#9DB7F5;border:1px solid rgba(157,183,245,0.4);border-radius:3px;cursor:pointer;font-size:11px">활성</button>'
         : '<button onclick="event.stopPropagation();toggleAvailability(\''+r.id+'\',false)" style="padding:2px 8px;background:rgba(136,136,136,0.2);color:#888;border:1px solid rgba(136,136,136,0.3);border-radius:3px;cursor:pointer;font-size:11px">비활성</button>';
       return '<tr onclick="selectReviewer(\''+r.id+'\',\'reviewers_approved\')" data-id="'+r.id+'">' +
         '<td>' + (r.name||'—') + '</td>' +
@@ -2599,7 +2850,7 @@ async function loadRejectedReviewers() {
         '<td>' + (lng||'—') + '</td>' +
         '<td>' + (r.phone||'—') + '</td>' +
         '<td>' + ymd(r.signupAt) + '</td>' +
-        '<td><button onclick="event.stopPropagation();reapproveReviewer(\''+r.id+'\')" style="padding:4px 10px;background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3);border-radius:3px;cursor:pointer;font-size:12px">재승인</button></td>' +
+        '<td><button onclick="event.stopPropagation();reapproveReviewer(\''+r.id+'\')" style="padding:4px 10px;background:rgba(157,183,245,0.15);color:var(--gold);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:12px">재승인</button></td>' +
         '</tr>';
     }).join('');
   } catch(e) {
@@ -2685,22 +2936,22 @@ function renderSettlement(data) {
     Object.entries(byReviewer).forEach(([rid, g]) => {
       html += `<div style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.04);border-radius:6px 6px 0 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-          <div style="font-weight:500;color:#fafaf8">${g.name} <span style="color:rgba(255,255,255,0.4);font-size:12px;margin-left:8px">${g.items.length}건</span></div>
+          <div style="font-weight:500;color:#FAFAF7">${g.name} <span style="color:rgba(255,255,255,0.4);font-size:12px;margin-left:8px">${g.items.length}건</span></div>
           <div style="color:var(--gold);font-weight:500">${fmt(g.total)}</div>
         </div>
         <div style="background:rgba(255,255,255,0.02);border-radius:0 0 6px 6px">`;
       g.items.forEach(item => {
         const statusBadge = item.completed
-          ? '<span style="background:rgba(151,196,89,0.15);color:#97c459;padding:2px 8px;border-radius:4px;font-size:11px">✓ 완료</span>'
-          : '<span style="background:rgba(201,168,76,0.12);color:var(--gold);padding:2px 8px;border-radius:4px;font-size:11px">대기</span>';
+          ? '<span class="st st-done">완료</span>'
+          : '<span class="st st-progress">대기</span>';
         const actionBtn = item.completed
           ? `<span style="color:rgba(255,255,255,0.3);font-size:11px">${(item.completedAt || '').slice(0, 10)}</span>`
-          : `<button onclick="completeSettlement('${item.id}', '${g.name}', '${item.orderNumber}', ${item.fee})" style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">정산완료</button>`;
+          : `<button onclick="completeSettlement('${item.id}', '${g.name}', '${item.orderNumber}', ${item.fee})" style="background:rgba(157,183,245,0.12);border:1px solid rgba(157,183,245,0.3);color:var(--gold);padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">정산완료</button>`;
         html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);align-items:center;font-size:13px">
           <div style="color:rgba(255,255,255,0.7)">${item.orderNumber || '-'}</div>
           <div style="color:rgba(255,255,255,0.5);font-size:12px">${(item.deliveredAt || '').slice(0, 10)}</div>
           <div style="color:rgba(255,255,255,0.5);font-size:12px">${item.settlementDate || '-'}</div>
-          <div style="color:#fafaf8">${fmt(item.fee)}</div>
+          <div style="color:#FAFAF7">${fmt(item.fee)}</div>
           <div style="display:flex;align-items:center;gap:8px">${statusBadge}${actionBtn}</div>
         </div>`;
       });
@@ -2717,7 +2968,7 @@ function renderSettlement(data) {
     let html = '<div style="display:grid;gap:8px">';
     data.adjustments.items.forEach(item => {
       const isNeg    = (item.amount || 0) < 0;
-      const amtColor = isNeg ? '#e05555' : '#97c459';
+      const amtColor = isNeg ? '#D9BC8C' : '#9DB7F5';
       html += `<div style="display:grid;grid-template-columns:100px 100px 1fr 100px 32px;gap:12px;padding:10px 16px;background:rgba(255,255,255,0.02);border-radius:6px;align-items:center;font-size:13px">
         <div style="color:rgba(255,255,255,0.5);font-size:12px">${item.date || '-'}</div>
         <div style="color:rgba(255,255,255,0.7)">${item.item || '-'}</div>
@@ -2903,7 +3154,7 @@ async function bpExtractFileChange(input) {
   var filenameEl = document.getElementById('bp-extract-filename');
   var statusEl = document.getElementById('bp-extract-status');
   if (filenameEl) filenameEl.textContent = file.name;
-  if (statusEl) statusEl.innerHTML = '<span style="color:rgba(255,167,38,0.9)">⏳ 추출 중...</span>';
+  if (statusEl) statusEl.innerHTML = '<span style="color:rgba(176,141,87,0.9)">⏳ 추출 중...</span>';
   var direction = document.getElementById('bp-direction')?.value || '한국어 → 영어';
   var sourceLang = direction.split('→')[0].trim() || '한국어';
   var hanjaMode = document.getElementById('bp-extract-hanja-mode')?.checked || false;
@@ -2928,9 +3179,9 @@ async function bpExtractFileChange(input) {
     }
     var ta = document.getElementById('bp-text');
     if (ta) { ta.value = text; bpUpdateCharCount(); }
-    if (statusEl) statusEl.innerHTML = '<span style="color:rgba(151,196,89,0.9)">✓ 추출 완료 (' + charCount.toLocaleString() + '자) — 원문 텍스트 입력란에서 확인·수정</span>';
+    if (statusEl) statusEl.innerHTML = '<span style="color:rgba(157,183,245,0.9)">✓ 추출 완료 (' + charCount.toLocaleString() + '자) — 원문 텍스트 입력란에서 확인·수정</span>';
   } catch(e) {
-    if (statusEl) statusEl.innerHTML = '<span style="color:rgba(224,85,85,0.9)">❌ 추출 실패: ' + e.message + '</span>';
+    if (statusEl) statusEl.innerHTML = '<span style="color:rgba(176,141,87,0.9)">❌ 추출 실패: ' + e.message + '</span>';
     window._iummBypassSourceFiles = [];
   }
 }
@@ -3037,7 +3288,7 @@ function populateAiScoreSection(order) {
   var revEl   = document.getElementById('ai-score-reverse');
   // 번역 방식 V1/V2 — V2 는 AI품질상세.v2 가 있다(점수 = 교차 검수·코드 검사·일관성 감점, 공식은 v2.score.formula)
   var v2 = order.aiQualityDetail && order.aiQualityDetail.v2 ? order.aiQualityDetail.v2 : null;
-  if (refBadgeRow) refBadgeRow.innerHTML = '<span class="ref-badge" title="' + (v2 ? 'V2: 번역(Claude) → 교차 검수(GPT) → 반론 → 코드 검사' : 'V1: 9.5단계') + '" style="background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.35);margin-right:6px">' + (v2 ? 'V2' : 'V1') + '</span>' + refBadgeRow.innerHTML;
+  if (refBadgeRow) refBadgeRow.innerHTML = '<span class="ref-badge" title="' + (v2 ? 'V2: 번역(Claude) → 교차 검수(GPT) → 반론 → 코드 검사' : 'V1: 9.5단계') + '" style="background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.35);margin-right:6px">' + (v2 ? 'V2' : 'V1') + '</span>' + refBadgeRow.innerHTML;
   var revLabel = document.getElementById('ai-score-reverse-label');
   if (revLabel) revLabel.textContent = v2 ? '교차 검수' : '역번역 일치도';
   totalEl.textContent = order.aiScore != null ? order.aiScore : '—';
@@ -3141,20 +3392,20 @@ async function loadUnassigned() {
     }).join('');
 
   } catch(e) {
-    listEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:32px">⚠️ ' + e.message + '</div>';
+    listEl.innerHTML = '<div style="color:#D9BC8C;text-align:center;padding:32px">⚠️ ' + e.message + '</div>';
   }
 }
 
 function renderUnassignedOrder(o) {
   var isBroadcast = o.status === '라운드진행중';
   var isManual    = o.status === '미배정' || (o.status === '관리자대기' && o.assignMode === '맡기기');
-  var borderColor = isBroadcast ? 'rgba(201,168,76,0.3)' : 'rgba(239,68,68,0.25)';
-  var bgColor     = isBroadcast ? 'rgba(201,168,76,0.04)' : 'rgba(239,68,68,0.04)';
+  var borderColor = isBroadcast ? 'rgba(157,183,245,0.3)' : 'rgba(176,141,87,0.25)';
+  var bgColor     = isBroadcast ? 'rgba(157,183,245,0.04)' : 'rgba(176,141,87,0.04)';
   var statusBadge = isBroadcast
-    ? '<span style="font-size:10px;background:rgba(201,168,76,0.15);color:var(--gold);padding:2px 8px;border-radius:3px;margin-left:8px">라운드진행중</span>'
+    ? '<span class="st st-progress" style="margin-left:8px">라운드진행중</span>'
     : o.assignMode === '맡기기'
-      ? '<span style="font-size:10px;background:rgba(100,160,255,0.15);color:#64a0ff;padding:2px 8px;border-radius:3px;margin-left:8px">맡기기</span>'
-      : '<span style="font-size:10px;background:rgba(239,68,68,0.15);color:#ef4444;padding:2px 8px;border-radius:3px;margin-left:8px">미배정</span>';
+      ? '<span class="st st-progress" style="margin-left:8px">맡기기</span>'
+      : '<span class="st st-check" style="margin-left:8px">미배정</span>';
 
   var rvCheckboxes = _unassignedReviewers.map(function(r) {
     var dim = r.available === false ? 'opacity:0.4;' : '';
@@ -3202,7 +3453,7 @@ function renderUnassignedOrder(o) {
     '</div>' +
     // 단일배정 행
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
-      '<select id="rv-select-' + o.orderId + '" style="flex:1;min-width:160px;padding:7px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:var(--white);font-size:12px;font-family:inherit">' +
+      '<select id="rv-select-' + o.orderId + '" style="flex:1;min-width:160px;padding:7px 10px;background:#132E52;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:var(--white);font-size:12px;font-family:inherit">' +
         rvSingleOptions +
       '</select>' +
       '<button onclick="assignReviewerManual(\'' + o.orderId + '\')" style="padding:7px 14px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">단일 배정</button>' +
@@ -3210,7 +3461,7 @@ function renderUnassignedOrder(o) {
     // 라운드 엔진 자동 배정 + 강제 회수
     '<div style="margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
       '<span style="font-size:11px;color:rgba(255,255,255,0.4)">배정은 라운드 엔진(2명 선착순)이 자동 처리</span>' +
-      '<button onclick="reclaimOrder(\'' + o.orderId + '\')" style="padding:6px 14px;background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.4);border-radius:4px;color:#e05555;font-size:12px;font-weight:600;cursor:pointer">♻️ 회수·재배정</button>' +
+      '<button onclick="reclaimOrder(\'' + o.orderId + '\')" style="padding:6px 14px;background:rgba(176,141,87,0.12);border:1px solid rgba(176,141,87,0.4);border-radius:4px;color:#D9BC8C;font-size:12px;font-weight:600;cursor:pointer">♻️ 회수·재배정</button>' +
     '</div>' +
     offerSection +
   '</div>';
@@ -3458,33 +3709,91 @@ async function submitBypassOrder() {
   }
 }
 
-// ── GPT 검수 탭 ──────────────────────────────────────────
+// ── 검수 탭 (예전 'GPT 검수') ─────────────────────────────
+// 2026-10-31 엔진 선택 — Claude(기본) / GPT(기존). 같은 주소 /api/admin/gpt-review-manual 에 engine 만 더해 보낸다.
+// Claude 는 실행 전에 /api/admin/review-estimate 로 예상 비용·남은 예산을 보고, 예산을 넘으면 실행하지 않는다.
+function reviewEngine() {
+  var g = document.getElementById('review-engine-gpt');
+  return g && g.checked ? 'gpt' : 'claude';
+}
+function reviewEngineChanged() {
+  var est = document.getElementById('review-estimate');
+  if (est) { est.textContent = ''; est.className = 'gr-estimate'; }
+}
+function _usd(n) { return '$' + (Number(n) || 0).toFixed(2); }
+function _usdCap(n) { n = Number(n) || 0; return '$' + (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)); }
+/** 관리자 POST(JSON) — 상태 코드까지 돌려준다 (402·503·500 을 구분해 안내하려고) */
+async function adminPostJson(path, body) {
+  var r = await fetch(API_BASE + path, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  var j = null;
+  try { j = await r.json(); } catch (e) { j = { ok: false, error: '응답을 읽지 못했습니다' }; }
+  return { status: r.status, data: j || {} };
+}
+function reviewErrorText(status, d) {
+  d = d || {};
+  if (status === 402 || d.error === 'budget_exceeded')
+    return d.message || 'Claude 크레딧 예산(US$50)을 넘어 검수를 시작하지 않았습니다. GPT(기존)를 고르거나 예산을 확인해 주세요.';
+  if (status === 503 || d.error === 'budget_unavailable')
+    return d.message || '예산 기록을 확인하지 못해 Claude 검수를 시작하지 않았습니다. 잠시 뒤 다시 시도하거나 GPT(기존)를 골라 주세요.';
+  if (status >= 500)
+    return '검수 중 서버 오류가 났습니다. 잠시 뒤 다시 시도해 주세요.' + (d.detail ? ' (' + d.detail + ')' : (d.error ? ' (' + d.error + ')' : ''));
+  return d.message || d.error || '검수 실패';
+}
+
 async function submitGptReview() {
   var rawText = (document.getElementById('gpt-raw-text')?.value || '').trim();
   if (!rawText) { showToast('검수 대상 텍스트를 입력하세요', 'error'); return; }
   var extraInstruction = (document.getElementById('gpt-extra-instruction')?.value || '').trim();
+  var engine = reviewEngine();
   var btn = document.getElementById('gpt-submit-btn');
   var msg = document.getElementById('gpt-status-msg');
+  var est = document.getElementById('review-estimate');
   var resultWrap = document.getElementById('gpt-result-wrap');
   btn.disabled = true;
-  btn.textContent = '⏳ 검수 중…';
-  msg.textContent = '검수 중… 30~120초 예상';
   resultWrap.style.display = 'none';
+  est.className = 'gr-estimate';
+  est.textContent = '';
   try {
-    var data = await adminFetch('/api/admin/gpt-review-manual', {
-      method: 'POST',
-      body: JSON.stringify({ rawText, extraInstruction }),
-    });
-    if (!data.ok) throw new Error(data.error || '검수 실패');
+    if (engine === 'claude') {
+      btn.textContent = '예상 비용 확인 중…';
+      msg.textContent = '';
+      var e1 = await adminPostJson('/api/admin/review-estimate', { rawText: rawText, extraInstruction: extraInstruction });
+      var ed = e1.data;
+      if (e1.status !== 200 || !ed.ok) throw Object.assign(new Error(reviewErrorText(e1.status, ed)), { shown: true });
+      var b = ed.budget || {};
+      est.textContent = '예상 비용 ' + _usd(ed.estimate && ed.estimate.usd) + ' · 남은 예산 ' + _usd(b.remaining) + ' / ' + _usdCap(b.cap != null ? b.cap : 50);
+      if (!ed.allowed) {
+        est.textContent += ' — ' + (ed.message || '남은 예산이 부족해 실행하지 않습니다.');
+        est.className = 'gr-estimate warn';
+        throw Object.assign(new Error(ed.message || '남은 예산이 부족해 실행하지 않습니다.'), { shown: true });
+      }
+    }
+    btn.textContent = '검수 중…';
+    msg.textContent = '검수 중… 30~120초 예상';
+    var r = await adminPostJson('/api/admin/gpt-review-manual', { rawText: rawText, extraInstruction: extraInstruction, engine: engine });
+    var data = r.data;
+    if (r.status !== 200 || !data.ok) {
+      var t = reviewErrorText(r.status, data);
+      if (r.status === 402 || r.status === 503) { est.textContent = t; est.className = 'gr-estimate warn'; }
+      throw Object.assign(new Error(t), { shown: r.status === 402 || r.status === 503 });
+    }
     gptShowResult(data);
     var secs = Math.round((data.processingTimeMs || 0) / 1000);
-    msg.textContent = `완료 — ${secs}초 소요`;
+    msg.textContent = `완료 — ${secs}초 소요` + (data.engine ? ' · ' + (data.engine === 'gpt' ? 'GPT' : 'Claude') : '');
+    if (data.costUsd != null) {
+      est.textContent = (est.textContent ? est.textContent + ' · ' : '') + '실제 비용 ' + _usd(data.costUsd);
+    }
   } catch(e) {
     msg.textContent = '';
-    showToast('⚠️ GPT 검수 실패: ' + e.message, 'error');
+    if (e && e.shown) { est.className = 'gr-estimate warn'; if (!est.textContent) est.textContent = e.message; }
+    showToast('검수 실패: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '⚙ GPT 검수 시작';
+    btn.textContent = '검수 시작';
   }
 }
 
@@ -3571,7 +3880,7 @@ async function loadMembers(search) {
     }).join('');
     window._membersData = members;
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="5" style="color:#f87171;text-align:center;padding:24px">오류: ' + e.message + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="color:#D9BC8C;text-align:center;padding:24px">오류: ' + e.message + '</td></tr>';
   }
 }
 
@@ -3626,26 +3935,26 @@ async function loadBizReferences(email) {
     var records = res.records || [];
     if (!records.length) { wrap.innerHTML = '<span style="font-size:12px;color:rgba(255,255,255,0.4)">누적 자료 없음</span>'; return; }
     wrap.innerHTML = records.map(function(rec) {
-      var statusColor = rec.활성상태==='활성' ? 'rgba(22,184,148,0.2)' : 'rgba(150,150,150,0.15)';
-      var statusTxt   = rec.활성상태==='활성' ? '#16B894' : 'rgba(255,255,255,0.4)';
-      var files = rec.파일.map(function(f){ return '<a href="'+f.url+'" target="_blank" style="color:#16B894;font-size:11px">'+f.filename+'</a>'; }).join(' ');
+      var statusColor = rec.활성상태==='활성' ? 'rgba(157,183,245,0.2)' : 'rgba(150,150,150,0.15)';
+      var statusTxt   = rec.활성상태==='활성' ? '#9DB7F5' : 'rgba(255,255,255,0.4)';
+      var files = rec.파일.map(function(f){ return '<a href="'+f.url+'" target="_blank" style="color:#9DB7F5;font-size:11px">'+f.filename+'</a>'; }).join(' ');
       return '<div class="biz-ref-item" data-id="'+rec.id+'" style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.06)">'+
         '<div style="display:flex;justify-content:space-between;align-items:center">'+
-          '<strong style="font-size:13px;color:#fafaf8">'+rec.자료명+'</strong>'+
+          '<strong style="font-size:13px;color:#FAFAF7">'+rec.자료명+'</strong>'+
           '<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:'+statusColor+';color:'+statusTxt+'">'+rec.활성상태+'</span>'+
         '</div>'+
         '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px">'+rec.업로드일?.slice(0,10)+' · '+rec.추출텍스트길이.toLocaleString()+'자'+(files?' · '+files:'')+'</div>'+
-        '<textarea class="biz-ref-memo" placeholder="메모" style="width:100%;margin-top:6px;padding:5px 8px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#fafaf8;font-size:11px;border-radius:3px;resize:none;outline:none;box-sizing:border-box">'+rec.메모+'</textarea>'+
+        '<textarea class="biz-ref-memo" placeholder="메모" style="width:100%;margin-top:6px;padding:5px 8px;background:#132E52;border:1px solid rgba(255,255,255,0.1);color:#FAFAF7;font-size:11px;border-radius:3px;resize:none;outline:none;box-sizing:border-box">'+rec.메모+'</textarea>'+
         '<div style="display:flex;gap:6px;margin-top:6px">'+
-          '<button onclick="toggleRefStatus(\''+rec.id+'\',\''+rec.활성상태+'\')" style="font-size:11px;padding:3px 8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#fafaf8;border-radius:3px;cursor:pointer">'+((rec.활성상태==='활성')?'비활성화':'활성화')+'</button>'+
-          '<button onclick="saveRefMemo(\''+rec.id+'\')" style="font-size:11px;padding:3px 8px;background:rgba(22,184,148,0.1);border:1px solid rgba(22,184,148,0.3);color:#16B894;border-radius:3px;cursor:pointer">메모 저장</button>'+
-          '<button onclick="deleteRef(\''+rec.id+'\')" style="font-size:11px;padding:3px 8px;background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.3);color:#e05555;border-radius:3px;cursor:pointer">삭제</button>'+
+          '<button onclick="toggleRefStatus(\''+rec.id+'\',\''+rec.활성상태+'\')" style="font-size:11px;padding:3px 8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#FAFAF7;border-radius:3px;cursor:pointer">'+((rec.활성상태==='활성')?'비활성화':'활성화')+'</button>'+
+          '<button onclick="saveRefMemo(\''+rec.id+'\')" style="font-size:11px;padding:3px 8px;background:rgba(157,183,245,0.1);border:1px solid rgba(157,183,245,0.3);color:#9DB7F5;border-radius:3px;cursor:pointer">메모 저장</button>'+
+          '<button onclick="deleteRef(\''+rec.id+'\')" style="font-size:11px;padding:3px 8px;background:rgba(176,141,87,0.08);border:1px solid rgba(176,141,87,0.3);color:#D9BC8C;border-radius:3px;cursor:pointer">삭제</button>'+
         '</div>'+
       '</div>';
     }).join('');
     window._bizRefsEmail = email;
   } catch(e) {
-    wrap.innerHTML = '<span style="font-size:12px;color:#f87171">로드 실패: '+e.message+'</span>';
+    wrap.innerHTML = '<span style="font-size:12px;color:#D9BC8C">로드 실패: '+e.message+'</span>';
   }
 }
 
@@ -3720,7 +4029,7 @@ async function loadNotaryShipping() {
     } else { mb.style.display = 'none'; }
     renderNotaryShipping();
   } catch (e) {
-    box.innerHTML = '<p style="color:#f87171;padding:20px">불러오지 못했습니다: ' + _ne(e.message) + '</p>';
+    box.innerHTML = '<p style="color:#D9BC8C;padding:20px">불러오지 못했습니다: ' + _ne(e.message) + '</p>';
   }
 }
 
@@ -3734,9 +4043,9 @@ async function ntrResumeCredit(orderNumber){
       { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' }, body: '{}' });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '실패');
-    if (el) { el.style.color = '#4ade80'; el.textContent = '이어서 처리 시작'; }
+    if (el) { el.style.color = '#9DB7F5'; el.textContent = '이어서 처리 시작'; }
     setTimeout(loadNotaryShipping, 3000);
-  } catch (e) { if (el) { el.style.color = '#f87171'; el.textContent = e.message; } }
+  } catch (e) { if (el) { el.style.color = '#D9BC8C'; el.textContent = e.message; } }
 }
 
 /** 원본 도착 — 원본 우편 주문의 접수 기준을 지금 시각으로 다시 계산 */
@@ -3748,9 +4057,9 @@ async function ntrOriginalArrived(orderNumber){
       { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' }, body: '{}' });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '처리 실패');
-    if (el) { el.style.color = '#22c55e'; el.textContent = '✔ 원본 도착 — 예정수령일 ' + (j.expectedDay ? _ntrDay(j.expectedDay) : '-'); }
+    if (el) { el.style.color = '#9DB7F5'; el.textContent = '✔ 원본 도착 — 예정수령일 ' + (j.expectedDay ? _ntrDay(j.expectedDay) : '-'); }
     setTimeout(loadNotaryShipping, 1200);
-  } catch (e) { if (el) { el.style.color = '#f87171'; el.textContent = e.message; } }
+  } catch (e) { if (el) { el.style.color = '#D9BC8C'; el.textContent = e.message; } }
 }
 
 function ntrFilter(f){ NTR_F = f;
@@ -3772,104 +4081,104 @@ function renderNotaryShipping() {
   if (!rows.length) { box.innerHTML = '<p style="color:rgba(255,255,255,0.35);padding:24px">해당하는 주문이 없습니다.</p>'; return; }
 
   box.innerHTML = rows.map(function(o){
-    var col = o.stageKey === 'shipped' ? '#22c55e' : (o.stageKey === 'ready' ? '#D4AF37' : 'rgba(255,255,255,0.45)');
+    var stCls = o.stageKey === 'shipped' ? 'st-done' : 'st-progress';
     // ★APO(아포스티유 단독)는 번역도 공증도 없다 — "T2 공증"으로 뭉뚱그리면
     //   대표가 있지도 않은 번역본을 찾게 된다.
     var TIER_LABEL = { T3: 'T3 아포스티유', T2: 'T2 공증', APO: 'APO 아포스티유 단독', CPA: 'CPA 사본공증+아포스티유', T1: 'T1 번역만' };
     var tierLabel = TIER_LABEL[o.tier] || (o.tier || '-');
     // ── 수동 경로 — 번역부터 대표가 한다 ──
     var routeBadge = o.manual
-      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(251,146,60,0.15);color:#fb923c">수동 · ' + _ne(o.rawStatus || '-') +
+      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(176,141,87,0.15);color:#D9BC8C">수동 · ' + _ne(o.rawStatus || '-') +
         (o.elapsedDays != null ? ' · ' + o.elapsedDays + '일 경과' : '') + '</span>'
       : '';
     var manualInfo = o.manual
-      ? '<div style="grid-column:1/-1;padding:8px 10px;background:rgba(251,146,60,0.06);border-radius:4px">'
-        + '언어 <span style="color:#fafaf8">' + _ne(o.lang || '-') + '</span>'
-        + ' · 영문이름 <span style="color:#fafaf8">' + _ne(o.englishName || '-') + '</span>'
-        + (o.schoolType ? ' · 학교 <span style="color:#fafaf8">' + _ne(o.schoolType) + '</span>' : '')
+      ? '<div style="grid-column:1/-1;padding:8px 10px;background:rgba(176,141,87,0.06);border-radius:4px">'
+        + '언어 <span style="color:#FAFAF7">' + _ne(o.lang || '-') + '</span>'
+        + ' · 영문이름 <span style="color:#FAFAF7">' + _ne(o.englishName || '-') + '</span>'
+        + (o.schoolType ? ' · 학교 <span style="color:#FAFAF7">' + _ne(o.schoolType) + '</span>' : '')
         + ' · ' + _ne(o.pages || '-') + '쪽'
-        + (o.familyNames ? '<br>가족 <span style="color:#fafaf8">' + _ne(o.familyNames).replace(/\n/g, ' / ') + '</span>' : '')
-        + '<br>번역본 <span style="color:' + (o.translationCount ? '#22c55e' : '#f87171') + '">' + o.translationCount + '건</span>'
+        + (o.familyNames ? '<br>가족 <span style="color:#FAFAF7">' + _ne(o.familyNames).replace(/\n/g, ' / ') + '</span>' : '')
+        + '<br>번역본 <span style="color:' + (o.translationCount ? '#9DB7F5' : '#D9BC8C') + '">' + o.translationCount + '건</span>'
         + (o.translationAt ? ' (' + _nd(o.translationAt) + ')' : '')
         + ' · 원본은 Airtable「공증주문」원본파일'
         + '</div>'
       : '';
     // ── 처리 일정 — 급행 빨간 배지 · 오늘 할 일 · 예정수령일 (서버 처리일정JSON 기준, 정렬도 서버가 한다) ──
     var expressBadge = o.express
-      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#e5484d;color:#fff;font-weight:700">급행</span>' : '';
+      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#B08D57;color:#fff;font-weight:700">급행</span>' : '';
     var taskChip = o.task
       ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;' +
-        (o.task.overdue ? 'background:rgba(248,113,113,0.18);color:#f87171' : (o.taskDue ? 'background:rgba(34,197,94,0.15);color:#4ade80' : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6)')) +
+        (o.task.overdue ? 'background:rgba(176,141,87,0.18);color:#D9BC8C' : (o.taskDue ? 'background:rgba(157,183,245,0.15);color:#9DB7F5' : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6)')) +
         '">' + _ne(o.task.label) + '</span>' : '';
     // 원본 우편 · 스캔 의심 · 견적 요청 · 아포스티유 준비 서류
     var mailBadge = o.mailOriginal
-      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(96,165,250,0.15);color:#60a5fa">' +
+      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(157,183,245,0.15);color:#9DB7F5">' +
         (o.awaitingOriginal ? '원본 도착 대기' : '원본 도착 ' + _nd(o.originalArrivedAt)) + '</span>' : '';
     var scanBadge = o.scanSuspect
-      ? '<span title="' + _ne(o.scanNote) + '" style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(251,191,36,0.15);color:#fbbf24">스캔 의심</span>' : '';
+      ? '<span title="' + _ne(o.scanNote) + '" style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(176,141,87,0.15);color:#D9BC8C">스캔 의심</span>' : '';
     var inqBadge = o.inquiry
-      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(167,139,250,0.15);color:#a78bfa">견적·문의 (결제 없음)</span>' : '';
+      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(176,141,87,0.15);color:#D9BC8C">견적·문의 (결제 없음)</span>' : '';
     var docsBadge = o.apostilleDocsMissing
-      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(248,113,113,0.15);color:#f87171">준비 서류 미제출</span>' : '';
+      ? '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(176,141,87,0.15);color:#D9BC8C">준비 서류 미제출</span>' : '';
     var arriveBtn = o.awaitingOriginal
       ? '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)">'
-        + '<button class="tab-btn" style="color:#60a5fa" onclick="ntrOriginalArrived(\'' + _ne(o.orderNumber) + '\')">원본 도착</button>'
+        + '<button class="tab-btn" style="color:#9DB7F5" onclick="ntrOriginalArrived(\'' + _ne(o.orderNumber) + '\')">원본 도착</button>'
         + '<span style="font-size:11px;color:rgba(255,255,255,0.4)">누르면 지금 시각을 접수 기준으로 공증 일정·예정수령일을 다시 계산하고 고객에게 알립니다</span>'
         + '<span id="ntr-ar-' + _ne(o.orderNumber) + '" style="font-size:12px"></span></div>' : '';
     // API 잔액 부족으로 멈춘 주문 — 충전 후 매핑(용어)부터 이어서 처리
     var creditRow = o.creditHalt
-      ? '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;margin-bottom:10px;background:rgba(248,113,113,0.08);border-left:3px solid #f87171;border-radius:0 4px 4px 0">'
-        + '<span style="font-size:12px;color:#fca5a5">⛔ ' + _ne(o.failReason || 'API 잔액 부족') + '</span>'
-        + '<button class="tab-btn" style="color:#4ade80" onclick="ntrResumeCredit(\'' + _ne(o.orderNumber) + '\')">충전 완료 → 이어서 처리</button>'
+      ? '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;margin-bottom:10px;background:rgba(176,141,87,0.08);border-left:3px solid #D9BC8C;border-radius:0 4px 4px 0">'
+        + '<span style="font-size:12px;color:#E6D3B0">⛔ ' + _ne(o.failReason || 'API 잔액 부족') + '</span>'
+        + '<button class="tab-btn" style="color:#9DB7F5" onclick="ntrResumeCredit(\'' + _ne(o.orderNumber) + '\')">충전 완료 → 이어서 처리</button>'
         + '<span id="ntr-rs-' + _ne(o.orderNumber) + '" style="font-size:12px"></span></div>' : '';
     var memoRow = (o.inquiry && o.customerMemo) || o.scanNote
       ? '<div style="grid-column:1/-1;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:4px;white-space:pre-line">'
         + _ne(o.inquiry ? o.customerMemo : o.scanNote) + '</div>' : '';
     var schedRow = o.expectedDay
-      ? '<div>예정수령일 <span style="color:#fafaf8">' + _ne(_ntrDay(o.expectedDay)) + '</span>'
+      ? '<div>예정수령일 <span style="color:#FAFAF7">' + _ne(_ntrDay(o.expectedDay)) + '</span>'
         + (o.wishDay ? ' · 희망 ' + _ne(_ntrDay(o.wishDay)) : '') + '</div>' : '';
     var missedWarn = o.missedWish
-      ? '<div style="grid-column:1/-1;padding:8px 10px;background:rgba(229,72,77,0.12);border-left:3px solid #e5484d;border-radius:0 4px 4px 0;color:#ffb4a8">'
+      ? '<div style="grid-column:1/-1;padding:8px 10px;background:rgba(176,141,87,0.12);border-left:3px solid #B08D57;border-radius:0 4px 4px 0;color:#E6D3B0">'
         + '⚠ 희망수령일(' + _ne(_ntrDay(o.wishDay)) + ')을 못 맞춤 — 결제 직후 마감이 지나 예정일이 ' + _ne(_ntrDay(o.expectedDay)) + '(으)로 밀렸습니다. 환불·연락 여부를 판단해 주세요.</div>'
       : '';
     var translationRow = o.manual
       ? '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)">'
         + '<input type="file" id="ntr-tr-' + _ne(o.orderNumber) + '" multiple accept=".pdf,.docx,.doc,.hwp,.hwpx,.jpg,.jpeg,.png" style="font-size:12px;color:rgba(255,255,255,0.6);max-width:260px">'
-        + '<button class="tab-btn" style="color:#fb923c" onclick="ntrUploadTranslation(\'' + _ne(o.orderNumber) + '\')">번역본 업로드</button>'
+        + '<button class="tab-btn" style="color:#D9BC8C" onclick="ntrUploadTranslation(\'' + _ne(o.orderNumber) + '\')">번역본 업로드</button>'
         + '<span style="font-size:11px;color:rgba(255,255,255,0.4)">' + (o.tier === 'T1' ? '번역만 — 업로드하면 고객에게 바로 납품·안내됩니다' : '업로드 후 출력·공증 → 스캔본 등록 → 발송') + '</span>'
         + '</div>'
       : '';
     return ''
-    + '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:16px;margin-bottom:12px;background:#141414">'
+    + '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:16px;margin-bottom:12px;background:#132E52">'
     +   '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'
-    +     '<strong style="color:#fafaf8;font-size:14px">' + _ne(o.orderNumber) + '</strong>'
-    +     '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(212,175,55,0.15);color:#D4AF37">' + tierLabel + '</span>'
+    +     '<strong style="color:#FAFAF7;font-size:14px">' + _ne(o.orderNumber) + '</strong>'
+    +     '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(176,141,87,0.15);color:#B08D57">' + tierLabel + '</span>'
     +     '<span style="font-size:12px;color:rgba(255,255,255,0.55)">' + _ne(o.docType || '-') + (o.country ? ' · ' + _ne(o.country) : '') + '</span>'
     +     routeBadge
     +     expressBadge
     +     taskChip
     +     mailBadge + scanBadge + inqBadge + docsBadge
     +     '<span style="flex:1"></span>'
-    +     '<span style="font-size:12px;font-weight:600;color:' + col + '">' + _ne(o.stageLabel) + '</span>'
+    +     '<span class="st ' + stCls + '">' + _ne(o.stageLabel) + '</span>'
     +   '</div>'
     +   '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;font-size:12px;color:rgba(255,255,255,0.65);margin-bottom:12px">'
-    +     '<div>고객 <span style="color:#fafaf8">' + _ne(o.customer || '-') + '</span></div>'
-    +     '<div>수령인 <span style="color:#fafaf8">' + _ne(o.recipient || '-') + '</span></div>'
-    +     '<div>연락처 <span style="color:#fafaf8">' + _ne(o.phone || '-') + '</span></div>'
-    +     '<div style="grid-column:1/-1">주소 <span style="color:#fafaf8">' + _ne(o.address || '-') + '</span></div>'
+    +     '<div>고객 <span style="color:#FAFAF7">' + _ne(o.customer || '-') + '</span></div>'
+    +     '<div>수령인 <span style="color:#FAFAF7">' + _ne(o.recipient || '-') + '</span></div>'
+    +     '<div>연락처 <span style="color:#FAFAF7">' + _ne(o.phone || '-') + '</span></div>'
+    +     '<div style="grid-column:1/-1">주소 <span style="color:#FAFAF7">' + _ne(o.address || '-') + '</span></div>'
     +     '<div>발행 ' + _nd(o.issuedAt) + '</div>'
-    +     '<div>스캔본 <span style="color:' + (o.scanCount ? '#22c55e' : '#f87171') + '">' + o.scanCount + '건</span></div>'
+    +     '<div>스캔본 <span style="color:' + (o.scanCount ? '#9DB7F5' : '#D9BC8C') + '">' + o.scanCount + '건</span></div>'
     +     schedRow
     +     missedWarn
     +     memoRow
     +     (o.shippedAt ? '<div>발송 ' + _nd(o.shippedAt) + '</div>' : '')
     +     manualInfo
-    +     ((o.originals || []).length ? '<div style="grid-column:1/-1">원본 ' + o.originals.length + '개 (이 순서대로 묶음) — ' + o.originals.map(function(x, i){ return (i + 1) + '. ' + (x.url ? '<a href="' + _ne(x.url) + '" target="_blank" rel="noopener" style="color:#5DE0BC">' + _ne(x.name) + '</a>' : _ne(x.name)); }).join(' · ') + '</div>' : '')
+    +     ((o.originals || []).length ? '<div style="grid-column:1/-1">원본 ' + o.originals.length + '개 (이 순서대로 묶음) — ' + o.originals.map(function(x, i){ return (i + 1) + '. ' + (x.url ? '<a href="' + _ne(x.url) + '" target="_blank" rel="noopener" style="color:#9DB7F5">' + _ne(x.name) + '</a>' : _ne(x.name)); }).join(' · ') + '</div>' : '')
     +   '</div>'
     // 견적·문의(결제 없음)는 번역·스캔·발송 단계가 없다 — 메모만 보여 준다
     +   (o.inquiry ? ''
       : o.stageKey === 'shipped'
-      ? '<div style="font-size:13px;color:#22c55e">✔ 발송완료 — 발송번호 <strong>' + _ne(o.trackingNo) + '</strong></div>'
+      ? '<div style="font-size:13px;color:#9DB7F5">✔ 발송완료 — 발송번호 <strong>' + _ne(o.trackingNo) + '</strong></div>'
       : creditRow + arriveBtn + translationRow
         // 번역만(T1)에는 공증·등기가 없다 — 스캔본·발송 줄을 그리지 않는다
         + (o.tier === 'T1' ? '' : ''
@@ -3877,7 +4186,7 @@ function renderNotaryShipping() {
         +   '<input type="file" id="ntr-file-' + _ne(o.orderNumber) + '" multiple accept="image/*,application/pdf" style="font-size:12px;color:rgba(255,255,255,0.6);max-width:260px">'
         +   '<button class="tab-btn" onclick="ntrUploadScan(\'' + _ne(o.orderNumber) + '\')">스캔본 등록</button>'
         +   '<span style="width:12px"></span>'
-        +   '<input type="text" id="ntr-trk-' + _ne(o.orderNumber) + '" placeholder="발송번호(등기번호)" value="' + _ne(o.trackingNo) + '" style="padding:7px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#fafaf8;font-size:12px;width:200px;outline:none">'
+        +   '<input type="text" id="ntr-trk-' + _ne(o.orderNumber) + '" placeholder="발송번호(등기번호)" value="' + _ne(o.trackingNo) + '" style="padding:7px 12px;background:#132E52;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#FAFAF7;font-size:12px;width:200px;outline:none">'
         +   '<button class="tab-btn" ' + (o.scanCount ? '' : 'disabled title="스캔본을 먼저 등록해야 합니다" style="opacity:0.4;cursor:not-allowed"')
         +     ' onclick="ntrShip(\'' + _ne(o.orderNumber) + '\')">발송완료</button>'
         + '</div>')
@@ -3888,7 +4197,7 @@ function renderNotaryShipping() {
 
 function _ntrMsg(no, text, ok) {
   var el = document.getElementById('ntr-msg-' + no);
-  if (el) { el.textContent = text; el.style.color = ok ? '#22c55e' : '#f87171'; }
+  if (el) { el.textContent = text; el.style.color = ok ? '#9DB7F5' : '#D9BC8C'; }
 }
 
 async function ntrUploadScan(orderNumber) {
@@ -3972,7 +4281,7 @@ var NTRD_TIMER = null;      // 진행 상태 폴링
 function _ntrdMsg(text, ok) {
   var el = document.getElementById('ntrd-msg');
   el.textContent = text || '';
-  el.style.color = ok === false ? '#f87171' : (ok === true ? '#22c55e' : 'rgba(255,255,255,0.5)');
+  el.style.color = ok === false ? '#D9BC8C' : (ok === true ? '#9DB7F5' : 'rgba(255,255,255,0.5)');
 }
 
 async function ntrdInit() {
@@ -4068,7 +4377,7 @@ async function ntrdPoll(n) {
     if (j.statusKey === 'failed') {
       /* ★대응 방법은 서버가 원인별로 갈라서 넣어 준다(해상도 문제 / 서식 문제).
          여기서 "해상도를 확인하세요" 를 덧붙이면 서식 문제일 때 엉뚱한 안내가 된다. */
-      info.innerHTML = '<span style="color:#f87171">인식 실패 — ' +
+      info.innerHTML = '<span style="color:#D9BC8C">인식 실패 — ' +
         _ne(j.failReason || '사유 확인 중').replace(/\n/g, '<br>') + '</span>';
       loadNotaryDirect();
       return;
@@ -4076,7 +4385,7 @@ async function ntrdPoll(n) {
     if (j.editUrl) {
       NTRD_CUR.editUrl = j.editUrl;
       info.innerHTML = '번역 완료 — 아래 버튼으로 확인·수정 후 출력하세요.' +
-        (j.hangulWarning ? '<br><span style="color:#D4AF37">⚠ 번역되지 않은 한글이 남아 있습니다 — 편집 화면에서 확인해 주세요</span>' : '');
+        (j.hangulWarning ? '<br><span style="color:#B08D57">⚠ 번역되지 않은 한글이 남아 있습니다 — 편집 화면에서 확인해 주세요</span>' : '');
       document.getElementById('ntrd-open').style.display = 'inline-block';
       loadNotaryDirect();
       return;
@@ -4087,7 +4396,7 @@ async function ntrdPoll(n) {
     else info.textContent = '처리가 지연되고 있습니다 — 아래 목록에서 새로고침해 확인해 주세요';
   } catch (e) {
     document.getElementById('ntrd-result-info').innerHTML =
-      '<span style="color:#f87171">상태 조회 실패: ' + _ne(e.message) + '</span>';
+      '<span style="color:#D9BC8C">상태 조회 실패: ' + _ne(e.message) + '</span>';
   }
 }
 
@@ -4120,32 +4429,33 @@ async function loadNotaryDirect() {
       return;
     }
     box.innerHTML = rows.map(function(o){
-      var col = o.statusKey === 'done' ? '#22c55e'
-              : (o.statusKey === 'failed' ? '#f87171'
-              : (o.statusKey === 'editing' ? '#D4AF37' : 'rgba(255,255,255,0.45)'));
+      var stCls = o.statusKey === 'done' ? 'st-done' : (o.statusKey === 'failed' ? 'st-check' : 'st-progress');
       return ''
       + '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05)">'
-      +   '<strong style="color:#fafaf8;font-size:13px;min-width:170px">' + _ne(o.orderNumber) + '</strong>'
+      +   '<strong style="color:#FAFAF7;font-size:13px;min-width:170px">' + _ne(o.orderNumber) + '</strong>'
       +   '<span style="font-size:12px;color:rgba(255,255,255,0.55);min-width:130px">' + _ne(o.docType || '-') + '</span>'
-      +   '<span style="font-size:12px;color:' + col + ';min-width:110px">' + _ne(o.statusLabel) + '</span>'
-      +   (o.hangulWarning ? '<span style="font-size:11px;color:#D4AF37">⚠ 한글 잔류</span>' : '')
+      +   '<span class="st ' + stCls + '">' + _ne(o.statusLabel) + '</span>'
+      +   (o.hangulWarning ? '<span style="font-size:11px;color:#B08D57">⚠ 한글 잔류</span>' : '')
       +   '<span style="font-size:11px;color:rgba(255,255,255,0.3)">' + _nd(o.receivedAt) + '</span>'
       +   '<span style="flex:1"></span>'
       +   (o.statusKey === 'failed'
-            ? '<span style="font-size:11px;color:#f87171;max-width:380px" title="' + _ne(o.failReason || '') + '">' +
+            ? '<span style="font-size:11px;color:#D9BC8C;max-width:380px" title="' + _ne(o.failReason || '') + '">' +
               _ne(String(o.failReason || '').split('\n')[0]) + '</span>'
             : '<button class="tab-btn" onclick="ntrdReopen(\'' + _ne(o.orderNumber) + '\')" style="text-transform:none;letter-spacing:0">열기</button>')
       + '</div>';
     }).join('');
   } catch (e) {
-    box.innerHTML = '<p style="color:#f87171;font-size:13px">불러오지 못했습니다: ' + _ne(e.message) + '</p>';
+    box.innerHTML = '<p style="color:#D9BC8C;font-size:13px">불러오지 못했습니다: ' + _ne(e.message) + '</p>';
   }
 }
 </script>
 <!-- 용어 관리·기업고객 탭 -->
 <script src="/admin/terms_old_commits.js?v=1"></script>
-<script src="/admin/terms.js?v=4"></script>
+<script src="/admin/terms.js?v=5"></script>
 <!-- 확인필요(납품 보류) 주문 표시 -->
-<script src="/admin/held.js?v=1"></script>
+<script src="/admin/held.js?v=2"></script>
+<!-- 용어 추출 · 크레딧 사용 기록 (2026-10-31) -->
+<script src="/admin/term_extract.js?v=1"></script>
+<script src="/admin/credit_budget.js?v=1"></script>
 </body>
 </html>

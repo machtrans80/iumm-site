@@ -17,7 +17,7 @@ const land = html.slice(a, b);
 check(a > 0 && b > a, '랜딩 구역 찾음');
 
 
-// ── v2 (2026-10-29) — "두 전문가가 함께 번역합니다" · 번역공증·아포스티유 제거 · 새 팔레트 ──
+// ── v2 (2026-10-29, 문구 2026-10-31 "한 단어도 허투루 옮기지 않습니다") · 번역공증·아포스티유 제거 · 새 팔레트 ──
 console.log('\n[1] 첫 화면');
 const script = [...land.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(x => x.includes('PLAN_PRICE'));
 const els = {}, planEls = [{ k: 'ai', textContent: '' }, { k: 'standard', textContent: '' }];
@@ -45,10 +45,10 @@ check(!/id="promise"|세 가지 약속|lp-promise/.test(html) && !/href="#promis
     '구역 배경 순서 — 남색 → 오프화이트(번역팀·왜 아이움) → 남색 띠(과정) → 오프화이트(분야) → 페일 블루(이유) → 오프화이트(요금·FAQ) → 남색'); }
 const curFlow = land.slice(land.search(/<div class="v3-cur">\s*<h2 class="lp-h2 mb">단순 AI 번역이 아닙니다<\/h2>/));
 check(curFlow.length < land.length && (curFlow.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 9, "현재 번역 과정 9단계 · 큰 제목 '단순 AI 번역이 아닙니다'");
-check(land.includes('<p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 전문 번역가가 확인합니다.</p>') && (land.match(/<div class="lp-relay" role="img"/g) || []).length === 2 && /\.lp-relay \.c\{[^}]*stroke:var\(--v-gold\)/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-relay\{flex-direction:column/.test(html),
-  '과정 부제(번역 AI·검수 AI 반박) · 흐름 그림(번역 AI ⇄ 검수 AI → 근거 확인 → 전문 번역가, 금색 선·화살표, 모바일 세로) — 현재·V3');
+check(land.includes('<p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 최종 휴먼터치로 완성합니다.</p>') && (land.match(/<div class="lp-relay" role="img"/g) || []).length === 2 && /\.lp-relay \.c\{[^}]*stroke:var\(--v-gold\)/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-relay\{flex-direction:column/.test(html),
+  '과정 부제(번역 AI·검수 AI 반박) · 흐름 그림(번역 AI ⇄ 검수 AI → 근거 확인 → 최종 휴먼터치, 금색 선·화살표, 모바일 세로) — 현재·V3');
 check(land.includes('<span class="d">번역을 맡은 AI가 분야별 기준에 맞춰 옮깁니다.</span>') && land.includes('<span class="d">번역에 참여하지 않은 다른 AI가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span>') && land.includes('<span class="d">중요한 지적마다 번역한 AI가 근거를 따져 받아들이거나 반박하고, 확인된 지적만 반영합니다.</span>'), '3~5단계 = V2 코드(번역 모델 · 다른 회사 검수 모델 · 치명·중대 반론)');
-check(land.includes('<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다</h2>\n    <p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 전문 번역가가 확인합니다.</p>'), 'V3 10단계 제목 아래 같은 부제');
+check(land.includes('<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다</h2>\n    <p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 최종 휴먼터치로 완성합니다.</p>'), 'V3 10단계 제목 아래 같은 부제');
 check(!/class="lp-label"|class="lp-kicker"/.test(html), '구역 제목 위 작은 라벨 없음');
 check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
 check((land.match(/<button type="button" class="lp-field[ "]/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 칸 8개(button) + 그 밖의 분야 접기');
@@ -91,7 +91,7 @@ check(land.includes('<h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</
   check(!/부가세|19시/.test(land.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '')), "메인 화면 글자(숨김·V3 포함)에 '부가세'·'19시' 없음");
   check(html.includes('id="estimate-vat-note" style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">부가세 별도</p>') && html.includes('※ 19시 이후 접수 건은 익일 09시 접수 기준으로 납품일이 계산됩니다.') && html.includes('>부가세 (10%)</p>'),
     "견적 칸 '부가세 별도' · 소요시간 표 아래 19시 안내 · 결제 화면 부가세(10%) 줄 그대로");
-  check(ks[2][1] === '학습에 쓰이지 않는 기업용 연결로만 처리합니다. 개인정보 번호는 AI에 보내기 전에 가리고, 파일은 납품 21일 후 삭제합니다.' && land.includes('문서는 납품 21일 후 삭제합니다.') && !/21일 안에/.test(land) && !ks[2][1].includes('회사별 용어뿐'),
+  check(ks[2][1] === '학습에 쓰이지 않는 기업용 연결로만 처리합니다. 개인정보 번호는 유출·노출되지 않도록 자동으로 가려진 상태로 번역이 시작되고, 파일은 납품 21일 후 삭제합니다.' && land.includes('문서는 납품 21일 후 삭제합니다.') && !/21일 안에/.test(land) && !ks[2][1].includes('회사별 용어뿐'),
     "21일 삭제 = '납품 21일 후'(cron 실제) · 보안 칸에 '회사별 용어뿐' 문장 없음(용어 수집 개인정보 제외가 완전하지 않음)"); }
 check(/\.lp-why \.k\{[^}]*color:var\(--v-navy\);background:linear-gradient\(var\(--v-gold\),var\(--v-gold\)\) no-repeat 0 100%\/40px 2px/.test(html), '핵심 사실 = 남색 글자 + 골드 짧은 선 (골드 글자는 대비 부족)');
 check(!/원본 형식 그대로/.test(land), "'원본 형식 그대로' 카드 없음 (형식 유지 납품 미지원)");
@@ -143,7 +143,19 @@ console.log('\n[5] 문구 원칙');
 check(!/자동 번역|기계 번역|AI 도구|돌린다|돌려서|모든 문장을/.test(landVis), 'AI 도구 표현 · 사람 일 부풀리기 없음');
 check(!/사법공조|진술조서|수사|GPT|Claude|Gemini|프롬프트|원가|최고|최저|유일|1위/.test(landVis), '모델 이름·수사·원가·최상급 표현 없음');
 check(!/용어 고정|역번역|95점|별의 기사|Starblade|귀사의 용어를 기억|품질 리포트/.test(landVis), '아직 없는 기능 문구 없음(later_copy.md 보관분)');
-check(land.includes('<p class="lp-slogan" lang="en">IUMM — <b>I</b>ntelligence <b>U</b>nites <b>M</b>ind &amp; <b>M</b>achine</p>'), '영문 슬로건 (I·U·M·M 첫 글자만 굵게)');
+check(land.includes('<p class="lp-slogan" lang="en">Faithful to every word.</p>') && !/\.lp-slogan b\{/.test(html), "영문 한 줄 'Faithful to every word.' (첫 글자 강조 없음)");
+{ // 2026-10-31 문구 개편 — 제목·공유 미리보기·바닥글 · 옛 문구는 손님 화면에 없음(개인정보처리방침 본문·주석 제외)
+  const NEWT = 'IUMM 아이움 — 한 단어도 허투루 옮기지 않습니다';
+  check(html.includes('<title>' + NEWT + '</title>') && html.includes('<meta property="og:title" content="' + NEWT + '">') && html.includes('<meta name="twitter:title" content="' + NEWT + '">') && html.includes('<meta property="og:image:alt" content="' + NEWT + '">'), "title · og:title · twitter:title · og:image:alt = '" + NEWT + "'");
+  check(html.includes('>한 단어도 허투루 옮기지 않습니다</p>\n      <p lang="en" style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:400;letter-spacing:0.5px;margin:6px 0 0">IUMM · Intelligence Uniting Mind and Machine</p>'), "바닥글 'IUMM · Intelligence Uniting Mind and Machine' (작은 글씨, 강조 없음)");
+  const pv = html.indexOf('<div id="page-privacy"'), pe = html.indexOf('<!-- 기업회원 추가 약관 페이지 -->');
+  const cust = (html.slice(0, pv) + html.slice(pe)).replace(/<!--[\s\S]*?-->/g, '');
+  check(pv > 0 && pe > pv && !/두 전문가|AI에 보내기 전|처리 전에 자동으로 가립|Intelligence Unites|Mind &(amp;)? Machine|Man &(amp;)? Machine|완전 삭제/.test(cust),
+    "손님 화면(숨김·V3 포함, 처리방침 본문 제외)에 '두 전문가'·'AI에 보내기 전'·'처리 전에 자동으로 가립'·'Intelligence Unites'·'Mind & Machine'·'완전 삭제' 없음");
+  check((cust.match(/자동으로 가려진 상태로 번역이 시작/g) || []).length >= 8 && !/전문 번역가가 마지막으로 확인/.test(cust), "가림 문구 = '자동으로 가려진 상태로 번역이 시작' · '전문 번역가가 마지막으로 확인' 없음");
+  check(land.includes('<td class="me" data-h="아이움">유출·노출되지 않도록 자동으로 가려진 상태로 번역이 시작됩니다</td>') && land.includes('<td class="me" data-h="아이움">담당자가 최종 휴먼터치로 마무리합니다(프리미엄 플러스는 전문 번역가가 최종 확인)</td>'), '비교표 아이움 칸 — 가림 · 마무리(플랜 구분)');
+  check((land.match(/<span class="t">최종 휴먼터치<\/span><span class="d">담당자가 마지막으로 다듬어 납품합니다\. 프리미엄 플러스는 전문 번역가가 최종 확인합니다\./g) || []).length === 2 && (land.match(/<span class="n">최종 휴먼터치<\/span>/g) || []).length === 2 && land.includes('확인합니다. 확정된 용어는 귀사 전용 용어집에 쌓여 다음 주문으로 이어집니다.</span>'), "과정 마지막 단계 '최종 휴먼터치'(V2·V3) · 흐름 그림 끝 · V3 용어 축적 문장 유지");
+  check((land.match(/담당자가 최종 휴먼터치로 마무리하고, 프리미엄 플러스는 전문 번역가가 최종 확인합니다/g) || []).length === 2 && (html.match(/담당자가 최종 휴먼터치로 마무리하고, 프리미엄 플러스는 전문 번역가가 최종 확인합니다/g) || []).length === 4, 'FAQ(메인·전체) 최종 확인 문장 = 플랜 구분'); }
 check(land.includes('<p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1만 건 이상</p>'), '신뢰 표시 한 줄');
 { const pairs = (html.match(/<select id="lang-select"[\s\S]*?<\/select>/)[0].match(/<option[^>]*>한국어 → [^<]+<\/option>/g) || []).length;
   check(pairs === 32, `신뢰 표시 '32개 언어' = 주문 화면 한국어→외국어 목록 ${pairs}개`); }
@@ -180,7 +192,7 @@ console.log('\n[15] 인트로');
   check(/\.it\{position:relative;height:330vh;/.test(it) && /@media\(max-width:640px\)\{\s*\.it\{height:290vh\}/.test(it), '바깥 높이 PC 330vh / 모바일 290vh');
   check(/\.it-stage\{position:sticky;top:0;height:100vh;height:100dvh;/.test(it), '무대 sticky · 100vh → 100dvh (iOS 주소창 높이 변화)');
   check(it.includes('<p class="it-head">당신의 가능성을 세계로 연결합니다</p>') && !/<h1/.test(it), '위 문구 = p (h1 아님)');
-  check(land.includes('<h1 class="serif">두 전문가가<br>함께 번역합니다</h1>') && (land.match(/<h1[\s>]/g) || []).length === 1, 'h1 "두 전문가가 함께 번역합니다" · 메인 화면에 하나뿐');
+  check(land.includes('<h1 class="serif">한 단어도<br class="pc-br"> <span class="nw">허투루 옮기지 않습니다.</span></h1>') && (land.match(/<h1[\s>]/g) || []).length === 1 && /@media\(max-width:640px\)\{[^@]*\.lp-hero h1 \.pc-br\{display:none\}/.test(html), 'h1 "한 단어도 / 허투루 옮기지 않습니다." (데스크톱 두 줄, 모바일 자연 줄바꿈) · 메인 화면에 하나뿐');
 
   // ── 지도 — 점 세계지도 + 한반도 윤곽
   const dm = it.match(/<g id="continents"><path id="land" class="land" d="([^"]*)"\/><path id="korea" class="korea" d="([^"]*)"\/><\/g>/);
@@ -482,7 +494,7 @@ console.log('\n[V3] 공개 스위치');
   check((inT.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, 'V3 공정 10단계');
   check(/<span class="tag">예시<\/span>/.test(inT), "V3 가상 예시에 '예시' 표시");
   check(!/제출/.test(outT) && !/제출/.test(inT), "'제출' 표현 없음 (대상 독자·대상 시장)");
-  const S1 = '<span class="t">문서 분석</span><span class="d">고객이 고른 분야와 문서 종류에 맞는 번역 기준을 적용하고, 개인정보 번호는 처리 전에 자동으로 가립니다.</span>';
+  const S1 = '<span class="t">문서 분석</span><span class="d">고객이 고른 분야와 문서 종류에 맞는 번역 기준을 적용합니다. 개인정보 번호는 자동으로 가려진 상태로 번역이 시작됩니다.</span>';
   check(outT.includes(S1) && inT.includes(S1), "1단계 '문서 분석' = 코드 기준 문구 (V2·V3 같음)");
   check(!/영국식|미국식|대상 시장|대상 독자|제출처|제출 국가/.test(html), "'영국식·미국식·대상 시장·대상 독자·제출처·제출 국가' 없음 (숨김·template 포함)");
   // 켜지는 조건 — 운영 주소는 ?v3=1 이 있어도 꺼짐, 브랜치 미리보기만 켜짐
@@ -522,8 +534,8 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   }
   check(/<span class="cmp-tag">예시<\/span>/.test(hero) && (hero.match(/role="tab"/g) || []).length === 3 && /aria-selected="true">계약서</.test(hero) && /id="cmp-p-game"[^>]*hidden/.test(hero) && /id="cmp-p-manual"[^>]*hidden/.test(hero),
     "패널 '예시' 표시 · 탭 계약서/게임/매뉴얼 (기본 계약서, JS 없이도 계약서가 보임)");
-  check(txt(hero.match(/<ul class="cmp-checks">[\s\S]*?<\/ul>/)[0]).replace(/\s+/g, ' ').trim() === '용어 일치 숫자 대조 전문 번역가 최종 확인', '패널 아래 확인 3개 — 용어 일치 · 숫자 대조 · 전문 번역가 최종 확인');
-  check(hero.indexOf('id="lp-entry"') < hero.indexOf('id="lp-cmp"') && /@media\(min-width:1024px\)\{\s*\.lp-hero \.lp\{display:grid;grid-template-columns:minmax\(0,1fr\) minmax\(0,1\.1fr\)/.test(html) && /\.cmp-row\{grid-template-columns:1fr;gap:18px\}/.test(html),
+  check(txt(hero.match(/<ul class="cmp-checks">[\s\S]*?<\/ul>/)[0]).replace(/\s+/g, ' ').trim() === '용어 일치 숫자 대조 최종 휴먼터치', '패널 아래 확인 3개 — 용어 일치 · 숫자 대조 · 최종 휴먼터치');
+  check(hero.indexOf('id="lp-entry"') < hero.indexOf('id="lp-cmp"') && /@media\(min-width:1024px\)\{\s*\.lp-hero \.lp\{display:grid;grid-template-columns:minmax\(0,1\.2fr\) minmax\(0,1fr\)/.test(html) && /\.cmp-row\{grid-template-columns:1fr;gap:18px\}/.test(html),
     '데스크톱 = 글 왼쪽·패널 오른쪽 / 모바일 = 글 아래 패널, 원문 위·번역 아래');
   check(/\.lp-cmp \.t\{[^}]*background:linear-gradient\(var\(--v-gold\),var\(--v-gold\)\) no-repeat 0 100%\/100% 2px/.test(html) && /\.lp-cmp \.n\{[^}]*border:1px solid rgba\(15,37,64,0\.5\)/.test(html),
     '용어 = 골드 밑줄 · 숫자·금액·날짜 = 가는 테두리');
