@@ -92,6 +92,9 @@ const MOCK = String.raw`(() => {
     if (p === '/api/admin/credit-budget') return J({ ok: true, cap: 50, spent: 3.5, remaining: 46.5, outsideCap: 1.2, expires: '2026-11-12',
       rows: [{ at: '2026-10-30T10:00:00Z', task: '용어 확정', model: 'claude-opus', batch: true, calls: 12, inTok: 50000, outTok: 9000, usd: 2.1, inCap: true, memo: '' },
              { at: '2026-10-20T10:00:00Z', task: '시험 호출', model: 'claude-opus', batch: false, calls: 1, inTok: 100, outTok: 50, usd: 1.2, inCap: false, memo: '상한 전' }] });
+    if (p === '/api/admin/v3-scores') return J({ ok: true, watchBelow: 90, total: { orders: 5, scored: 4, avg: 89.5 },
+      rows: [{ pair: '한국어→일본어', orders: 2, scored: 2, unscored: 0, avg: 86, min: 84, last7: { orders: 1, avg: 88 }, watch: true },
+             { pair: '한국어→영어', orders: 3, scored: 2, unscored: 1, avg: 93, min: 92, last7: { orders: 0, avg: null }, watch: false }] });
     if (p === '/api/admin/translate-bypass') return J({ success: true, orderNumber: 'IUMM-BP-1', orderId: 'recBP' });
     if (p === '/api/notary/config') return J({ ok: true, documents: [{ code: 'family', name: '가족관계증명서', ready: true }], langs: [{ code: 'en', name: '영어', ready: true }] });
     if (p === '/api/notary/admin/direct' && m === 'GET') return J({ ok: true, orders: [{ orderNumber: 'NTR-ADM-0001', docType: '가족관계증명서', statusKey: 'done', statusLabel: '완료', receivedAt: '2026-10-30T01:00:00Z' }] });
@@ -228,7 +231,7 @@ try {
   check(['AI 프리미엄 납품 대기', '프리미엄 플러스 컨펌', '입금대기', '확인필요·번역실패', '무료 테스트', '수정 요청', '기업 고객', '회원 관리'].every((x) => G['주문·고객'].includes(x)), '주문·고객: 주문 목록(AI 프리미엄·프리미엄 플러스·입금대기·확인필요) · 무료 테스트 · 수정 요청 · 기업 고객 · 회원 관리');
   check(G['용어'].join() === '용어집,용어 추출', '용어: 용어집 · 용어 추출');
   check(['검수자 승인', '승인된 검수자', '반려된 검수자', '배정 (미배정)'].every((x) => G['검수자'].includes(x)), '검수자: 검수자 관리(승인·승인됨·반려) · 배정');
-  check(['크레딧 사용 기록', '정산 관리', '업종별 주문 수'].every((x) => G['기록'].includes(x)), '기록: 크레딧 사용 기록 · 정산 관리 · 업종별 주문 수');
+  check(['크레딧 사용 기록', '정산 관리', '업종별 주문 수', '언어별 점수판'].every((x) => G['기록'].includes(x)), '기록: 크레딧 사용 기록 · 정산 관리 · 업종별 주문 수 · 언어별 점수판');
   check(groups.every((g) => g.shown), '모든 메뉴가 항상 보임 (업무 모드로 숨기지 않음)');
   const ids = groups.flatMap((g) => g.items.map((x) => x.split(':')[0]));
   const oldIds = ['tab-bp', 'tab-ai', 'tab-pp', 'tab-rv', 'tab-rv-approved', 'tab-rv-rejected', 'tab-st', 'tab-ua', 'tab-failed', 'tab-bypass', 'tab-gpt', 'tab-members', 'tab-terms', 'tab-rev', 'tab-ft', 'tab-corp', 'tab-ntr'];
@@ -265,6 +268,12 @@ try {
   check(await until(`/\\$3\\.50/.test(document.getElementById('credit-spent').textContent)`), '크레딧 사용 기록: 사용액 $3.50');
   check(await ev(`document.getElementById('credit-remaining').textContent === '$46.50 / $50' && document.getElementById('credit-expires').textContent === '2026-11-12'`), '남은 예산 $46.50 / $50 · 만료일 2026-11-12');
   check(await ev(`document.querySelectorAll('#credit-tbody tr').length === 2 && /상한 이전\\(합계 제외\\)/.test(document.querySelector('#credit-tbody tr.credit-out').textContent)`), "표 2줄 · inCap=false 줄에 '상한 이전(합계 제외)'");
+
+  await click('#tab-ls');
+  check(await until(`document.getElementById('ls-wrap').style.display === 'block' && document.querySelectorAll('#ls-tbody tr').length === 2`), '언어별 점수판: 열림 · 언어 방향 2줄 (/api/admin/v3-scores)');
+  check(await ev(`document.getElementById('orders-wrap').style.display === 'none' && /Claude 채점/.test(document.getElementById('ls-wrap').textContent) && /GPT 최종 검수 점수는 섞지 않습니다/.test(document.getElementById('ls-wrap').textContent)`), "점수판: 'Claude 채점' 표시 · GPT 점수 안 섞는다는 안내");
+  check(await ev(`(() => { const tr = document.querySelectorAll('#ls-tbody tr'); return tr[0].classList.contains('ls-watch') && !tr[1].classList.contains('ls-watch') && /86/.test(tr[0].textContent) && /88 \\(1건\\)/.test(tr[0].textContent) && /평균 90 미만/.test(tr[0].textContent); })()`), '평균 90 미만(일본어 86) 줄만 강조 · 최근 7일 평균(건)');
+  check(await ev(`(() => { const c = getComputedStyle(document.querySelector('#ls-tbody tr.ls-watch td')).backgroundColor; const m = c.match(/\\d+/g).map(Number); return m[2] > m[0] && m[2] > m[1]; })()`), '강조 색 = 파란 계열(빨강·초록 아님)');
 
   console.log('\n[5] 용어 추출');
   await click('#tab-tx');
@@ -407,7 +416,7 @@ try {
   check(fv.m && fv.s === 'solid' && fv.c === 'rgb(31, 79, 209)' && fv.w >= 2, `:focus-visible 파랑 테두리 (${fv.s} ${fv.w}px ${fv.c})`);
 
   if (process.env.EXTRA_SHOT_DIR) {   // 확인용 추가 스크린숏 (선택)
-    for (const [t, n] of [['#tab-tx', 'term_extract'], ['#tab-gpt', 'review'], ['#tab-credit', 'credit']]) {
+    for (const [t, n] of [['#tab-tx', 'term_extract'], ['#tab-gpt', 'review'], ['#tab-credit', 'credit'], ['#tab-ls', 'lang_scores']]) {
       await click(t); await sleep(300);
       const sh = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width: 1440, height: await ev('document.documentElement.scrollHeight'), scale: 1 } });
       fs.writeFileSync(path.join(process.env.EXTRA_SHOT_DIR, 'admin_' + n + '.png'), Buffer.from(sh.result.data, 'base64'));
