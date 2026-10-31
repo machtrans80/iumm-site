@@ -38,7 +38,7 @@
     '.ad-two{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center}',
     '.ad-v .ad-two{flex-direction:column}',
     '.ad-node{width:440px;padding:40px 24px;border:2px solid rgba(157,183,245,0.55);text-align:center}',
-    '.ad-node .k{font-size:52px;font-weight:700;color:#fff}.ad-node .d{margin-top:12px;font-size:32px;font-weight:500;color:#C9D7FB}',
+    '.ad-node .k{font-size:52px;font-weight:700;color:#fff;white-space:nowrap}.ad-node .d{margin-top:12px;font-size:32px;font-weight:500;color:#C9D7FB}',
     '.ad-link{position:relative;flex:none}.ad-h .ad-link{width:260px;height:4px}.ad-v .ad-link{width:4px;height:200px}',
     '.ad-link i{position:absolute;left:0;top:0;width:100%;height:100%;background:#C9A877;transform-origin:0 0}',
     /* ③ 대조 패널 */
@@ -140,7 +140,7 @@
     var s2 = scene();
     var c2 = cap(s2, '한 팀으로 함께 완성합니다', v ? 360 : 200);
     var two = el('div', 'ad-two'); two.style.top = (v ? 760 : 500) + 'px';
-    var n1 = el('div', 'ad-node', '<div class="k mb">아이움 AI</div><div class="d">정확하게 기억합니다</div>');
+    var n1 = el('div', 'ad-node', '<div class="k mb">아이움 AI 엔진</div><div class="d">정확하게 기억합니다</div>');
     var lk = el('div', 'ad-link', '<i></i>');
     var n2 = el('div', 'ad-node', '<div class="k mb">전문 번역가</div><div class="d">깊이 이해합니다</div>');
     two.appendChild(n1); two.appendChild(lk); two.appendChild(n2); s2.appendChild(two);

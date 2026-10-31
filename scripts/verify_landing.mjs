@@ -26,7 +26,7 @@ const sandbox = { window: {}, handleAI(){}, location: { hostname: 'iumm.kr', pro
   querySelectorAll: (q) => q.startsWith('template') ? [] : planEls.map(e => ({ getAttribute: () => e.k, set textContent(v){ e.textContent = v; } })) } };
 vm.createContext(sandbox);
 vm.runInContext(script, sandbox);
-check(land.includes('<p class="lp-lead">아이움 AI는 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>'), '서브 문구');
+check(land.includes('<p class="lp-lead"><span class="ko-nw">아이움 AI 엔진</span>은 정확하게 기억하고,<br>전문 번역가는 깊이 이해합니다.</p>'), '서브 문구 (아이움 AI 엔진)');
 check(land.includes('<p class="lp-fieldline">게임 · 법률 · 의료 · 회계 · 특허 · <span class="nb">학술 · 매뉴얼 · ESG</span></p>'), '분야 줄 (여덟 분야)');
 check(/id="lp-entry">\s*<button type="button" class="lp-btn" onclick="handleAI\(\)">파일 올리고 바로 견적 보기<\/button>\s*<a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기<\/a>/.test(land), '버튼 2개 (견적 → 주문 창 · 기준 → #field-standards), 인트로 mask 기준 #lp-entry 유지');
 
@@ -163,11 +163,37 @@ check(!/이음|잇습니다|잇고|이어 드립니다/.test(landVis) && !/이�
 check(land.includes('<section class="lp-sec tight" id="iumm-about">') && land.includes('<h2 class="lp-h2 mb">AI 채팅창에 붙여 넣는 번역과 다릅니다</h2>') && !land.includes('빠르면서도, 정확하게</h2>'), "비교 섹션 (제목 'AI 채팅창에 붙여 넣는 번역과 다릅니다')");
 { const t = land.match(/<table class="lp-vs">[^]*?<\/table>/);
   const rows = t ? [...t[0].matchAll(/<tr><th scope="row">([^<]+)<\/th><td data-h="일반 AI 채팅">([^<]+)<\/td><td class="me" data-h="아이움">([^<]+)<\/td><\/tr>/g)].map(m => m[1]) : [];
-  check(rows.join('|') === 'AI 학습|개인정보 번호|파일 보관|검수|마무리' && t[0].includes('<th scope="col" class="me">아이움</th>'), '비교 5줄 (항목 / 일반 AI 채팅 / 아이움)');
+  check(rows.join('|') === 'AI 학습|개인정보 번호|파일 보관|용어 축적|검수|마무리' && (t[0].match(/<tr><th scope="row">/g) || []).length === 6 && t[0].includes('<th scope="col" class="me">아이움</th>'), "비교 6줄 — '용어 축적'은 '파일 보관' 바로 다음 (항목 / 일반 AI 채팅 / 아이움)");
+  check(t[0].includes('<td data-h="일반 AI 채팅">같은 용어도 번역할 때마다 달라질 수 있습니다</td><td class="me" data-h="아이움">고객님의 다음 번역을 위해 개인정보와 문서 내용은 모두 제외하고, 번역 전문 용어만 축적합니다. 다음 번역부터 같은 용어로 통일됩니다.</td>'), "'용어 축적' 줄 문구");
   check(/\.lp-vs td\.me\{font-weight:700;color:var\(--v-navy\)\}/.test(html) && /\.lp-vs td::before\{content:attr\(data-h\)/.test(html), '아이움 열만 남색 · 모바일은 항목별 카드(위 일반 AI 채팅, 아래 아이움)'); }
 { const q = '일반 AI 채팅에 직접 넣어 번역하는 것과 무엇이 다른가요?';
   check(land.includes('<details><summary>' + q + '</summary>') && html.includes('Q.</span>' + q + '<span class="faq-arrow">') && (html.match(/보안 점검을 위해 보관한 기록도 기본 30일 안에 삭제됩니다\./g) || []).length === 2, 'FAQ 추가 — 랜딩·전체 FAQ 둘 다 (외부 AI 보관 기본 30일)'); }
 check(land.includes('<p class="s">당신의 가능성을 세계로 연결합니다.</p>'), '마지막 섹션 대표 문구');
+
+// ── 2026-10-31 '아이움 AI' → '아이움 AI 엔진' 통일 · FAQ 'AI 번역인가요?' · 품질 점수 배지 ──
+console.log('\n[엔진] 아이움 AI 엔진 표기 · FAQ · 품질 점수 배지');
+{ // 고객이 여는 파일 전부(관리자·약관/처리방침(legal) 제외) — '아이움 AI' 뒤에 '엔진'이 없는 표기가 없어야 한다
+  const ROOT = path.resolve(HERE, '..'), SKIP = new Set(['admin', 'legal', 'scripts', 'node_modules', '.git']);
+  const files = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name);
+    if (e.isDirectory()) { if (!SKIP.has(e.name)) walk(f); } else if (/\.(html|js|json|xml|txt|webmanifest)$/.test(e.name)) files.push(f); } };
+  walk(ROOT);
+  const bad = files.flatMap((f) => { const t = fs.readFileSync(f, 'utf8'); return [...t.matchAll(/아이움 ?AI(?! 엔진)/g)].map((m) => path.relative(ROOT, f) + ':' + t.slice(0, m.index).split('\n').length); });
+  check(files.length > 5 && bad.length === 0, `고객 화면에 '아이움 AI' 단독 표기 없음 — 파일 ${files.length}개 검사${bad.length ? ' · 남은 곳 ' + bad.join(', ') : ''}`);
+  check(!/엔진 엔진|엔진<\/span> 엔진/.test(html) && !/엔진 엔진/.test(fs.readFileSync(path.join(ROOT, 'assets/ad25.js'), 'utf8')), "'엔진 엔진' 중복 없음");
+  check(['<meta name="description" content="아이움 AI 엔진은', '<meta property="og:description" content="아이움 AI 엔진은', '<meta name="twitter:description" content="아이움 AI 엔진은'].every((x) => html.includes(x)), '메타 설명 · OG · 트위터 문구');
+  check(/<div class="k mb">아이움 AI 엔진<\/div>/.test(fs.readFileSync(path.join(ROOT, 'assets/ad25.js'), 'utf8')), '25초 소개 영상 장면 2 — 아이움 AI 엔진');
+  check(/번역 AI<\/span>[\s\S]{0,200}검수 AI<\/span>/.test(land), "흐름의 '번역 AI ⇄ 검수 AI' 역할 이름은 그대로"); }
+{ const E = '<span class="ko-nw">아이움 AI 엔진</span>';
+  const A = '<p>' + E + '과 전문 번역가가 한 팀으로 번역합니다.</p><p>' + E + '은 아이움이 직접 설계한 전용 번역 엔진입니다. 여러 AI에 번역·검수·원문 대조 역할을 나눠 맡겨 서로의 결과를 검증하게 하고, 분야별 번역 기준과 축적된 용어로 최적화했습니다. 내부 품질 평가 100건 실측 결과 평균 <span class="ko-nw">95~99점</span>을 기록했습니다 (2026년 <span class="ko-nw">8~10월</span> 기준).</p><p>고객 문서는 AI 학습에 쓰이지 않으며 외부에 공개되지 않고, 개인정보는 유출·노출되지 않도록 자동으로 가려진 상태로 번역이 시작됩니다.</p><p>마지막으로 담당자가 최종 휴먼터치로 마무리하고, 프리미엄 플러스는 전문 번역가가 최종 확인합니다.</p>';
+  check(land.includes('<summary>AI 번역인가요?</summary>' + A + '</details>') && html.includes('AI 번역인가요?<span class="faq-arrow">▼</span></div>\n        <div class="faq-a">' + A + '</div>'), "FAQ 'AI 번역인가요?' 새 답변 4문단 — 랜딩·전체 FAQ 둘 다");
+  const badges = land.match(/<p class="lp-score">[^\n]*<\/p>/g) || [];
+  check(badges.length === 2 && badges.every((b) => b === '<p class="lp-score"><span class="ko-nw">내부 품질 평가 100건 실측</span><span class="sep" aria-hidden="true">·</span><span class="ko-nw">평균 <b class="mb">95~99점</b></span><small class="ko-nw">2026년 8~10월 기준</small></p>'), '품질 점수 배지 — 현재 화면·V3 흐름 아래 (숫자만 강조, 기준 작게)');
+  check([...land.matchAll(/<\/div>\n    <p class="lp-score">/g)].length === 2 && land.indexOf('<p class="lp-score">') > land.indexOf('<div class="lp-relay"'), '배지 위치 = 번역 과정 흐름 바로 아래');
+  check(/\.ko-nw\{white-space:nowrap\}/.test(html), "'95~99점' · '8~10월' · '아이움 AI 엔진' 은 줄 중간에서 안 쪼갬");
+  const vis = land.replace(/<!--[\s\S]*?-->/g, '').replace(/<[^>]+>/g, ' ');
+  check(!/최저가|최고|완벽/.test(vis), "'최저가 · 최고 · 완벽' 표현 없음"); }
+
 
 console.log('\n[6] 색 — 새 팔레트');
 check(/--v-navy:#0F2540;--v-ink:#1F4FD1;--v-ink-hover:#1A43B3;[^}]*--v-bg:#FAFAF7;--v-pale:#EEF3FB;\s*--v-text:#1B2433;--v-sub:#4A5568;--v-gold:#B08D57;/.test(html), '랜딩 토큰 (네이비·잉크 블루·오프화이트·페일 블루·본문·보조·샴페인 골드)');
