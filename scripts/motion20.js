@@ -84,7 +84,7 @@
     c2: ['<b>제2조(지체상금)</b>', '을이', '납기를', '지키지', '못한', '경우', '지체일수', '1일당', '계약금액의', '0.1%를', '지체상금으로', '갑에게', '지급한다.'],
     en: ['Article 2 (Liquidated Damages) If Party B fails to meet the delivery date, Party B shall pay Party A ', 'liquidated damages', ' of 0.1% of the contract amount for each day of delay.']
   };
-  var ROWS = ['Party A shall pay a deposit of KRW 5,000,000', 'within thirty (30) days', 'liquidated damages of 0.1%', 'for each day of delay'];
+  var ROWS = ['Party A shall pay a deposit of KRW 5,000,000', 'within 30 days', 'liquidated damages of 0.1%', 'for each day of delay'];
   var FIELDS = ['게임', '법률', '의료', '회계', '특허', '학술', 'ESG', '매뉴얼'];
 
   function build(st, orient){

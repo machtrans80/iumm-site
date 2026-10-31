@@ -1,11 +1,13 @@
-// 모션그래픽 시안(약 20초) → 무음 원본 · 효과음 조합 A/B/C · 장면별 정지 화면 · 움직임 비율 (2026-10-31)
+// 20초 모션그래픽 소개 영상 → 무음 원본 · 효과음 조합 A/B/C · 장면별 정지 화면 · 움직임 비율 (2026-10-31, 조합 A 확정)
 //   node scripts/record_motion.mjs                 정지 화면 + 무음 원본(가로·세로) + 효과음 묶기 + 움직임 비율
 //   node scripts/record_motion.mjs --stills-only   정지 화면만
 //   node scripts/record_motion.mjs --mix-only      이미 만든 무음 원본에 효과음만 다시 묶기(효과음 파일을 새로 받았을 때)
 //   node scripts/record_motion.mjs --measure=<mp4> 움직임 비율만 재기
 // 그림 = scripts/motion20.js 의 render(t) 를 Playwright(무료)로 한 장씩 찍고 ffmpeg(무료, ffmpeg-static)로 묶는다.
 // 효과음 = Pixabay(상업 사용 가능·출처 표기 불필요) — MOTION_OUT/sfx_raw 에 받은 파일, 출처는 sfx_sources.txt.
-// 결과: MOTION_OUT (기본 C:/Users/nanpa/iumm_internal/ads/motion_draft) — 기존 iumm_25s_* 영상은 건드리지 않는다.
+// 결과: MOTION_OUT (기본 C:/Users/nanpa/iumm_internal/ads/motion_draft) — 조합별 시안·정지 화면·무음 원본
+//       광고용 최종(조합 A, 도입·마무리 둘 다 있을 때만) = ADS_OUT/iumm_20s_{16x9|9x16}.mp4 · iumm_20s_scene{1..6}_{16x9|9x16}.png
+//       사이트 소개 영상 창 = assets/motion_{16x9|9x16}.mp4 (조합 A 가볍게) · motion_poster_*.jpg
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -19,6 +21,7 @@ const ROOT = path.resolve(HERE, '..');
 const TOOLS = process.env.AD_TOOLS || 'C:/Users/nanpa/iumm_internal/ads/_tools';
 const OUT = process.env.MOTION_OUT || 'C:/Users/nanpa/iumm_internal/ads/motion_draft';
 const SFX = path.join(OUT, 'sfx_raw');
+const ADS = process.env.ADS_OUT || path.dirname(OUT);
 const req = createRequire(path.join(TOOLS, 'package.json'));
 const FFMPEG = req('ffmpeg-static');
 const FPS = 30, DUR = 20.5;
@@ -64,7 +67,7 @@ async function render(orients, stillsOnly) {
         await document.fonts.ready; window.__mm.seek(0);
       }, o);
       await page.waitForTimeout(600);
-      if (o === '16x9' || stillsOnly) {
+      {
         for (let i = 0; i < STILL_AT.length; i++) {
           await page.evaluate((t) => window.__mm.seek(t), STILL_AT[i]);
           await page.screenshot({ path: path.join(OUT, `motion_scene${i + 1}_${o}.png`) });
@@ -160,6 +163,14 @@ if (!has('stills-only')) {
     ff(['-i', src, '-c:v', 'libx264', '-preset', 'slow', '-crf', '26', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-movflags', '+faststart', dst]);
     ff(['-ss', '1.9', '-i', silentOf(o), '-frames:v', '1', '-q:v', '4', path.join(ROOT, 'assets', `motion_poster_${o}.jpg`)]);
     console.log(`  사이트용 assets/motion_${o}.mp4 (${(fs.statSync(dst).size / 1e6).toFixed(1)}MB, ${path.basename(src)})`);
+  }
+  // 광고용 최종 = 조합 A(도입·마무리 둘 다 들어간 것만)
+  for (const o of ORIENTS) {
+    const src = path.join(OUT, `motion_${o}_A.mp4`);
+    if (!fs.existsSync(src)) { console.log(`  [${o}] 조합 A 완성본 없음 — 광고용 최종 파일 안 만듦`); continue; }
+    fs.copyFileSync(src, path.join(ADS, `iumm_20s_${o}.mp4`));
+    for (let i = 1; i <= STILL_AT.length; i++) { const st = path.join(OUT, `motion_scene${i}_${o}.png`); if (fs.existsSync(st)) fs.copyFileSync(st, path.join(ADS, `iumm_20s_scene${i}_${o}.png`)); }
+    console.log(`  광고용 ${path.join(ADS, `iumm_20s_${o}.mp4`)} (${(fs.statSync(src).size / 1e6).toFixed(1)}MB) + 정지 화면 ${STILL_AT.length}장`);
   }
   console.log('움직임 비율 (앞 프레임과 0.2% 넘게 다른 프레임)');
   for (const o of ORIENTS) if (fs.existsSync(silentOf(o))) console.log(`  ${o}`, JSON.stringify(measure(silentOf(o))));
