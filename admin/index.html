@@ -3301,7 +3301,8 @@ function renderReferenceStatus(order) {
 function populateAiScoreSection(order) {
   var scoreSection = document.getElementById('ai-score-section');
   if (!scoreSection) return;
-  var hasScore = order.aiScore != null || order.aiReverseScore != null;
+  var v3 = order.aiQualityDetail && order.aiQualityDetail.v3 ? order.aiQualityDetail.v3 : null;   // V3: ⑨ Claude 채점(표시용 — 점수로 보류하지 않음)
+  var hasScore = order.aiScore != null || order.aiReverseScore != null || !!v3;
   scoreSection.style.display = hasScore ? 'block' : 'none';
   if (!hasScore) return;
 
@@ -3313,12 +3314,16 @@ function populateAiScoreSection(order) {
   var revEl   = document.getElementById('ai-score-reverse');
   // 번역 방식 V1/V2 — V2 는 AI품질상세.v2 가 있다(점수 = 교차 검수·코드 검사·일관성 감점, 공식은 v2.score.formula)
   var v2 = order.aiQualityDetail && order.aiQualityDetail.v2 ? order.aiQualityDetail.v2 : null;
-  if (refBadgeRow) refBadgeRow.innerHTML = '<span class="ref-badge" title="' + (v2 ? 'V2: 번역(Claude) → 교차 검수(GPT) → 반론 → 코드 검사' : 'V1: 9.5단계') + '" style="background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.35);margin-right:6px">' + (v2 ? 'V2' : 'V1') + '</span>' + refBadgeRow.innerHTML;
+  var ver = v3 ? 'V3' : v2 ? 'V2' : 'V1';
+  var verTitle = v3 ? 'V3: 10단계 — 점수는 Claude 채점(표시용, 90 미만이면 지적 문단 1회 재작업)' : v2 ? 'V2: 번역(Claude) → 교차 검수(GPT) → 반론 → 코드 검사' : 'V1: 9.5단계';
+  if (refBadgeRow) refBadgeRow.innerHTML = '<span class="ref-badge" title="' + verTitle + '" style="background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.35);margin-right:6px">' + ver + '</span>' + refBadgeRow.innerHTML;
   var revLabel = document.getElementById('ai-score-reverse-label');
-  if (revLabel) revLabel.textContent = v2 ? '교차 검수' : '역번역 일치도';
-  totalEl.textContent = order.aiScore != null ? order.aiScore : '—';
-  revEl.textContent   = v2 ? (v2.score && v2.score.crossReview != null ? v2.score.crossReview : '—') : (order.aiReverseScore != null ? order.aiReverseScore : '—');
-  var sc = order.aiScore;
+  if (revLabel) revLabel.textContent = v3 ? '용어 일치(%)' : v2 ? '교차 검수' : '역번역 일치도';
+  var v3s = v3 && v3.score ? v3.score : {};
+  totalEl.textContent = v3 ? (v3s.total != null ? v3s.total : '—') : (order.aiScore != null ? order.aiScore : '—');
+  revEl.textContent   = v3 ? (v3.terms && v3.terms.agreement && v3.terms.agreement.rate != null ? v3.terms.agreement.rate : '—')
+    : v2 ? (v2.score && v2.score.crossReview != null ? v2.score.crossReview : '—') : (order.aiReverseScore != null ? order.aiReverseScore : '—');
+  var sc = v3 ? v3s.total : order.aiScore;
   totalEl.style.color = sc >= 90 ? 'var(--green)' : sc >= 75 ? 'var(--gold)' : sc != null ? 'var(--red)' : 'var(--gold)';
 
   var DETAIL_KEYS = [
@@ -3327,8 +3332,17 @@ function populateAiScoreSection(order) {
   var detailEl = document.getElementById('ai-score-detail');
   var detail = order.aiQualityDetail;
   var corrSection = document.querySelector('#ai-score-section .corr-section');
-  if (corrSection) corrSection.style.display = v2 ? 'none' : '';
-  if (v2) {
+  if (corrSection) corrSection.style.display = (v2 || v3) ? 'none' : '';
+  if (v3) {
+    var e3 = v3.edit || {}, row3 = function(k, v) { return '<div class="score-row"><span>' + k + '</span><span class="score-val">' + v + '</span></div>'; };
+    var dim = function(t) { return ' <span style="color:rgba(255,255,255,0.3)">' + t + '</span>'; };
+    detailEl.innerHTML =
+      row3('Claude 채점', v3s.total == null ? '채점 실패' + dim('(보류 안 함)') : (v3s.first != null && v3s.first !== v3s.total ? v3s.first + ' → ' : '') + v3s.total) +
+      row3('⑨ 반영', '수정안 ' + (v3s.applied || 0) + ' · 재작업 ' + (v3s.reworked || 0) + '문단' + (v3s.reverted ? dim('(내려가서 되돌림)') : '')) +
+      row3('⑧-2 편집', '고침 ' + (e3.edited || 0) + dim('· 되돌림 ' + ((e3.termRestored || 0) + (e3.ruleReverted || 0) + (e3.codeReverted || 0)))) +
+      row3('코드 점검 실패', (v3.codeCheck && v3.codeCheck.failed) || 0) +
+      '<div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;line-height:1.4">Claude 채점은 표시용 — ' + (v3s.reworkBelow || 90) + '점 미만이면 지적 문단만 1회 재작업하고 그대로 진행(점수로 보류하지 않음). GPT 최종 검수 점수와 따로 봅니다.</div>';
+  } else if (v2) {
     var vs = v2.score || {}, d = vs.deductions || {}, n = vs.issues || {};
     var row = function(k, v) { return '<div class="score-row"><span>' + k + '</span><span class="score-val">' + v + '</span></div>'; };
     detailEl.innerHTML = vs.total == null ? '<div style="font-size:11px;color:rgba(255,255,255,0.3)">V2 점수 없음(이전 주문)</div>' :
@@ -3375,17 +3389,18 @@ function populateAiScoreSection(order) {
     gptNumEl.textContent = gS;
     if (aS != null) {
       var delta = gS - aS;
-      gptDelta.textContent = delta > 0 ? '(▲ ' + delta + '점)' : delta === 0 ? '(동급 유지)' : '';
+      gptDelta.textContent = v3 ? '' : delta > 0 ? '(▲ ' + delta + '점)' : delta === 0 ? '(동급 유지)' : '';
       gptDetailTxt.textContent = 'AI 자동 검수 ' + aS + '점 → GPT 최종 검수 ' + gS + '점';
     } else {
       gptDelta.textContent = '';
       gptDetailTxt.textContent = 'GPT-5.5 thinking 검수 완료';
     }
-    if (labelEl) labelEl.textContent = 'AI 자동 검수';
+    if (v3) gptDetailTxt.textContent = 'GPT 최종 검수 ' + gS + '점 (Claude 채점과 별개)';
+    if (labelEl) labelEl.textContent = v3 ? 'Claude 채점' : 'AI 자동 검수';
     gptBanner.style.display = 'block';
   } else {
     gptBanner.style.display = 'none';
-    if (labelEl) labelEl.textContent = 'AI 종합점수';
+    if (labelEl) labelEl.textContent = v3 ? 'Claude 채점' : 'AI 종합점수';
   }
 }
 
