@@ -401,6 +401,9 @@ body.admin-focus .work-bar{display:none}
 .credit-v{font-size:22px;font-weight:700;color:#FAFAF7;margin-top:2px}
 .credit-table tr.credit-out td{color:rgba(250,250,247,0.5)}
 .credit-table tr:hover td{cursor:default}
+.ls-table tr.ls-watch td{background:rgba(31,79,209,0.22);color:#C9D7FB}
+.ls-table tr.ls-watch td.ls-avg{font-weight:600;color:#9DB7F5}
+.ls-flag{display:inline-block;margin-left:6px;padding:1px 7px;border:1px solid #9DB7F5;border-radius:3px;font-size:11px;color:#9DB7F5}
 .tbl-box{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px}
 
 /* 제목 글꼴 — MaruBuri (고객 홈페이지와 같은 글꼴) */
@@ -499,6 +502,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         <button data-mode="tx" class="tab-btn" id="tab-credit" onclick="switchTab('credit')">크레딧 사용 기록</button>
         <button data-mode="tx" class="tab-btn" id="tab-st" onclick="switchTab('settlement')">정산 관리</button>
         <button data-mode="tx" class="tab-btn" id="tab-stats" onclick="switchTab('stats')">업종별 주문 수</button>
+        <button data-mode="tx" class="tab-btn" id="tab-ls" onclick="switchTab('lang_scores')">언어별 점수판</button>
       </div>
     </div>
 
@@ -574,6 +578,23 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         <div id="tx-job-meta" class="tx-job-meta"></div>
         <pre id="tx-job-progress" class="tx-progress"></pre>
         <div id="tx-job-result"></div>
+      </div>
+    </div>
+
+    <!-- ── 언어별 점수판 (2026-11-01) — GET /api/admin/v3-scores · admin/lang_scores.js ──
+         전 언어 V3 운영 감시용. 'Claude 채점'만(GPT 최종 검수 점수와 섞지 않음) · 평균 90 미만 = 파란 강조 -->
+    <div id="ls-wrap" style="display:none;padding:4px 0 32px">
+      <div class="bp-section">
+        <div class="bp-section-title" style="display:flex;align-items:center">언어별 점수판 · Claude 채점 <span style="flex:1"></span>
+          <button type="button" class="tab-btn" onclick="loadLangScores()">새로고침</button></div>
+        <div id="ls-total" class="tx-note"></div>
+        <div class="tx-note">V3 로 처리한 전문번역 주문만 셉니다. GPT 최종 검수 점수는 섞지 않습니다. 숨긴 주문은 빠집니다. <span id="ls-watch-note"></span></div>
+        <div class="tbl-box">
+          <table class="orders-table credit-table ls-table">
+            <thead><tr><th>언어 방향</th><th>V3 주문</th><th>Claude 채점 평균</th><th>최저</th><th>최근 7일 평균</th><th>채점 실패</th></tr></thead>
+            <tbody id="ls-tbody"><tr class="empty-row"><td colspan="6">탭을 열면 불러옵니다</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -1511,6 +1532,9 @@ function switchTab(tab) {
   var isNtr = tab === 'notary_work';   // 번역공증 작업 = 직접 번역 + 고객 공증 배송 관리
   // 2026-10-31 새 탭 — 용어 추출 · 크레딧 사용 기록 · 업종별 주문 수(옮김)
   var isTx = tab === 'term_extract', isCredit = tab === 'credit', isStats = tab === 'stats';
+  var isLs = tab === 'lang_scores';   // 2026-11-01 언어별 점수판(V3 Claude 채점)
+  document.getElementById('tab-ls').className = 'tab-btn' + (isLs ? ' active' : '');
+  document.getElementById('ls-wrap').style.display = isLs ? 'block' : 'none';
   document.getElementById('tab-tx').className = 'tab-btn' + (isTx ? ' active' : '');
   document.getElementById('tab-credit').className = 'tab-btn' + (isCredit ? ' active' : '');
   document.getElementById('tab-stats').className = 'tab-btn' + (isStats ? ' active' : '');
@@ -1524,7 +1548,7 @@ function switchTab(tab) {
   });
   document.getElementById('members-wrap').style.display = isMembers ? 'block' : 'none';
   document.getElementById('ntrd-wrap').style.display = isNtr ? 'block' : 'none';
-  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isTerms || isCorp || isTx || isCredit || isStats) ? 'none' : 'block';
+  document.getElementById('orders-wrap').style.display = (isSettlement || isBypass || isUnassigned || isFailed || isGptReview || isMembers || isNtr || isTerms || isCorp || isTx || isCredit || isStats || isLs) ? 'none' : 'block';
   document.getElementById('settlement-wrap').style.display = isSettlement ? 'block' : 'none';
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
@@ -1560,6 +1584,8 @@ function switchTab(tab) {
     txInit();
   } else if (isCredit) {
     loadCreditBudget();
+  } else if (isLs) {
+    loadLangScores();
   } else if (isStats) {
     // 업종별 주문 수: 버튼을 눌러 불러온다 (예전과 같음)
   } else {
@@ -4538,5 +4564,6 @@ async function loadNotaryDirect() {
 <!-- 용어 추출 · 크레딧 사용 기록 (2026-10-31) -->
 <script src="/admin/term_extract.js?v=1"></script>
 <script src="/admin/credit_budget.js?v=1"></script>
+<script src="/admin/lang_scores.js?v=1"></script>
 </body>
 </html>
