@@ -1918,7 +1918,7 @@ section[data-collapsible].open .collapsible-preview{display:none !important}
 .lp-cmp .n{margin:0 1px;padding:0 3px;border:1px solid rgba(15,37,64,0.5);-webkit-box-decoration-break:clone;box-decoration-break:clone;cursor:default;transition:border-color calc(.35s * var(--u)) ease calc(1.25s * var(--u))}
 .lp-cmp .t.hl{background-color:rgba(176,141,87,0.22)}
 .lp-cmp .n.hl{background-color:var(--v-pale);border-color:var(--v-ink)}
-.lp-cmp .t,.lp-cmp .n{white-space:nowrap}  /* 밑줄·테두리 묶음(KRW 5,000,000 · thirty (30) days · 30일 · 갑)은 줄 중간에서 자르지 않고 통째로 다음 줄로 */
+.lp-cmp .t,.lp-cmp .n{white-space:nowrap}  /* 밑줄·테두리 묶음(KRW 5,000,000 · 30 days · 30일 · 갑)은 줄 중간에서 자르지 않고 통째로 다음 줄로 */
 .cmp-checks{display:flex;flex-wrap:wrap;gap:10px 24px;margin:22px 0 0;padding:16px 0 0;list-style:none;border-top:1px solid var(--v-line)}
 .cmp-checks li{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--v-navy);transition:opacity calc(.3s * var(--u)) ease}
 .cmp-checks li:nth-child(1){transition-delay:calc(1.5s * var(--u))}
@@ -2516,7 +2516,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     <div class="lp-hero-act" id="lp-entry">
       <button type="button" class="lp-btn" onclick="handleAI()">파일 올리고 바로 견적 보기</button>
       <a class="lp-btn line" href="#field-standards">분야별 번역 기준 보기</a>
-      <button type="button" class="lp-btn line" id="ad-open" onclick="openAd()" aria-haspopup="dialog">25초 소개 영상</button>
+      <button type="button" class="lp-btn line" id="ad-open" onclick="openAd()" aria-haspopup="dialog">20초 소개 영상</button>
     </div>
     <p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1만 건 이상</p>
     </div>
@@ -2533,7 +2533,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
       <div class="cmp-pane" id="cmp-p-contract" role="tabpanel" aria-labelledby="cmp-t-contract">
         <div class="cmp-row">
           <div class="cmp-col" lang="ko"><span class="cmp-lang">원문 · 한국어</span><p class="cmp-s mb"><span class="t" data-k="a">갑</span>은 <span class="t" data-k="b">본 계약</span> 체결일로부터 <span class="n" data-k="m">30일</span> 이내에 <span class="t" data-k="c">계약금</span> <span class="n" data-k="p">5,000,000원</span>을 <span class="t" data-k="d">을</span>에게 지급한다.</p></div>
-          <div class="cmp-col" lang="en"><span class="cmp-lang">번역 · 영어</span><p class="cmp-s mb"><span class="t" data-k="a">Party A</span> shall pay <span class="t" data-k="d">Party B</span> a <span class="t" data-k="c">deposit</span> of <span class="n" data-k="p">KRW 5,000,000</span> within <span class="n" data-k="m">thirty (30) days</span> from the date of execution of <span class="t" data-k="b">this Agreement</span>.</p></div>
+          <div class="cmp-col" lang="en"><span class="cmp-lang">번역 · 영어</span><p class="cmp-s mb"><span class="t" data-k="a">Party A</span> shall pay <span class="t" data-k="d">Party B</span> a <span class="t" data-k="c">deposit</span> of <span class="n" data-k="p">KRW 5,000,000</span> within <span class="n" data-k="m">30 days</span> from the date of execution of <span class="t" data-k="b">this Agreement</span>.</p></div>
         </div>
       </div>
       <div class="cmp-pane" id="cmp-p-game" role="tabpanel" aria-labelledby="cmp-t-game" hidden>
@@ -2684,80 +2684,90 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
 })();
 </script>
 
-<!-- 25초 소개 영상 창 (2026-10-30) — 누를 때만 assets/ad25.js 를 불러온다. 자동 재생 없음. 가로(16:9)·세로(9:16, 좁은 화면) -->
+<!-- 소개 영상 창 (2026-10-31 모션그래픽 시안 · site-motion) — 누를 때만 영상 파일을 불러와 소리 켠 채로 재생(버튼을 눌러 여는 영상).
+     오른쪽 위 [소리 끄기] · 닫으면 바로 멈춤(소리도). 가로(16:9)·세로(9:16, 좁은 화면). 움직임 줄이기 = 자동 재생 없이 재생 단추만.
+     영상 = scripts/record_motion.mjs 로 만든 assets/motion_16x9.mp4 · motion_9x16.mp4 (효과음 Pixabay, 출처 iumm_internal/ads/motion_draft/sfx_sources.txt) -->
 <style>
 .ad-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(6,15,28,0.88)}
 .ad-modal[hidden]{display:none}
 .ad-dlg{position:relative;width:min(92vw,calc((88vh - 76px) * 16 / 9))}
 .ad-modal.v .ad-dlg{width:min(calc(100vw - 32px),calc((92vh - 76px) * 9 / 16))}
-.ad-screen{width:100%;background:#0F2540}
+.ad-screen{position:relative;width:100%;background:#0F2540}
+.ad-screen video{display:block;width:100%;aspect-ratio:16/9;background:#0F2540}
+.ad-modal.v .ad-screen video{aspect-ratio:9/16}
+.ad-snd{position:absolute;right:10px;top:10px;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(15,37,64,0.72);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.ad-snd:hover{background:rgba(15,37,64,0.92)}
+.ad-snd svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ad-snd .off{display:none}.ad-snd[aria-pressed="true"] .on{display:none}.ad-snd[aria-pressed="true"] .off{display:inline}
 .ad-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin-top:12px}
 .ad-bar .lp-btn{min-height:44px;padding:8px 20px;font-size:15px}
-.ad-bar [hidden]{display:none !important}  /* .lp-btn 의 display 가 hidden 을 덮지 않게 */
-.ad-bar .ad-n{min-width:52px;text-align:center;font-size:14px;font-weight:600;color:rgba(255,255,255,0.8)}
 .ad-x{position:absolute;right:0;top:-48px;width:44px;height:44px;border:0;border-radius:6px;background:transparent;color:#fff;font-size:30px;line-height:1;cursor:pointer}
 .ad-x:hover{background:rgba(255,255,255,0.1)}
 .ad-modal :focus-visible{outline:3px solid #9DB7F5;outline-offset:3px}
-@media(max-width:640px){.ad-x{top:-46px}}
+.ad-err{padding:48px 20px;text-align:center;color:#fff}
+@media(max-width:640px){.ad-x{top:-46px}.ad-snd{min-height:36px;padding:0 10px;font-size:13px}}
 </style>
-<div class="ad-modal" id="ad-modal" role="dialog" aria-modal="true" aria-label="아이움 25초 소개 영상" hidden>
+<div class="ad-modal" id="ad-modal" role="dialog" aria-modal="true" aria-label="아이움 소개 영상" hidden>
   <div class="ad-dlg">
     <button type="button" class="ad-x" id="ad-close" aria-label="닫기">×</button>
-    <div class="ad-screen" id="ad-screen"></div>
+    <div class="ad-screen" id="ad-screen">
+      <video id="ad-video" playsinline preload="none"></video>
+      <button type="button" class="ad-snd" id="ad-snd" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="off" d="M17 9l5 6M22 9l-5 6"/></svg><span id="ad-snd-t">소리 끄기</span></button>
+    </div>
     <div class="ad-bar">
-      <button type="button" class="lp-btn line" id="ad-prev" hidden>이전</button>
-      <span class="ad-n" id="ad-n" hidden></span>
-      <button type="button" class="lp-btn line" id="ad-next" hidden>다음</button>
       <button type="button" class="lp-btn line" id="ad-replay">다시 보기</button>
+      <button type="button" class="lp-btn" id="ad-free">무료 테스트 번역 신청</button>
     </div>
   </div>
 </div>
 <script>
-/* 25초 소개 영상 창 — 열 때 assets/ad25.js 를 한 번만 불러와 처음부터 재생(움직임 줄이기 = 정지 화면 + 이전·다음).
-   닫기: × · Esc · 바깥 누르기. 끝 화면 [무료 테스트 번역 신청] → 창을 닫고 기존 openFreeTest() */
+/* 소개 영상 창 — 열 때 영상 파일을 고르고(가로·세로) 처음부터 소리 켠 채 재생. 브라우저가 소리 재생을 막으면 소리 없이 재생하고 [소리 켜기].
+   닫기: × · Esc · 바깥 누르기 → 바로 멈춤. [무료 테스트 번역 신청] → 창을 닫고 기존 openFreeTest() */
 (function(){
-  var modal = document.getElementById('ad-modal'), screen = document.getElementById('ad-screen');
-  var prev = document.getElementById('ad-prev'), next = document.getElementById('ad-next'), num = document.getElementById('ad-n');
-  var ctl = null, back = null, loading = null;
+  var modal = document.getElementById('ad-modal'), video = document.getElementById('ad-video');
+  var snd = document.getElementById('ad-snd'), sndT = document.getElementById('ad-snd-t'), back = null;
   function reduce(){ try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; } }
   function vertical(){ try { return matchMedia('(max-width: 640px)').matches || innerHeight > innerWidth * 1.1; } catch(e){ return false; } }
-  function load(){
-    if (window.IUMMAd) return Promise.resolve();
-    return loading || (loading = new Promise(function(ok, no){
-      var s = document.createElement('script'); s.src = 'assets/ad25.js'; s.onload = ok; s.onerror = function(){ loading = null; no(); };
-      document.head.appendChild(s);
-    }));
+  function sound(){ snd.setAttribute('aria-pressed', video.muted ? 'true' : 'false'); sndT.textContent = video.muted ? '소리 켜기' : '소리 끄기'; }
+  function play(){
+    var p = video.play();
+    // 브라우저가 소리 재생을 막은 경우(NotAllowedError)만 소리 없이 다시 — 닫아서 멈춘 경우(AbortError)는 그대로 둔다
+    if (p && p.catch) p.catch(function(e){
+      if (modal.hidden || !e || e.name !== 'NotAllowedError') return;
+      video.muted = true; sound(); var q = video.play(); if (q && q.catch) q.catch(function(){ video.controls = true; });
+    });
   }
-  function label(){ num.textContent = (ctl.index() + 1) + ' / ' + ctl.scenes; prev.disabled = ctl.index() === 0; next.disabled = ctl.index() === ctl.scenes - 1; }
   window.openAd = function(){
     back = document.activeElement && document.activeElement !== document.body ? document.activeElement : document.getElementById('ad-open');
-    var still = reduce(), v = vertical();
+    var v = vertical(), still = reduce(), o = v ? '9x16' : '16x9', src = 'assets/motion_' + o + '.mp4';
     modal.classList.toggle('v', v); modal.hidden = false;
-    [prev, next, num].forEach(function(b){ b.hidden = !still; });
+    if (video.getAttribute('src') !== src) { video.poster = 'assets/motion_poster_' + o + '.jpg'; video.src = src; }
+    video.controls = still; video.muted = false; sound();
+    try { video.currentTime = 0; } catch(e){}
     document.getElementById('ad-close').focus();
-    load().then(function(){
-      if (modal.hidden) return;
-      if (ctl) ctl.destroy();
-      ctl = IUMMAd.mount(screen, { orient: v ? '9x16' : '16x9', still: still, onFreeTest: function(){ closeAd(); openFreeTest(); } });
-      if (still) label(); else ctl.play();
-    }, function(){ screen.textContent = '영상을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'; });
+    if (!still) play();   // 움직임 줄이기면 저절로 재생하지 않음(재생 단추)
   };
   window.closeAd = function(){
     if (modal.hidden) return;
-    if (ctl) { ctl.destroy(); ctl = null; }
+    video.pause();   // 소리도 바로 멈춤
+    try { video.currentTime = 0; } catch(e){}
     modal.hidden = true;
     if (back && back.focus) back.focus();
   };
+  video.addEventListener('error', function(){
+    if (!video.getAttribute('src')) return;
+    var s = document.getElementById('ad-screen'); if (!s.querySelector('.ad-err')) { var m = document.createElement('p'); m.className = 'ad-err'; m.textContent = '영상을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'; s.appendChild(m); }
+  });
+  snd.addEventListener('click', function(){ video.muted = !video.muted; sound(); if (video.paused && !video.controls) play(); });
   document.getElementById('ad-close').addEventListener('click', closeAd);
-  document.getElementById('ad-replay').addEventListener('click', function(){ if (ctl) { ctl.replay(); if (num.hidden === false) label(); } });
-  prev.addEventListener('click', function(){ if (ctl) { ctl.go(ctl.index() - 1); label(); } });
-  next.addEventListener('click', function(){ if (ctl) { ctl.go(ctl.index() + 1); label(); } });
+  document.getElementById('ad-replay').addEventListener('click', function(){ try { video.currentTime = 0; } catch(e){} play(); });
+  document.getElementById('ad-free').addEventListener('click', function(){ closeAd(); openFreeTest(); });
   modal.addEventListener('click', function(e){ if (e.target === modal) closeAd(); });
   document.addEventListener('keydown', function(e){
     if (modal.hidden) return;
     if (e.key === 'Escape') closeAd();
     if (e.key === 'Tab') {   // 창 안에서만 이동
-      var f = [].filter.call(modal.querySelectorAll('button'), function(b){ return !b.hidden && !b.disabled && b.offsetParent; });
+      var f = [].filter.call(modal.querySelectorAll('button, video[controls]'), function(b){ return !b.hidden && !b.disabled && b.offsetParent; });
       if (!f.length) return;
       if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
       else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }

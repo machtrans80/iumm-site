@@ -180,9 +180,12 @@ console.log('\n[엔진] 아이움 AI 엔진 표기 · FAQ · 품질 점수 배�
   walk(ROOT);
   const bad = files.flatMap((f) => { const t = fs.readFileSync(f, 'utf8'); return [...t.matchAll(/아이움 ?AI(?! 엔진)/g)].map((m) => path.relative(ROOT, f) + ':' + t.slice(0, m.index).split('\n').length); });
   check(files.length > 5 && bad.length === 0, `고객 화면에 '아이움 AI' 단독 표기 없음 — 파일 ${files.length}개 검사${bad.length ? ' · 남은 곳 ' + bad.join(', ') : ''}`);
-  check(!/엔진 엔진|엔진<\/span> 엔진/.test(html) && !/엔진 엔진/.test(fs.readFileSync(path.join(ROOT, 'assets/ad25.js'), 'utf8')), "'엔진 엔진' 중복 없음");
+  check(!/엔진 엔진|엔진<\/span> 엔진/.test(html) && !/엔진 엔진/.test(fs.readFileSync(path.join(ROOT, 'scripts/motion20.js'), 'utf8')), "'엔진 엔진' 중복 없음");
   check(['<meta name="description" content="아이움 AI 엔진은', '<meta property="og:description" content="아이움 AI 엔진은', '<meta name="twitter:description" content="아이움 AI 엔진은'].every((x) => html.includes(x)), '메타 설명 · OG · 트위터 문구');
-  check(/<div class="k mb">아이움 AI 엔진<\/div>/.test(fs.readFileSync(path.join(ROOT, 'assets/ad25.js'), 'utf8')), '25초 소개 영상 장면 2 — 아이움 AI 엔진');
+  { const mv = fs.readFileSync(path.join(ROOT, 'scripts/motion20.js'), 'utf8');
+    check(!/아이움 ?AI(?! 엔진)/.test(mv) && !/thirty \(30\)/.test(mv) && mv.includes("'within 30 days'"), "20초 소개 영상 문구 — 단독 '아이움 AI' 없음 · 원문 '30일' → 'within 30 days'(괄호·글자 표기 덧붙이지 않음)"); }
+  check(!fs.existsSync(path.join(ROOT, 'assets/ad25.js')) && !fs.existsSync(path.join(ROOT, 'scripts/record_ad.mjs')), '예전 25초 영상 코드(ad25.js · record_ad.mjs) 없음');
+  check(!/thirty \(30\)/.test(html), "대조 패널 — 원문이 숫자만('30일')이면 번역도 숫자만('30 days')");
   check(/번역 AI<\/span>[\s\S]{0,200}검수 AI<\/span>/.test(land), "흐름의 '번역 AI ⇄ 검수 AI' 역할 이름은 그대로"); }
 { const E = '<span class="ko-nw">아이움 AI 엔진</span>';
   const A = '<p>' + E + '과 전문 번역가가 한 팀으로 번역합니다.</p><p>' + E + '은 아이움이 직접 설계한 전용 번역 엔진입니다. 여러 AI에 번역·검수·원문 대조 역할을 나눠 맡겨 서로의 결과를 검증하게 하고, 분야별 번역 기준과 축적된 용어로 최적화했습니다. 내부 품질 평가 100건 실측 결과 평균 <span class="ko-nw">95~99점</span>을 기록했습니다 (2026년 <span class="ko-nw">8~10월</span> 기준).</p><p>고객 문서는 AI 학습에 쓰이지 않으며 외부에 공개되지 않고, 개인정보는 유출·노출되지 않도록 자동으로 가려진 상태로 번역이 시작됩니다.</p><p>마지막으로 담당자가 최종 휴먼터치로 마무리하고, 프리미엄 플러스는 전문 번역가가 최종 확인합니다.</p>';
@@ -544,8 +547,8 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   const txt = (h) => h.replace(/<[^>]+>/g, '');
   const pane = (id) => { const m = hero.match(new RegExp('<div class="cmp-pane" id="cmp-p-' + id + '"[\\s\\S]*?<div class="cmp-col" lang="ko">[\\s\\S]*?<p class="cmp-s mb">([\\s\\S]*?)</p></div>\\s*<div class="cmp-col" lang="en">[\\s\\S]*?<p class="cmp-s mb">([\\s\\S]*?)</p></div>')); return m ? [m[1], m[2]] : ['', '']; };
   const EX = {
-    contract: ['갑은 본 계약 체결일로부터 30일 이내에 계약금 5,000,000원을 을에게 지급한다.', 'Party A shall pay Party B a deposit of KRW 5,000,000 within thirty (30) days from the date of execution of this Agreement.',
-      [['갑', 'Party A'], ['을', 'Party B'], ['본 계약', 'this Agreement'], ['계약금', 'deposit']], [['30일', 'thirty (30) days'], ['5,000,000원', 'KRW 5,000,000']]],
+    contract: ['갑은 본 계약 체결일로부터 30일 이내에 계약금 5,000,000원을 을에게 지급한다.', 'Party A shall pay Party B a deposit of KRW 5,000,000 within 30 days from the date of execution of this Agreement.',
+      [['갑', 'Party A'], ['을', 'Party B'], ['본 계약', 'this Agreement'], ['계약금', 'deposit']], [['30일', '30 days'], ['5,000,000원', 'KRW 5,000,000']]],
     game: ['전설의 검을 얻으려면 북쪽 성채의 수호자를 쓰러뜨려야 한다.', 'To obtain the Legendary Sword, you must defeat the Guardian of the Northern Citadel.',
       [['전설의 검', 'Legendary Sword'], ['북쪽 성채', 'Northern Citadel'], ['수호자', 'Guardian']], []],
     manual: ['전원 코드를 뽑고 10분이 지난 뒤 필터를 분리하십시오.', 'Unplug the power cord and wait 10 minutes before removing the filter.',
@@ -560,7 +563,7 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   }
   check(/<span class="cmp-tag">예시<\/span>/.test(hero) && (hero.match(/role="tab"/g) || []).length === 3 && /aria-selected="true">계약서</.test(hero) && /id="cmp-p-game"[^>]*hidden/.test(hero) && /id="cmp-p-manual"[^>]*hidden/.test(hero),
     "패널 '예시' 표시 · 탭 계약서/게임/매뉴얼 (기본 계약서, JS 없이도 계약서가 보임)");
-  check(/\.lp-cmp \.t,\.lp-cmp \.n\{white-space:nowrap\}/.test(html), '대조 패널 밑줄·테두리 묶음(KRW 5,000,000 · thirty (30) days 등)은 줄 중간에서 안 갈라짐');
+  check(/\.lp-cmp \.t,\.lp-cmp \.n\{white-space:nowrap\}/.test(html), '대조 패널 밑줄·테두리 묶음(KRW 5,000,000 · 30 days 등)은 줄 중간에서 안 갈라짐');
   check(txt(hero.match(/<ul class="cmp-checks">[\s\S]*?<\/ul>/)[0]).replace(/\s+/g, ' ').trim() === '용어 일치 숫자 대조 최종 휴먼터치', '패널 아래 확인 3개 — 용어 일치 · 숫자 대조 · 최종 휴먼터치');
   check(hero.indexOf('id="lp-entry"') < hero.indexOf('id="lp-cmp"') && /@media\(min-width:1024px\)\{\s*\.lp-hero \.lp\{display:grid;grid-template-columns:minmax\(0,1\.2fr\) minmax\(0,1fr\)/.test(html) && /\.cmp-row\{grid-template-columns:1fr;gap:18px\}/.test(html),
     '데스크톱 = 글 왼쪽·패널 오른쪽 / 모바일 = 글 아래 패널, 원문 위·번역 아래');
