@@ -43,12 +43,16 @@ check(!/id="promise"|세 가지 약속|lp-promise/.test(html) && !/href="#promis
   check(secBg('team') === 'lp-sec' && secBg('iumm-about') === 'lp-sec tight' && secBg('process') === 'lp-sec band' && secBg('field-standards') === 'lp-sec' &&
         secBg('business') === 'lp-sec pale' && secBg('pricing') === 'lp-sec' && secBg('faq-summary') === 'lp-sec lp-faq' && /class="lp-final" id="cta-final"/.test(land),
     '구역 배경 순서 — 남색 → 오프화이트(번역팀·왜 아이움) → 남색 띠(과정) → 오프화이트(분야) → 페일 블루(이유) → 오프화이트(요금·FAQ) → 남색'); }
-const curFlow = land.slice(land.search(/<div class="v3-cur">\s*<h2 class="lp-h2 mb">단순 AI 번역이 아닙니다<\/h2>/));
-check(curFlow.length < land.length && (curFlow.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 9, "현재 번역 과정 9단계 · 큰 제목 '단순 AI 번역이 아닙니다'");
-check(land.includes('<p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 최종 휴먼터치로 완성합니다.</p>') && (land.match(/<div class="lp-relay" role="img"/g) || []).length === 2 && /\.lp-relay \.c\{[^}]*stroke:var\(--v-gold\)/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-relay\{flex-direction:column/.test(html),
-  '과정 부제(번역 AI·검수 AI 반박) · 흐름 그림(번역 AI ⇄ 검수 AI → 근거 확인 → 최종 휴먼터치, 금색 선·화살표, 모바일 세로) — 현재·V3');
-check(land.includes('<span class="d">번역을 맡은 AI가 분야별 기준에 맞춰 옮깁니다.</span>') && land.includes('<span class="d">번역에 참여하지 않은 다른 AI가 원문을 근거로 오역·누락·숫자를 짚어 냅니다.</span>') && land.includes('<span class="d">중요한 지적마다 번역한 AI가 근거를 따져 받아들이거나 반박하고, 확인된 지적만 반영합니다.</span>'), '3~5단계 = V2 코드(번역 모델 · 다른 회사 검수 모델 · 치명·중대 반론)');
-check(land.includes('<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다</h2>\n    <p class="lp-sub">번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 했습니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 최종 휴먼터치로 완성합니다.</p>'), 'V3 10단계 제목 아래 같은 부제');
+const curFlow = land.slice(land.search(/<div class="v3-cur">\s*<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다<\/h2>/));
+check(curFlow.length < land.length && (curFlow.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, "번역 과정 10단계(아이움 AI 엔진, 2026-11-01 공개) · 큰 제목 '한 문장이 10단계를 거쳐 납품됩니다'");
+check(land.includes('<p class="lp-sub">아이움 AI 엔진은 번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 합니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 최종 휴먼터치로 완성합니다.</p>') && (land.match(/<div class="lp-relay" role="img"/g) || []).length === 1 && /\.lp-relay \.c\{[^}]*stroke:var\(--v-gold\)/.test(html) && /@media\(max-width:640px\)\{\s*\.lp-relay\{flex-direction:column/.test(html),
+  '과정 부제(아이움 AI 엔진 · 번역 AI·검수 AI 반박) · 흐름 그림(번역 AI ⇄ 검수 AI → 근거 확인 → 최종 휴먼터치, 금색 선·화살표, 모바일 세로)');
+{ const flow = curFlow.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0];
+  const names = [...flow.matchAll(/<span class="t">([^<]+)<\/span>/g)].map((m) => m[1]);
+  check(names.join('|') === '문서 분석|용어 고정|분야별 번역|교차 검수|반론과 수정|판정|역번역 대조|일관성 점검|품질 점수|최종 휴먼터치', `10단계 이름 = V3 코드 순서 (${names.join('·')})`);
+  check(flow.includes('스탠다드는 담당자가, 프리미엄 플러스는 전문 번역가가') && flow.includes('문장 안에서') && !/95점|\d+점/.test(flow), '최종 휴먼터치(스탠다드 담당자·프리미엄 플러스 전문 번역가) · 문장 안에서 다듬기 · 점수 기준 숫자 없음');
+  check(!/영어|한국어 → |언어별/.test(flow), '전 언어 같은 설명(언어 이름 없음)'); }
+check(land.includes('<h2 class="lp-h2 mb">한 문장이 10단계를 거쳐 납품됩니다</h2>\n    <p class="lp-sub">아이움 AI 엔진은 번역하는 AI와 검수하는 AI를 따로 두고, 서로 반박하게 합니다. 중요한 지적은 근거를 따져 맞는 것만 반영하고, 마지막은 최종 휴먼터치로 완성합니다.</p>'), '10단계 제목 아래 부제(아이움 AI 엔진)');
 check(!/class="lp-label"|class="lp-kicker"/.test(html), '구역 제목 위 작은 라벨 없음');
 check(land.includes('<li>IGDA 게임 현지화 모범 사례</li>') && land.includes('<li>IEC/IEEE 82079-1 (사용 정보 작성 표준)</li>') && !land.includes('STD_'), '게임·매뉴얼 기준 배지 = 스타일시트 반영분');
 check((land.match(/<button type="button" class="lp-field[ "]/g) || []).length === 8 && land.includes('<details class="lp-other">') && land.includes('그 밖의 분야(비즈니스 · 마케팅 · 공공 등)도 분야별 기준으로 번역합니다.'), '분야 칸 8개(button) + 그 밖의 분야 접기');
@@ -142,7 +146,7 @@ check(!fs.readFileSync(path.resolve(HERE, '../sitemap.xml'), 'utf8').includes('/
 console.log('\n[5] 문구 원칙');
 check(!/자동 번역|기계 번역|AI 도구|돌린다|돌려서|모든 문장을/.test(landVis), 'AI 도구 표현 · 사람 일 부풀리기 없음');
 check(!/사법공조|진술조서|수사|GPT|Claude|Gemini|프롬프트|원가|최고|최저|유일|1위/.test(landVis), '모델 이름·수사·원가·최상급 표현 없음');
-check(!/용어 고정|역번역|95점|별의 기사|Starblade|귀사의 용어를 기억|품질 리포트/.test(landVis), '아직 없는 기능 문구 없음(later_copy.md 보관분)');
+check(!/95점|별의 기사|Starblade|귀사의 용어를 기억|품질 리포트/.test(landVis), '아직 없는 기능 문구 없음(later_copy.md 보관분 · 용어 고정·역번역은 2026-11-01 V3 공개)');
 check(land.includes('<p class="lp-slogan" lang="en">Faithful to every word.</p>') && !/\.lp-slogan b\{/.test(html), "영문 한 줄 'Faithful to every word.' (첫 글자 강조 없음)");
 { // 2026-10-31 문구 개편 — 제목·공유 미리보기·바닥글 · 옛 문구는 손님 화면에 없음(개인정보처리방침 본문·주석 제외)
   const NEWT = 'IUMM 아이움 — 한 단어도 허투루 옮기지 않습니다';
@@ -154,7 +158,7 @@ check(land.includes('<p class="lp-slogan" lang="en">Faithful to every word.</p>'
     "손님 화면(숨김·V3 포함, 처리방침 본문 제외)에 '두 전문가'·'AI에 보내기 전'·'처리 전에 자동으로 가립'·'Intelligence Unites'·'Mind & Machine'·'완전 삭제' 없음");
   check((cust.match(/자동으로 가려진 상태로 번역이 시작/g) || []).length >= 8 && !/전문 번역가가 마지막으로 확인/.test(cust), "가림 문구 = '자동으로 가려진 상태로 번역이 시작' · '전문 번역가가 마지막으로 확인' 없음");
   check(land.includes('<td class="me" data-h="아이움">유출·노출되지 않도록 자동으로 가려진 상태로 번역이 시작됩니다</td>') && land.includes('<td class="me" data-h="아이움">담당자가 최종 휴먼터치로 마무리합니다(프리미엄 플러스는 전문 번역가가 최종 확인)</td>'), '비교표 아이움 칸 — 가림 · 마무리(플랜 구분)');
-  check((land.match(/<span class="t">최종 휴먼터치<\/span><span class="d">담당자가 마지막으로 다듬어 납품합니다\. 프리미엄 플러스는 전문 번역가가 최종 확인합니다\./g) || []).length === 2 && (land.match(/<span class="n">최종 휴먼터치<\/span>/g) || []).length === 2 && land.includes('확인합니다. 확정된 용어는 귀사 전용 용어집에 쌓여 다음 주문으로 이어집니다.</span>'), "과정 마지막 단계 '최종 휴먼터치'(V2·V3) · 흐름 그림 끝 · V3 용어 축적 문장 유지");
+  check((land.match(/<span class="t">최종 휴먼터치<\/span><span class="d">스탠다드는 담당자가, 프리미엄 플러스는 전문 번역가가 마지막으로 다듬어 납품합니다\.<\/span>/g) || []).length === 1 && (land.match(/<span class="n">최종 휴먼터치<\/span>/g) || []).length === 1, "과정 마지막 단계 '최종 휴먼터치'(스탠다드 담당자 · 프리미엄 플러스 전문 번역가) · 흐름 그림 끝");
   check((land.match(/담당자가 최종 휴먼터치로 마무리하고, 프리미엄 플러스는 전문 번역가가 최종 확인합니다/g) || []).length === 2 && (html.match(/담당자가 최종 휴먼터치로 마무리하고, 프리미엄 플러스는 전문 번역가가 최종 확인합니다/g) || []).length === 4, 'FAQ(메인·전체) 최종 확인 문장 = 플랜 구분'); }
 check(land.includes('<p class="lp-trust">SINCE 2011 · 32개 언어 · 누적 1만 건 이상</p>'), '신뢰 표시 한 줄');
 { const pairs = (html.match(/<select id="lang-select"[\s\S]*?<\/select>/)[0].match(/<option[^>]*>한국어 → [^<]+<\/option>/g) || []).length;
@@ -191,8 +195,8 @@ console.log('\n[엔진] 아이움 AI 엔진 표기 · FAQ · 품질 점수 배�
   const A = '<p>' + E + '과 전문 번역가가 한 팀으로 번역합니다.</p><p>' + E + '은 아이움이 직접 설계한 전용 번역 엔진입니다. 여러 AI에 번역·검수·원문 대조 역할을 나눠 맡겨 서로의 결과를 검증하게 하고, 분야별 번역 기준과 축적된 용어로 최적화했습니다. 내부 품질 평가 100건 실측 결과 평균 <span class="ko-nw">95~99점</span>을 기록했습니다 (2026년 <span class="ko-nw">8~10월</span> 기준).</p><p>고객 문서는 AI 학습에 쓰이지 않으며 외부에 공개되지 않고, 개인정보는 유출·노출되지 않도록 자동으로 가려진 상태로 번역이 시작됩니다.</p><p>마지막으로 담당자가 최종 휴먼터치로 마무리하고, 프리미엄 플러스는 전문 번역가가 최종 확인합니다.</p>';
   check(land.includes('<summary>AI 번역인가요?</summary>' + A + '</details>') && html.includes('AI 번역인가요?<span class="faq-arrow">▼</span></div>\n        <div class="faq-a">' + A + '</div>'), "FAQ 'AI 번역인가요?' 새 답변 4문단 — 랜딩·전체 FAQ 둘 다");
   const badges = land.match(/<p class="lp-score">[^\n]*<\/p>/g) || [];
-  check(badges.length === 2 && badges.every((b) => b === '<p class="lp-score"><span class="ko-nw">내부 품질 평가 100건 실측</span><span class="sep" aria-hidden="true">·</span><span class="ko-nw">평균 <b class="mb">95~99점</b></span><small class="ko-nw">2026년 8~10월 기준</small></p>'), '품질 점수 배지 — 현재 화면·V3 흐름 아래 (숫자만 강조, 기준 작게)');
-  check([...land.matchAll(/<\/div>\n    <p class="lp-score">/g)].length === 2 && land.indexOf('<p class="lp-score">') > land.indexOf('<div class="lp-relay"'), '배지 위치 = 번역 과정 흐름 바로 아래');
+  check(badges.length === 1 && badges.every((b) => b === '<p class="lp-score"><span class="ko-nw">내부 품질 평가 100건 실측</span><span class="sep" aria-hidden="true">·</span><span class="ko-nw">평균 <b class="mb">95~99점</b></span><small class="ko-nw">2026년 8~10월 기준</small></p>'), '품질 점수 배지 — 번역 과정 흐름 아래 (숫자만 강조, 기준 작게)');
+  check([...land.matchAll(/<\/div>\n    <p class="lp-score">/g)].length === 1 && land.indexOf('<p class="lp-score">') > land.indexOf('<div class="lp-relay"'), '배지 위치 = 번역 과정 흐름 바로 아래');
   check(/\.ko-nw\{white-space:nowrap\}/.test(html), "'95~99점' · '8~10월' · '아이움 AI 엔진' 은 줄 중간에서 안 쪼갬");
   const vis = land.replace(/<!--[\s\S]*?-->/g, '').replace(/<[^>]+>/g, ' ');
   check(!/최저가|최고|완벽/.test(vis), "'최저가 · 최고 · 완벽' 표현 없음"); }
@@ -515,16 +519,15 @@ console.log('\n[V3] 공개 스위치');
 {
   check(/var SHOW_V3 = false;/.test(land), 'SHOW_V3 = false (이번 작업은 꺼 둠)');
   const tpls = [...land.matchAll(/<template data-v3="(replace|insert)">([\s\S]*?)<\/template>/g)];
-  check(tpls.length === 5, 'V3 template 5개 (번역팀 카드 1 · 10단계 · 회사 기억 · 품질 리포트 카드 · FAQ 1)');
+  check(tpls.length === 5, 'V3 template 5개 (번역팀 카드 1 · 가상 예시 · 회사 기억 · 품질 리포트 카드 · FAQ 1)');
   const inT = tpls.map(m => m[2]).join('\n');
   const outT = land.replace(/<template[\s\S]*?<\/template>/g, '').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<!--[\s\S]*?-->/g, '');
-  for (const w of ['10단계', '귀사를 기억', '용어를 기억해', '별의 기사', '전용 용어집', '역번역', '판정'])
+  for (const w of ['귀사를 기억', '용어를 기억해', '별의 기사', '전용 용어집'])
     check(inT.includes(w) && !outT.includes(w), `V3 문구 '${w}' — template 안에만 (스위치 꺼짐 = 화면·검색 미노출)`);
-  check((inT.match(/<ol class="lp-flow10">[\s\S]*?<\/ol>/)[0].match(/<li>/g) || []).length === 10, 'V3 공정 10단계');
   check(/<span class="tag">예시<\/span>/.test(inT), "V3 가상 예시에 '예시' 표시");
   check(!/제출/.test(outT) && !/제출/.test(inT), "'제출' 표현 없음 (대상 독자·대상 시장)");
   const S1 = '<span class="t">문서 분석</span><span class="d">고객이 고른 분야와 문서 종류에 맞는 번역 기준을 적용합니다. 개인정보 번호는 자동으로 가려진 상태로 번역이 시작됩니다.</span>';
-  check(outT.includes(S1) && inT.includes(S1), "1단계 '문서 분석' = 코드 기준 문구 (V2·V3 같음)");
+  check(outT.includes(S1), "1단계 '문서 분석' = 코드 기준 문구");
   check(!/영국식|미국식|대상 시장|대상 독자|제출처|제출 국가/.test(html), "'영국식·미국식·대상 시장·대상 독자·제출처·제출 국가' 없음 (숨김·template 포함)");
   // 켜지는 조건 — 운영 주소는 ?v3=1 이 있어도 꺼짐, 브랜치 미리보기만 켜짐
   const sw = script.slice(script.indexOf('var SHOW_V3'), script.indexOf('/* 메인 랜딩 v2'));
