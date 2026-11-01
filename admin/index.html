@@ -3797,8 +3797,9 @@ async function loadReviewBudget() {
     var r = await fetch(API_BASE + '/api/admin/credit-budget', { headers: { 'Authorization': 'Bearer ' + adminToken() } });
     var b = await r.json();
     if (!b.ok) throw new Error(b.error || ('HTTP ' + r.status));
-    el.innerHTML = 'Claude 엔진 · 이번 주기 남은 예산 <strong>' + _usd(b.remaining) + '</strong> / ' + _usdCap(b.cap)
-      + (b.expires ? ' · 주기 만료 ' + String(b.expires).replace(/[<>&"']/g, '') : '') + (b.expired ? ' — 주기가 끝나 Claude 검수를 시작하지 않습니다' : '');
+    el.innerHTML = b.unlimited ? 'Claude 엔진 · 상한 없음 · 이번 달 사용액 <strong>' + _usd(b.monthSpent) + '</strong>'
+      : 'Claude 엔진 · 이번 주기 남은 예산 <strong>' + _usd(b.remaining) + '</strong> / ' + _usdCap(b.cap)
+        + (b.expires ? ' · 주기 만료 ' + String(b.expires).replace(/[<>&"']/g, '') : '');
   } catch (e) { el.textContent = ''; }
 }
 function _usd(n) { return '$' + (Number(n) || 0).toFixed(2); }
@@ -3846,7 +3847,7 @@ async function submitGptReview() {
       var ed = e1.data;
       if (e1.status !== 200 || !ed.ok) throw Object.assign(new Error(reviewErrorText(e1.status, ed)), { shown: true });
       var b = ed.budget || {};
-      est.textContent = '예상 비용 ' + _usd(ed.estimate && ed.estimate.usd) + ' · 남은 예산 ' + _usd(b.remaining) + ' / ' + _usdCap(b.cap != null ? b.cap : 50);
+      est.textContent = '예상 비용 ' + _usd(ed.estimate && ed.estimate.usd) + (b.unlimited ? ' · 상한 없음 · 이번 달 사용액 ' + _usd(b.monthSpent) : ' · 남은 예산 ' + _usd(b.remaining) + ' / ' + _usdCap(b.cap != null ? b.cap : 50));
       if (!ed.allowed) {
         est.textContent += ' — ' + (ed.message || '남은 예산이 부족해 실행하지 않습니다.');
         est.className = 'gr-estimate warn';

@@ -3,6 +3,7 @@
 //   → { ok, cap, spent, remaining, outsideCap, expires, rows:[{at,task,model,batch,calls,inTok,outTok,usd,inCap,memo}] }
 // inCap=false 인 줄은 상한을 정하기 전 사용분이라 합계에서 뺀다 → '상한 이전(합계 제외)' 표시.
 // 2026-11-01 크레딧 주기: 사용액·남은 예산은 이번 주기(cycleStart~cycleEnd) 기준. 표는 지난 주기 기록도 그대로 보여 준다.
+// 주기 만료 뒤(unlimited): 상한 없음 — '상한 없음 · 이번 달 사용액'(monthSpent)만 보여 준다.
 (function () {
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -19,7 +20,8 @@
       if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
       var cap = Number(j.cap) || 50;
       $('credit-spent').textContent = usd(j.spent);
-      $('credit-remaining').textContent = usd(j.remaining) + ' / $' + (cap % 1 === 0 ? cap.toFixed(0) : cap.toFixed(2));
+      $('credit-remaining').textContent = j.unlimited ? '상한 없음 · 이번 달 사용액 ' + usd(j.monthSpent)
+        : usd(j.remaining) + ' / $' + (cap % 1 === 0 ? cap.toFixed(0) : cap.toFixed(2));
       $('credit-expires').textContent = j.expires || '—';
       $('credit-note').textContent = Number(j.outsideCap) ? '상한을 정하기 전 사용 ' + usd(j.outsideCap) + ' 는 합계에서 뺐습니다.' : '';
       var rows = j.rows || [];

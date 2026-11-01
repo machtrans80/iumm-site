@@ -89,6 +89,7 @@ const MOCK = String.raw`(() => {
       return J(Object.assign({ ok: true, score: 92, summary: '전체적으로 좋습니다.', revisedTranslation: 'Revised text', changes: [{ paragraph: 1, before: 'pilot use', after: 'pilot operation', reason: '용어 통일' }],
         processingTimeMs: 3000, engine: eng }, eng === 'claude' ? { costUsd: 0.11 } : {}));
     }
+    if (p === '/api/admin/credit-budget' && S.unlimited) return J({ ok: true, cap: null, remaining: null, unlimited: true, expired: true, spent: 60, monthSpent: 7.25, outsideCap: 0, expires: '2026-11-12', rows: [] });
     if (p === '/api/admin/credit-budget') return J({ ok: true, cap: 50, spent: 3.5, remaining: 46.5, outsideCap: 1.2, expires: '2026-11-12',
       rows: [{ at: '2026-10-30T10:00:00Z', task: '용어 확정', model: 'claude-opus', batch: true, calls: 12, inTok: 50000, outTok: 9000, usd: 2.1, inCap: true, memo: '' },
              { at: '2026-10-20T10:00:00Z', task: '시험 호출', model: 'claude-opus', batch: false, calls: 1, inTok: 100, outTok: 50, usd: 1.2, inCap: false, memo: '상한 전' }] });
@@ -273,6 +274,11 @@ try {
   check(await until(`/\\$3\\.50/.test(document.getElementById('credit-spent').textContent)`), '크레딧 사용 기록: 사용액 $3.50');
   check(await ev(`document.getElementById('credit-remaining').textContent === '$46.50 / $50' && document.getElementById('credit-expires').textContent === '2026-11-12'`), '남은 예산 $46.50 / $50 · 만료일 2026-11-12');
   check(await ev(`document.querySelectorAll('#credit-tbody tr').length === 2 && /상한 이전\\(합계 제외\\)/.test(document.querySelector('#credit-tbody tr.credit-out').textContent)`), "표 2줄 · inCap=false 줄에 '상한 이전(합계 제외)'");
+  await ev(`window.__mock.unlimited = true, loadCreditBudget(), 1`);
+  check(await until(`document.getElementById('credit-remaining').textContent === '상한 없음 · 이번 달 사용액 $7.25'`), "주기 만료 뒤: '상한 없음 · 이번 달 사용액'");
+  await ev(`loadReviewBudget(), 1`);
+  check(await until(`document.getElementById('review-budget').textContent.includes('상한 없음 · 이번 달 사용액 $7.25')`), '주기 만료 뒤 검수 화면도 상한 없음 표시');
+  await ev(`window.__mock.unlimited = false, loadCreditBudget(), 1`);
 
   await click('#tab-ls');
   check(await until(`document.getElementById('ls-wrap').style.display === 'block' && document.querySelectorAll('#ls-tbody tr').length === 2`), '언어별 점수판: 열림 · 언어 방향 2줄 (/api/admin/v3-scores)');
