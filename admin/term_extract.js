@@ -31,8 +31,8 @@
   }
   function budgetLine(b) {
     if (!b) return '';
-    return '남은 예산 <strong>' + usd(b.remaining) + '</strong> / ' + usdCap(b.cap != null ? b.cap : 50)
-      + ' · 사용 ' + usd(b.spent) + (b.expires ? ' · 크레딧 만료 ' + esc(b.expires) : '');
+    return '이번 주기 남은 예산 <strong>' + usd(b.remaining) + '</strong> / ' + usdCap(b.cap != null ? b.cap : 50)
+      + ' · 사용 ' + usd(b.spent) + (b.expires ? ' · 주기 만료 ' + esc(b.expires) : '') + (b.expired ? ' — 주기가 끝나 시작하지 않습니다' : '');
   }
 
   // 언어쌍 — 우회 번역 폼의 '번역 방향' 목록을 그대로 쓴다. 보낼 값은 "한국어→영어" (공백 없이)
@@ -160,7 +160,7 @@
         +   '<div><span>예상 비용</span><strong id="tx-est-usd">' + usd(e.usd) + '</strong></div>'
         +   '<div><span>남은 예산 / 상한</span><strong id="tx-est-remaining">' + usd(b.remaining) + ' / ' + usdCap(b.cap != null ? b.cap : 50) + '</strong></div>'
         + '</div>'
-        + '<p class="tx-note">' + esc(e.model || '') + (e.batch ? ' · 배치 처리' : '') + (b.expires ? ' · 크레딧 만료 ' + esc(b.expires) : '') + '</p>';
+        + '<p class="tx-note">' + esc(e.model || '') + (e.batch ? ' · 배치 처리' : '') + (b.expires ? ' · 주기 만료 ' + esc(b.expires) : '') + '</p>';
       $('tx-estimate').style.display = 'block';
       $('tx-budget').innerHTML = budgetLine(b);
       if (d.allowed && (d.docs || []).length) {
