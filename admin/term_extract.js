@@ -31,8 +31,9 @@
   }
   function budgetLine(b) {
     if (!b) return '';
+    if (b.unlimited) return '상한 없음 · 이번 달 사용액 <strong>' + usd(b.monthSpent) + '</strong>' + (b.expires ? ' (크레딧 주기 ' + esc(b.expires) + ' 만료)' : '');
     return '이번 주기 남은 예산 <strong>' + usd(b.remaining) + '</strong> / ' + usdCap(b.cap != null ? b.cap : 50)
-      + ' · 사용 ' + usd(b.spent) + (b.expires ? ' · 주기 만료 ' + esc(b.expires) : '') + (b.expired ? ' — 주기가 끝나 시작하지 않습니다' : '');
+      + ' · 사용 ' + usd(b.spent) + (b.expires ? ' · 주기 만료 ' + esc(b.expires) : '');
   }
 
   // 언어쌍 — 우회 번역 폼의 '번역 방향' 목록을 그대로 쓴다. 보낼 값은 "한국어→영어" (공백 없이)
@@ -158,7 +159,7 @@
         +   '<div><span>조각</span><strong>' + (e.chunks || 0) + '개</strong></div>'
         +   '<div><span>글자 수</span><strong>' + (Number(d.chars) || 0).toLocaleString() + '자</strong></div>'
         +   '<div><span>예상 비용</span><strong id="tx-est-usd">' + usd(e.usd) + '</strong></div>'
-        +   '<div><span>남은 예산 / 상한</span><strong id="tx-est-remaining">' + usd(b.remaining) + ' / ' + usdCap(b.cap != null ? b.cap : 50) + '</strong></div>'
+        +   '<div><span>남은 예산 / 상한</span><strong id="tx-est-remaining">' + (b.unlimited ? '상한 없음 · 이번 달 ' + usd(b.monthSpent) : usd(b.remaining) + ' / ' + usdCap(b.cap != null ? b.cap : 50)) + '</strong></div>'
         + '</div>'
         + '<p class="tx-note">' + esc(e.model || '') + (e.batch ? ' · 배치 처리' : '') + (b.expires ? ' · 주기 만료 ' + esc(b.expires) : '') + '</p>';
       $('tx-estimate').style.display = 'block';
