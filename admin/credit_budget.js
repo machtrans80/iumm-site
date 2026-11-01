@@ -1,7 +1,8 @@
 // 크레딧 사용 기록 (2026-10-31) — 메뉴 '기록 › 크레딧 사용 기록'
 // 서버(iumm-pipeline): GET /api/admin/credit-budget
 //   → { ok, cap, spent, remaining, outsideCap, expires, rows:[{at,task,model,batch,calls,inTok,outTok,usd,inCap,memo}] }
-// inCap=false 인 줄은 상한(US$50)을 정하기 전 사용분이라 합계에서 뺀다 → '상한 이전(합계 제외)' 표시.
+// inCap=false 인 줄은 상한을 정하기 전 사용분이라 합계에서 뺀다 → '상한 이전(합계 제외)' 표시.
+// 2026-11-01 크레딧 주기: 사용액·남은 예산은 이번 주기(cycleStart~cycleEnd) 기준. 표는 지난 주기 기록도 그대로 보여 준다.
 (function () {
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }

@@ -220,6 +220,7 @@ try {
   check((await calls('^/api/notary/admin/shipping$')).length >= 1, '번역공증 작업 목록 API 그대로 (/api/notary/admin/shipping)');
   await click('#work-review');
   check(await ev(`document.getElementById('gpt-review-wrap').style.display === 'block' && document.getElementById('tab-gpt').classList.contains('active')`), '[검수] → 검수 화면');
+  check(await until(`document.getElementById('review-budget').textContent.includes('이번 주기 남은 예산 $46.50 / $50 · 주기 만료 2026-11-12')`), '검수 화면: 이번 주기 남은 예산 · 주기 만료일 표시');
 
   console.log('\n[3] 메뉴 묶음');
   const groups = await ev(`[...document.querySelectorAll('.menu-group')].map(g => ({ t: g.querySelector('.menu-group-title').textContent, items: [...g.querySelectorAll('.tab-btn')].map(b => b.id + ':' + [...b.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim()), shown: [...g.querySelectorAll('.tab-btn')].every(b => b.getClientRects().length) }))`);

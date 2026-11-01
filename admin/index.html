@@ -605,8 +605,8 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <button type="button" class="tab-btn" onclick="loadCreditBudget()">새로고침</button></div>
         <div class="credit-cards">
           <div class="credit-card"><div class="credit-k">사용액</div><div class="credit-v" id="credit-spent">—</div></div>
-          <div class="credit-card"><div class="credit-k">남은 예산 (US$50 기준)</div><div class="credit-v" id="credit-remaining">—</div></div>
-          <div class="credit-card"><div class="credit-k">크레딧 만료일</div><div class="credit-v" id="credit-expires">—</div></div>
+          <div class="credit-card"><div class="credit-k">이번 주기 남은 예산</div><div class="credit-v" id="credit-remaining">—</div></div>
+          <div class="credit-card"><div class="credit-k">주기 만료일</div><div class="credit-v" id="credit-expires">—</div></div>
         </div>
         <div id="credit-note" class="tx-note"></div>
         <div class="tbl-box">
@@ -1197,6 +1197,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <label class="engine-opt"><input type="radio" name="review-engine" id="review-engine-gpt" value="gpt" onchange="reviewEngineChanged()"> GPT (기존)</label>
         </div>
         <p class="gr-info" id="review-engine-info">번역한 AI와 다른 회사 AI로 검수하면 놓친 부분을 더 잘 찾습니다.</p>
+        <div id="review-budget" class="tx-budget"></div>
         <div id="review-estimate" class="gr-estimate" role="status"></div>
       </div>
 
@@ -1553,6 +1554,7 @@ function switchTab(tab) {
   document.getElementById('bypass-wrap').style.display = isBypass ? 'block' : 'none';
   document.getElementById('unassigned-wrap').style.display = isUnassigned ? 'block' : 'none';
   document.getElementById('gpt-review-wrap').style.display = isGptReview ? 'block' : 'none';
+  if (isGptReview) loadReviewBudget();   // 2026-11-01 이번 주기 남은 예산·만료일
   var failedWrap = document.getElementById('failed-wrap');
   if (failedWrap) failedWrap.style.display = isFailed ? 'block' : 'none';
   if (tab === 'reviewers') {
@@ -3785,6 +3787,19 @@ function reviewEngine() {
 function reviewEngineChanged() {
   var est = document.getElementById('review-estimate');
   if (est) { est.textContent = ''; est.className = 'gr-estimate'; }
+  loadReviewBudget();
+}
+// 이번 크레딧 주기 남은 예산·주기 만료일(2026-11-01) — 검수 화면을 열 때 · GET /api/admin/credit-budget
+async function loadReviewBudget() {
+  var el = document.getElementById('review-budget');
+  if (!el) return;
+  try {
+    var r = await fetch(API_BASE + '/api/admin/credit-budget', { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var b = await r.json();
+    if (!b.ok) throw new Error(b.error || ('HTTP ' + r.status));
+    el.innerHTML = 'Claude 엔진 · 이번 주기 남은 예산 <strong>' + _usd(b.remaining) + '</strong> / ' + _usdCap(b.cap)
+      + (b.expires ? ' · 주기 만료 ' + String(b.expires).replace(/[<>&"']/g, '') : '') + (b.expired ? ' — 주기가 끝나 Claude 검수를 시작하지 않습니다' : '');
+  } catch (e) { el.textContent = ''; }
 }
 function _usd(n) { return '$' + (Number(n) || 0).toFixed(2); }
 function _usdCap(n) { n = Number(n) || 0; return '$' + (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)); }
@@ -3802,7 +3817,7 @@ async function adminPostJson(path, body) {
 function reviewErrorText(status, d) {
   d = d || {};
   if (status === 402 || d.error === 'budget_exceeded')
-    return d.message || 'Claude 크레딧 예산(US$50)을 넘어 검수를 시작하지 않았습니다. GPT(기존)를 고르거나 예산을 확인해 주세요.';
+    return d.message || 'Claude 크레딧 예산(이번 주기 상한)을 넘어 검수를 시작하지 않았습니다. GPT(기존)를 고르거나 예산을 확인해 주세요.';
   if (status === 503 || d.error === 'budget_unavailable')
     return d.message || '예산 기록을 확인하지 못해 Claude 검수를 시작하지 않았습니다. 잠시 뒤 다시 시도하거나 GPT(기존)를 골라 주세요.';
   if (status >= 500)
