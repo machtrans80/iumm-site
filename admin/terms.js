@@ -7,7 +7,7 @@
   'use strict';
 
   // 언어 방향은 서버 필터가 아니라 탭(VIEW.tab)으로 나눈다 — 탭마다 묶음 수를 세려면 전체가 필요
-  var TF = { field: '', docType: '', scope: '', status: '', biz: '', q: '' };
+  var TF = { field: '', docType: '', scope: '', status: '', sourceType: '', biz: '', q: '' };
   var VIEW = { tab: '', page: 1 };
   var PAGE_SIZE = 50;
   var FIXED_TABS = ['한국어→영어', '영어→한국어'];
@@ -66,6 +66,7 @@
       '<select style="' + inp + '" onchange="termsFilter(\'docType\',this.value)">' + opt(f.docType, TF.docType, '문서유형') + '</select>' +
       '<select style="' + inp + '" onchange="termsFilter(\'scope\',this.value)">' + opt(f.scope, TF.scope, '범위') + '</select>' +
       '<select style="' + inp + '" onchange="termsFilter(\'status\',this.value)">' + opt(f.status, TF.status, '상태') + '</select>' +
+      '<select style="' + inp + '" onchange="termsFilter(\'sourceType\',this.value)">' + opt(f.sourceType, TF.sourceType, '출처') + '</select>' +
       '<input style="' + inp + ';width:170px" placeholder="기업 (회사명·사업자번호)" value="' + esc(TF.biz) + '" onchange="termsFilter(\'biz\',this.value)">' +
       '<input style="' + inp + ';width:150px" placeholder="용어 검색" value="' + esc(TF.q) + '" onchange="termsFilter(\'q\',this.value)">' +
       '<span style="font-size:12px;color:rgba(255,255,255,0.45);margin-left:6px">' +
@@ -172,7 +173,8 @@
     else badges += '<span class="tbadge" style="color:' + (STATUS_COLOR[t.status] || '#fff') + '">' + esc(t.status) + '</span>';
     badges += '<span class="tbadge" style="color:' + SCOPE_COLOR[t.scope] + '">' + esc(t.scope) + (t.company ? ' · ' + esc(t.company) : '') + '</span>';
     if (t.locked) badges += '<span class="tbadge" style="color:rgba(255,255,255,0.55)" title="관리자가 직접 고른 결정 — 수정본 자동 승인이 바꾸지 않음">직접 결정</span>';
-    var sub = '등장 ' + t.count + ' · ' + esc(t.field || '분야 없음') + ' · ' + esc(t.docType || '') + ' · ' + day(t.lastAt) + (t.sourceType ? ' · ' + esc(t.sourceType) : '');
+    var sub = '등장 ' + t.count + ' · ' + esc(t.field || '분야 없음') + ' · ' + esc(t.docType || '') + ' · ' + day(t.lastAt) + (t.sourceType ? ' · ' + esc(t.sourceType) : '')
+      + (/^근거: /.test(t.memo || '') ? ' · ' + esc(t.memo) : '');   // 2026-11-01 용어 등급(근거: 공식 | 주소 / 근거: 관례 = 참고 용어)
     var acts = '', extra = '';
     if (t.status === '충돌') {
       var olds = (t.counterparts || []).map(function (o) {
@@ -359,7 +361,7 @@
     if (r.ok) { showToast('✅ ' + r.approved.length + '건 승인' + (r.skipped.length ? ' · 충돌 ' + r.skipped.length + '건 제외' : ''), 'success'); loadTerms(); }
   };
   window.termsShowCorp = function (bizNo) {
-    TF = { field: '', docType: '', scope: '기업전용', status: '', biz: bizNo, q: '' };
+    TF = { field: '', docType: '', scope: '기업전용', status: '', sourceType: '', biz: bizNo, q: '' };
     VIEW = { tab: '', page: 1 }; _hashRead = true;
     switchTab('terms');
   };
