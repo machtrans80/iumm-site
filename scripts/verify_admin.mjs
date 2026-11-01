@@ -66,7 +66,7 @@ const MOCK = String.raw`(() => {
       return J({ success: true, orders: [] });
     }
     if (p === '/api/admin/orders/hide') { const ids = (rec.json && rec.json.recordIds) || []; ids.forEach((i) => { S.hidden[i] = 1; }); return J({ ok: true, hiddenCount: ids.length }); }
-    if (p === '/api/admin/terms') return J({ ok: true, terms: [{ id: 't1', pair: '한국어→영어', source: '계약', target: 'contract', status: '승인', scope: '일반', count: 3, field: '법률', docType: '계약서', lastAt: '2026-10-20' }], facets: { field: ['법률'], docType: ['계약서'], scope: ['일반'], status: ['승인'] } });
+    if (p === '/api/admin/terms') return J({ ok: true, terms: [{ id: 't1', pair: '한국어→영어', source: '계약', target: 'contract', status: '승인', scope: '일반', count: 3, field: '법률', docType: '계약서', lastAt: '2026-10-20', sourceType: '용어구축', memo: '근거: 공식 | https://elaw.klri.re.kr/x' }], facets: { field: ['법률'], docType: ['계약서'], scope: ['일반'], status: ['승인'], sourceType: ['용어구축', '번역결과'] } });
     if (p === '/api/admin/reviewers/pending') return J({ success: true, reviewers: [{ id: 'r1', name: '김검수', grade: 'S', expertise: ['법률'], languages: ['영어'], phone: '010-0000-0000', signupAt: '2026-10-01' }] });
     if (p === '/api/admin/term-extract/options') return J({ ok: true, fields: [{ code: 'legal', name: '법률' }, { code: 'medical', name: '의료' }, { code: 'etc', name: '그 밖' }],
       scopes: [{ code: 'general', name: '일반' }, { code: 'corp', name: '기업전용' }, { code: 'internal', name: '내부전용' }], exts: ['pdf', 'docx', 'doc', 'xlsx', 'xls', 'txt'],
@@ -262,6 +262,10 @@ try {
   console.log('\n[4] 용어집 · 검수자');
   await click('#tab-terms');
   check(await until(`document.getElementById('terms-wrap').style.display === 'block' && /contract/.test(document.getElementById('terms-list').textContent)`), '용어집 열림 (가짜 용어 표시)');
+  check(await ev(`[...document.querySelectorAll('#terms-filters select')].some(x => /출처 전체/.test(x.textContent) && /용어구축/.test(x.textContent)) && document.getElementById('terms-list').textContent.includes('근거: 공식 | https://elaw')`), "용어집: '출처' 필터(용어구축) · 근거(공식 | 주소) 표시");
+  await ev(`termsFilter('sourceType', '용어구축'), 1`);
+  check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/terms' && /sourceType=%EC%9A%A9%EC%96%B4%EA%B5%AC%EC%B6%95/.test(c.q))`), "출처 '용어구축' 고르면 sourceType 으로 요청");
+  await ev(`termsFilter('sourceType', ''), 1`);
   await click('#tab-rv');
   check(await until(`!!document.querySelector('#rv-tbody tr[data-id="r1"]')`), '검수자 승인 목록 열림');
   await click('#tab-credit');
