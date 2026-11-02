@@ -812,6 +812,26 @@ try {
     check(card.t === '번역 중 · ③ 번역' && !card.load && card.msg, `번역실패 탭 번역 중 카드 — 배지 · 버튼 없음 (${card.t})`);
     await ev(`(window.__mock.failedExtra = [], delete window.__mock.running.recRUN2, 1)`);
 
+    // ── 본문 자동 삭제 뒤 빈 코멘트·빈 수정요청내역·빈 실패사유 (2026-11-02 코멘트 4칸도 함께 비움) ──
+    {
+      const e0 = errors.length;
+      await ev(`(window.__mock.failedExtra = [{ orderId: 'recEMP1', orderNumber: 'IUM-EMPTY-1', orderStatus: '번역실패', status: '번역실패', failReason: '', charCount: 0, direction: '한국어 → 영어' }], switchTab('failed'), 1)`);
+      await until(`/IUM-EMPTY-1/.test(document.getElementById('failed-list').textContent)`);
+      const fc = await ev(`(() => { const t = document.getElementById('failed-list').textContent; return { ok: /IUM-EMPTY-1/.test(t), undef: /undefined|null/.test(t) }; })()`);
+      check(fc.ok && !fc.undef, '빈 실패사유 — 번역실패 탭 카드가 오류·undefined 없이 보임');
+      await ev(`(window.__mock.failedExtra = [], 1)`);
+      await ev(`(switchTab('revisions'), 1)`); await sleep(300);
+      await ev(`(window._orders.unshift(
+        { orderId: 'recEMP2', orderNumber: 'IUM-EMPTY-2', plan: 'AI 프리미엄', charCount: 0, receivedAt: '2026-10-01T00:00:00Z', reviewerComment: '', failReason: '', revisionLog: [], revisionState: '재납품완료', revisionCount: 1, originalText: '', aiTranslation: '', gptFinalReview: '', reviewerTranslation: '' },
+        { orderId: 'recEMP3', orderNumber: 'IUM-EMPTY-3', plan: 'AI 프리미엄', charCount: 0, receivedAt: '2026-10-01T00:00:00Z', reviewerComment: '', failReason: '', revisionLog: '', revisionState: '요청됨', revisionCount: 1, originalText: '', aiTranslation: '' }), renderOrderTable(), 1)`);
+      const rows = await ev(`['recEMP2','recEMP3'].map(id => { const r = document.querySelector('#orders-tbody tr[data-id="' + id + '"]'); return r ? !/undefined|null/.test(r.textContent) : false; })`);
+      check(rows.every(Boolean), '빈 수정요청내역(배열·빈 글) — 수정 요청 탭 목록이 오류·undefined 없이 보임');
+      await click('#orders-tbody tr[data-id="recEMP2"]'); await sleep(250);
+      check(await ev(`document.getElementById('panel-ordnum').textContent === 'IUM-EMPTY-2' && !/undefined|null/.test(document.getElementById('panel-meta').textContent + document.getElementById('panel-translation').value)`), '빈 검수자코멘트·빈 본문 주문 상세가 undefined 없이 열림');
+      check(errors.length === e0, '빈 코멘트·수정요청내역·실패사유로 콘솔 오류 0' + (errors.length > e0 ? ' — ' + errors.slice(e0, e0 + 2).join(' | ') : ''));
+      await ev(`(window._orders = window._orders.filter(o => !/^recEMP/.test(o.orderId)), switchTab('ai_premium'), 1)`); await sleep(200);
+    }
+
     // ── 재실행 중복 방지: 같은 주문 두 번 연속 → 응답 전 두 번째는 안 보냄, 번역 중이면 서버 409 ──
     await ev(`(window.__mock.calls.length = 0, window.__r1 = _doReprocess('recDUP', { text: 'x', direction: '한국어 → 영어' }, 'ADMIN-DUP'), window.__r2 = _doReprocess('recDUP', { text: 'x', direction: '한국어 → 영어' }, 'ADMIN-DUP'), 1)`);
     const dup = await ev(`Promise.all([window.__r1, window.__r2]).then(r => ({ r, n: window.__mock.calls.filter(c => c.p === '/api/admin/reprocess/recDUP').length }))`);
