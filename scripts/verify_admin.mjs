@@ -65,6 +65,17 @@ const MOCK = String.raw`(() => {
       if (tab === 'failed') return J({ success: true, orders: [order(3, { orderStatus: '확인필요', status: '확인필요', failReason: '확인필요: P0003 숫자 확인', aiTranslation: 'text' })].filter((o) => !S.hidden[o.orderId]) });
       return J({ success: true, orders: [] });
     }
+    // 주문 상세 [용어 추출] (2026-11-02)
+    const otx = /^\/api\/admin\/orders\/([^/]+)\/term-extract$/.exec(p);
+    if (otx) {
+      const O = S.otx = S.otx || {};
+      if (m === 'POST') {
+        if (O.already && !(rec.json && rec.json.rerun)) return J({ ok: false, error: 'already', already: O.already }, 409);
+        O.job = { status: '처리 중', startedAt: '2026-11-02T01:00:00Z', estimate: 0.069 }; return J({ ok: true, job: O.job });
+      }
+      return J({ ok: true, orderNumber: 'IUMM-1001', usable: true, basis: 'GPT최종검수본', pair: '한국어→일본어', field: 'legal', scope: '공용', docType: '계약서', chars: 11000,
+        estimate: { usd: 0.069, chunks: 2 }, budget: { remaining: 46.5, ok: O.budgetOk !== false, message: O.budgetOk === false ? '예상 비용이 남은 예산을 넘습니다.' : '' }, already: O.already || null, hash: 'h1', job: O.job || null });
+    }
     if (p === '/api/admin/orders/hide') { const ids = (rec.json && rec.json.recordIds) || []; ids.forEach((i) => { S.hidden[i] = 1; }); return J({ ok: true, hiddenCount: ids.length }); }
     if (p === '/api/admin/terms') return J({ ok: true, terms: [{ id: 't1', pair: '한국어→영어', source: '계약', target: 'contract', status: '승인', scope: '일반', count: 3, field: '법률', docType: '계약서', lastAt: '2026-10-20', sourceType: '용어구축', memo: '근거: 공식 | https://elaw.klri.re.kr/x' }], facets: { field: ['법률'], docType: ['계약서'], scope: ['일반'], status: ['승인'], sourceType: ['용어구축', '번역결과'] } });
     if (p === '/api/admin/reviewers/pending') return J({ success: true, reviewers: [{ id: 'r1', name: '김검수', grade: 'S', expertise: ['법률'], languages: ['영어'], phone: '010-0000-0000', signupAt: '2026-10-01' }] });
@@ -440,6 +451,53 @@ try {
   fs.mkdirSync(SHOT_DIR, { recursive: true });
   let shot = await send('Page.captureScreenshot', { format: 'png' });
   fs.writeFileSync(path.join(SHOT_DIR, 'admin_preview_desktop.png'), Buffer.from(shot.result.data, 'base64'));
+
+  console.log('\n[10] 검수 탭 — 주문 목록을 부르지 않음 (2026-11-02)');
+  await open(1440, 900, false, { token: 'TEST_TOKEN' });
+  await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`);
+  const err0 = errors.length;
+  await ev(`window.__mock.calls.length = 0, 1`);
+  await ev(`setAdminMode('tx', true), switchTab('gpt_review'), 1`); await sleep(400);
+  check(!(await ev(`window.__mock.calls.some(c => c.p === '/api/admin/orders' && /gpt_review/.test(c.q))`)), '검수 탭: /api/admin/orders?tab=gpt_review 를 부르지 않음(예전 400)');
+  check(await ev(`document.getElementById('gpt-review-wrap').style.display === 'block'`), '검수 화면은 그대로 보임');
+  check(errors.length === err0, '검수 탭을 눌러도 콘솔 오류 0');
+
+  console.log('\n[11] 주문 상세 [이 번역 용어 추출 → 용어집 업데이트] (2026-11-02)');
+  await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
+  await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`);
+  await click('#orders-tbody tr[data-id="rec1"]');
+  check(await until(`!!document.getElementById('otx-btn')`), '번역문 아래에 버튼 보임');
+  check(await ev(`(() => { const b = document.getElementById('otx-box').getBoundingClientRect(), t = document.getElementById('panel-translation').getBoundingClientRect(); return b.top >= t.bottom - 1; })()`), '버튼 위치 — 번역문 아래');
+  await ev(`document.getElementById('panel-translation').value = _lastSavedText + ' 수정', 1`);
+  await click('#otx-btn'); await sleep(200);
+  check(await ev(`/먼저 저장하세요/.test(document.getElementById('otx-msg').textContent)`), '저장 안 한 수정 → "먼저 저장하세요"로 멈춤');
+  await ev(`document.getElementById('panel-translation').value = _lastSavedText, window.__mock.calls.length = 0, 1`);
+  await click('#otx-btn');
+  check(await until(`/예상 비용 \\$0\\.069/.test(document.getElementById('otx-msg').textContent)`), '누르면 예상 비용 먼저 표시');
+  check(!(await ev(`window.__mock.calls.some(c => /term-extract$/.test(c.p) && c.m === 'POST')`)), '[확인] 전에는 실행하지 않음');
+  await click('#otx-msg button');
+  check(await until(`/처리 중/.test(document.getElementById('otx-msg').textContent)`), '[확인] → 처리 중 표시');
+  check(await ev(`(() => { const c = window.__mock.calls.find(c => /term-extract$/.test(c.p) && c.m === 'POST'); return !!c && c.json.hash === 'h1' && c.json.rerun === false; })()`), '실행 요청에 화면이 본 번역본(hash)');
+  check(await ev(`document.getElementById('otx-btn').disabled`), '처리 중엔 버튼 잠김');
+  await ev(`otxShow(window._orders[0]), 1`);   // 새로고침 뒤 다시 연 것과 같음 — 서버가 기억한 상태
+  check(await until(`/처리 중/.test(document.getElementById('otx-msg').textContent)`), '다시 열어도 처리 중 유지');
+  await ev(`window.__mock.otx.job = { status: '완료', startedAt: '2026-11-02T01:00:00Z', finishedAt: '2026-11-02T01:06:00Z', result: { counts: { 새용어: 3, 승인: 1, 후보: 1, 충돌: 1, 건너뜀: 2 }, costUsd: 0.051 } }, otxShow(window._orders[0]), 1`);
+  check(await until(`/새 용어 3개 \\(승인 1 \\/ 후보 1 \\/ 충돌 1\\) · 건너뜀 2개 · 사용 금액 \\$0\\.051/.test(document.getElementById('otx-msg').textContent)`), '끝나면 새 용어(승인/후보/충돌)·건너뜀·사용 금액');
+  await ev(`window.__mock.calls.length = 0, 1`);
+  await click('#otx-msg button');
+  check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/terms' && /order=IUMM-1001/.test(c.q)) && document.getElementById('terms-wrap').style.display === 'block'`), '[용어집에서 보기] → 용어집 탭을 그 주문번호로 걸러 열기');
+  await ev(`window.__mock.otx = { already: '2026-11-02T03:00:00Z' }, setAdminMode('orders', true), switchTab('ai_premium'), 1`);
+  await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`); await click('#orders-tbody tr[data-id="rec1"]');
+  await until(`!!document.getElementById('otx-btn')`);
+  check(await until(`/이미 반영됨/.test(document.getElementById('otx-msg').textContent)`), '같은 번역본으로 돌린 적 있음 → 이미 반영됨(날짜)');
+  await click('#otx-btn');
+  check(await until(`/다시 돌릴까요/.test(document.getElementById('otx-msg').textContent)`), '다시 돌릴지 확인');
+  await click('#otx-msg button');
+  check(await until(`window.__mock.calls.some(c => /term-extract$/.test(c.p) && c.m === 'POST' && c.json.rerun === true)`), '다시 돌리기 → rerun 으로 요청');
+  await ev(`window.__mock.otx = { budgetOk: false }, otxShow(window._orders[0]), 1`); await sleep(200);
+  await click('#otx-btn');
+  check(await until(`/예산이 부족해 실행하지 않습니다/.test(document.getElementById('otx-msg').textContent) && !document.querySelector('#otx-msg button')`), '예산 부족 → 실행 버튼 없이 안내');
+  check(!(await ev(`document.getElementById('otx-box').innerHTML.match(/claude|opus|gpt|모델/i)`)), '버튼 영역에 모델 이름 없음');
 
   console.log('\n[9] 모바일 390px');
   await open(390, 844, true, { token: 'TEST_TOKEN' });

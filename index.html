@@ -3445,6 +3445,22 @@ var SHOW_V3 = false;
             </select>
           </div>
         </div>
+        <!-- 전용 용어집 (2026-11-02) — 처음부터 보임. 사업자등록번호 + 동의가 둘 다 있으면 기업전용(회사명은 위 회사명 칸), 아니면 공용 -->
+        <div id="corp-box" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08)">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
+            <div>
+              <label class="lbl" for="corpBizNo" style="color:rgba(255,255,255,0.75)">사업자등록번호 <span style="font-size:11px;color:rgba(255,255,255,0.5)">(선택)</span></label>
+              <input type="text" id="corpBizNo" inputmode="numeric" maxlength="12" placeholder="000-00-00000" oninput="formatCorpBizNo(this)" aria-describedby="corpBizHint" style="width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:14px;font-family:inherit;box-sizing:border-box;letter-spacing:0.5px">
+              <div id="corpBizHint" style="font-size:11px;margin-top:4px;min-height:14px;color:rgba(255,255,255,0.4)"></div>
+            </div>
+          </div>
+          <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-top:6px;font-size:13px;color:rgba(255,255,255,0.85)">
+            <input type="checkbox" id="corpConsent" onchange="updateCorpHint()" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:#1F4FD1">
+            <span>전용 용어집 이용에 동의합니다 <a href="/#article-11-2-corp" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--gold-light);text-decoration:underline;font-size:11px;white-space:nowrap">약관 보기</a></span>
+          </label>
+          <div style="font-size:12px;line-height:1.6;color:rgba(255,255,255,0.62);margin:4px 0 0 24px">번역할수록 귀사의 용어가 쌓여, 다음 번역부터 같은 표현으로 통일됩니다.<br><span style="font-size:11px;color:rgba(255,255,255,0.45)">용어만 저장하며, 개인정보는 저장하지 않습니다.</span></div>
+          <div id="corpConsentHint" role="status" aria-live="polite" style="font-size:12px;margin:6px 0 0 24px;min-height:0;color:#9DB7F5"></div>
+        </div>
       </div>
 
       <!-- 무료 테스트 번역 (2026-10-29) — 회사당 1회·1,000자(공백 제외). 서버 /api/order/free-test 가 회사명·회사 메일 도메인·연락처로 중복을 막는다 -->
@@ -3459,35 +3475,6 @@ var SHOW_V3 = false;
         <div id="freeTestInfo" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:12.5px;line-height:1.7;color:rgba(255,255,255,0.75)">
           <div>지금 글자 수: <strong id="freeTestChars" style="color:var(--gold-light)">0</strong>자 / 1,000자</div>
           <div style="color:rgba(255,255,255,0.55)">길면 1,000자 이하로 발췌해 올려 주세요. 위에 적은 회사명으로 신청됩니다.</div>
-        </div>
-      </div>
-
-      <!-- 기업 고객 — 전용 용어집 (체크 안 하면 아무것도 묻지 않는다) -->
-      <div id="corp-box" style="margin-top:16px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:6px">
-        <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;margin:0">
-          <input type="checkbox" id="corpCheck" onchange="toggleCorpBox(this.checked)" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:#1F4FD1">
-          <span style="line-height:1.55">
-            <strong style="font-size:14px;color:var(--white);font-weight:500">기업 고객입니다 — 귀사 전용 용어집을 만들어 드립니다</strong>
-            <span style="display:block;font-size:12px;color:rgba(255,255,255,0.62);margin-top:3px">번역할수록 귀사의 용어가 쌓여, 다음 번역부터 같은 표현으로 통일됩니다.</span>
-            <span style="display:block;font-size:11px;color:rgba(255,255,255,0.45);margin-top:3px">용어만 저장하며, 개인정보는 저장하지 않습니다. <a href="/#article-11-2-corp" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--gold-light);text-decoration:underline;white-space:nowrap">약관 보기</a></span>
-          </span>
-        </label>
-        <div id="corpFields" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08)">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
-            <div>
-              <label class="lbl" for="corpName" style="color:rgba(255,255,255,0.65)">회사명</label>
-              <input type="text" id="corpName" maxlength="100" autocomplete="organization" placeholder="예: ○○ 주식회사" style="width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;outline:none;box-sizing:border-box">
-            </div>
-            <div>
-              <label class="lbl" for="corpBizNo" style="color:rgba(255,255,255,0.65)">사업자등록번호</label>
-              <input type="text" id="corpBizNo" inputmode="numeric" maxlength="12" placeholder="000-00-00000" oninput="formatCorpBizNo(this)" style="width:100%;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:2px;color:var(--white);font-size:13px;outline:none;box-sizing:border-box;letter-spacing:0.5px">
-              <div id="corpBizHint" style="font-size:11px;margin-top:4px;min-height:14px;color:rgba(255,255,255,0.4)"></div>
-            </div>
-          </div>
-          <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-top:10px;font-size:12.5px;color:rgba(255,255,255,0.8)">
-            <input type="checkbox" id="corpConsent" style="margin-top:2px;accent-color:#1F4FD1">
-            <span>전용 용어집 이용에 동의합니다 <span style="color:rgba(255,107,107,0.8)">(필수)</span> <a href="/#article-11-2-corp" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--gold-light);text-decoration:underline;font-size:11px;white-space:nowrap">약관 보기</a></span>
-          </label>
         </div>
       </div>
 
@@ -3692,7 +3679,7 @@ var SHOW_V3 = false;
     <button onclick="closeModal('bizinquiry')" style="position:absolute;top:20px;right:24px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
     <div id="biz-form">
       <h3 style="font-family:'MaruBuri',serif;font-size:22px;font-weight:700;margin-bottom:8px;color:#85b7eb">비즈니스 문의</h3>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;font-weight:300">대량 주문·단가 협의(연간 · 월간 계약)를 도와드립니다. 담당자가 빠르게 연락드립니다.<br><span style="font-size:12px;color:rgba(255,255,255,0.5)">귀사 전용 용어집은 문의 없이 주문 화면에서 '기업 고객'을 체크하시면 바로 시작됩니다.</span></p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;font-weight:300">대량 주문·단가 협의(연간 · 월간 계약)를 도와드립니다. 담당자가 빠르게 연락드립니다.<br><span style="font-size:12px;color:rgba(255,255,255,0.5)">귀사 전용 용어집은 문의 없이 주문 화면에서 사업자등록번호를 넣고 이용에 동의하시면 바로 시작됩니다.</span></p>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div><label class="lbl">회사명 <span style="color:#e05555">*</span></label><input type="text" id="biz-company" class="inp" placeholder="회사명"></div>
@@ -5127,9 +5114,10 @@ function getSourceText(){
   return pt ? pt.value : '';
 }
 // ─── 기업 고객 (전용 용어집) ───────────────────────────────
-function toggleCorpBox(on){
-  document.getElementById('corpFields').style.display=on?'block':'none';
-  document.getElementById('corp-box').style.borderColor=on?'rgba(31,79,209,0.45)':'rgba(255,255,255,0.10)';
+// 사업자등록번호 + 동의 → 기업전용 / 번호만 있고 동의 없음 → 한 줄 안내(주문은 막지 않고 공용) / 번호 없음 → 공용
+function updateCorpHint(){
+  var biz=document.getElementById('corpBizNo').value, on=document.getElementById('corpConsent').checked;
+  document.getElementById('corpConsentHint').textContent=(validCorpBizNo(biz)&&!on)?'전용 용어집을 쓰려면 동의에 체크해 주세요':'';
 }
 // 사업자등록번호: 10자리 + 국세청 검증번호 (서버 term_bank.isValidBizNo 와 같은 규칙)
 function validCorpBizNo(s){
@@ -5144,22 +5132,21 @@ function formatCorpBizNo(el){
   var d=el.value.replace(/\D/g,'').slice(0,10);
   el.value=d.length>5?d.slice(0,3)+'-'+d.slice(3,5)+'-'+d.slice(5):d.length>3?d.slice(0,3)+'-'+d.slice(3):d;
   var hint=document.getElementById('corpBizHint');
+  updateCorpHint();
   if(d.length<10){hint.textContent='';return;}
   var ok=validCorpBizNo(d);
   hint.textContent=ok?'확인되었습니다':'번호를 다시 확인해 주세요';
   hint.style.color=ok?'#1F4FD1':'#ff6b6b';
 }
-/** 결제 전 확인 — 기업 고객 체크 시 회사명·번호·동의 필수. 문제 없으면 true */
+/** 결제 전 확인 — 회사명 필수. 전용 용어집에 동의했으면 번호가 맞아야 함. 문제 없으면 true */
 function checkCorpBeforePayment(){
   // 주문자 회사명 — 필수 (2026-10-29)
   var oc=document.getElementById('orderCompany');
   if(oc&&!oc.value.trim()){alert('회사명을 입력해 주세요.\n개인사업자·프리랜서는 상호나 본인 이름을 입력해 주세요.');oc.focus();return false;}
-  if(!document.getElementById('corpCheck').checked) return true;
-  var name=document.getElementById('corpName').value.trim();
+  updateCorpHint();
+  if(!document.getElementById('corpConsent').checked) return true;
   var biz=document.getElementById('corpBizNo').value;
-  if(!name){alert('회사명을 입력해 주세요.');document.getElementById('corpName').focus();return false;}
-  if(!validCorpBizNo(biz)){alert('사업자등록번호를 확인해 주세요. (000-00-00000)');document.getElementById('corpBizNo').focus();return false;}
-  if(!document.getElementById('corpConsent').checked){alert('전용 용어집 이용에 동의해 주세요.');return false;}
+  if(!validCorpBizNo(biz)){alert('사업자등록번호를 확인해 주세요. (000-00-00000)\n전용 용어집을 쓰지 않으려면 동의 체크를 풀어 주세요.');document.getElementById('corpBizNo').focus();return false;}
   return true;
 }
 /** 주문 접수 데이터에 붙일 기업 고객 값 + 문서유형 분류용 제목(파일명, 저장 안 함) */
@@ -5171,11 +5158,12 @@ function corpOrderPayload(){
   var oc=document.getElementById('orderCompany'), oi=document.getElementById('orderIndustry');
   if(oc&&oc.value.trim()) out.회원회사명=oc.value.trim();
   if(oi&&oi.value) out.업종=oi.value;
-  if(!document.getElementById('corpCheck').checked) return out;
+  var biz=document.getElementById('corpBizNo').value.replace(/\D/g,'');
+  if(!document.getElementById('corpConsent').checked||!/^\d{10}$/.test(biz)) return out;
   out.기업고객=true;
-  out.기업회사명=document.getElementById('corpName').value.trim();
-  out.사업자등록번호=document.getElementById('corpBizNo').value.replace(/\D/g,'');
-  out.기업용어집동의=document.getElementById('corpConsent').checked;
+  out.기업회사명=out.회원회사명||'';
+  out.사업자등록번호=biz;
+  out.기업용어집동의=true;
   return out;
 }
 

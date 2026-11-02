@@ -7,7 +7,7 @@
   'use strict';
 
   // 언어 방향은 서버 필터가 아니라 탭(VIEW.tab)으로 나눈다 — 탭마다 묶음 수를 세려면 전체가 필요
-  var TF = { field: '', docType: '', scope: '', status: '', sourceType: '', biz: '', q: '' };
+  var TF = { field: '', docType: '', scope: '', status: '', sourceType: '', biz: '', q: '', order: '' };   // order = 출처주문번호(주문 상세 [용어집에서 보기], 2026-11-02)
   var VIEW = { tab: '', page: 1 };
   var PAGE_SIZE = 50;
   var FIXED_TABS = ['한국어→영어', '영어→한국어'];
@@ -69,10 +69,13 @@
       '<select style="' + inp + '" onchange="termsFilter(\'sourceType\',this.value)">' + opt(f.sourceType, TF.sourceType, '출처') + '</select>' +
       '<input style="' + inp + ';width:170px" placeholder="기업 (회사명·사업자번호)" value="' + esc(TF.biz) + '" onchange="termsFilter(\'biz\',this.value)">' +
       '<input style="' + inp + ';width:150px" placeholder="용어 검색" value="' + esc(TF.q) + '" onchange="termsFilter(\'q\',this.value)">' +
+      (TF.order ? '<span style="' + inp + ';display:inline-flex;align-items:center;gap:6px;border-color:' + BLUE + '">주문 ' + esc(TF.order) + ' <button type="button" onclick="termsFilter(\'order\',\'\')" aria-label="주문 거르기 풀기" style="background:none;border:0;color:' + BLUE_LIGHT + ';cursor:pointer;font-size:13px">✕</button></span>' : '') +
       '<span style="font-size:12px;color:rgba(255,255,255,0.45);margin-left:6px">' +
       Object.keys(counts).map(function (k) { return '<span style="color:' + (STATUS_COLOR[k] || '#fff') + '">' + k + ' ' + counts[k] + '</span>'; }).join(' · ') + '</span>';
   }
   window.termsFilter = function (k, v) { TF[k] = String(v || '').trim(); VIEW.page = 1; loadTerms(); };
+  // 주문 상세 [용어집에서 보기] — 다른 필터를 비우고 그 주문번호(출처주문번호)로만 거른다. 탭 전환(switchTab('terms'))이 loadTerms 를 부른다
+  window.termsShowOrder = function (orderNumber, pair) { Object.keys(TF).forEach(function (k) { TF[k] = ''; }); TF.order = String(orderNumber || ''); VIEW.tab = String(pair || ''); VIEW.page = 1; _hashRead = true; };
 
   function metaLine(t) {
     return '등장 ' + t.count + ' · ' + esc(t.docType) + ' · ' + day(t.lastAt);
