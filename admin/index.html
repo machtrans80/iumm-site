@@ -361,6 +361,13 @@ body.admin-focus .work-bar{display:none}
 .st-done{background:#0F2540;color:#FAFAF7;border:1px solid rgba(250,250,247,0.4)}
 .st-check{background:rgba(176,141,87,0.08);color:#E6D3B0;border:1px solid #B08D57}
 .st-error{background:#B08D57;color:#0F2540;border:1px solid #B08D57}
+.st-run{background:rgba(74,144,226,0.16);color:#a9cdff;border:1px solid rgba(74,144,226,0.55);margin-left:4px}
+/* 로그인 만료 — 그 자리 비밀번호 칸(2026-11-02) */
+#relogin-box{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(6,14,28,0.55)}
+#relogin-box .rl{background:#0F2540;border:1px solid rgba(74,144,226,0.55);border-radius:8px;padding:18px 20px;width:min(340px,calc(100vw - 32px));color:#EEF3FB;font-size:13px}
+#relogin-box input{width:100%;box-sizing:border-box;margin:10px 0 8px;padding:8px 10px;border-radius:4px;border:1px solid rgba(157,183,245,0.4);background:rgba(255,255,255,0.06);color:#EEF3FB}
+#relogin-box button{padding:7px 14px;border-radius:4px;border:1px solid #1F4FD1;background:#1F4FD1;color:#fff;cursor:pointer;font-size:12px}
+#relogin-box .rl-err{color:#a9cdff;font-size:12px;min-height:16px}
 
 /* 검수 엔진 */
 .engine-row{display:flex;flex-wrap:wrap;gap:8px 18px;margin:2px 0 8px}
@@ -1163,6 +1170,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         <!-- 결과 -->
         <div class="bp-result" id="bp-result">
           <div class="bp-result-order" id="bp-result-order"></div>
+          <div id="bp-result-run" style="display:none;margin:4px 0"></div>
           <div class="bp-result-info" id="bp-result-info"></div>
         </div>
       </div>
@@ -1306,6 +1314,8 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
             <span id="save-status" style="font-size:11px;color:rgba(255,255,255,0.35)"></span>
           </div>
           <div class="panel-progress-bar"><div id="prog-tr" class="panel-progress-fill"></div></div>
+          <div id="run-line" style="display:none;margin:6px 0 4px;padding:6px 10px;border-radius:6px;background:rgba(74,144,226,0.16);border:1px solid rgba(74,144,226,0.55);color:#a9cdff;font-size:12px"></div>
+          <div id="autodel-line" style="display:none;margin:4px 0 6px;padding:0 10px;font-size:12px;color:#a9cdff"></div>
           <div id="dest-line" style="display:none;margin:6px 0 4px;padding:6px 10px;border-radius:6px;background:rgba(74,144,226,0.12);border:1px solid rgba(74,144,226,0.35);color:#a9cdff;font-size:12px"></div>
           <div class="ta-wrap-s">
             <textarea class="panel-ta editable" id="panel-translation" oninput="onTranslationEdit()"></textarea>
@@ -1461,8 +1471,52 @@ var ADMIN_CHECKLIST = [
 ];
 
 function adminToken() { return localStorage.getItem('adminToken') || ''; }
+// ── 로그인 만료(2026-11-02) — Authorization 을 붙이는 요청은 모두 authFetch 하나로 ──
+// 401 이면 화면을 새로 고치지 않고 그 자리에 비밀번호 칸 하나 → 로그인되면 실패했던 요청을 그대로 다시 보낸다.
+// 입력 중이던 폼·번역 칸 내용은 그대로(페이지를 다시 그리지 않는다). 여러 요청이 동시에 401 이면 칸은 하나, 로그인 뒤 모두 다시.
+var _reloginWait = null;
+function authFetch(url, opts) {
+  opts = opts || {};
+  var send = function () {
+    var h = Object.assign({}, opts.headers || {});
+    h['Authorization'] = 'Bearer ' + adminToken();
+    return fetch(url, Object.assign({}, opts, { headers: h }));
+  };
+  return send().then(function (r) {
+    if (r.status !== 401) return r;
+    return askRelogin().then(send);
+  });
+}
+function askRelogin() {
+  if (_reloginWait) return _reloginWait;
+  _reloginWait = new Promise(function (resolve, reject) {
+    var box = document.createElement('div');
+    box.id = 'relogin-box';
+    box.innerHTML = '<div class="rl" role="dialog" aria-label="다시 로그인"><div>로그인이 만료됐습니다. 비밀번호를 넣으면 하던 작업을 이어서 보냅니다.</div>' +
+      '<input type="password" id="relogin-pw" placeholder="관리자 비밀번호" autocomplete="current-password">' +
+      '<div class="rl-err" id="relogin-err"></div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="relogin-cancel" style="background:transparent;color:#a9cdff">닫기</button><button type="button" id="relogin-go">로그인</button></div></div>';
+    document.body.appendChild(box);
+    var pw = document.getElementById('relogin-pw'), err = document.getElementById('relogin-err');
+    var done = function (ok, e) { box.remove(); _reloginWait = null; ok ? resolve() : reject(e); };
+    var go = async function () {
+      if (!pw.value) { err.textContent = '비밀번호를 입력하세요'; return; }
+      err.textContent = '확인 중…';
+      try {
+        var res = await fetch(API_BASE + '/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ secret: pw.value }) }).then(function (r) { return r.json(); });
+        if (res.success) { localStorage.setItem('adminToken', res.token); done(true); }
+        else { err.textContent = res.error || '로그인 실패'; pw.select(); }
+      } catch (e) { err.textContent = '서버 연결 실패'; }
+    };
+    document.getElementById('relogin-go').onclick = go;
+    pw.onkeydown = function (e) { if (e.key === 'Enter') go(); };
+    document.getElementById('relogin-cancel').onclick = function () { done(false, new Error('로그인이 필요합니다 — 입력한 내용은 그대로 있습니다')); };
+    setTimeout(function () { pw.focus(); }, 0);
+  });
+  return _reloginWait;
+}
 function adminFetch(path, opts) {
-  return fetch(API_BASE + path, Object.assign({ headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' } }, opts||{}))
+  return authFetch(API_BASE + path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts||{}))
     .then(function(r){ return r.json(); });
 }
 function showToast(msg, type) {
@@ -1730,6 +1784,7 @@ function renderOrderTable() {
       var statusTag = o.status === '납품완료' ? ' <span class="st st-done">납품완료</span>' : '';
       statusTag += holdTagHtml(o);
       statusTag += b2bTagsHtml(o);
+      if (window.runBadgeHtml) statusTag += runBadgeHtml(o);   // 번역 중 · 단계(2026-11-02)
       var ratingCell = o.isEvaluated && o.customerRating != null ? '⭐ ' + o.customerRating + '.0' + (o.isReviewConfirmed ? ' ✅' : '') : '—';
       var checkCell = showBatch
         ? '<td onclick="event.stopPropagation()" style="padding:12px 8px"><input type="checkbox" class="order-check" value="' + o.orderId + '" onchange="updateSelectedCount()"></td>'
@@ -1758,6 +1813,7 @@ function renderOrderTable() {
   }
 
   wrap.innerHTML = batchBar + '<table class="orders-table">' + thead + '<tbody id="orders-tbody">' + rowsHtml + '</tbody></table>' + pageNav;
+  if (window.runListRendered) runListRendered();
 }
 
 function updateSelectedCount() {
@@ -1809,6 +1865,11 @@ async function loadFailedOrders() {
       var reason = o.failReason || '';
       var h = holdInfo(o);
       // 색은 파란색 계열로만 구분: 확인필요 = 연한 파랑 테두리, 파이프라인 오류 = 진한 파랑 배지
+      // 번역 중(재실행 직후 등) — 파란 배지, 버튼 잠금(2026-11-02)
+      if (o.running) return '<div style="padding:16px 20px;border:1px solid rgba(74,144,226,0.55);border-radius:6px;background:rgba(74,144,226,0.06)">' +
+        '<div style="font-size:13px;font-weight:600;color:#EEF3FB">' + _bpEsc(o.orderNumber || o.orderId.slice(0,12)) + (window.runBadgeHtml ? runBadgeHtml(o) : '') + '</div>' +
+        '<div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px">' + _bpEsc(o.customerEmail || '이메일 없음') + ' · ' + (o.charCount || 0).toLocaleString() + '자 · ' + _bpEsc(o.direction || '') + ' · 번역 중입니다 — 끝나면 자동으로 새로 고칩니다(재실행·불러오기 잠김)</div>' +
+      '</div>';
       var badge = h
         ? '<span class="st st-check" style="margin-top:5px">' + _bpEsc(h.label) + '</span>'
         : '<span class="st st-error" style="margin-top:5px">파이프라인 오류' + (o.status && o.status !== '번역실패' ? ' · ' + _bpEsc(o.status) : '') + '</span>';
@@ -1839,6 +1900,7 @@ async function loadFailedOrders() {
         '</div>' +
       '</div>';
     }).join('');
+    if (window.runListRendered) runListRendered();
   } catch(e) {
     listEl.innerHTML = '<div style="color:#D9BC8C;text-align:center;padding:32px">⚠️ ' + e.message + '</div>';
   }
@@ -1940,6 +2002,7 @@ function enterReprocessMode(orderId, orderNumber) {
   if (banner) banner.style.display = 'flex';
   var btn = document.getElementById('btn-bp-submit');
   if (btn) btn.innerHTML = '<i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>재실행 (기존 레코드 · ' + _bpEsc(orderNumber||'') + ')';
+  if (window.bpDraftSave) bpDraftSave();   // 불러온 폼·재실행 주문 — 임시 저장(새로고침 대비)
 }
 
 function exitReprocessMode() {
@@ -1953,20 +2016,25 @@ function exitReprocessMode() {
   ['bp-text','bp-email','bp-notes','bp-reference-text','bp-reference-glossary','bp-reference-notes','bp-corp-bizno','bp-corp-name'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
   if (window.bpDestClear) bpDestClear();
   if (typeof bpUpdateCharCount === 'function') bpUpdateCharCount();
+  if (window.bpDraftClear) bpDraftClear();   // 폼을 비웠으니 임시 저장도
   showToast('재실행 모드 해제 — 일반 우회주문 모드로 전환', '');
 }
 
 // 재실행 공통 (폼 수정값 → 서버가 레코드 업데이트 후 실행)
+var _reprocessBusy = {};   // 재실행 중복 방지(2026-11-02) — 응답이 올 때까지 같은 주문은 다시 보내지 않는다(서버도 번역 중이면 409)
 async function _doReprocess(orderId, body, orderNumber) {
+  if (_reprocessBusy[orderId]) { showToast('이미 재실행을 보냈습니다 — 응답을 기다리는 중', ''); return false; }
+  _reprocessBusy[orderId] = true;
   try {
     var res = await adminFetch('/api/admin/reprocess/' + orderId, { method: 'POST', body: JSON.stringify(body || {}) });
     if (!res || (!res.ok && !res.success)) throw new Error((res && res.error) || '재실행 실패');
-    showToast('✅ 재실행 시작: ' + (res.orderNumber || orderNumber || orderId) + ' · 파이프라인 실행 중 (5~7분)', 'success');
+    showToast('✅ 재실행 시작: ' + (res.orderNumber || orderNumber || orderId) + ' · 번역 중', 'success');
+    if (window.runWatchAdd) runWatchAdd(orderId, res.orderNumber || orderNumber);
     return true;
   } catch(e) {
-    showToast('⚠️ 재실행 실패: ' + e.message, 'error');
+    showToast('⚠️ 재실행 안 됨: ' + e.message, 'error');
     return false;
-  }
+  } finally { delete _reprocessBusy[orderId]; }
 }
 
 function _bpEsc(s) {
@@ -2167,6 +2235,7 @@ function selectOrder(id, row) {
   holdShowPanel(order);
   if (window.otxShow) otxShow(order);
   if (window.destShowOrder) destShowOrder(order);
+  if (window.runShowOrder) runShowOrder(order);
 }
 
 // ── 글자수/단어수 카운터 ─────────────────────────────────────
@@ -2502,7 +2571,7 @@ async function saveTranslationDraft(silent) {
 function downloadOriginal() {
   if (!selectedOrder) return;
   var num = selectedOrder.orderNumber || selectedOrder.orderId;
-  fetch(API_BASE + '/api/admin/download-original/' + selectedOrder.orderId, {
+  authFetch(API_BASE + '/api/admin/download-original/' + selectedOrder.orderId, {
     headers: { 'Authorization': 'Bearer ' + adminToken() }
   }).then(function(r) {
     if (r.status === 404) { showToast('고객이 첨부한 원본이 없습니다.', 'info'); return null; }
@@ -2578,7 +2647,7 @@ function downloadTranslationTxt() {
 
 async function downloadWithAuth(path, filename) {
   try {
-    var r = await fetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var r = await authFetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + adminToken() } });
     if (!r.ok) { showToast('⚠️ 다운로드 실패 (' + r.status + ')', 'error'); return; }
     var blob = await r.blob();
     var url  = URL.createObjectURL(blob);
@@ -2602,7 +2671,7 @@ async function uploadFinalFile(input) {
   try {
     var fd = new FormData();
     fd.append('file', input.files[0]);
-    var r = await fetch(API_BASE + '/api/admin/upload/' + selectedOrder.orderId, {
+    var r = await authFetch(API_BASE + '/api/admin/upload/' + selectedOrder.orderId, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken() },
       body: fd,
@@ -2638,7 +2707,7 @@ async function handleFinalFilesSelected(event) {
   var fd = new FormData();
   files.forEach(function(f) { fd.append('files', f); });
   try {
-    var r = await fetch(API_BASE + '/api/admin/upload/' + selectedOrder.orderId, {
+    var r = await authFetch(API_BASE + '/api/admin/upload/' + selectedOrder.orderId, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken() },
       body: fd,
@@ -2767,7 +2836,7 @@ async function deleteOrder() {
   if (!confirm('주문 ' + num + '을 Airtable에서 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?')) return;
   try {
     // adminFetch 대신 raw fetch 사용 (Content-Type 없이 순수 DELETE)
-    var r = await fetch(API_BASE + '/api/admin/order/' + id, {
+    var r = await authFetch(API_BASE + '/api/admin/order/' + id, {
       method: 'DELETE',
       headers: { 'Authorization': 'Bearer ' + adminToken() }
     });
@@ -3050,7 +3119,7 @@ async function loadSettlement(month) {
       return;
     }
 
-    const res = await fetch(`${API_BASE}/api/admin/settlement?month=${encodeURIComponent(targetMonth)}`, {
+    const res = await authFetch(`${API_BASE}/api/admin/settlement?month=${encodeURIComponent(targetMonth)}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -3158,7 +3227,7 @@ async function completeSettlement(orderId, reviewerName, orderNumber, fee) {
   if (!ok) return;
   try {
     const token = adminToken();
-    const res = await fetch(`${API_BASE}/api/admin/settlement/${orderId}/complete`, {
+    const res = await authFetch(`${API_BASE}/api/admin/settlement/${orderId}/complete`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -3208,7 +3277,7 @@ async function submitAdjustment() {
     if (reason)  body.reason = reason;
     if (related) body.relatedOrderId = related;
 
-    const res = await fetch(`${API_BASE}/api/admin/settlement/adjustment`, {
+    const res = await authFetch(`${API_BASE}/api/admin/settlement/adjustment`, {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body:    JSON.stringify(body)
@@ -3236,7 +3305,7 @@ async function deleteAdjustment(adjId, date, item, amount) {
   if (!ok) return;
   try {
     const token = adminToken();
-    const res = await fetch(`${API_BASE}/api/admin/settlement/adjustment/${adjId}`, {
+    const res = await authFetch(`${API_BASE}/api/admin/settlement/adjustment/${adjId}`, {
       method:  'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -3332,14 +3401,14 @@ async function bpExtractFileChange(input) {
       fd.append('files', file);
       fd.append('sourceLang', sourceLang);
       fd.append('hanjaMode', String(hanjaMode));
-      var r = await fetch(API_BASE + '/api/admin/ocr', { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
+      var r = await authFetch(API_BASE + '/api/admin/ocr', { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
       var d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error || 'OCR 실패');
       text = d.text; charCount = d.charCount || text.replace(/\s/g,'').length;
     } else {
       var fd = new FormData();
       fd.append('file', file);
-      var r = await fetch(BP_EXTRACT_API, { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
+      var r = await authFetch(BP_EXTRACT_API, { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
       var d = await r.json();
       if (!d.success) throw new Error(d.error || '추출 실패');
       text = d.text; charCount = d.charCount || text.replace(/\s/g,'').length;
@@ -3409,7 +3478,7 @@ async function runBypassOcr() {
     var bpDirectionVal = document.getElementById('bp-direction')?.value || '한국어 → 영어';
     formData.append('sourceLang', bpDirectionVal.split('→')[0].trim() || '한국어');
     formData.append('hanjaMode', String(document.getElementById('bp-ocr-hanja-mode')?.checked || false));
-    var res = await fetch(API_BASE + '/api/admin/ocr', {
+    var res = await authFetch(API_BASE + '/api/admin/ocr', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken() },
       body: formData,
@@ -3803,7 +3872,7 @@ async function submitBypassOrder() {
     if (email) rbody.customerEmail = email;
     var rok = await _doReprocess(_bpReprocessOrderId, rbody, _bpReprocessOrderNum);
     rbtn.disabled = false;
-    if (rok) { exitReprocessMode(); switchTab('failed'); }
+    if (rok) { exitReprocessMode(); if (window.bpDraftClear) bpDraftClear(); switchTab('failed'); }
     else { enterReprocessMode(_bpReprocessOrderId, _bpReprocessOrderNum); } // 버튼 라벨 복구
     return;
   }
@@ -3845,7 +3914,7 @@ async function submitBypassOrder() {
     var srcFile = (window._iummBypassSourceFiles || [])[0];
     if (!termScope.internalOnly && srcFile && srcFile.name) payload.docTitle = srcFile.name;
 
-    var res = await fetch(API_BASE + '/api/admin/translate-bypass', {
+    var res = await authFetch(API_BASE + '/api/admin/translate-bypass', {
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + adminToken(),
@@ -3857,12 +3926,14 @@ async function submitBypassOrder() {
     if (!res.ok || (!data.ok && !data.success)) throw new Error(data.error || '요청 실패 (' + res.status + ')');
 
     var orderNum = data.orderNumber || data.order_number || '생성됨';
+    if (window.runWatchAdd) runWatchAdd(data.airtableId, orderNum);   // 그 자리에서 바로 '번역 중'
+    if (window.bpDraftClear) bpDraftClear();                          // 접수 성공 — 임시 저장 지움
     // 원문 파일 Airtable 첨부 (fire-and-forget)
     if (window._iummBypassSourceFiles && window._iummBypassSourceFiles.length > 0 && orderNum !== '생성됨') {
       var bpFd = new FormData();
       bpFd.append('orderNumber', orderNum);
       window._iummBypassSourceFiles.forEach(function(f){ bpFd.append('sourceFiles', f); });
-      fetch(API_BASE + '/api/order/attach-source-files', { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: bpFd })
+      authFetch(API_BASE + '/api/order/attach-source-files', { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: bpFd })
         .then(function(r){ return r.json(); })
         .then(function(d){ console.log('[bypass] 원문첨부', d.count + '개 완료'); })
         .catch(function(e){ console.warn('[bypass] 원문첨부 실패:', e.message); });
@@ -3874,7 +3945,7 @@ async function submitBypassOrder() {
       var refFd = new FormData();
       refFd.append('orderNumber', orderNum);
       Array.from(referenceFiles).forEach(function(f){ refFd.append('files', f); });
-      fetch(API_BASE + '/api/admin/upload-reference', {
+      authFetch(API_BASE + '/api/admin/upload-reference', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + adminToken() },
         body: refFd,
@@ -3924,7 +3995,7 @@ async function loadReviewBudget() {
   var el = document.getElementById('review-budget');
   if (!el) return;
   try {
-    var r = await fetch(API_BASE + '/api/admin/credit-budget', { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var r = await authFetch(API_BASE + '/api/admin/credit-budget', { headers: { 'Authorization': 'Bearer ' + adminToken() } });
     var b = await r.json();
     if (!b.ok) throw new Error(b.error || ('HTTP ' + r.status));
     el.innerHTML = b.unlimited ? 'Claude 엔진 · 상한 없음 · 이번 달 사용액 <strong>' + _usd(b.monthSpent) + '</strong>'
@@ -3936,7 +4007,7 @@ function _usd(n) { return '$' + (Number(n) || 0).toFixed(2); }
 function _usdCap(n) { n = Number(n) || 0; return '$' + (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)); }
 /** 관리자 POST(JSON) — 상태 코드까지 돌려준다 (402·503·500 을 구분해 안내하려고) */
 async function adminPostJson(path, body) {
-  var r = await fetch(API_BASE + path, {
+  var r = await authFetch(API_BASE + path, {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
@@ -4254,7 +4325,7 @@ async function loadNotaryShipping() {
   var box = document.getElementById('ntr-list');
   box.innerHTML = '<p style="color:rgba(255,255,255,0.4);padding:20px">불러오는 중…</p>';
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/shipping',
+    var r = await authFetch(API_BASE + '/api/notary/admin/shipping',
       { headers: { 'Authorization': 'Bearer ' + adminToken() } });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '조회 실패');
@@ -4292,7 +4363,7 @@ async function ntrResumeCredit(orderNumber){
   var el = document.getElementById('ntr-rs-' + orderNumber);
   if (el) { el.style.color = 'rgba(255,255,255,0.5)'; el.textContent = '처리 중…'; }
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/orders/' + encodeURIComponent(orderNumber) + '/resume',
+    var r = await authFetch(API_BASE + '/api/notary/admin/orders/' + encodeURIComponent(orderNumber) + '/resume',
       { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' }, body: '{}' });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '실패');
@@ -4306,7 +4377,7 @@ async function ntrOriginalArrived(orderNumber){
   var el = document.getElementById('ntr-ar-' + orderNumber);
   if (el) { el.style.color = 'rgba(255,255,255,0.5)'; el.textContent = '처리 중…'; }
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/original-arrived',
+    var r = await authFetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/original-arrived',
       { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' }, body: '{}' });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '처리 실패');
@@ -4465,7 +4536,7 @@ async function ntrUploadScan(orderNumber) {
   var fd = new FormData();
   for (var i = 0; i < inp.files.length; i++) fd.append('scanFiles', inp.files[i]);
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/scan',
+    var r = await authFetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/scan',
       { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '등록 실패');
@@ -4486,7 +4557,7 @@ async function ntrUploadTranslation(orderNumber) {
   var fd = new FormData();
   for (var i = 0; i < inp.files.length; i++) fd.append('translationFiles', inp.files[i]);
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/translation',
+    var r = await authFetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/translation',
       { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '업로드 실패');
@@ -4503,7 +4574,7 @@ async function ntrShip(orderNumber) {
   if (!confirm('발송완료로 처리합니다.\n\n고객에게 발송 안내 문자가 발송되고,\n마이페이지에 스캔본·발송번호가 노출됩니다.\n\n발송번호: ' + trk + '\n\n계속하시겠습니까?')) return;
   _ntrMsg(orderNumber, '처리 중…', true);
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/ship', {
+    var r = await authFetch(API_BASE + '/api/notary/admin/order/' + encodeURIComponent(orderNumber) + '/ship', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ trackingNo: trk })
@@ -4595,7 +4666,7 @@ async function ntrdSubmit() {
   for (var i = 0; i < inp.files.length; i++) fd.append('files', inp.files[i]);
 
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/direct', {
+    var r = await authFetch(API_BASE + '/api/notary/admin/direct', {
       method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd
     });
     var j = await r.json();
@@ -4621,7 +4692,7 @@ async function ntrdPoll(n) {
   if (NTRD_TIMER) { clearTimeout(NTRD_TIMER); NTRD_TIMER = null; }
   var no = NTRD_CUR.orderNumber;
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/direct/' + encodeURIComponent(no),
+    var r = await authFetch(API_BASE + '/api/notary/admin/direct/' + encodeURIComponent(no),
       { headers: { 'Authorization': 'Bearer ' + adminToken() } });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '상태 조회 실패');
@@ -4660,7 +4731,7 @@ function ntrdOpenCurrent() {
 /** 목록에서 열기 — 토큰이 만료됐어도 열리도록 항상 새로 발급받는다 */
 async function ntrdReopen(orderNumber) {
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/direct/' + encodeURIComponent(orderNumber) + '/reopen',
+    var r = await authFetch(API_BASE + '/api/notary/admin/direct/' + encodeURIComponent(orderNumber) + '/reopen',
       { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() } });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '열기 실패');
@@ -4672,7 +4743,7 @@ async function loadNotaryDirect() {
   var box = document.getElementById('ntrd-list');
   box.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">불러오는 중…</p>';
   try {
-    var r = await fetch(API_BASE + '/api/notary/admin/direct',
+    var r = await authFetch(API_BASE + '/api/notary/admin/direct',
       { headers: { 'Authorization': 'Bearer ' + adminToken() } });
     var j = await r.json();
     if (!j.ok) throw new Error(j.error || '조회 실패');
@@ -4714,5 +4785,7 @@ async function loadNotaryDirect() {
 <script src="/admin/order_terms.js?v=2"></script>
 <script src="/admin/bp_destination.js?v=2"></script>
 <script src="/admin/score_reasons.js?v=2"></script>
+<script src="/admin/run_state.js?v=1"></script>
+<script src="/admin/bp_draft.js?v=1"></script>
 </body>
 </html>

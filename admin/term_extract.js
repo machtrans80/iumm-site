@@ -59,7 +59,7 @@
     txScopeChanged(true);
     if (TX_OPTS) return;
     try {
-      var r = await fetch(API_BASE + '/api/admin/term-extract/options', { headers: authHeaders() });
+      var r = await authFetch(API_BASE + '/api/admin/term-extract/options', { headers: authHeaders() });
       var j = await r.json();
       if (!j.ok) throw new Error(j.error || '불러오기 실패');
       TX_OPTS = j;
@@ -122,7 +122,7 @@
     return fd;
   }
   async function post(path, fd) {
-    var r = await fetch(API_BASE + path, { method: 'POST', headers: authHeaders(), body: fd });
+    var r = await authFetch(API_BASE + path, { method: 'POST', headers: authHeaders(), body: fd });
     var j = null;
     try { j = await r.json(); } catch (e) { j = { ok: false, error: '응답을 읽지 못했습니다' }; }
     return { status: r.status, data: j || {} };
@@ -220,7 +220,7 @@
     var id = TX_JOB;
     if (!id) return;
     try {
-      var r = await fetch(API_BASE + '/api/admin/term-extract/jobs/' + encodeURIComponent(id), { headers: authHeaders() });
+      var r = await authFetch(API_BASE + '/api/admin/term-extract/jobs/' + encodeURIComponent(id), { headers: authHeaders() });
       var j = await r.json();
       if (id !== TX_JOB) return;
       if (!j.ok) { $('tx-job-meta').textContent = '진행 상황을 불러오지 못했습니다: ' + (j.error || r.status); return; }

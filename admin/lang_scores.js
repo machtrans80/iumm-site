@@ -12,7 +12,7 @@
     var tb = $('ls-tbody');
     tb.innerHTML = '<tr class="empty-row"><td colspan="6">불러오는 중…</td></tr>';
     try {
-      var r = await fetch(API_BASE + '/api/admin/v3-scores', { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+      var r = await authFetch(API_BASE + '/api/admin/v3-scores', { headers: { 'Authorization': 'Bearer ' + adminToken() } });
       var j = await r.json();
       if (!j.ok) throw new Error(j.error || ('HTTP ' + r.status));
       var w = Number(j.watchBelow) || 90, t = j.total || {};

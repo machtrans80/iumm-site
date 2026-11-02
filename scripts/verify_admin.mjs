@@ -56,13 +56,20 @@ const MOCK = String.raw`(() => {
     else if (typeof opt.body === 'string') { try { rec.json = JSON.parse(opt.body); } catch (e) { rec.raw = opt.body; } }
     S.calls.push(rec);
     if (!/^\/(api|health)/.test(p)) return J({ ok: false }, 404);
-    if (p === '/api/admin/login') return J({ success: true, token: 'TEST_TOKEN' });
+    if (p === '/api/admin/login') return J({ success: true, token: S.loginToken || 'TEST_TOKEN' });
+    // 로그인 만료 흉내(2026-11-02) — S.expiredToken 과 같은 토큰으로 오면 401
+    if (S.expiredToken && rec.auth === 'Bearer ' + S.expiredToken) return J({ success: false, error: '토큰 만료' }, 401);
+    // 번역 중 표시 · 재실행 중복 방지(2026-11-02)
+    S.running = S.running || {};
+    if (p === '/api/admin/orders/run-state') return J({ ok: true, orders: (u.searchParams.get('ids') || '').split(',').filter(Boolean).map((id) => ({ orderId: id, orderNumber: (S.runNum || {})[id] || id, running: !!S.running[id], pipelineStage: S.running[id] || '', aiScore: S.running[id] ? null : 91 })) });
+    const rp = /^\/api\/admin\/reprocess\/([^/]+)$/.exec(p);
+    if (rp) { if (S.running[rp[1]]) return J({ ok: false, error: '이미 번역 중입니다' }, 409); S.running[rp[1]] = 'V3:시작'; return J({ ok: true, orderNumber: 'ADMIN-RP-' + rp[1] }); }
     if (p === '/health') return J({ ok: true, commit: 'abcdef1' });
     if (p === '/api/admin/orders') {
       const tab = u.searchParams.get('tab');
       if (tab === 'ai_premium') return J({ success: true, orders: [order(1), order(2, { status: '납품완료' })] });
       // 서버와 같이: 숨긴(admin_hidden) 주문은 tab=failed 에 안 온다
-      if (tab === 'failed') return J({ success: true, orders: [order(3, { orderStatus: '확인필요', status: '확인필요', failReason: '확인필요: P0003 숫자 확인', aiTranslation: 'text' })].filter((o) => !S.hidden[o.orderId]) });
+      if (tab === 'failed') return J({ success: true, orders: [order(3, { orderStatus: '확인필요', status: '확인필요', failReason: '확인필요: P0003 숫자 확인', aiTranslation: 'text' })].concat(S.failedExtra || []).filter((o) => !S.hidden[o.orderId]) });
       return J({ success: true, orders: [] });
     }
     // 주문 상세 [용어 추출] (2026-11-02)
@@ -112,7 +119,7 @@ const MOCK = String.raw`(() => {
     if (p === '/api/admin/v3-scores') return J({ ok: true, watchBelow: 90, total: { orders: 5, scored: 4, avg: 89.5 },
       rows: [{ pair: '한국어→일본어', orders: 2, scored: 2, unscored: 0, avg: 86, min: 84, last7: { orders: 1, avg: 88 }, watch: true },
              { pair: '한국어→영어', orders: 3, scored: 2, unscored: 1, avg: 93, min: 92, last7: { orders: 0, avg: null }, watch: false }] });
-    if (p === '/api/admin/translate-bypass') return J({ success: true, orderNumber: 'IUMM-BP-1', orderId: 'recBP' });
+    if (p === '/api/admin/translate-bypass') return J({ success: true, orderNumber: 'IUMM-BP-1', orderId: 'recBP', airtableId: 'recBP' });
     if (p === '/api/notary/config') return J({ ok: true, documents: [{ code: 'family', name: '가족관계증명서', ready: true }], langs: [{ code: 'en', name: '영어', ready: true }] });
     if (p === '/api/notary/admin/direct' && m === 'GET') return J({ ok: true, orders: [{ orderNumber: 'NTR-ADM-0001', docType: '가족관계증명서', statusKey: 'done', statusLabel: '완료', receivedAt: '2026-10-30T01:00:00Z' }] });
     if (/^\/api\/notary\/admin\/direct\/[^/]+\/reopen$/.test(p)) return J({ ok: true, editUrl: 'https://iumm.kr/notary/edit.html?t=EDIT_TOKEN' });
@@ -759,6 +766,106 @@ try {
     fs.writeFileSync(path.join(SHOT_DIR, 'admin_field_list.png'), Buffer.from(sh.result.data, 'base64'));
     await ev(`(() => { const f = document.getElementById('bp-field'); f.size = 0; f.style.height = ''; f.value = 'general'; return 1; })()`);
     await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  }
+
+  console.log('\n[17] 번역 중 표시 · 로그인 만료 · 재실행 중복 방지 · 폼 임시 저장 (2026-11-02)');
+  {
+    // ── 주문 목록·상세: 번역 중 배지 · 잠금 · 자동 삭제 예정일 ──
+    await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
+    await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`);
+    await ev(`(window.__mock.running.recRUN = 'V3:⑧-2 최종 편집', window.__mock.runNum = { recRUN: 'ADMIN-RUN-1' },
+      window._orders.unshift({ orderId: 'recRUN', orderNumber: 'ADMIN-RUN-1', running: true, pipelineStage: 'V3:⑧-2 최종 편집', autoDeleteAt: '2026-11-23T19:00:00.000Z', plan: 'AI 프리미엄', charCount: 7397, receivedAt: '2026-11-02T03:00:00Z', originalText: '원문', aiTranslation: '번역' }), renderOrderTable(), 1)`);
+    const badge = await ev(`(document.querySelector('#orders-tbody tr[data-id="recRUN"] .st-run') || {}).textContent || ''`);
+    check(badge === '번역 중 · ⑧-2 최종 편집', `주문 목록 '번역 중 · 단계' 배지 (${badge})`);
+    await click('#orders-tbody tr[data-id="recRUN"]'); await sleep(200);
+    const det = await ev(`({ line: document.getElementById('run-line').style.display !== 'none' && /번역 중입니다 — 끝나면 자동으로 새로 고칩니다/.test(document.getElementById('run-line').textContent),
+      del: document.getElementById('autodel-line').textContent, save: document.getElementById('btn-save-draft').disabled, deliver: document.getElementById('btn-deliver').disabled, ro: document.getElementById('panel-translation').readOnly,
+      color: getComputedStyle(document.querySelector('#run-line .st-run')).color })`);
+    check(det.line, "주문 상세 위 '번역 중입니다 — 끝나면 자동으로 새로 고칩니다'");
+    check(det.save && det.deliver && det.ro, '번역 중에는 번역 칸·저장·납품 잠금');
+    check(det.del === '본문 자동 삭제 예정: 11월 24일', `관리자 주문 '${det.del}'`);
+    const rgb = (det.color.match(/\d+/g) || []).map(Number);
+    check(rgb.length >= 3 && rgb[2] > rgb[0] && rgb[2] > rgb[1], `배지 색 파랑 계열 (${det.color})`);
+    {
+      await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1600, deviceScaleFactor: 1, mobile: false });
+      await ev(`(document.getElementById('toast').classList.remove('show'), document.getElementById('orders-wrap').scrollIntoView({ block: 'start' }), window.scrollBy(0, -60), 1)`); await sleep(250);
+      const r = await ev(`(() => { const a = document.getElementById('orders-wrap').getBoundingClientRect(), b = document.getElementById('autodel-line').getBoundingClientRect(); const y = Math.max(0, a.top - 10); return { x: 0, y, width: 1440, height: Math.min(1500, Math.max(a.bottom, b.bottom) - y + 20) }; })()`);
+      const sh = await send('Page.captureScreenshot', { format: 'png', clip: { ...r, scale: 1 } });
+      fs.writeFileSync(path.join(SHOT_DIR, 'admin_running_badge.png'), Buffer.from(sh.result.data, 'base64'));
+      await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    }
+    // 30초 상태 확인 — 끝나면 목록 새로 고침 + '번역 끝' 알림
+    await ev(`(window.__mock.running.recRUN = 'V3:⑨ 채점', window.__mock.calls.length = 0, 1)`);
+    await ev(`window.runPollNow().then(() => 1)`); await sleep(100);
+    check(await ev(`(document.querySelector('[data-run="recRUN"]') || {}).textContent`) === '번역 중 · ⑨ 채점', '상태만 다시 읽어 단계 갱신');
+    const rs = await ev(`window.__mock.calls.filter(c => c.p === '/api/admin/orders/run-state').map(c => ({ m: c.m, q: decodeURIComponent(c.q), body: !!(c.json || c.raw) }))`);
+    check(rs.length === 1 && rs[0].m === 'GET' && !rs[0].body && /ids=.*recRUN/.test(rs[0].q), `상태 확인은 run-state 한 번(GET · 주문 ID만 · 본문 없음) ${JSON.stringify(rs)}`);
+    await ev(`(delete window.__mock.running.recRUN, window.__mock.calls.length = 0, 1)`);
+    await ev(`window.runPollNow().then(() => 1)`); await sleep(400);
+    check(/번역 끝: ADMIN-RUN-1 \(91점\)/.test(await ev(`document.getElementById('toast').textContent`)), "끝나면 '번역 끝: 주문번호 (점수)' 알림");
+    check(await ev(`window.__mock.calls.some(c => c.p === '/api/admin/orders' && /tab=ai_premium/.test(c.q))`), '끝나면 목록 새로 고침');
+
+    // ── 번역실패 탭: 번역 중 카드 — 불러오기·재실행 잠금 ──
+    await ev(`(window.__mock.failedExtra = [{ orderId: 'recRUN2', orderNumber: 'ADMIN-RUN-2', running: true, pipelineStage: 'V3:③ 번역', charCount: 100, direction: '한국어 → 스페인어' }], window.__mock.running.recRUN2 = 'V3:③ 번역', setAdminMode('orders', true), switchTab('failed'), 1)`);
+    await until(`!!document.querySelector('#failed-list [data-run="recRUN2"]')`);
+    const card = await ev(`(() => { const b = document.querySelector('#failed-list [data-run="recRUN2"]'); const c = b.closest('div[style*="padding:16px"]'); return { t: b.textContent, load: !!c.querySelector('button'), msg: /번역 중입니다/.test(c.textContent) }; })()`);
+    check(card.t === '번역 중 · ③ 번역' && !card.load && card.msg, `번역실패 탭 번역 중 카드 — 배지 · 버튼 없음 (${card.t})`);
+    await ev(`(window.__mock.failedExtra = [], delete window.__mock.running.recRUN2, 1)`);
+
+    // ── 재실행 중복 방지: 같은 주문 두 번 연속 → 응답 전 두 번째는 안 보냄, 번역 중이면 서버 409 ──
+    await ev(`(window.__mock.calls.length = 0, window.__r1 = _doReprocess('recDUP', { text: 'x', direction: '한국어 → 영어' }, 'ADMIN-DUP'), window.__r2 = _doReprocess('recDUP', { text: 'x', direction: '한국어 → 영어' }, 'ADMIN-DUP'), 1)`);
+    const dup = await ev(`Promise.all([window.__r1, window.__r2]).then(r => ({ r, n: window.__mock.calls.filter(c => c.p === '/api/admin/reprocess/recDUP').length }))`);
+    check(dup.r[0] === true && dup.r[1] === false && dup.n === 1, `두 번 연속 → 응답 오기 전 두 번째는 보내지 않음 (보낸 수 ${dup.n})`);
+    const third = await ev(`_doReprocess('recDUP', { text: 'x', direction: '한국어 → 영어' }, 'ADMIN-DUP').then(ok => ({ ok, toast: document.getElementById('toast').textContent }))`);
+    check(third.ok === false && /이미 번역 중입니다/.test(third.toast), `번역 중인 주문 다시 재실행 → 409 '이미 번역 중입니다'`);
+
+    // ── 우회 접수 직후 그 자리에서 '번역 중' ──
+    await ev(`(setAdminMode('orders', true), switchTab('bypass'), exitReprocessMode(), document.getElementById('bp-text').value = '원문 시험', document.getElementById('bp-direction').selectedIndex = 1, 1)`);
+    await ev(`submitBypassOrder().then(() => 1)`); await sleep(200);
+    check(/번역 중 · 시작/.test(await ev(`document.getElementById('bp-result-run').textContent`)), "우회 [번역 시작] 직후 '번역 중' 배지");
+
+    // ── 로그인 만료: 저장·재실행·우회 접수 → 그 자리 비밀번호 칸 → 로그인 뒤 같은 요청 자동 재시도 · 폼 내용 유지 ──
+    await ev(`(window.__mock.expiredToken = 'OLD_TOKEN', window.__mock.loginToken = 'NEW_TOKEN', 1)`);
+    const relogin = async (label, start, pathRe, keepExpr, expect, shotName) => {
+      await ev(`(window.__mock.calls.length = 0, localStorage.setItem('adminToken', 'OLD_TOKEN'), window.__p = (${start}), 1)`);
+      const shown = await until(`!!document.getElementById('relogin-box')`);
+      const keep1 = await ev(keepExpr);
+      if (shotName) {
+        const r = await ev(`(() => { const a = document.querySelector('#relogin-box .rl').getBoundingClientRect(); return { x: Math.max(0, a.left - 30), y: Math.max(0, a.top - 30), width: a.width + 60, height: a.height + 60 }; })()`);
+        const sh = await send('Page.captureScreenshot', { format: 'png', clip: { ...r, scale: 1 } });
+        fs.writeFileSync(path.join(SHOT_DIR, shotName), Buffer.from(sh.result.data, 'base64'));
+      }
+      await ev(`(document.getElementById('relogin-pw').value = 'pw', document.getElementById('relogin-go').click(), 1)`);
+      await until(`!document.getElementById('relogin-box')`);
+      await ev(`Promise.resolve(window.__p).then(() => 1)`); await sleep(250);
+      const calls = await ev(`window.__mock.calls.filter(c => ${pathRe}.test(c.p)).map(c => c.auth)`);
+      check(shown && calls.length === 2 && calls[0] === 'Bearer OLD_TOKEN' && calls[1] === 'Bearer NEW_TOKEN' && keep1 === expect,
+        `만료된 토큰으로 ${label} → 그 자리 로그인 칸 → 로그인 뒤 같은 요청 자동 재시도(${calls.length}회) · 입력 내용 그대로`);
+      check(await ev(`document.getElementById('admin-view').style.display !== 'none' && localStorage.getItem('adminToken') === 'NEW_TOKEN'`), `${label}: 화면을 새로 고치지 않음 · 새 토큰 저장`);
+    };
+    await ev(`(setAdminMode('orders', true), switchTab('ai_premium'), 1)`);
+    await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`);
+    await click('#orders-tbody tr[data-id="rec1"]'); await sleep(200);
+    await ev(`(document.getElementById('panel-translation').value = 'EDITED-TRANSLATION-1', 1)`);
+    await relogin('번역 칸 저장', `saveTranslationDraft()`, '/save-translation$/', `document.getElementById('panel-translation').value`, 'EDITED-TRANSLATION-1', 'admin_relogin.png');
+    check(await ev(`document.getElementById('panel-translation').value`) === 'EDITED-TRANSLATION-1', '로그인 뒤에도 번역 칸 내용 그대로');
+    await ev(`(window._failedOrders = [{ orderId: 'recEXP', orderNumber: 'ADMIN-EXP-1', originalText: '불러온 원문', direction: '한국어 → 영어', fieldCode: 'legal', referenceNotes: '메모' }], loadFailedToBypassForm(0), 1)`); await sleep(200);
+    await relogin('재실행', `submitBypassOrder()`, '/reprocess\\/recEXP$/', `document.getElementById('bp-text').value`, '불러온 원문');
+    await ev(`(exitReprocessMode(), document.getElementById('bp-text').value = '우회 원문 EXP', document.getElementById('bp-direction').selectedIndex = 1, 1)`);
+    await relogin('우회 접수', `submitBypassOrder()`, '/translate-bypass$/', `document.getElementById('bp-text').value`, '우회 원문 EXP');
+    check(await ev(`document.getElementById('bp-text').value`) === '우회 원문 EXP', '우회 접수 뒤 원문 칸 그대로');
+    await ev(`(window.__mock.expiredToken = null, localStorage.setItem('adminToken', 'TEST_TOKEN'), 1)`);
+
+    // ── 우회 폼 임시 저장: sessionStorage 에만 · 새로고침해도 남음 · 접수 성공하면 지움 ──
+    await ev(`(window._failedOrders = [{ orderId: 'recSS', orderNumber: 'ADMIN-SS-1', originalText: '임시 저장 원문', direction: '한국어 → 영어', fieldCode: 'legal', referenceNotes: '' }], loadFailedToBypassForm(0), 1)`); await sleep(200);
+    await ev(`(document.getElementById('bp-notes').value = '메모 SS', document.getElementById('bp-notes').dispatchEvent(new Event('input', { bubbles: true })), 1)`); await sleep(700);
+    const ss = await ev(`({ s: sessionStorage.getItem('iumm.bpDraft') || '', l: Object.keys(localStorage).map(k => localStorage.getItem(k)).join('|') })`);
+    check(/임시 저장 원문/.test(ss.s) && /recSS/.test(ss.s) && !/임시 저장 원문/.test(ss.l), '폼 내용은 sessionStorage 에만(localStorage 에 본문 없음)');
+    events.length = 0; await send('Page.reload', {}); for (let i = 0; i < 100 && !events.includes('Page.loadEventFired'); i++) await sleep(100); await sleep(500);
+    const back = await ev(`({ t: document.getElementById('bp-text').value, n: document.getElementById('bp-notes').value, rp: window._bpReprocessOrderId })`);
+    check(back.t === '임시 저장 원문' && back.n === '메모 SS' && back.rp === 'recSS', '새로고침해도 폼·재실행 주문 그대로');
+    await ev(`(setAdminMode('orders', true), switchTab('bypass'), submitBypassOrder().then(() => 1))`); await sleep(400);
+    check(await ev(`sessionStorage.getItem('iumm.bpDraft') === null`), '접수(재실행) 성공하면 임시 저장 지움');
   }
 
   // 실제 주문 화면 확인(선택) — REAL_ORDER_JSON=<저장소 밖 파일>. 가짜 fetch 그대로라 서버에 아무것도 보내지 않고, 번역문을 고치지 않는다. 내용은 출력하지 않음(건수만)

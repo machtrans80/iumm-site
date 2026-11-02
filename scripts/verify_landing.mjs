@@ -638,8 +638,8 @@ console.log('\n[보안] 파일 올리기에 로그인 토큰 (2026-10-30, 서버
   check(calls.length === 7 && calls.every(c => c.includes('uploadAuthHeaders(')), `고객 화면 OCR·원문 추출·원문 첨부·참고자료 호출 ${calls.length}곳 모두 카카오 토큰(uploadAuthHeaders)`);
   check(/function uploadAuthHeaders\(\)\{\s*var t=\(typeof Kakao!=='undefined'&&Kakao\.Auth&&Kakao\.Auth\.getAccessToken\)\?Kakao\.Auth\.getAccessToken\(\):null;\s*return t\?\{'Authorization':'Bearer '\+t\}:\{\};/.test(html), 'uploadAuthHeaders = 카카오 access token → Authorization: Bearer');
   const admin = fs.readFileSync(path.resolve(HERE, '../admin/index.html'), 'utf8');
-  const ac = [...admin.matchAll(/fetch\(([^;]*?(?:BP_EXTRACT_API|\/api\/order\/attach-source-files|\/api\/admin\/upload-reference)[^;]*?)\)/g)].map(m => m[1]);
-  check(ac.length === 3 && ac.every(c => c.includes("'Authorization': 'Bearer ' + adminToken(")), `관리자 화면 원문 추출·원문 첨부·참고자료 ${ac.length}곳 관리자 토큰`);
+  const ac = [...admin.matchAll(/(?:fetch|authFetch)\(([^;]*?(?:BP_EXTRACT_API|\/api\/order\/attach-source-files|\/api\/admin\/upload-reference)[^;]*?)\)/g)].map(m => m[1]);
+  check(ac.length === 3 && ac.every(c => c.includes("'Authorization': 'Bearer ' + adminToken(")), `관리자 화면 원문 추출·원문 첨부·참고자료 ${ac.length}곳 관리자 토큰(authFetch — 401 이면 그 자리 재로그인, 2026-11-02)`);
   check(html.includes('id="upload-relogin-notice"') && html.includes('보안을 위해 다시 로그인해 주세요.') && html.includes('>카카오로 다시 로그인</button>'), '토큰 없음·만료 → 주문 창 안 다시 로그인 안내 (동작은 verify_upload_relogin.mjs)');
 }
 
