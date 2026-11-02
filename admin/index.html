@@ -1035,6 +1035,25 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           </div>
         </div>
 
+        <!-- 제출 국가 · 영어 표기 (2026-11-02) — 도착어가 영어일 때만. 저장은 번역지시사항 첫 줄(bp_destination.js) -->
+        <div class="bp-row" id="bp-dest-row" style="display:none">
+          <div class="bp-col">
+            <label class="bp-label">제출 국가 <span style="color:rgba(255,255,255,0.3);font-size:11px">(선택)</span></label>
+            <input id="bp-dest-nation" class="bp-inp" type="text" placeholder="예: 캄보디아, 호주, 미국" oninput="bpDestRefresh()">
+          </div>
+          <div class="bp-col">
+            <label class="bp-label">영어 표기</label>
+            <div style="display:flex;align-items:center;gap:10px">
+              <select id="bp-dest-variant" class="bp-inp" style="flex:1" onchange="bpDestRefresh()">
+                <option value="auto" selected>자동</option>
+                <option value="US">미국식</option>
+                <option value="UK">영국식</option>
+              </select>
+              <span id="bp-dest-judge" style="color:#7fb4ff;font-size:13px;font-weight:600;white-space:nowrap"></span>
+            </div>
+          </div>
+        </div>
+
         <div class="bp-row single">
           <div class="bp-col">
             <label class="bp-label">원문 텍스트 * <span style="color:rgba(255,255,255,0.3);font-size:11px">(OCR 추출 결과가 자동 입력됩니다)</span></label>
@@ -1273,6 +1292,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
             <span id="save-status" style="font-size:11px;color:rgba(255,255,255,0.35)"></span>
           </div>
           <div class="panel-progress-bar"><div id="prog-tr" class="panel-progress-fill"></div></div>
+          <div id="dest-line" style="display:none;margin:6px 0 4px;padding:6px 10px;border-radius:6px;background:rgba(74,144,226,0.12);border:1px solid rgba(74,144,226,0.35);color:#a9cdff;font-size:12px"></div>
           <div class="ta-wrap-s">
             <textarea class="panel-ta editable" id="panel-translation" oninput="onTranslationEdit()"></textarea>
             <div class="ta-overlay" id="ov-tr"></div>
@@ -1872,13 +1892,14 @@ function loadFailedToBypassForm(idx) {
   setV('bp-notes', o.adminNotes || '');
   setV('bp-reference-text', o.referenceText || '');
   setV('bp-reference-glossary', o.customerGlossary || '');
-  setV('bp-reference-notes', o.referenceNotes || '');
+  setV('bp-reference-notes', window.bpDestLoad ? bpDestLoad(o.referenceNotes || '') : (o.referenceNotes || ''));
   // 번역방향 select — 공백 무시 매칭
   var dirSel = document.getElementById('bp-direction');
   if (dirSel && o.direction) {
     var norm = function(s){ return String(s||'').replace(/\s+/g,''); };
     for (var i=0;i<dirSel.options.length;i++){ if (norm(dirSel.options[i].text) === norm(o.direction)) { dirSel.selectedIndex = i; break; } }
   }
+  if (window.bpDestRefresh) bpDestRefresh();
   var fSel = document.getElementById('bp-field');
   if (fSel && o.fieldCode) fSel.value = o.fieldCode;
   var pSel = document.getElementById('bp-plan');
@@ -1914,6 +1935,7 @@ function exitReprocessMode() {
   if (btn) btn.innerHTML = '<i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>우회 주문 시작 (결제 없이 파이프라인 실행)';
   var warn = document.getElementById('bp-noref-warning'); if (warn) warn.style.display = 'none';
   ['bp-text','bp-email','bp-notes','bp-reference-text','bp-reference-glossary','bp-reference-notes','bp-corp-bizno','bp-corp-name'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  if (window.bpDestClear) bpDestClear();
   if (typeof bpUpdateCharCount === 'function') bpUpdateCharCount();
   showToast('재실행 모드 해제 — 일반 우회주문 모드로 전환', '');
 }
@@ -2128,6 +2150,7 @@ function selectOrder(id, row) {
   initAutoSave();
   holdShowPanel(order);
   if (window.otxShow) otxShow(order);
+  if (window.destShowOrder) destShowOrder(order);
 }
 
 // ── 글자수/단어수 카운터 ─────────────────────────────────────
@@ -3374,6 +3397,7 @@ function populateAiScoreSection(order) {
       row3('⑨ 반영', '수정안 ' + (v3s.applied || 0) + ' · 재작업 ' + (v3s.reworked || 0) + '문단' + (v3s.reverted ? dim('(내려가서 되돌림)') : '')) +
       row3('⑧-2 편집', '고침 ' + (e3.edited || 0) + dim('· 되돌림 ' + ((e3.termRestored || 0) + (e3.ruleReverted || 0) + (e3.codeReverted || 0)))) +
       row3('코드 점검 실패', (v3.codeCheck && v3.codeCheck.failed) || 0) +
+      (v3.variant ? row3('철자 관례', '자동 맞춤 ' + (v3.variant.fixed || 0) + '곳 · 기록만 ' + (v3.variant.recordOnly || 0) + '곳' + dim('(보류 안 함)')) : '') +
       '<div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;line-height:1.4">Claude 채점은 표시용 — ' + (v3s.reworkBelow || 90) + '점 미만이면 지적 문단만 1회 재작업하고 그대로 진행(점수로 보류하지 않음). GPT 최종 검수 점수와 따로 봅니다.</div>';
   } else if (v2) {
     var vs = v2.score || {}, d = vs.deductions || {}, n = vs.issues || {};
@@ -3382,6 +3406,7 @@ function populateAiScoreSection(order) {
       row('교차 검수 감점', '−' + (d['교차검수'] || 0) + ' <span style="color:rgba(255,255,255,0.3)">(치명 ' + (n['치명'] || 0) + ' · 중대 ' + (n['중대'] || 0) + ' · 경미 ' + (n['경미'] || 0) + (vs.rejectedByRebuttal ? ' · 반론 기각 ' + vs.rejectedByRebuttal : '') + ')</span>') +
       row('코드 검사 감점', '−' + (d['코드검사'] || 0) + (vs.codeCheckFailed ? ' <span style="color:rgba(255,255,255,0.3)">(실패 ' + vs.codeCheckFailed + ')</span>' : '')) +
       row('일관성 감점', '−' + (d['일관성'] || 0)) +
+      (v2.variant ? row('철자 관례', '자동 맞춤 ' + (v2.variant.fixed || 0) + '곳 · 기록만 ' + (v2.variant.recordOnly || 0) + '곳 <span style="color:rgba(255,255,255,0.3)">(보류 안 함)</span>') : '') +
       '<div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;line-height:1.4">' + String(vs.formula || '').replace(/[<>&]/g, '') + '</div>';
   } else if (detail && typeof detail === 'object' && !Array.isArray(detail)) {
     detailEl.innerHTML = DETAIL_KEYS.map(function(pair) {
@@ -3658,6 +3683,7 @@ async function submitBypassOrder() {
     var rText  = (document.getElementById('bp-reference-text')?.value    || '').trim();
     var rGloss = (document.getElementById('bp-reference-glossary')?.value || '').trim();
     var rNotes = (document.getElementById('bp-reference-notes')?.value   || '').trim();
+    if (window.bpDestMerge) rNotes = bpDestMerge(rNotes).trim(); // 제출 국가·영어 표기 줄 → 맨 앞(중복 없이)
     var hasRef = !!(rText || rGloss || rNotes);
     var planLbl = isPP ? 'AI 프리미엄 → 프리미엄 플러스(검수자 배정)' : 'AI 프리미엄';
     var confirmMsg =
@@ -3698,6 +3724,7 @@ async function submitBypassOrder() {
   var referenceText    = (document.getElementById('bp-reference-text')?.value    || '').trim();
   var referenceGlossary = (document.getElementById('bp-reference-glossary')?.value || '').trim();
   var referenceNotes   = (document.getElementById('bp-reference-notes')?.value   || '').trim();
+  if (window.bpDestMerge) referenceNotes = bpDestMerge(referenceNotes).trim(); // 제출 국가·영어 표기 줄 → 맨 앞(중복 없이)
   var referenceFiles   = document.getElementById('bp-reference-file')?.files;
 
   try {
@@ -4587,5 +4614,6 @@ async function loadNotaryDirect() {
 <script src="/admin/credit_budget.js?v=1"></script>
 <script src="/admin/lang_scores.js?v=1"></script>
 <script src="/admin/order_terms.js?v=2"></script>
+<script src="/admin/bp_destination.js?v=1"></script>
 </body>
 </html>

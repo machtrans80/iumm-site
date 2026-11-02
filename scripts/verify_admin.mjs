@@ -527,6 +527,65 @@ try {
   await click('#corp-list tbody tr');
   check(await until(`/전용 용어 2개/.test(document.getElementById('corp-detail').textContent) && /알파 엔진/.test(document.getElementById('corp-detail').textContent) && /Alpha Engine/.test(document.getElementById('corp-detail').textContent)`), '회사를 누르면 그 회사 전용 용어 목록');
 
+  console.log('\n[13] 우회 주문 — 제출 국가 · 영어 표기 (2026-11-02)');
+  await ev(`setAdminMode('orders', true), switchTab('bypass'), 1`); await sleep(200);
+  const setDir = (d) => ev(`(() => { const s = document.getElementById('bp-direction'); s.value = ${JSON.stringify(d)}; s.dispatchEvent(new Event('change')); return 1; })()`);
+  const setDest = (n, v) => ev(`(() => { document.getElementById('bp-dest-nation').value = ${JSON.stringify(n)}; document.getElementById('bp-dest-variant').value = ${JSON.stringify(v)}; bpDestRefresh(); return document.getElementById('bp-dest-judge').textContent; })()`);
+  const destShown = () => ev(`getComputedStyle(document.getElementById('bp-dest-row')).display !== 'none'`);
+  await setDir('포르투갈어 → 한국어');
+  check(!(await destShown()), '도착어가 영어가 아니면 칸 안 보임');
+  await setDir('한국어 → 영어');
+  check(await destShown(), '한국어 → 영어 고르면 칸 보임');
+  check(await ev(`(() => { const all = [...document.getElementById('bypass-wrap').querySelectorAll('*')]; return all.indexOf(document.getElementById('bp-dest-row')) > all.indexOf(document.getElementById('bp-direction')) && all.indexOf(document.getElementById('bp-dest-row')) < all.indexOf(document.getElementById('bp-text')); })()`), '위치: 번역 방향 바로 아래(원문 텍스트 위)');
+  check((await setDest('', 'auto')) === '→ 미국식 (제출 국가 없음 — 기본값)', '비움 + 자동 → 미국식(기본값)');
+  check((await setDest('캄보디아', 'auto')) === '→ 미국식', '캄보디아 + 자동 → 미국식');
+  check((await setDest('호주', 'auto')) === '→ 영국식', '호주 + 자동 → 영국식');
+  check((await setDest('인도네시아', 'auto')) === '→ 미국식', "'인도네시아'는 인도(영연방)로 보지 않음");
+  await setDest('호주', 'US');
+  check(await ev(`bpDestLine()`) === '제출 국가: 호주 · 영어 표기: 미국식', '직접 고르면 그 값 그대로(호주 + 미국식)');
+  await setDest('', 'auto');
+  check(await ev(`bpDestLine()`) === '', '비움 + 자동 → 줄 안 씀');
+  // 새 주문: 지시사항 첫 줄로 · 예전 줄은 바꿔 씀(중복 없음)
+  await setDest('캄보디아', 'auto');
+  await ev(`document.getElementById('bp-text').value = '원문입니다', document.getElementById('bp-reference-notes').value = '제출 국가: 영국 · 영어 표기: 영국식\\n공증용 서류입니다', window.__mock.calls.length = 0, 1`);
+  await ev(`submitBypassOrder()`);
+  const bp2 = (await calls('^/api/admin/translate-bypass$'))[0];
+  check(bp2 && bp2.json.referenceNotes === '제출 국가: 캄보디아 · 영어 표기: 자동(미국식)\n공증용 서류입니다', `새 주문 → 번역지시사항 첫 줄 "제출 국가: 캄보디아 · 영어 표기: 자동(미국식)" · 예전 줄 바꿔 씀 (${bp2 && JSON.stringify(bp2.json.referenceNotes)})`);
+  check(bp2 && bp2.json.direction === '한국어 → 영어', '번역 방향 그대로');
+  // [폼에 불러오기] → 칸에 다시 채우고 나머지만 지시사항에 · 다시 저장해도 한 줄
+  await ev(`window._failedOrders = [{ orderId: 'recF1', orderNumber: 'ADMIN-TEST-1', originalText: '원문', direction: '한국어 → 영어', referenceNotes: '제출 국가: 캄보디아 · 영어 표기: 영국식\\n격식체로' }], loadFailedToBypassForm(0), 1`); await sleep(200);
+  const ld = await ev(`({ n: document.getElementById('bp-dest-nation').value, v: document.getElementById('bp-dest-variant').value, notes: document.getElementById('bp-reference-notes').value, shown: getComputedStyle(document.getElementById('bp-dest-row')).display !== 'none' })`);
+  check(ld.n === '캄보디아' && ld.v === 'UK' && ld.notes === '격식체로' && ld.shown, `불러오기: 제출 국가·영어 표기 칸 채움 · 지시사항엔 나머지만 (${JSON.stringify(ld)})`);
+  const merged = await ev(`bpDestMerge(document.getElementById('bp-reference-notes').value)`);
+  check(merged === '제출 국가: 캄보디아 · 영어 표기: 영국식\n격식체로' && merged.split('\n').filter((l) => /제출 국가|영어 표기/.test(l)).length === 1, '불러온 뒤 다시 저장 → 그 줄 1개(중복 없음)');
+  check(await ev(`bpDestMerge('제출 국가: 캄보디아 · 영어 표기: 영국식\\n영어 표기: 미국식\\n격식체로')`) === '제출 국가: 캄보디아 · 영어 표기: 영국식\n격식체로', '예전 줄이 여러 개여도 하나로');
+  {
+    await setDest('캄보디아', 'auto');   // 캡처: 자동 + 판단 결과 보이게
+    await ev(`(document.activeElement && document.activeElement.blur(), document.getElementById('toast').classList.remove('show'), 1)`);
+    await ev(`(document.getElementById('bp-direction').scrollIntoView({ block: 'center' }), 1)`); await sleep(200);
+    const r = await ev(`(() => { const a = document.getElementById('bp-direction').closest('.bp-row').getBoundingClientRect(), b = document.getElementById('bp-dest-row').getBoundingClientRect(); return { x: Math.max(0, a.left - 12), y: Math.max(0, a.top - 12), width: a.width + 24, height: b.bottom - a.top + 24 }; })()`);
+    const sh = await send('Page.captureScreenshot', { format: 'png', clip: { ...r, scale: 1 } });
+    fs.writeFileSync(path.join(SHOT_DIR, 'admin_destination_select.png'), Buffer.from(sh.result.data, 'base64'));
+  }
+  await ev(`exitReprocessMode(), 1`);
+  check(await ev(`document.getElementById('bp-dest-nation').value === '' && document.getElementById('bp-dest-variant').value === 'auto'`), '재실행 모드 해제 → 칸 비움');
+  await setDir('한국어 → 일본어');
+  await setDest('호주', 'UK');
+  check(!(await destShown()) && await ev(`bpDestLine()`) === '' && await ev(`bpDestMerge('제출 국가: 호주\\n메모')`) === '메모', '도착어가 영어가 아니면 줄 안 씀(예전 줄은 뺌)');
+  await setDir('포르투갈어 → 한국어'); await setDest('', 'auto');
+  // 주문 상세: 번역문 위 한 줄 — 처리 기록 destination
+  await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
+  await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`); await click('#orders-tbody tr[data-id="rec1"]'); await sleep(200);
+  check(await ev(`document.getElementById('dest-line').style.display === 'none'`), '처리 기록에 제출처 없으면 줄 안 보임');
+  await ev(`destShowOrder({ aiQualityDetail: { v3: { destination: { country: 'US', label: '미국식', basis: '관리자 지정', nation: '캄보디아' }, variant: { fixed: 2, recordOnly: 1 } } } }), 1`);
+  check(await ev(`document.getElementById('dest-line').textContent.trim()`) === '제출 국가: 캄보디아 · 영어 표기: 미국식 (근거: 관리자 지정)', '주문 상세: "제출 국가: 캄보디아 · 영어 표기: 미국식 (근거: 관리자 지정)"');
+  check(await ev(`(() => { const d = document.getElementById('dest-line').getBoundingClientRect(), t = document.getElementById('panel-translation').getBoundingClientRect(); return d.bottom <= t.top + 1; })()`), '위치 — 번역문 위');
+  await ev(`destShowOrder({ aiQualityDetail: { v2: { destination: { country: 'UK', basis: '문서 첫머리(영국 대사관)', nation: '' } } } }), 1`);
+  check(await ev(`document.getElementById('dest-line').textContent.trim()`) === '제출 국가: 지정 없음 · 영어 표기: 영국식 (근거: 문서 첫머리)', 'V2 기록 · 문서 첫머리 근거');
+  await ev(`destShowOrder({ aiQualityDetail: { v3: { destination: { country: 'US', basis: '기본값', nation: '' } } } }), 1`);
+  check(/미국식 \(근거: 기본값\)/.test(await ev(`document.getElementById('dest-line').textContent`)), '기본값 근거');
+  check(adminSrc.includes("row3('철자 관례', '자동 맞춤 '") && adminSrc.includes("'곳 · 기록만 '"), "V3 처리 기록에 '철자 관례 자동 맞춤 N곳 · 기록만 N곳'");
+
   console.log('\n[9] 모바일 390px');
   await open(390, 844, true, { token: 'TEST_TOKEN' });
   check(await until(`document.getElementById('admin-view').style.display === 'flex' && !!document.querySelector('#orders-tbody tr[data-id="rec1"]')`), '저장된 토큰으로 바로 관리자 화면 (390px)');
@@ -560,5 +619,5 @@ try {
 }
 function document_dir_expect() { return '포르투갈어 → 한국어'; }
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
-console.log(`스크린숏: ${SHOT_DIR}/admin_preview_desktop.png · admin_preview_mobile.png`);
+console.log(`스크린숏: ${SHOT_DIR}/admin_preview_desktop.png · admin_preview_mobile.png · admin_destination_select.png`);
 process.exit(fail ? 1 : 0);
