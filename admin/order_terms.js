@@ -36,10 +36,14 @@
     setBusy(false);
     var r = job.result || {};
     if (job.status === '완료' && r.counts) {
-      var c = r.counts;
+      var c = r.counts, sk = r.skipped || [];
+      // 새 용어 = 승인 + 후보 + 충돌, 거절은 따로 (2026-11-02 보완 — 그 전 결과는 거절 칸이 없어 표시 안 함)
       msg('<strong style="color:' + BLUE_LIGHT + '">끝났습니다</strong> ' + when(job.finishedAt) + '<br>' +
-        '새 용어 <strong>' + c.새용어 + '</strong>개 (승인 ' + c.승인 + ' / 후보 ' + c.후보 + ' / 충돌 ' + c.충돌 + ') · 건너뜀 ' + c.건너뜀 + '개 · 사용 금액 $' + Number(r.costUsd || 0).toFixed(3) +
-        ' <button type="button" style="' + btnSub + ';margin-left:6px;padding:4px 10px" onclick="otxOpenTerms()">용어집에서 보기</button>');
+        '새 용어 <strong>' + c.새용어 + '</strong>개 (승인 ' + c.승인 + ' / 후보 ' + c.후보 + ' / 충돌 ' + c.충돌 + ')' + (c.거절 != null ? ' · 거절 ' + c.거절 + '개' : '') +
+        ' · 건너뜀 ' + c.건너뜀 + '개 · 사용 금액 $' + Number(r.costUsd || 0).toFixed(3) +
+        ' <button type="button" style="' + btnSub + ';margin-left:6px;padding:4px 10px" onclick="otxOpenTerms()">용어집에서 보기</button>' +
+        (sk.length ? '<details id="otx-skipped" style="margin-top:6px"><summary style="cursor:pointer;color:' + BLUE_LIGHT + ';font-size:12px">건너뛴 용어 ' + sk.length + '개 보기 <span style="color:rgba(255,255,255,0.45)">(이미 용어집에 같은 번역어로 있음)</span></summary>' +
+          '<div style="margin-top:6px;padding:8px 10px;background:rgba(31,79,209,0.08);border:1px solid rgba(157,183,245,0.2);border-radius:4px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.75)">' + sk.map(_e).join(' · ') + '</div></details>' : ''));
     } else if (job.status === '멈춤') {
       msg('멈췄습니다: ' + _e(r.message || r.error || ''));
     } else if (job.status === '실패') {

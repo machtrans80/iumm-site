@@ -488,6 +488,22 @@ try {
   check(await until(`/처리 중/.test(document.getElementById('otx-msg').textContent)`), '다시 열어도 처리 중 유지');
   await ev(`window.__mock.otx.job = { status: '완료', startedAt: '2026-11-02T01:00:00Z', finishedAt: '2026-11-02T01:06:00Z', result: { counts: { 새용어: 3, 승인: 1, 후보: 1, 충돌: 1, 건너뜀: 2 }, costUsd: 0.051 } }, otxShow(window._orders[0]), 1`);
   check(await until(`/새 용어 3개 \\(승인 1 \\/ 후보 1 \\/ 충돌 1\\) · 건너뜀 2개 · 사용 금액 \\$0\\.051/.test(document.getElementById('otx-msg').textContent)`), '끝나면 새 용어(승인/후보/충돌)·건너뜀·사용 금액');
+  check(await ev(`!/거절/.test(document.getElementById('otx-msg').textContent) && !document.getElementById('otx-skipped')`), '예전 결과(거절·건너뛴 목록 없음)는 그대로 표시');
+  // 보완판 결과 (2026-11-02): 새 용어 = 승인+후보+충돌 · 거절 따로 · 건너뛴 원어 펼쳐 보기
+  await ev(`window.__mock.otx.job = { status: '완료', startedAt: '2026-11-02T01:00:00Z', finishedAt: '2026-11-02T01:06:00Z', result: { counts: { 새용어: 29, 승인: 25, 후보: 4, 충돌: 0, 거절: 2, 건너뜀: 5 }, skipped: ['피의자', '범죄사실', '수사기관', '<b>사이버수사대</b>', '공조요청'], costUsd: 0.088 } }, otxShow(window._orders[0]), 1`);
+  check(await until(`/새 용어 29개 \\(승인 25 \\/ 후보 4 \\/ 충돌 0\\) · 거절 2개 · 건너뜀 5개 · 사용 금액 \\$0\\.088/.test(document.getElementById('otx-msg').textContent)`), "'새 용어 N(승인/후보/충돌)'과 '거절 N' 따로");
+  check(await ev(`(() => { const d = document.getElementById('otx-skipped'); return !!d && !d.open && /건너뛴 용어 5개 보기/.test(d.querySelector('summary').textContent); })()`), '건너뛴 용어는 접힌 채로 개수 표시');
+  await click('#otx-skipped summary'); await sleep(150);
+  check(await ev(`(() => { const d = document.getElementById('otx-skipped'); return d.open && /피의자 · 범죄사실 · 수사기관/.test(d.textContent) && !d.querySelector('b') && d.textContent.includes('<b>사이버수사대</b>'); })()`), '누르면 건너뛴 원어 목록 펼침(글자 그대로 — HTML 로 안 읽음)');
+  // 캡처는 깨끗한 가짜 데이터로 (실제 추출 실행 없음)
+  await ev(`window.__mock.otx.job.result.skipped = ['피의자', '범죄사실', '수사기관', '사이버수사대', '공조요청'], otxShow(window._orders[0]), 1`);
+  await until(`!!document.getElementById('otx-skipped')`); await click('#otx-skipped summary');
+  await ev(`(document.getElementById('otx-box').scrollIntoView({ block: 'center' }), 1)`); await sleep(200);
+  {
+    const r = await ev(`(() => { const p = document.getElementById('otx-box').getBoundingClientRect(); return { x: Math.max(0, p.left - 8), y: Math.max(0, p.top - 8), width: p.width + 16, height: p.height + 16 }; })()`);
+    const sh = await send('Page.captureScreenshot', { format: 'png', clip: { ...r, scale: 1 } });
+    fs.writeFileSync(path.join(SHOT_DIR, 'order_term_extract_done_v2.png'), Buffer.from(sh.result.data, 'base64'));
+  }
   await ev(`window.__mock.calls.length = 0, 1`);
   await click('#otx-msg button');
   check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/terms' && /order=IUMM-1001/.test(c.q)) && document.getElementById('terms-wrap').style.display === 'block'`), '[용어집에서 보기] → 용어집 탭을 그 주문번호로 걸러 열기');
