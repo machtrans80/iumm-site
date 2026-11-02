@@ -586,6 +586,125 @@ try {
   check(/미국식 \(근거: 기본값\)/.test(await ev(`document.getElementById('dest-line').textContent`)), '기본값 근거');
   check(adminSrc.includes("row3('철자 관례', '자동 맞춤 '") && adminSrc.includes("'곳 · 기록만 '"), "V3 처리 기록에 '철자 관례 자동 맞춤 N곳 · 기록만 N곳'");
 
+  console.log('\n[14] 주문 상세 검색 — 찾은 곳으로 이동 (2026-11-02)');
+  await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
+  await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`); await click('#orders-tbody tr[data-id="rec1"]'); await sleep(200);
+  const HIT_TR = [5, 80, 150, 190], HIT_SRC = [10, 90, 160];
+  await ev(`(() => {
+    const tr = [], src = [];
+    for (let i = 1; i <= 200; i++) {
+      tr.push(${JSON.stringify(HIT_TR)}.includes(i) ? 'Line ' + i + ' the Counsel stated that the meeting was held.' : i === 30 ? 'A: Where were you that day?' : 'Line ' + i + ' ordinary statement text for the record.');
+      src.push(${JSON.stringify(HIT_SRC)}.includes(i) ? i + '번째 줄 counsel 진술' : i + '번째 줄 진술 내용');
+    }
+    document.getElementById('panel-source').value = src.join('\\n');
+    document.getElementById('panel-translation').value = tr.join('\\n');
+    _lastSavedText = document.getElementById('panel-translation').value;
+    document.getElementById('panel-translation').scrollTop = 0; document.getElementById('panel-source').scrollTop = 0;
+    return 1; })()`);
+  const typeQ = (q) => ev(`(() => { openAdminSearch(); const i = document.getElementById('panel-search-inp'); i.value = ${JSON.stringify(q)}; i.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
+  const key = (opt) => ev(`(document.getElementById('panel-search-inp').dispatchEvent(new KeyboardEvent('keydown', Object.assign({ key: 'Enter', bubbles: true, cancelable: true }, ${JSON.stringify(opt || {})}))), 1)`);
+  const where = () => ev(`(() => { const ta = document.getElementById('panel-translation'), mk = document.getElementById('ov-tr').querySelector('mark.search-cur');
+    return { tr: document.getElementById('sc-tr').textContent, src: document.getElementById('sc-src').textContent, top: ta.scrollTop, h: ta.clientHeight,
+      rel: mk ? mk.offsetTop - ta.scrollTop : null, sel: ta.value.slice(ta.selectionStart, ta.selectionEnd), line: mk ? ta.value.slice(0, ta.selectionStart).split('\\n').length : null,
+      srcTop: document.getElementById('panel-source').scrollTop, marks: document.getElementById('ov-tr').querySelectorAll('mark.search-hit').length }; })()`);
+  await typeQ('counsel');
+  let w = await where();
+  check(w.tr === '번역 1/4' && w.src === '원문 1/3' && w.sel === 'Counsel' && w.line === 5 && w.marks === 4, `입력하면 번역문 첫 결과로 · 몇 번째/전체 · 대소문자 무시 · 그 글자 선택 (${JSON.stringify(w)})`);
+  await key();
+  w = await where();
+  check(w.tr === '번역 2/4' && w.line === 80 && w.top > 0 && Math.abs(w.rel - w.h / 3) < 40, `Enter = 다음 → 80번째 줄, 칸 위쪽 1/3 지점(${Math.round(w.rel)} / ${w.h})`);
+  check(w.rel >= 0 && w.rel < w.h, '화면 밖에 있던 결과가 칸 안에 보임');
+  await sleep(150);
+  check((await where()).srcTop > 0, '동기화 켜져 있으면 원문 칸도 따라 내려감');
+  await key(); await key();
+  w = await where();
+  check(w.tr === '번역 4/4' && w.line === 190, 'Enter 두 번 더 → 4/4');
+  await key();
+  check((await where()).tr === '번역 1/4', '끝에서 다음 → 처음(1/4)');
+  await key({ shiftKey: true });
+  w = await where();
+  check(w.tr === '번역 4/4' && w.line === 190, 'Shift+Enter = 이전 → 4/4');
+  const colors = await ev(`(() => { const ms = [...document.getElementById('ov-tr').querySelectorAll('mark.search-hit')]; return { cur: getComputedStyle(ms.find(m => m.classList.contains('search-cur'))).backgroundColor, other: getComputedStyle(ms.find(m => !m.classList.contains('search-cur'))).backgroundColor }; })()`);
+  check(colors.cur === 'rgba(31, 79, 209, 0.62)' && colors.other === 'rgba(120, 170, 255, 0.24)', `지금 결과 진한 파랑 · 나머지 옅은 파랑 (${colors.cur} / ${colors.other})`);
+  await click('#srch-tr-prev');
+  w = await where();
+  check(w.tr === '번역 3/4' && w.line === 150 && await ev(`document.activeElement === document.getElementById('panel-translation')`), '[▲ 이전] → 3/4 · 번역문에 초점(선택한 글자 바로 고쳐 쓰기)');
+  await click('#srch-src-next');
+  check((await where()).src === '원문 2/3', '원문 [▼ 다음] → 원문 2/3');
+  await ev(`document.getElementById('panel-search-inp').focus(), 1`);
+  await key({ ctrlKey: true });
+  check(await ev(`document.activeElement === document.getElementById('panel-translation') && document.getElementById('panel-translation').value.slice(document.getElementById('panel-translation').selectionStart, document.getElementById('panel-translation').selectionEnd) === 'Counsel'`), 'Ctrl+Enter → 번역문에서 그 글자 선택한 채 고치기');
+  // 고쳐 쓰면 찾은 자리 다시 계산
+  await ev(`(() => { const ta = document.getElementById('panel-translation'); ta.setRangeText('Lawyer'); ta.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
+  check((await where()).tr.endsWith('/3'), '고쳐 쓰면 찾은 수 다시 계산(4 → 3)');
+  // 화면 캡처 — 검색 이동 · 몇 번째/전체
+  {
+    await ev(`(document.getElementById('panel-translation').value = document.getElementById('panel-translation').value.replace('Lawyer', 'Counsel'), _lastSavedText = document.getElementById('panel-translation').value, 1)`);
+    await typeQ('counsel'); await key();
+    await ev(`(document.getElementById('toast').classList.remove('show'), document.getElementById('confirm-panel').scrollIntoView({ block: 'start' }), 1)`); await sleep(250);
+    await key({});
+    await ev(`(document.getElementById('panel-search-inp').focus(), 1)`); await sleep(150);
+    const r = await ev(`(() => { const a = document.getElementById('confirm-panel').getBoundingClientRect(); return { x: Math.max(0, a.left), y: Math.max(0, a.top), width: Math.min(a.width, 1440), height: Math.min(560, innerHeight - Math.max(0, a.top)) }; })()`);
+    const sh = await send('Page.captureScreenshot', { format: 'png', clip: { ...r, scale: 1 } });
+    fs.writeFileSync(path.join(SHOT_DIR, 'admin_search_jump.png'), Buffer.from(sh.result.data, 'base64'));
+  }
+  // 집중 모드에서도
+  await ev(`toggleFocusMode(), 1`); await sleep(200);
+  await typeQ('counsel'); await key(); await key();
+  w = await where();
+  check(await ev(`document.body.classList.contains('admin-focus')`) && w.tr === '번역 3/4' && w.line === 150 && w.rel >= 0 && w.rel < w.h, `집중 모드에서도 같은 이동 (${w.tr})`);
+  await ev(`toggleFocusMode(), closeAdminSearch(), 1`);
+
+  console.log('\n[15] 주문 상세 — 채점 근거 (2026-11-02)');
+  const RICH = { v3: { score: { total: 88, first: 88, applied: 1, reworked: 0, scorer: 'claude',
+    deductions: [{ 분류: '정확성', 점수: 5, 이유: '부정어 하나 빠짐' }, { 분류: '형식', 점수: 4, 이유: '문/답 표시' }, { 분류: '문체', 점수: 3, 이유: '직역투' }],
+    changes: [
+      { id: 'P0030', paragraph: 'P0030', reason: '질문인데 A 로 표시', before: 'A: Where were you that day?', after: 'Q: Where were you that day?', result: '반영 안 함', why: '원칙 위반(문/답 표시)' },
+      { id: 'P0150', paragraph: 'P0150', reason: '자연스럽게', before: 'the old wording', after: 'Line 150 the Counsel stated', result: '반영' },
+      { id: 'P0077', paragraph: 'P0077', reason: '통화 단위', before: '5,000,000', after: 'KRW 5,000,000', result: '반영 안 함', why: '원칙 위반(통화 단위)' }] },
+    trace: { v: 1, edits: [{ id: 'P0190', before: 'Line 190 the counsel said', after: 'Line 190 the Counsel stated that the meeting was held.' }], editRejected: [],
+      review: [{ id: 'P0080', severity: '중대', type: '오역', quote: '변호인은', problem: '고소인 쪽 변호사', rebut: '수용', result: '반영', at: 'Line 80 the Counsel stated that the meeting was held.' }],
+      back: [{ id: 'P0005', kind: '부정어', quote: '하지 아니하였다', problem: '부정 빠짐', at: 'Line 5 the Counsel stated that' }],
+      retranslated: [], sentenceMismatch: [{ id: 'P0120', why: '문장 수 원문 1 → 번역 2(문장을 나누거나 합치지 말 것)', at: 'Line 120 ordinary statement text for the record.' }] } } };
+  await ev(`(window.__srOrder = { orderId: 'rec1', aiQualityDetail: ${JSON.stringify(RICH)} }, populateAiScoreSection(window.__srOrder), 1)`);
+  check(await ev(`!!document.getElementById('sr-details') && !document.getElementById('sr-details').open && /채점 근거 보기/.test(document.querySelector('#sr-details summary').textContent)`), '점수 아래 [채점 근거 보기] (접힌 채)');
+  await click('#sr-details summary'); await sleep(150);
+  const srText = await ev(`document.getElementById('score-reasons').textContent`);
+  check(['① 감점 요약', '② 채점기 지적', '③ 고친 곳', '④ 교차 검수·역확인 지적', '⑤ 문장 수가 원문과 다른 문단'].every((x) => srText.includes(x)), '① 감점 요약 ② 채점기 지적 ③ 고친 곳 ④ 교차 검수·역확인 ⑤ 문장 수');
+  check(/합계 −12 = 100 − 88/.test(srText) && /정확성−5부정어하나빠짐/.test(srText.replace(/\s+/g, '')), '감점 요약: 분류별 점수·이유 · 합계 = 100 − 점수');
+  check(/P0030 질문인데 A 로 표시 반영 안 함 원칙 위반\(문\/답 표시\)/.test(srText.replace(/\s+/g, ' ')) && /P0150 자연스럽게 반영/.test(srText.replace(/\s+/g, ' ')), '채점기 지적: 문단 · 이유 · 결과(반영 / 반영 안 함 + 이유)');
+  await ev(`(document.getElementById('panel-translation').scrollTop = 0, 1)`);
+  await ev(`[...document.querySelectorAll('#score-reasons .sr-id')].find(b => b.textContent === 'P0150').click(), 1`); await sleep(150);
+  w = await where();
+  check(w.line === 150 && w.rel >= 0 && w.rel < w.h && /^Line 150 the Counsel stated/i.test(await ev(`document.getElementById('panel-search-inp').value`)), `문단 번호(P0150, 반영된 수정안) 누르면 번역문의 그 자리로 이동·파랑 강조 (줄 ${w.line})`);
+  await ev(`[...document.querySelectorAll('#score-reasons .sr-before')].find(b => /^A: Where/.test(b.textContent)).click(), 1`); await sleep(150);
+  w = await where();
+  check(w.line === 30 && w.sel === 'A: Where were you that day?', "'수정 전' 글(반영 안 함) 누르면 그 자리 · 글자 선택");
+  await ev(`[...document.querySelectorAll('#score-reasons .sr-id')].find(b => b.textContent === 'P0120').click(), 1`); await sleep(150);
+  check((await where()).line === 120, '⑤ 문장 수 다른 문단도 눌러서 이동');
+  await ev(`[...document.querySelectorAll('#score-reasons .sr-id')].find(b => b.textContent === 'P0077').click(), 1`); await sleep(150);
+  check(/찾지 못했습니다/.test(await ev(`document.getElementById('sr-msg').textContent`)), '번역문에 없는 글 → "찾지 못했습니다" 안내');
+  {
+    // 캡처: 화면을 길게 늘려 채점 근거 전체가 한 화면에 들어오게(알림·위쪽 고정 막대에 가리지 않게)
+    await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 2400, deviceScaleFactor: 1, mobile: false });
+    await ev(`(closeAdminSearch(), document.getElementById('toast').classList.remove('show'), document.getElementById('sr-msg').textContent = '', document.getElementById('score-reasons').scrollIntoView({ block: 'start' }), window.scrollBy(0, -120), 1)`); await sleep(300);
+    const r = await ev(`(() => { const a = document.getElementById('score-reasons').getBoundingClientRect(); return { x: Math.max(0, a.left - 8), y: Math.max(0, a.top - 8), width: a.width + 16, height: Math.min(a.height + 16, 2300) }; })()`);
+    const sh = await send('Page.captureScreenshot', { format: 'png', clip: { ...r, scale: 1 } });
+    fs.writeFileSync(path.join(SHOT_DIR, 'admin_score_reasons.png'), Buffer.from(sh.result.data, 'base64'));
+    await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  }
+  // 예전 주문 — 저장된 이유 목록만 + "자세한 기록 없음" + 검색어 입력칸
+  await ev(`(populateAiScoreSection({ orderId: 'rec1', aiQualityDetail: { v3: { score: { total: 88, changes: [{ paragraph: 3, reason: '변호인 용어가 고소인 쪽 변호사에 맞지 않음' }, { paragraph: 9, reason: '직역투' }] } } } }), 1)`);
+  await click('#sr-details summary'); await sleep(100);
+  const old = await ev(`document.getElementById('score-reasons').textContent`);
+  check(/자세한 기록 없음/.test(old) && /변호인 용어가 고소인 쪽 변호사에 맞지 않음/.test(old) && /감점 요약 없음\(예전 주문\)/.test(old) && await ev(`document.querySelectorAll('#score-reasons .sr-q').length === 2 && !document.querySelector('#score-reasons .sr-id')`),
+    '예전 주문: 이유 목록만 · "자세한 기록 없음" · 문단 번호 버튼 대신 검색어 입력칸');
+  await ev(`(document.getElementById('sr-q-0').value = 'COUNSEL', document.querySelector('#score-reasons .sr-go').click(), 1)`); await sleep(150);
+  check((await where()).tr === '번역 1/4', '검색어 입력 → [찾기] → 번역문 첫 결과로 이동');
+  await ev(`closeAdminSearch(), populateAiScoreSection({ orderId: 'rec1', aiScore: 90 }), 1`);
+  check(await ev(`document.getElementById('score-reasons').style.display === 'none'`), 'V3 기록 없는 주문(V1·V2)은 채점 근거 없음');
+  check(!(await ev(`/claude|opus|gpt|모델/i.test(document.getElementById('score-reasons').innerHTML)`)), '채점 근거 영역에 모델 이름 없음');
+
   console.log('\n[9] 모바일 390px');
   await open(390, 844, true, { token: 'TEST_TOKEN' });
   check(await until(`document.getElementById('admin-view').style.display === 'flex' && !!document.querySelector('#orders-tbody tr[data-id="rec1"]')`), '저장된 토큰으로 바로 관리자 화면 (390px)');
@@ -619,5 +738,5 @@ try {
 }
 function document_dir_expect() { return '포르투갈어 → 한국어'; }
 console.log(`\n${fail ? '❌' : '✅'} 통과 ${pass} / 실패 ${fail}`);
-console.log(`스크린숏: ${SHOT_DIR}/admin_preview_desktop.png · admin_preview_mobile.png · admin_destination_select.png`);
+console.log(`스크린숏: ${SHOT_DIR}/admin_preview_desktop.png · admin_preview_mobile.png · admin_destination_select.png · admin_search_jump.png · admin_score_reasons.png`);
 process.exit(fail ? 1 : 0);

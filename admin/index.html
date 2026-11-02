@@ -94,7 +94,10 @@ mark.diff-del{background:transparent;color:rgba(255,255,255,0.3);text-decoration
 .ta-overlay{position:absolute;inset:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;pointer-events:none;user-select:none;-webkit-user-select:none;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.8;padding:16px;white-space:pre-wrap;word-break:break-word;background:transparent;color:rgba(0,0,0,0);box-sizing:border-box;display:none}
 .ta-overlay::-webkit-scrollbar{display:none}
 .ta-overlay.visible{display:block}
-mark.search-hit{background:rgba(176,141,87,0.35);color:rgba(0,0,0,0);border-radius:2px}
+mark.search-hit{background:rgba(120,170,255,0.24);color:rgba(0,0,0,0);border-radius:2px}
+mark.search-hit.search-cur{background:rgba(31,79,209,0.62);box-shadow:0 0 0 1px #7fb4ff}
+.srch-nav{background:rgba(74,144,226,0.12);border:1px solid rgba(74,144,226,0.35);color:#a9cdff;border-radius:3px;cursor:pointer;font-size:10px;line-height:1;padding:3px 6px;font-family:'Noto Sans KR',sans-serif}
+.srch-nav:hover{background:rgba(74,144,226,0.25)}
 .panel-ta.editable{color:var(--white)}
 .panel-ta.editable:focus{background:#0A1628}
 /* ─ 집중 모드 ─ */
@@ -1268,10 +1271,12 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
       </div>
       <div class="panel-search-bar" id="panel-search-bar">
         <i class="ti ti-search" style="font-size:13px;color:rgba(255,255,255,0.4)"></i>
-        <input class="panel-search-inp" id="panel-search-inp" placeholder="용어 검색... (ESC로 닫기)" oninput="doAdminSearch(this.value)">
+        <input class="panel-search-inp" id="panel-search-inp" placeholder="검색 — Enter 다음 · Shift+Enter 이전 · Ctrl+Enter 번역문에서 고치기 · ESC 닫기" oninput="doAdminSearch(this.value)" onkeydown="_srchKey(event)">
         <span class="search-count" id="sc-src">원문 —</span>
+        <button class="srch-nav" id="srch-src-prev" onclick="_srchStep('src',-1)" title="원문 이전" aria-label="원문 이전">▲</button><button class="srch-nav" id="srch-src-next" onclick="_srchStep('src',1)" title="원문 다음" aria-label="원문 다음">▼</button>
         <span style="color:rgba(255,255,255,0.2);font-size:11px">/</span>
         <span class="search-count" id="sc-tr">번역 —</span>
+        <button class="srch-nav" id="srch-tr-prev" onclick="_srchStep('tr',-1)" title="번역 이전" aria-label="번역 이전">▲</button><button class="srch-nav" id="srch-tr-next" onclick="_srchStep('tr',1)" title="번역 다음" aria-label="번역 다음">▼</button>
         <button onclick="closeAdminSearch()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">✕</button>
       </div>
       <!-- 확인필요(납품 보류) 사유 — held.js holdShowPanel -->
@@ -1327,6 +1332,8 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           </div>
           <div class="score-detail-grid" id="ai-score-detail"></div>
         </div>
+        <!-- 채점 근거 (2026-11-02, admin/score_reasons.js) — V3 처리 기록 score·trace -->
+        <div id="score-reasons" style="display:none"></div>
         <div class="corr-section">
           <div class="corr-label">STEP 0.5 Claude 수정사항 (<span id="ai-corrections-count">0</span>건)</div>
           <div class="corr-list" id="ai-corrections-list"></div>
@@ -2288,9 +2295,13 @@ function toggleAdminDiff(){
   holdApplyOverlay();
 }
 
-// ── 검색 하이라이트 ──────────────────────────────────────────
+// ── 검색: 찾은 곳으로 이동 (2026-11-02) ─────────────────────
+// 원문·번역 각각 '몇 번째/전체' · [▲ 이전][▼ 다음] · 입력하면 번역문 첫 결과로 · Enter 다음 / Shift+Enter 이전(끝에서 다음 = 처음) · Ctrl+Enter 번역문에서 고치기
+// 이동: 그 줄을 칸 위쪽 1/3 지점에 · 지금 결과 진한 파랑, 나머지 옅은 파랑 · 번역문은 그 글자를 선택 · 동기화가 켜져 있으면 원문도 따라감(지금 방식) · 대소문자 무시
 var _adminSearchActive=false;
 var _ovSrcListener=null,_ovTrListener=null;
+var _SRCH_PANE={src:{ta:'panel-source',ov:'ov-src',sc:'sc-src',label:'원문'},tr:{ta:'panel-translation',ov:'ov-tr',sc:'sc-tr',label:'번역'}};
+var _srch={q:'',src:{hits:[],cur:-1},tr:{hits:[],cur:-1}};
 
 function openAdminSearch(){
   var bar=document.getElementById('panel-search-bar');
@@ -2302,6 +2313,7 @@ function closeAdminSearch(){
   if(bar)bar.classList.remove('open');
   var inp=document.getElementById('panel-search-inp');
   if(inp)inp.value='';
+  _srch={q:'',src:{hits:[],cur:-1},tr:{hits:[],cur:-1}};
   _clearAdminOverlays();
   _adminSearchActive=false;
   holdApplyOverlay();
@@ -2312,33 +2324,90 @@ function _clearAdminOverlays(){
     if(o){o.innerHTML='';o.classList.remove('visible');}
   });
 }
-function _highlightOverlay(taId,ovId,query){
-  var ta=document.getElementById(taId),ov=document.getElementById(ovId);
-  if(!ta||!ov||!query)return 0;
-  var count=0;
-  var html=_esc(ta.value).replace(new RegExp(_esc(query).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),function(m){count++;return '<mark class="search-hit">'+m+'</mark>';});
-  ov.innerHTML=html;
+/** 찾은 자리 [시작, 끝] 목록 — 대소문자 무시 */
+function _srchHits(text,q){
+  var out=[];if(!q)return out;
+  var re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m;
+  while((m=re.exec(text))){out.push([m.index,m.index+m[0].length]);if(!m[0].length)re.lastIndex++;}
+  return out;
+}
+function _srchPaint(k){
+  var P=_SRCH_PANE[k],ta=document.getElementById(P.ta),ov=document.getElementById(P.ov),st=_srch[k];
+  if(!ta||!ov)return;
+  var t=ta.value,html='',last=0;
+  st.hits.forEach(function(h,i){html+=_esc(t.slice(last,h[0]))+'<mark class="search-hit'+(i===st.cur?' search-cur':'')+'">'+_esc(t.slice(h[0],h[1]))+'</mark>';last=h[1];});
+  ov.innerHTML=html+_esc(t.slice(last));
   ov.classList.add('visible');
-  // overlay가 on top이므로 textarea 색 변경 불필요 (overlay pointer-events:none으로 편집 통과)
-  // sync scroll
-  if(ovId==='ov-src'&&_ovSrcListener){ta.removeEventListener('scroll',_ovSrcListener);}
-  if(ovId==='ov-tr'&&_ovTrListener){ta.removeEventListener('scroll',_ovTrListener);}
+  // overlay 가 textarea 스크롤을 따라감(overlay pointer-events:none 이라 편집은 그대로 통과)
+  if(k==='src'&&_ovSrcListener){ta.removeEventListener('scroll',_ovSrcListener);}
+  if(k==='tr'&&_ovTrListener){ta.removeEventListener('scroll',_ovTrListener);}
   var listener=function(){ov.scrollTop=ta.scrollTop;};
-  if(ovId==='ov-src'){_ovSrcListener=listener;} else {_ovTrListener=listener;}
+  if(k==='src'){_ovSrcListener=listener;}else{_ovTrListener=listener;}
   ta.addEventListener('scroll',listener);
   ov.scrollTop=ta.scrollTop;
-  return count;
+  var sc=document.getElementById(P.sc);
+  if(sc)sc.textContent=P.label+' '+(st.hits.length?(st.cur>=0?(st.cur+1)+'/':'')+st.hits.length+(st.cur>=0?'':'건'):'0건');
+}
+function _srchCounts(){
+  var mm=_srch.src.hits.length!==_srch.tr.hits.length;
+  ['sc-src','sc-tr'].forEach(function(id){var el=document.getElementById(id);if(el)el.className='search-count'+(mm?' mismatch':'');});
+}
+/** k 칸의 i 번째 결과로 이동 — 그 줄을 칸 위쪽 1/3 지점에. 번역문은 그 글자 선택(focus=true 면 바로 고쳐 쓸 수 있게 초점까지) */
+function _srchGo(k,i,opts){
+  var st=_srch[k],n=st.hits.length;if(!n)return false;
+  st.cur=((i%n)+n)%n;
+  _srchPaint(k);
+  var P=_SRCH_PANE[k],ta=document.getElementById(P.ta),ov=document.getElementById(P.ov);
+  if(k==='tr'){var h=st.hits[st.cur];if(opts&&opts.focus){try{ta.focus({preventScroll:true});}catch(e){ta.focus();}}try{ta.setSelectionRange(h[0],h[1]);}catch(e){}}
+  var mk=ov.querySelector('mark.search-cur');
+  if(mk){ta.scrollTop=Math.max(0,mk.offsetTop-ta.clientHeight/3);ov.scrollTop=ta.scrollTop;}
+  return true;
+}
+function _srchStep(k,d){
+  var st=_srch[k];if(!st.hits.length)return;
+  _srchGo(k,st.cur<0?(d>0?0:-1):st.cur+d,{focus:k==='tr'});
+}
+function _srchKey(e){
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  var k=_srch.tr.hits.length?'tr':'src',st=_srch[k];
+  if(e.ctrlKey||e.metaKey){_srchGo('tr',_srch.tr.cur<0?0:_srch.tr.cur,{focus:true});return;}
+  _srchGo(k,st.cur<0?(e.shiftKey?-1:0):st.cur+(e.shiftKey?-1:1));
 }
 function doAdminSearch(q){
-  if(!q.trim()){_clearAdminOverlays();document.getElementById('sc-src').textContent='원문 —';document.getElementById('sc-tr').textContent='번역 —';return;}
-  var cSrc=_highlightOverlay('panel-source','ov-src',q);
-  var cTr =_highlightOverlay('panel-translation','ov-tr',q);
-  var scSrc=document.getElementById('sc-src'),scTr=document.getElementById('sc-tr');
-  if(scSrc)scSrc.textContent='원문 '+cSrc+'건';
-  if(scTr)scTr.textContent='번역 '+cTr+'건';
-  var mm=cSrc!==cTr;
-  if(scSrc)scSrc.className='search-count'+(mm?' mismatch':'');
-  if(scTr)scTr.className='search-count'+(mm?' mismatch':'');
+  _srch.q=q;
+  if(!q.trim()){_srch={q:'',src:{hits:[],cur:-1},tr:{hits:[],cur:-1}};_clearAdminOverlays();document.getElementById('sc-src').textContent='원문 —';document.getElementById('sc-tr').textContent='번역 —';_srchCounts();return;}
+  ['src','tr'].forEach(function(k){var ta=document.getElementById(_SRCH_PANE[k].ta);_srch[k]={hits:_srchHits(ta?ta.value:'',q),cur:-1};});
+  _srchCounts();
+  // 번역문 첫 결과로 바로 이동(번역문에 없으면 원문 첫 결과로). 원문 표시는 1번째부터
+  if(_srch.tr.hits.length){if(_srch.src.hits.length)_srch.src.cur=0;_srchPaint('src');_srchGo('tr',0);}
+  else{_srchPaint('tr');_srchGo('src',0);}
+}
+/** 번역문을 고친 뒤 — 찾은 자리를 다시 계산(지금 위치 유지, 스크롤 안 함) */
+function _srchRefresh(){
+  if(!_adminSearchActive||!_srch.q.trim())return;
+  var ta=document.getElementById('panel-translation');
+  var cur=_srch.tr.cur;_srch.tr={hits:_srchHits(ta?ta.value:'',_srch.q),cur:-1};
+  if(_srch.tr.hits.length)_srch.tr.cur=Math.min(Math.max(cur,0),_srch.tr.hits.length-1);
+  _srchPaint('tr');_srchCounts();
+}
+/** 채점 근거 → 번역문의 그 자리로(1단계 이동 재사용). 후보 글을 차례로 찾아 처음 찾은 것으로 이동 — 못 찾으면 false */
+function adminJumpToText(cands){
+  var ta=document.getElementById('panel-translation');if(!ta)return false;
+  var tries=[];
+  (Array.isArray(cands)?cands:[cands]).forEach(function(c){
+    var t=String(c||'').replace(/…$/,'').split('\n').map(function(x){return x.trim();}).filter(Boolean)[0]||'';
+    [t,t.slice(0,60),t.slice(0,40),t.slice(0,24)].forEach(function(x){x=x.trim();if(x.length>=4&&tries.indexOf(x)<0)tries.push(x);});
+  });
+  for(var i=0;i<tries.length;i++){
+    if(!_srchHits(ta.value,tries[i]).length)continue;
+    if(document.body.classList.contains('admin-focus')===false){try{ta.scrollIntoView({block:'center'});}catch(e){}}
+    openAdminSearch();
+    var inp=document.getElementById('panel-search-inp');if(inp)inp.value=tries[i];
+    doAdminSearch(tries[i]);
+    return true;
+  }
+  return false;
 }
 
 // ── 스크롤 동기화 ─────────────────────────────────────────────
@@ -2382,6 +2451,7 @@ function onTranslationEdit() {
   updateCounters();
   scheduleAutoSave();
   holdApplyOverlay();
+  _srchRefresh();
 }
 
 // 임시저장 (silent=true이면 자동저장 — 토스트 없이 조용히)
@@ -3419,6 +3489,8 @@ function populateAiScoreSection(order) {
   } else {
     detailEl.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.3)">상세 점수 없음</div>';
   }
+
+  if (window.srShow) srShow(order);
 
   var corrections = order.aiCorrections;
   document.getElementById('ai-corrections-count').textContent = Array.isArray(corrections) ? corrections.length : 0;
@@ -4615,5 +4687,6 @@ async function loadNotaryDirect() {
 <script src="/admin/lang_scores.js?v=1"></script>
 <script src="/admin/order_terms.js?v=2"></script>
 <script src="/admin/bp_destination.js?v=1"></script>
+<script src="/admin/score_reasons.js?v=1"></script>
 </body>
 </html>
