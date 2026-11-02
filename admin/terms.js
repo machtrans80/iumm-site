@@ -378,7 +378,7 @@
     var r = await adminFetch('/api/admin/corp-customers?' + qs(CF));
     if (!r.ok) { wrap.innerHTML = '<p style="color:#D9BC8C">로드 실패: ' + esc(r.error) + '</p>'; return; }
     var list = r.corps || [];
-    if (!list.length) { wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">기업 고객이 없습니다. 주문 화면에서 \'기업 고객\'을 체크한 주문이 들어오면 자동으로 등록됩니다.</p>'; return; }
+    if (!list.length) { wrap.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px">기업 고객이 없습니다. 주문 화면에서 사업자등록번호를 넣고 전용 용어집에 동의한 주문이 들어오면 자동으로 등록됩니다.</p>'; return; }
     wrap.innerHTML = '<table class="orders-table" style="font-size:13px"><thead><tr><th>회사명</th><th>사업자등록번호</th><th>최초 주문일</th><th>최근 주문일</th><th style="text-align:right">주문 건수</th><th style="text-align:right">누적 결제액</th><th>전용 용어 (승인/후보)</th><th>동의 일시</th></tr></thead><tbody>' +
       list.map(function (c) {
         return '<tr style="cursor:pointer" onclick="corpOpen(\'' + c.bizNo + '\')">' +

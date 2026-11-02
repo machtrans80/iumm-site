@@ -76,6 +76,11 @@ const MOCK = String.raw`(() => {
       return J({ ok: true, orderNumber: 'IUMM-1001', usable: true, basis: 'GPT최종검수본', pair: '한국어→일본어', field: 'legal', scope: '공용', docType: '계약서', chars: 11000,
         estimate: { usd: 0.069, chunks: 2 }, budget: { remaining: 46.5, ok: O.budgetOk !== false, message: O.budgetOk === false ? '예상 비용이 남은 예산을 넘습니다.' : '' }, already: O.already || null, hash: 'h1', job: O.job || null });
     }
+    // 기업 고객 탭 — 회사별 전용 용어 (2026-11-02)
+    if (p === '/api/admin/corp-customers') return J({ ok: true, corps: [{ company: '알파 주식회사', bizNo: '2208162517', firstOrderAt: '2026-11-01', lastOrderAt: '2026-11-02', orderCount: 2, totalPaid: 180000, terms: { 승인: 2, 후보: 1, 충돌: 0 }, consentAt: '2026-11-01' }] });
+    if (p === '/api/admin/corp-customers/2208162517') return J({ ok: true, corp: { company: '알파 주식회사', bizNo: '2208162517' },
+      orders: [{ orderNumber: 'IUMM-2001', receivedAt: '2026-11-01', direction: '한국어 → 영어', docType: '계약서', status: '납품완료', amount: 90000 }],
+      terms: [{ source: '알파 엔진', target: 'Alpha Engine', pair: '한국어→영어', docType: '계약서', status: '승인', count: 3 }, { source: '납품 검수', target: 'acceptance inspection', pair: '한국어→영어', docType: '계약서', status: '후보', count: 1 }] });
     if (p === '/api/admin/orders/hide') { const ids = (rec.json && rec.json.recordIds) || []; ids.forEach((i) => { S.hidden[i] = 1; }); return J({ ok: true, hiddenCount: ids.length }); }
     if (p === '/api/admin/terms') return J({ ok: true, terms: [{ id: 't1', pair: '한국어→영어', source: '계약', target: 'contract', status: '승인', scope: '일반', count: 3, field: '법률', docType: '계약서', lastAt: '2026-10-20', sourceType: '용어구축', memo: '근거: 공식 | https://elaw.klri.re.kr/x' }], facets: { field: ['법률'], docType: ['계약서'], scope: ['일반'], status: ['승인'], sourceType: ['용어구축', '번역결과'] } });
     if (p === '/api/admin/reviewers/pending') return J({ success: true, reviewers: [{ id: 'r1', name: '김검수', grade: 'S', expertise: ['법률'], languages: ['영어'], phone: '010-0000-0000', signupAt: '2026-10-01' }] });
@@ -498,6 +503,13 @@ try {
   await click('#otx-btn');
   check(await until(`/예산이 부족해 실행하지 않습니다/.test(document.getElementById('otx-msg').textContent) && !document.querySelector('#otx-msg button')`), '예산 부족 → 실행 버튼 없이 안내');
   check(!(await ev(`document.getElementById('otx-box').innerHTML.match(/claude|opus|gpt|모델/i)`)), '버튼 영역에 모델 이름 없음');
+
+  console.log('\n[12] 기업 고객 탭 — 회사별 전용 용어 (2026-11-02)');
+  await ev(`setAdminMode('orders', true), switchTab('corp'), 1`);
+  check(await until(`/알파 주식회사/.test(document.getElementById('corp-list').textContent) && /220-81-62517/.test(document.getElementById('corp-list').textContent)`), '회사 목록에 회사명·사업자등록번호');
+  check(await ev(`/2\\s*\\/\\s*1/.test(document.querySelector('#corp-list tbody tr').textContent)`), '회사별 전용 용어 수(승인/후보)');
+  await click('#corp-list tbody tr');
+  check(await until(`/전용 용어 2개/.test(document.getElementById('corp-detail').textContent) && /알파 엔진/.test(document.getElementById('corp-detail').textContent) && /Alpha Engine/.test(document.getElementById('corp-detail').textContent)`), '회사를 누르면 그 회사 전용 용어 목록');
 
   console.log('\n[9] 모바일 390px');
   await open(390, 844, true, { token: 'TEST_TOKEN' });
