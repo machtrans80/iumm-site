@@ -35,11 +35,12 @@ vm.createContext(ctx); vm.runInContext(code, ctx);
 console.log('\n[1] 무료 테스트 — 글자 수(공백 제외, 유료와 같은 방식) · 회사명');
 el('lang-select').value = '한국어 → 영어'; el('field-select').value = 'gaming'; el('orderCompany').value = '(주)마하';
 for (const [n, ok] of [[999, true], [1000, true], [1001, false]]) {
-  el('pasteText').value = '가 '.repeat(n); const before = calls.length; alerts.length = 0;
+  el('pasteText').value = '가 '.repeat(n); const sent = () => calls.filter((x) => x.url.endsWith('/api/order/free-test')).length; const before = sent(); alerts.length = 0;
   await ctx.submitFreeTest();
-  check(ok ? calls.length === before + 1 : (calls.length === before && /1,000자 이하로 발췌해/.test(alerts.at(-1) || '')), `${n.toLocaleString()}자(공백 ${n}개 별도) → ${ok ? '접수' : '서버 호출 없이 안내'}`);
+  // 1,000자 초과는 자격·스위치 확인(/free-test/check)만 하고, 스위치 꺼짐이면 지금처럼 발췌 안내 (2026-11-02)
+  check(ok ? sent() === before + 1 : (sent() === before && /1,000자 이하로 발췌해/.test(alerts.at(-1) || '') && calls.at(-1).url.endsWith('/free-test/check')), `${n.toLocaleString()}자(공백 ${n}개 별도) → ${ok ? '접수' : '접수 없이 발췌 안내(스위치 꺼짐)'}`);
 }
-const c = calls.at(-1), body = c && JSON.parse(c.opt.body);
+const c = calls.filter((x) => x.url.endsWith('/api/order/free-test')).at(-1), body = c && JSON.parse(c.opt.body);
 check(c && c.url === 'https://mock/api/order/free-test' && c.opt.headers.Authorization === 'Bearer TOKEN', '/api/order/free-test · 카카오 토큰');
 check(body && body.회원회사명 === '(주)마하' && !('결제금액' in body) && !('플랜' in body), '회사명 전달 · 금액·플랜은 서버가 정함');
 el('orderCompany').value = ''; el('pasteText').value = '가'.repeat(10); const n0 = calls.length; await ctx.submitFreeTest();
@@ -57,7 +58,8 @@ check(ctx._myRevision(base).includes('>수정 요청</button>') && ctx._myRevisi
 const CLOSED = '수정 요청을 이미 사용했거나 수정 기간이 지났습니다. 문의해 주세요.';
 check(ctx._myRevision({ ...base, revision: { ...base.revision, can: false, reason: 'max_reached', count: 1 } }).includes(CLOSED) && !ctx._myRevision({ ...base, revision: { ...base.revision, can: false, reason: 'max_reached' } }).includes('</button>'), '1회 사용 → 안내 문구 · 버튼 없음');
 check(ctx._myRevision({ ...base, revision: { ...base.revision, can: false, reason: 'expired' } }).includes(CLOSED), '14일 지남 → 같은 안내 문구');
-check(ctx._myRevision({ ...base, isFreeTest: true }) === '', '무료 테스트 주문 → 버튼·문구 없음');
+check(ctx._myRevision({ ...base, isFreeTest: true, revision: { can: false, reason: 'not_paid' } }) === '', '0원 무료 테스트 주문 → 버튼·문구 없음');
+check(ctx._myRevision({ ...base, isFreeTest: true }).includes('>수정 요청</button>'), '1,000자 초과분을 결제한 무료 테스트 주문 → [수정 요청] (2026-11-02)');
 check(ctx._myRevision({ ...base, revision: { can: false, reason: 'not_paid' } }) === '', '미결제·0원 주문 → 버튼·문구 없음');
 check(ctx._myRevision({ ...base, revision: { reason: 'not_delivered' } }) === '', '납품 전 → 표시 없음');
 const id = 'rev-IUM-9'; const box = { dataset: { order: 'IUM-9' }, querySelector: (q) => (q.includes('kind') ? { value: 'source_change' } : q === '.rev-reason' ? { value: '3문단 용어' } : { value: '3' }) };

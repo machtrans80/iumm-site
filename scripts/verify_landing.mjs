@@ -112,7 +112,8 @@ check(!/300자|300글자/.test(html), "'300자·300글자' 문구 없음 (주석
 check(!/2회/.test(html), "'2회' 없음 (무상 수정 1회)");
 check((html.match(/유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다\./g) || []).length === 3, '카드·랜딩 FAQ·FAQ 페이지 = 유료 주문 14일 이내 1회');
 check((html.match(/원문이 바뀌거나 분량이 늘어난 경우는 새 주문으로 접수됩니다\./g) || []).length === 2, 'FAQ 2곳 — 원문 변경·분량 추가는 새 주문');
-check(html.includes("if(!v||o.isFreeTest||v.reason==='not_delivered') return '';") && html.includes("if(v.reason==='not_paid') return '';"), '무료 테스트·미결제 주문에는 수정 요청 버튼 없음');
+// 2026-11-02: 무료 테스트라도 1,000자 초과분을 결제했으면 대상 — 판정은 서버 revision(not_paid = 0원·미결제)
+check(html.includes("if(!v||v.reason==='not_delivered') return '';") && html.includes("if(v.reason==='not_paid') return '';"), '0원 무료 테스트·미결제 주문에는 수정 요청 버튼 없음(서버 not_paid)');
 check(html.includes('<button id="tab-free" onclick="switchOrderPlan(\'free\')">무료 테스트</button>') && !html.includes('id="free-trial-banner"') && !html.includes('id="free-discount-row"'), '주문 탭 = 무료 테스트 · 옛 첫 주문 할인 배너·줄 없음');
 check(/function handleFreeTrial\(\)\{ openFreeTest\(\); \}/.test(html), '옛 무료체험 진입점 → 무료 테스트');
 check(/회사명 <span style="color:#e05555">\*<\/span><\/label>\n\s*<input type="text" id="signup-company"/.test(html) && html.includes("if(!companyVal){showToast('회사명을 입력해주세요')"), '가입 정보 입력 — 회사명 필수');
