@@ -26,8 +26,9 @@ const ctx = {
   document: { getElementById: el, querySelector: () => null }, Kakao: { Auth: { getAccessToken: () => 'TOKEN' } }, MEMBER_API_BASE: 'https://mock',
   isLoggedIn: true, currentUser: 'kim@mach.co.kr', currentUserName: '김', currentUserKakaoId: '1', currentPlan: 'ai',
   closeModal() {}, showToast: (m) => toasts.push(m), loadMyOrders() {}, applyOrderPlanTheme() {}, showPage() {}, updateNavAfterLogin() {},
-  getSourceText: () => el('pasteText').value,
-  fetch: async (url, opt) => { calls.push({ url, opt }); return { ok: true, json: async () => ({ ok: true, orderNumber: 'IUM-1' }) }; },
+  getSourceText: () => el('pasteText').value, PLAN_PRICE: { ai: 25, standard: 40 },
+  // /free-test/check 는 스위치 꺼짐으로 답한다 — 화면 기본값은 켬 문구(2026-11-02)이므로 꺼짐 경로를 여기서 시험
+  fetch: async (url, opt) => { calls.push({ url, opt }); return { ok: true, json: async () => (url.endsWith('/free-test/check') ? { ok: true, overflowEnabled: false } : { ok: true, orderNumber: 'IUM-1' }) }; },
 };
 vm.createContext(ctx); vm.runInContext(code, ctx);
 ['go-pay-btn', 'free-test-btn', 'freeTestInfo', 'free-test-box', 'freeTestChars'].forEach(el);
