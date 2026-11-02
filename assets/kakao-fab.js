@@ -12,8 +12,11 @@
  * ★2026-10-30 네이버 톡톡(초록)·카카오톡(노랑) 두 버튼을 남색 '상담하기' 하나로 합쳤다.
  *   누르면 위로 두 경로가 펼쳐진다(각 서비스 색 그대로). 바깥을 누르거나 Esc 로 닫힌다.
  *   주소는 고객용 talk.naver.com · pf.kakao.com 만 쓴다. 장식 그림자 없이 테두리로 바탕과 구분한다.
- * ★2026-11-02 본문 안 작은 상담 버튼: window.iummConsult.inline(el, { label }) — el 안에 같은 두 경로(같은 색·아이콘, 새 창)를
+ * ★2026-11-02 본문 안 작은 상담 버튼: window.iummConsult.inline(el, { label, align, btnClass }) — el 안에 같은 두 경로(같은 색·아이콘, 새 창)를
  *   펼치는 작은 버튼을 그린다. 그 자리 아래로 펼쳐지고 바깥 누르기·Esc 로 닫힌다. 오른쪽 아래 '상담하기'와 따로 열리고 닫힌다.
+ *     align:'center'  펼친 두 경로를 가운데로 (가운데 정렬된 자리)
+ *     btnClass:'…'    버튼 모양을 페이지 버튼 클래스로(그 자리 크기 유지, 예: 'lp-btn line dark'). 아이콘·작은 버튼 스타일은 빠진다
+ *   window.iummConsult.open() — 오른쪽 아래 '상담하기'를 펼친다(푸터 '고객센터' 등). 그 클릭으로 바로 닫히지 않게 다음 틱에 연다.
  *   이 파일은 defer 라 페이지 스크립트보다 늦을 수 있다 — window.iummConsult 가 없으면 'iumm-consult-ready' 이벤트 뒤에 그린다.
  *     예) function f(){ iummConsult.inline(el, { label: '견적 상담하기' }); }
  *         window.iummConsult ? f() : window.addEventListener('iumm-consult-ready', f, { once: true });
@@ -56,18 +59,19 @@
   // ── 본문 안 작은 상담 버튼 (2026-11-02) — 떠 있는 '상담하기'보다 작게 ──
   var inlineCss =
     '.iumm-consult-inline{display:block}' +
-    '.iumm-consult-inline .ci-main,.iumm-consult-inline .ci-go a{display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;' +
+    '.iumm-consult-inline .ci-main:not(.ci-own),.iumm-consult-inline .ci-go a{display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;' +
       'height:34px;padding:0 14px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;line-height:1;letter-spacing:-0.01em;' +
       'white-space:nowrap;text-decoration:none;cursor:pointer}' +
-    '.iumm-consult-inline .ci-main{border:1px solid rgba(255,255,255,0.35);background:#0F2540;color:#fff;transition:background .15s}' +
-    '@media(hover:hover){.iumm-consult-inline .ci-main:hover{background:#1F4FD1}}' +
+    '.iumm-consult-inline .ci-main:not(.ci-own){border:1px solid rgba(255,255,255,0.35);background:#0F2540;color:#fff;transition:background .15s}' +
+    '@media(hover:hover){.iumm-consult-inline .ci-main:not(.ci-own):hover{background:#1F4FD1}}' +
     '.iumm-consult-inline .ci-main:focus-visible,.iumm-consult-inline .ci-go a:focus-visible{outline:3px solid #9DB7F5;outline-offset:2px}' +
     '.iumm-consult-inline .ci-go{display:none;flex-wrap:wrap;gap:8px;margin-top:8px}' +
     '.iumm-consult-inline.open .ci-go{display:flex}' +
     '.iumm-consult-inline .ci-go a{border:1px solid rgba(0,0,0,0.12)}' +
     '.iumm-consult-inline .ci-go a.ntalk{background:#03C75A;color:#fff}' +
     '.iumm-consult-inline .ci-go a.kakao{background:#FEE500;color:rgba(0,0,0,0.85)}' +
-    '.iumm-consult-inline svg{width:15px;height:15px;flex:0 0 auto;display:block}';
+    '.iumm-consult-inline svg{width:15px;height:15px;flex:0 0 auto;display:block}' +
+    '.iumm-consult-inline.ci-center .ci-go{justify-content:center}';
   var seq = 0;
   function inline(el, o) {
     if (!el) return null;
@@ -82,10 +86,11 @@
     }
     var id = 'iumm-ci-go-' + (++seq);
     var box = document.createElement('div');
-    box.className = 'iumm-consult-inline';
+    box.className = 'iumm-consult-inline' + (o.align === 'center' ? ' ci-center' : '');
     box.innerHTML =
-      '<button type="button" class="ci-main" aria-expanded="false" aria-controls="' + id + '">' + BUBBLE + '<span></span></button>' +
+      '<button type="button" class="ci-main' + (o.btnClass ? ' ci-own' : '') + '" aria-expanded="false" aria-controls="' + id + '">' + (o.btnClass ? '' : BUBBLE) + '<span></span></button>' +
       '<div class="ci-go" id="' + id + '">' + links() + '</div>';
+    if (o.btnClass) box.querySelector('.ci-main').className += ' ' + o.btnClass;
     box.querySelector('.ci-main span').textContent = o.label || '상담하기';
     el.appendChild(box);
     var main = box.querySelector('.ci-main');
@@ -105,7 +110,17 @@
     });
     return box;
   }
-  window.iummConsult = { inline: inline };
+  // 오른쪽 아래 '상담하기' 펼치기 — mount() 가 setFabOpen 을 채운다
+  var setFabOpen = null;
+  function open() {
+    setTimeout(function () {
+      if (!setFabOpen) return;
+      setFabOpen(true);
+      var a = document.querySelector('#iumm-kakao-fab .fab-go a');
+      if (a) try { a.focus({ preventScroll: true }); } catch (e) { a.focus(); }
+    }, 0);
+  }
+  window.iummConsult = { inline: inline, open: open };
 
   function mount() {
     if (document.getElementById('iumm-kakao-fab')) return;
@@ -126,6 +141,7 @@
       box.classList.toggle('open', on);
       main.setAttribute('aria-expanded', on ? 'true' : 'false');
     }
+    setFabOpen = setOpen;
     main.addEventListener('click', function () { setOpen(!box.classList.contains('open')); });
     box.querySelector('.fab-go').addEventListener('click', function () { setOpen(false); });
     // 바깥 누르기 — 본문 안 상담 버튼(iummConsult.inline)을 누른 것은 바깥으로 치지 않는다

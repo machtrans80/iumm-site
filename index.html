@@ -2079,7 +2079,9 @@ html[data-v3="on"] .lp-why{grid-template-columns:repeat(4,1fr);gap:48px 28px}
 .lp-why .c{padding:24px 0 0;border-top:1px solid rgba(15,37,64,0.2)}
 .lp-why .k{margin:0 0 14px;padding:0 0 14px;font-size:30px;font-weight:700;line-height:1.25;color:var(--v-navy);background:linear-gradient(var(--v-gold),var(--v-gold)) no-repeat 0 100%/40px 2px;word-break:keep-all}
 .lp-why .d{margin:0;font-size:16px;font-weight:500;line-height:1.75;color:var(--v-text);word-break:keep-all}
-.lp-biz-act{display:flex;flex-wrap:wrap;gap:12px;margin-top:56px}
+.lp-biz-act{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px;margin-top:56px}  /* flex-start: NDA 상담 경로가 펼쳐져도 옆 버튼이 늘어나지 않게 (2026-11-02) */
+/* 결제 화면 [문의하기] — 모바일에서 펼친 경로가 오른쪽 아래 '상담하기'에 가리지 않게 끝까지 내리면 위로 올라오는 여백 (2026-11-02) */
+@media(max-width:640px){#pay-consult .iumm-consult-inline.open{padding-bottom:64px}}
 @media(max-width:1023px){.lp-why,html[data-v3="on"] .lp-why{grid-template-columns:1fr 1fr}}
 
 /* ⑦ 요금 — 두 요금 나란히, 가격은 마루 부리 크게 */
@@ -2145,6 +2147,7 @@ html[data-v3="on"] .lp-why{grid-template-columns:repeat(4,1fr);gap:48px 28px}
   .lp-plan{padding:24px 22px}
   .lp-plan .pr b{font-size:38px}
   .lp-biz-act .lp-btn{width:100%}
+  .lp-biz-act .lp-consult-slot,.lp-biz-act .lp-consult-slot .iumm-consult-inline{width:100%}
 }
 /* ★전역 모바일 규칙(section{padding:… !important})이 랜딩 여백을 덮는다 — 랜딩 구역만 되돌린다 */
 @media(max-width:768px){
@@ -3072,7 +3075,7 @@ section.it{padding:0 !important}  /* 전역 모바일 section 여백 규칙이 �
     </div>
     <div class="lp-biz-act">
       <button type="button" class="lp-btn" onclick="openFreeTest()">무료 테스트 번역 신청</button>
-      <a class="lp-btn line dark" href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener">NDA 체결 문의</a>
+      <div id="nda-consult" class="lp-consult-slot"></div><!-- [NDA 체결 문의] — kakao-fab.js iummConsult.inline 이 그린다(2026-11-02) -->
     </div>
   </div>
 </section>
@@ -3618,11 +3621,7 @@ var SHOW_V3 = false;
            "물어볼 데가 있다"는 안심을 주는 자리다. -->
       <div style="margin-top:14px;text-align:center">
         <p style="font-size:11.5px;color:rgba(255,255,255,0.45);font-weight:300;margin-bottom:8px">궁금한 점이 있으신가요?</p>
-        <a href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener noreferrer"
-           style="display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:8px;background:#FEE500;color:rgba(0,0,0,0.85);font-size:12.5px;font-weight:700;line-height:1;text-decoration:none">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" style="flex:0 0 auto"><path d="M12 3C6.98 3 2.9 6.24 2.9 10.24c0 2.55 1.68 4.79 4.21 6.06-.19.68-.67 2.43-.77 2.81-.12.47.17.47.36.34.15-.1 2.42-1.64 3.4-2.31.61.09 1.24.14 1.9.14 5.02 0 9.1-3.24 9.1-7.04S17.02 3 12 3z"/></svg>
-          카카오톡으로 문의하세요
-        </a>
+        <div id="pay-consult"></div><!-- [문의하기] → 네이버 톡톡·카카오톡 — kakao-fab.js iummConsult.inline 이 그린다(2026-11-02) -->
       </div>
 
     </div>
@@ -3980,7 +3979,7 @@ var SHOW_V3 = false;
       <a href="#" onclick="showPage('terms');return false">이용약관</a>
       <a href="#" onclick="showPage('privacy');return false">개인정보처리방침</a>
       <a href="#" onclick="openTermsAtAnchor('article-5');return false">환불정책</a>
-      <a href="https://pf.kakao.com/_BlpKX/chat" target="_blank" rel="noopener noreferrer">고객센터</a>
+      <a href="#" onclick="if(window.iummConsult)iummConsult.open();return false">고객센터</a><!-- 오른쪽 아래 상담하기를 펼친다(2026-11-02) -->
     </div>
   </div>
   
@@ -7149,9 +7148,13 @@ function openTranslationOrder(){
 <!-- 카카오톡 문의 — 전 화면 공통 조각 (주문 모달·마이페이지·약관이 열려도 보인다) -->
 <script>
 // 견적 칸 '견적 상담하기' — kakao-fab.js(defer)가 늦게 불러와져도 불러온 뒤 그린다 (2026-11-02)
-(function(){function f(){window.iummConsult.inline(document.getElementById('estimate-consult-btn'),{label:'견적 상담하기'});}
+// 결제 화면 [문의하기] · 랜딩 [NDA 체결 문의] 도 같은 두 경로 (2026-11-02) — 상담 주소는 kakao-fab.js 에만
+(function(){function f(){var c=window.iummConsult;
+c.inline(document.getElementById('estimate-consult-btn'),{label:'견적 상담하기'});
+c.inline(document.getElementById('pay-consult'),{label:'문의하기',align:'center'});
+c.inline(document.getElementById('nda-consult'),{label:'NDA 체결 문의',btnClass:'lp-btn line dark'});}
 if(window.iummConsult)f();else window.addEventListener('iumm-consult-ready',f,{once:true});})();
 </script>
-<script src="/assets/kakao-fab.js?v=6" defer></script>
+<script src="/assets/kakao-fab.js?v=7" defer></script>
 </body>
 </html>

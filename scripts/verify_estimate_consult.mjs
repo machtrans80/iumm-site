@@ -94,7 +94,7 @@ try {
   console.log('\n[데스크톱 1280px]');
   await open(1280, 1000, false);
   check(await ev(`!!window.iummConsult && !!document.querySelector('#estimate-consult-btn .iumm-consult-inline .ci-main')`), 'kakao-fab.js 를 1.5초 늦게 불러와도 버튼이 그려짐');
-  check(await ev(`document.querySelector('script[src*="kakao-fab.js"]').getAttribute('src') === '/assets/kakao-fab.js?v=6'`), 'kakao-fab.js?v=6');
+  check(await ev(`document.querySelector('script[src*="kakao-fab.js"]').getAttribute('src') === '/assets/kakao-fab.js?v=7'`), 'kakao-fab.js?v=7');
   await openOrder('handleAI');
   check(!(await vis('#estimate-consult-btn .ci-main')), '견적 전 → 안 보임');
   const TEXT = '계약 조건을 확인해 주세요. '.repeat(30);
@@ -147,7 +147,7 @@ try {
   await ev(`closeModal('order')`); await openOrder('handleAI'); await setText(TEXT);
   await ev(`(() => { const c = document.getElementById('freeTestCheck'); c.checked = true; c.dispatchEvent(new Event('change')); return 1; })()`); await sleep(200);
   check(await vis('#estimate-consult-btn .ci-main'), '무료 테스트 체크 상태 → 보임');
-  check(await ev(`document.querySelectorAll('.iumm-consult-inline').length === 1`), '버튼은 한 개만 (다시 열어도 겹쳐 그리지 않음)');
+  check(await ev(`document.querySelectorAll('#estimate-consult-btn .iumm-consult-inline').length === 1`), '버튼은 한 개만 (다시 열어도 겹쳐 그리지 않음)');
 
   console.log('\n[모바일 390px]');
   await open(390, 844, true);

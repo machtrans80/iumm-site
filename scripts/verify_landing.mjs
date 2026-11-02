@@ -99,7 +99,7 @@ check(land.includes('<h2 class="lp-h2 mb">아이움에 맡겨야 하는 이유</
     "21일 삭제 = '납품 21일 후'(cron 실제) · 보안 칸에 '회사별 용어뿐' 문장 없음(용어 수집 개인정보 제외가 완전하지 않음)"); }
 check(/\.lp-why \.k\{[^}]*color:var\(--v-navy\);background:linear-gradient\(var\(--v-gold\),var\(--v-gold\)\) no-repeat 0 100%\/40px 2px/.test(html), '핵심 사실 = 남색 글자 + 골드 짧은 선 (골드 글자는 대비 부족)');
 check(!/원본 형식 그대로/.test(land), "'원본 형식 그대로' 카드 없음 (형식 유지 납품 미지원)");
-check(/onclick="openFreeTest\(\)">무료 테스트 번역 신청<\/button>/.test(land) && /href="https:\/\/pf\.kakao\.com\/_BlpKX\/chat"[^>]*>NDA 체결 문의<\/a>/.test(land), '버튼: 무료 테스트 신청 · NDA 문의(카카오 상담)');
+check(/onclick="openFreeTest\(\)">무료 테스트 번역 신청<\/button>/.test(land) && /<div id="nda-consult" class="lp-consult-slot"><\/div>/.test(land) && /inline\(document\.getElementById\('nda-consult'\),\{label:'NDA 체결 문의',btnClass:'lp-btn line dark'\}\)/.test(html), '버튼: 무료 테스트 신청 · NDA 체결 문의(공용 상담 — 네이버 톡톡·카카오톡, 2026-11-02)');
 check(!/후불|월 정산|외상/.test(html.replace(/<!--[\s\S]*?-->/g, '')), '후불·월 정산·외상 없음');
 check(html.includes("fetch(MEMBER_API_BASE+'/api/order/free-test'") && /FREE_TEST_MAX_CHARS=1000/.test(html), '무료 테스트 → /api/order/free-test · 1,000자');
 check(html.includes("'/revision',{method:'POST'") && html.includes("REVISION_CLOSED_MSG='수정 요청을 이미 사용했거나 수정 기간이 지났습니다. 문의해 주세요.'"), '마이페이지 수정 요청 → /revision · 사용·기간 지남 안내');
@@ -604,7 +604,8 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   const fab = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
   check(/<span>상담하기<\/span><\/button>/.test(fab) && /aria-expanded/.test(fab) && /\.fab-main\{[^']*background:#0F2540/.test(fab) && /a\.ntalk\{background:#03C75A/.test(fab) && /a\.kakao\{background:#FEE500/.test(fab) && /Escape/.test(fab) && !/box-shadow/.test(fab),
     "떠 있는 상담 버튼 = 남색 '상담하기' 하나 → 네이버 톡톡·카카오톡 두 경로 펼침 (Esc·바깥 누르면 닫힘)");
-  check(html.includes('/assets/kakao-fab.js?v=6') && !html.includes('kakao-fab.js?v=5'), '상담 버튼 캐시 버전 v=6 (2026-11-02 견적 상담하기)');
+  check(html.includes('/assets/kakao-fab.js?v=7') && !/kakao-fab\.js\?v=[0-6]\b/.test(html), '상담 버튼 캐시 버전 v=7 (2026-11-02 주소 3곳 → 공용 상담)');
+  check(!/pf\.kakao\.com|talk\.naver\.com/.test(html), '상담 주소(pf.kakao.com · talk.naver.com)는 index.html 에 없음 — kakao-fab.js 에만');
 }
 
 console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
