@@ -1,5 +1,5 @@
-// 우회 주문 '제출 국가 · 영어 표기' (2026-11-02) — 도착어가 영어일 때만 보임
-// 저장은 Airtable 새 칸 없이 번역지시사항(bp-reference-notes) 맨 앞 한 줄: "제출 국가: 캄보디아 · 영어 표기: 미국식"
+// 우회 주문 '제출 국가 · 영어 표기' (2026-11-02) — 제출 국가는 모든 도착어, 영어 표기는 도착어가 영어일 때만
+// 저장은 Airtable 새 칸 없이 번역지시사항(bp-reference-notes) 맨 앞 한 줄: "제출 국가: 캄보디아 · 영어 표기: 미국식" / 영어 밖: "제출 국가: 멕시코"
 //   영어 표기 '자동'이면 "영어 표기: 자동(미국식)" — 서버(v2_rules.js detectDestination)는 '미국식/영국식'으로 시작할 때만 직접 지정으로 보고,
 //   자동이면 제출 국가로 판단한다(같은 규칙: 영국·영연방 → 영국식, 그 밖·비움 → 미국식).
 // 주문 상세 번역문 위 한 줄(destShowOrder)도 여기 — V3/V2 처리 기록의 destination 값.
@@ -16,16 +16,18 @@
 
   window.bpDestRefresh = function () {
     var row = $('bp-dest-row'); if (!row) return;
-    row.style.display = isEnglishTarget() ? '' : 'none';
+    row.style.display = '';
+    var vc = $('bp-dest-variant-col'); if (vc) vc.style.display = isEnglishTarget() ? '' : 'none';
     var n = ($('bp-dest-nation').value || '').trim(), v = $('bp-dest-variant').value;
     var out = $('bp-dest-judge');
     if (v === 'auto') out.textContent = '→ ' + LABEL[judge(n)] + (n ? '' : ' (제출 국가 없음 — 기본값)');
     else out.textContent = '';
   };
-  /** 지금 두 칸 값으로 만든 한 줄('' = 안 씀). 도착어가 영어가 아니면 '' */
+  /** 지금 칸 값으로 만든 한 줄('' = 안 씀). 도착어가 영어가 아니면 제출 국가만 */
   window.bpDestLine = function () {
-    if (!isEnglishTarget() || !$('bp-dest-row')) return '';
+    if (!$('bp-dest-row')) return '';
     var n = ($('bp-dest-nation').value || '').replace(/[·|\n]/g, ' ').trim(), v = $('bp-dest-variant').value;
+    if (!isEnglishTarget()) return n ? '제출 국가: ' + n : '';
     if (!n && v === 'auto') return '';
     var parts = [];
     if (n) parts.push('제출 국가: ' + n);

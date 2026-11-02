@@ -1022,29 +1022,38 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           </div>
           <div class="bp-col">
             <label class="bp-label">전문 분야</label>
+            <!-- 값 = 서버 FIELD_TO_FOLDER 키(server.js)와 정확히 같게(2026-11-02) — 서버에 없는 값은 '일반' 지침으로 바뀌어 버림 -->
             <select id="bp-field" class="bp-inp">
               <option value="general">일반 (분야 미지정)</option>
-              <option value="business">비즈니스 (이메일, 보고서)</option>
+              <option value="criminal">범죄수사·공문 (수사 서류, 공조요청서, 조서)</option>
               <option value="legal">법률·계약 (계약서, 약관)</option>
+              <option value="business">비즈니스 (이메일, 보고서)</option>
               <option value="medical">의료·제약 (논문, 임상)</option>
               <option value="academic">학술·논문 (학술지, 연구)</option>
               <option value="tech">기술·IT (API)</option>
               <option value="manual">매뉴얼 (사용설명서, 가이드)</option>
               <option value="finance">금융·재무 (재무제표, IR)</option>
-              <option value="game">게임·엔터 (게임, 콘텐츠)</option>
+              <option value="gaming">게임·엔터 (게임, 콘텐츠)</option>
               <option value="patent">특허·지식재산</option>
               <option value="marketing">마케팅·광고</option>
+              <option value="immigration">이민·비자</option>
+              <option value="accounting">회계·세무</option>
+              <option value="esg">ESG·지속가능경영</option>
+              <option value="construction">건설·엔지니어링</option>
+              <option value="arts">예술·문화</option>
+              <option value="literary">문학·출판</option>
             </select>
+            <div id="bp-field-hint" style="font-size:11px;color:rgba(169,205,255,0.7);margin-top:4px">수사 서류는 범죄수사·공문 지침으로 번역합니다</div>
           </div>
         </div>
 
-        <!-- 제출 국가 · 영어 표기 (2026-11-02) — 도착어가 영어일 때만. 저장은 번역지시사항 첫 줄(bp_destination.js) -->
-        <div class="bp-row" id="bp-dest-row" style="display:none">
+        <!-- 제출 국가(모든 도착어) · 영어 표기(도착어 영어일 때만) (2026-11-02) — 저장은 번역지시사항 첫 줄(bp_destination.js) -->
+        <div class="bp-row" id="bp-dest-row">
           <div class="bp-col">
             <label class="bp-label">제출 국가 <span style="color:rgba(255,255,255,0.3);font-size:11px">(선택)</span></label>
-            <input id="bp-dest-nation" class="bp-inp" type="text" placeholder="예: 캄보디아, 호주, 미국" oninput="bpDestRefresh()">
+            <input id="bp-dest-nation" class="bp-inp" type="text" placeholder="예: 캄보디아, 호주, 멕시코" oninput="bpDestRefresh()">
           </div>
-          <div class="bp-col">
+          <div class="bp-col" id="bp-dest-variant-col">
             <label class="bp-label">영어 표기</label>
             <div style="display:flex;align-items:center;gap:10px">
               <select id="bp-dest-variant" class="bp-inp" style="flex:1" onchange="bpDestRefresh()">
@@ -1097,7 +1106,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <div class="bp-col" style="max-width:220px">
             <label class="bp-label">용어 범위</label>
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,0.85);cursor:pointer;padding:9px 0">
-              <input type="checkbox" id="bp-internal" onchange="bpScopeChanged()" style="accent-color:#9ca3af"> 내부전용
+              <input type="checkbox" id="bp-internal" onchange="bpScopeChanged(true)" style="accent-color:#9ca3af"> 내부전용
             </label>
           </div>
           <div class="bp-col">
@@ -1908,7 +1917,7 @@ function loadFailedToBypassForm(idx) {
   }
   if (window.bpDestRefresh) bpDestRefresh();
   var fSel = document.getElementById('bp-field');
-  if (fSel && o.fieldCode) fSel.value = o.fieldCode;
+  if (fSel && o.fieldCode) fSel.value = bpFieldValue(o.fieldCode);
   var pSel = document.getElementById('bp-plan');
   if (pSel) pSel.value = (o.plan === '프리미엄 플러스') ? 'premium_plus' : 'ai_premium';
   if (typeof bpPlanChanged === 'function') bpPlanChanged();
@@ -3716,9 +3725,19 @@ function bpPlanChanged() {
   document.getElementById('bp-plan-hint').style.display = plan === 'premium_plus' ? 'block' : 'none';
 }
 
+// 저장된 분야 값 → 목록 값(2026-11-02). 예전 'game' 은 gaming, 목록에 없는 값은 일반
+var BP_FIELD_ALIASES = { game: 'gaming' };
+function bpFieldValue(v) {
+  v = BP_FIELD_ALIASES[v] || v;
+  var sel = document.getElementById('bp-field');
+  return sel && [].some.call(sel.options, function (o) { return o.value === v; }) ? v : 'general';
+}
 // 용어 범위: 내부전용이면 기업 고객 입력을 잠근다(서버도 내부전용 우선)
-function bpScopeChanged() {
+//   userToggle: 대표가 '내부전용'을 켠 순간 — 분야가 '일반'이면 범죄수사·공문으로(다른 분야를 골랐으면 그대로, 2026-11-02)
+function bpScopeChanged(userToggle) {
   var internal = document.getElementById('bp-internal').checked;
+  var fSel = document.getElementById('bp-field');
+  if (userToggle === true && internal && fSel && fSel.value === 'general') fSel.value = 'criminal';
   ['bp-corp-bizno', 'bp-corp-name'].forEach(function (id) {
     var el = document.getElementById(id); el.disabled = internal; el.style.opacity = internal ? '0.4' : '1';
   });
@@ -4693,7 +4712,7 @@ async function loadNotaryDirect() {
 <script src="/admin/credit_budget.js?v=1"></script>
 <script src="/admin/lang_scores.js?v=1"></script>
 <script src="/admin/order_terms.js?v=2"></script>
-<script src="/admin/bp_destination.js?v=1"></script>
+<script src="/admin/bp_destination.js?v=2"></script>
 <script src="/admin/score_reasons.js?v=2"></script>
 </body>
 </html>

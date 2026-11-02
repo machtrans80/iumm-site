@@ -532,10 +532,11 @@ try {
   const setDir = (d) => ev(`(() => { const s = document.getElementById('bp-direction'); s.value = ${JSON.stringify(d)}; s.dispatchEvent(new Event('change')); return 1; })()`);
   const setDest = (n, v) => ev(`(() => { document.getElementById('bp-dest-nation').value = ${JSON.stringify(n)}; document.getElementById('bp-dest-variant').value = ${JSON.stringify(v)}; bpDestRefresh(); return document.getElementById('bp-dest-judge').textContent; })()`);
   const destShown = () => ev(`getComputedStyle(document.getElementById('bp-dest-row')).display !== 'none'`);
+  const variantShown = () => ev(`getComputedStyle(document.getElementById('bp-dest-variant-col')).display !== 'none'`);
   await setDir('포르투갈어 → 한국어');
-  check(!(await destShown()), '도착어가 영어가 아니면 칸 안 보임');
+  check((await destShown()) && !(await variantShown()), '도착어가 영어가 아니어도 제출 국가 칸은 보임 · 영어 표기 선택은 숨김(2026-11-02)');
   await setDir('한국어 → 영어');
-  check(await destShown(), '한국어 → 영어 고르면 칸 보임');
+  check((await destShown()) && (await variantShown()), '한국어 → 영어 고르면 영어 표기 선택도 보임');
   check(await ev(`(() => { const all = [...document.getElementById('bypass-wrap').querySelectorAll('*')]; return all.indexOf(document.getElementById('bp-dest-row')) > all.indexOf(document.getElementById('bp-direction')) && all.indexOf(document.getElementById('bp-dest-row')) < all.indexOf(document.getElementById('bp-text')); })()`), '위치: 번역 방향 바로 아래(원문 텍스트 위)');
   check((await setDest('', 'auto')) === '→ 미국식 (제출 국가 없음 — 기본값)', '비움 + 자동 → 미국식(기본값)');
   check((await setDest('캄보디아', 'auto')) === '→ 미국식', '캄보디아 + 자동 → 미국식');
@@ -552,6 +553,15 @@ try {
   const bp2 = (await calls('^/api/admin/translate-bypass$'))[0];
   check(bp2 && bp2.json.referenceNotes === '제출 국가: 캄보디아 · 영어 표기: 자동(미국식)\n공증용 서류입니다', `새 주문 → 번역지시사항 첫 줄 "제출 국가: 캄보디아 · 영어 표기: 자동(미국식)" · 예전 줄 바꿔 씀 (${bp2 && JSON.stringify(bp2.json.referenceNotes)})`);
   check(bp2 && bp2.json.direction === '한국어 → 영어', '번역 방향 그대로');
+  // 영어 밖 도착어: 스페인어 + 멕시코 → "제출 국가: 멕시코" 한 줄(영어 표기 없음)
+  await setDir('한국어 → 스페인어');
+  await setDest('멕시코', 'UK');
+  check(await ev(`bpDestLine()`) === '제출 국가: 멕시코', '스페인어 + 멕시코 → "제출 국가: 멕시코"(영어 표기 안 붙음)');
+  await ev(`document.getElementById('bp-text').value = '원문입니다', document.getElementById('bp-reference-notes').value = '존댓말로', window.__mock.calls.length = 0, 1`);
+  await ev(`submitBypassOrder()`);
+  const bp3 = (await calls('^/api/admin/translate-bypass$'))[0];
+  check(bp3 && bp3.json.referenceNotes === '제출 국가: 멕시코\n존댓말로' && bp3.json.direction === '한국어 → 스페인어', `도착어 스페인어 → 지시사항 첫 줄 저장 (${bp3 && JSON.stringify(bp3.json.referenceNotes)})`);
+  await setDir('한국어 → 영어');
   // [폼에 불러오기] → 칸에 다시 채우고 나머지만 지시사항에 · 다시 저장해도 한 줄
   await ev(`window._failedOrders = [{ orderId: 'recF1', orderNumber: 'ADMIN-TEST-1', originalText: '원문', direction: '한국어 → 영어', referenceNotes: '제출 국가: 캄보디아 · 영어 표기: 영국식\\n격식체로' }], loadFailedToBypassForm(0), 1`); await sleep(200);
   const ld = await ev(`({ n: document.getElementById('bp-dest-nation').value, v: document.getElementById('bp-dest-variant').value, notes: document.getElementById('bp-reference-notes').value, shown: getComputedStyle(document.getElementById('bp-dest-row')).display !== 'none' })`);
@@ -571,7 +581,9 @@ try {
   check(await ev(`document.getElementById('bp-dest-nation').value === '' && document.getElementById('bp-dest-variant').value === 'auto'`), '재실행 모드 해제 → 칸 비움');
   await setDir('한국어 → 일본어');
   await setDest('호주', 'UK');
-  check(!(await destShown()) && await ev(`bpDestLine()`) === '' && await ev(`bpDestMerge('제출 국가: 호주\\n메모')`) === '메모', '도착어가 영어가 아니면 줄 안 씀(예전 줄은 뺌)');
+  check((await destShown()) && await ev(`bpDestLine()`) === '제출 국가: 호주' && await ev(`bpDestMerge('제출 국가: 미국 · 영어 표기: 영국식\\n메모')`) === '제출 국가: 호주\n메모', '도착어가 영어가 아니면 "제출 국가:"만(영어 표기 없음) · 예전 줄은 바꿔 씀');
+  await setDest('', 'auto');
+  check(await ev(`bpDestLine()`) === '' && await ev(`bpDestMerge('제출 국가: 호주\\n메모')`) === '메모', '영어 밖 · 제출 국가 비움 → 줄 안 씀(예전 줄은 뺌)');
   await setDir('포르투갈어 → 한국어'); await setDest('', 'auto');
   // 주문 상세: 번역문 위 한 줄 — 처리 기록 destination
   await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
@@ -716,6 +728,38 @@ try {
   await ev(`closeAdminSearch(), populateAiScoreSection({ orderId: 'rec1', aiScore: 90 }), 1`);
   check(await ev(`document.getElementById('score-reasons').style.display === 'none'`), 'V3 기록 없는 주문(V1·V2)은 채점 근거 없음');
   check(!(await ev(`/claude|opus|gpt|모델/i.test(document.getElementById('score-reasons').innerHTML)`)), '채점 근거 영역에 모델 이름 없음');
+
+  console.log('\n[16] 우회 주문 — 전문 분야 목록 · 내부전용 기본 분야 (2026-11-02)');
+  {
+    const SERVER = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'iumm-pipeline', 'server.js');
+    const vals = await ev(`[...document.querySelectorAll('#bp-field option')].map(o => o.value)`);
+    if (fs.existsSync(SERVER)) {
+      const keys = Object.keys(Function(`return (${fs.readFileSync(SERVER, 'utf8').match(/const FIELD_TO_FOLDER = (\{[\s\S]*?\});/)[1]})`)());
+      check(vals.every((v) => keys.includes(v)) && keys.every((k) => vals.includes(k)), `#bp-field 값 ${vals.length}개 = 서버 FIELD_TO_FOLDER 키 ${keys.length}개 (빠진 것·남는 것 없음)`);
+    } else ok('(파이프라인 저장소 없음 — 서버 키 대조 건너뜀)');
+    check(vals.slice(0, 3).join() === 'general,criminal,legal' && vals.includes('gaming') && !vals.includes('game'), "순서: 일반 · 범죄수사·공문 · 법률·계약 · 게임 값 'gaming'");
+    check(/수사 서류는 범죄수사·공문 지침으로 번역합니다/.test(await ev(`document.getElementById('bp-field-hint').textContent`)), '분야 옆 안내');
+    const fieldAfterToggle = async (start) => ev(`(() => { const f = document.getElementById('bp-field'), c = document.getElementById('bp-internal'); c.checked = false; bpScopeChanged(); f.value = ${JSON.stringify(start)}; c.checked = true; c.dispatchEvent(new Event('change')); const v = f.value; c.checked = false; bpScopeChanged(); return v; })()`);
+    check((await fieldAfterToggle('general')) === 'criminal', '내부전용 켜면 일반 → 범죄수사·공문');
+    check((await fieldAfterToggle('legal')) === 'legal', '다른 분야를 골랐으면 그대로(법률·계약)');
+    // 예전 'game' 주문 [폼에 불러오기] → gaming 으로 채우고 재실행도 gaming
+    await ev(`window._failedOrders = [{ orderId: 'recG1', orderNumber: 'ADMIN-TEST-G', originalText: '원문', direction: '한국어 → 영어', fieldCode: 'game', referenceNotes: '' }], loadFailedToBypassForm(0), 1`); await sleep(200);
+    check(await ev(`document.getElementById('bp-field').value`) === 'gaming', "예전 'game' 값 불러오기 → gaming");
+    await ev(`window.__mock.calls.length = 0, submitBypassOrder(), 1`); await sleep(300);
+    const rp = (await ev(`window.__mock.calls.filter(c => c.m !== 'GET').map(c => c.json || {})`)).find((j) => j.fieldCode);
+    check(rp && rp.fieldCode === 'gaming', `재실행 → 분야 gaming 으로 보냄 (${rp && rp.fieldCode})`);
+    await ev(`window._failedOrders = [{ orderId: 'recG2', orderNumber: 'ADMIN-TEST-H', originalText: '원문', direction: '한국어 → 영어', fieldCode: 'unknown_x', referenceNotes: '' }], loadFailedToBypassForm(0), 1`); await sleep(200);
+    check(await ev(`document.getElementById('bp-field').value`) === 'general', '목록에 없는 값 → 일반');
+    await ev(`exitReprocessMode(), 1`);
+    // 캡처: 목록 전체를 펼친 모양(크기만 잠깐 늘림)
+    await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1400, deviceScaleFactor: 1, mobile: false });
+    await ev(`(() => { const f = document.getElementById('bp-field'); f.value = 'criminal'; f.size = f.options.length; f.style.height = 'auto'; document.getElementById('toast').classList.remove('show'); f.scrollIntoView({ block: 'center' }); return 1; })()`); await sleep(250);
+    const r = await ev(`(() => { const a = document.getElementById('bp-field').closest('.bp-col').getBoundingClientRect(); return { x: Math.max(0, a.left - 10), y: Math.max(0, a.top - 10), width: a.width + 20, height: a.height + 20 }; })()`);
+    const sh = await send('Page.captureScreenshot', { format: 'png', clip: { ...r, scale: 1 } });
+    fs.writeFileSync(path.join(SHOT_DIR, 'admin_field_list.png'), Buffer.from(sh.result.data, 'base64'));
+    await ev(`(() => { const f = document.getElementById('bp-field'); f.size = 0; f.style.height = ''; f.value = 'general'; return 1; })()`);
+    await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  }
 
   // 실제 주문 화면 확인(선택) — REAL_ORDER_JSON=<저장소 밖 파일>. 가짜 fetch 그대로라 서버에 아무것도 보내지 않고, 번역문을 고치지 않는다. 내용은 출력하지 않음(건수만)
   if (process.env.REAL_ORDER_JSON) {
