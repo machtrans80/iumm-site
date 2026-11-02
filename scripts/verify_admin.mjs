@@ -614,8 +614,16 @@ try {
   w = await where();
   check(w.tr === '번역 2/4' && w.line === 80 && w.top > 0 && Math.abs(w.rel - w.h / 3) < 40, `Enter = 다음 → 80번째 줄, 칸 위쪽 1/3 지점(${Math.round(w.rel)} / ${w.h})`);
   check(w.rel >= 0 && w.rel < w.h, '화면 밖에 있던 결과가 칸 안에 보임');
-  await sleep(150);
-  check((await where()).srcTop > 0, '동기화 켜져 있으면 원문 칸도 따라 내려감');
+  await sleep(400);
+  { const w2 = await where(); check(w2.srcTop > 0 && w2.top === w.top, `동기화 켜져 있으면 원문 칸도 따라 내려감 · 원문 스크롤이 번역 칸 위치를 되돌려 옮기지 않음(${w.top} → ${w2.top})`); }
+  // 원문·번역 길이가 크게 다를 때(실제 주문처럼) — 동기화가 번역 칸을 다른 곳으로 끌고 가지 않음
+  await ev(`(document.getElementById('panel-source').value = document.getElementById('panel-source').value.split('\\n').slice(0, 60).join('\\n'), 1)`);
+  await typeQ('counsel'); await key(); await key();
+  await sleep(400);
+  w = await where();
+  check(w.tr === '번역 3/4' && w.line === 150 && Math.abs(w.rel - w.h / 3) < 40, `원문이 짧아도(60줄 / 번역 200줄) 이동한 자리 그대로 (${Math.round(w.rel)} / ${w.h})`);
+  await ev(`(() => { const s = []; for (let i = 1; i <= 200; i++) s.push(${JSON.stringify(HIT_SRC)}.includes(i) ? i + '번째 줄 counsel 진술' : i + '번째 줄 진술 내용'); document.getElementById('panel-source').value = s.join('\\n'); return 1; })()`);
+  await typeQ('counsel'); await key();
   await key(); await key();
   w = await where();
   check(w.tr === '번역 4/4' && w.line === 190, 'Enter 두 번 더 → 4/4');
@@ -704,6 +712,29 @@ try {
   await ev(`closeAdminSearch(), populateAiScoreSection({ orderId: 'rec1', aiScore: 90 }), 1`);
   check(await ev(`document.getElementById('score-reasons').style.display === 'none'`), 'V3 기록 없는 주문(V1·V2)은 채점 근거 없음');
   check(!(await ev(`/claude|opus|gpt|모델/i.test(document.getElementById('score-reasons').innerHTML)`)), '채점 근거 영역에 모델 이름 없음');
+
+  // 실제 주문 화면 확인(선택) — REAL_ORDER_JSON=<저장소 밖 파일>. 가짜 fetch 그대로라 서버에 아무것도 보내지 않고, 번역문을 고치지 않는다. 내용은 출력하지 않음(건수만)
+  if (process.env.REAL_ORDER_JSON) {
+    console.log('\n[실제 주문 — 읽기 전용 화면 확인]');
+    const o = JSON.parse(fs.readFileSync(process.env.REAL_ORDER_JSON, 'utf8'));
+    await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
+    await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`);
+    await ev(`(Object.assign(window._orders.find(x => x.orderId === 'rec1'), ${JSON.stringify(o)}, { orderId: 'rec1' }), 1)`);
+    await click('#orders-tbody tr[data-id="rec1"]'); await sleep(300);
+    const before = await ev(`document.getElementById('panel-translation').value`);
+    const q = await ev(`(() => { const t = document.getElementById('panel-translation').value; const words = (t.match(/[A-Za-z]{6,}/g) || []); const c = {}; words.forEach(w => { w = w.toLowerCase(); c[w] = (c[w] || 0) + 1; }); return Object.keys(c).filter(w => c[w] >= 3 && c[w] <= 12).sort((a, b) => t.toLowerCase().lastIndexOf(b) - t.toLowerCase().lastIndexOf(a))[0] || 'the'; })()`);
+    await ev(`(() => { openAdminSearch(); const i = document.getElementById('panel-search-inp'); i.value = ${JSON.stringify(q)}; i.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
+    for (let k = 0; k < 20; k++) await ev(`(document.getElementById('panel-search-inp').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, shiftKey: true })), 1)`);
+    const r = await ev(`(() => { const ta = document.getElementById('panel-translation'), mk = document.getElementById('ov-tr').querySelector('mark.search-cur'); const ov = document.getElementById('ov-tr');
+      return { sc: document.getElementById('sc-tr').textContent, rel: mk ? mk.offsetTop - ta.scrollTop : null, h: ta.clientHeight, top: ta.scrollTop, sh: ta.scrollHeight, osh: ov.scrollHeight, ow: ov.clientWidth, tw: ta.clientWidth, mt: mk ? mk.offsetTop : null }; })()`);
+    check(/^번역 \d+\/\d+$/.test(r.sc) && r.rel >= 0 && r.rel < r.h, `검색 이동 — ${r.sc} · 칸 안에 보임 ${JSON.stringify(r)}`);
+    await ev(`closeAdminSearch(), 1`);
+    await until(`!!document.getElementById('sr-details')`);
+    await click('#sr-details summary'); await sleep(150);
+    const sr = await ev(`({ items: document.querySelectorAll('#score-reasons .sr-old').length, note: /자세한 기록 없음/.test(document.getElementById('score-reasons').textContent), inputs: document.querySelectorAll('#score-reasons .sr-q').length })`);
+    check(sr.note && sr.items === (o.aiQualityDetail?.v3?.score?.changes || []).length && sr.inputs === sr.items, `저장된 이유 목록 ${sr.items}개 · "자세한 기록 없음" · 이유마다 검색어 입력칸`);
+    check(await ev(`document.getElementById('panel-translation').value`) === before && !(await ev(`window.__mock.calls.some(c => c.m !== 'GET' && /orders\\/rec1|translation|draft|save/.test(c.p))`)), '번역문 그대로(바꾸지 않음) · 저장 요청 없음');
+  }
 
   console.log('\n[9] 모바일 390px');
   await open(390, 844, true, { token: 'TEST_TOKEN' });

@@ -2360,7 +2360,14 @@ function _srchGo(k,i,opts){
   var P=_SRCH_PANE[k],ta=document.getElementById(P.ta),ov=document.getElementById(P.ov);
   if(k==='tr'){var h=st.hits[st.cur];if(opts&&opts.focus){try{ta.focus({preventScroll:true});}catch(e){ta.focus();}}try{ta.setSelectionRange(h[0],h[1]);}catch(e){}}
   var mk=ov.querySelector('mark.search-cur');
-  if(mk){ta.scrollTop=Math.max(0,mk.offsetTop-ta.clientHeight/3);ov.scrollTop=ta.scrollTop;}
+  if(mk){
+    // 동기화가 켜져 있으면 다른 칸도 지금 방식(비율)대로 여기서 맞추고, 그 스크롤 이벤트가 되돌아와 이 칸을 옮기지 않게 잠깐 막는다
+    _scrollSyncing=true;
+    ta.scrollTop=Math.max(0,mk.offsetTop-ta.clientHeight/3);ov.scrollTop=ta.scrollTop;
+    var other=document.getElementById(_SRCH_PANE[k==='tr'?'src':'tr'].ta);
+    if(_scrollSyncEnabled&&other){other.scrollTop=ta.scrollTop/Math.max(ta.scrollHeight-ta.clientHeight,1)*(other.scrollHeight-other.clientHeight);}
+    clearTimeout(_srchGo._t);_srchGo._t=setTimeout(function(){_scrollSyncing=false;},120);
+  }
   return true;
 }
 function _srchStep(k,d){
