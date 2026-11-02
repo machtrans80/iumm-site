@@ -1,6 +1,6 @@
 // 주문 상세 '채점 근거' (2026-11-02) — 점수 아래 [채점 근거 보기] 펼침
 //   ① 감점 요약 ② 채점기 지적(문단 · 이유 · 수정 전 → 수정안 · 결과) ③ 고친 곳(⑧-2 편집 · ⑨ 반영·재작업 · ⑧ 재번역 전/후)
-//   ④ 교차 검수·역확인 지적 ⑤ 문장 수가 다른 문단
+//   ④ 교차 검수·역확인 지적 ⑤ 문장 수가 다른 문단 ⑥ 문·답 표시 교정(trace.qaFixes)
 //   기록: 주문 AI품질상세 v3.score(changes·deductions) · v3.trace (pipeline_v3.js)
 //   문단 번호·'수정 전' 글을 누르면 번역문의 그 자리로 이동·파랑 강조(index.html adminJumpToText = 검색 이동 재사용)
 //   예전 주문(trace 없음)은 저장된 이유 목록만 + "자세한 기록 없음" — 문단 번호가 화면 문단과 다를 수 있어 이유마다 검색어 입력칸
@@ -73,6 +73,9 @@
       // ⑤ 문장 수
       var sm = t.sentenceMismatch || [];
       h += sec('⑤', '문장 수가 원문과 다른 문단', sm.length, sm.length ? sm.map(function (x) { return '<div class="sr-item">' + jumpBtn(x.id, [x.at]) + ' ' + esc(x.why) + '</div>'; }).join('') : none());
+      // ⑥ 문·답 표시 교정 — 질문인데 '답'처럼 내용과 어긋난 문·답 표시를 바로잡은 곳(공통 원칙 예외)
+      var qf = t.qaFixes || [];
+      h += sec('⑥', '문·답 표시 교정', qf.length, qf.length ? qf.map(function (q) { return '<div class="sr-item">' + jumpBtn(q.id, [q.after, q.at, q.before]) + ' ' + dim(esc(q.step)) + ba(q.before, q.after, [q.after, q.at, q.before]) + '</div>'; }).join('') : none());
       if (t.trimmed) h += '<div class="sr-note">기록이 길어 일부 목록은 앞부분만 저장했습니다.</div>';
     }
     el.innerHTML = '<details id="sr-details" class="sr"><summary>채점 근거 보기' + (rich ? '' : ' ' + dim('(예전 주문 — 이유 목록만)')) + '</summary><div class="sr-body">' + h +

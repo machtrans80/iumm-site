@@ -667,27 +667,31 @@ try {
   const RICH = { v3: { score: { total: 88, first: 88, applied: 1, reworked: 0, scorer: 'claude',
     deductions: [{ 분류: '정확성', 점수: 5, 이유: '부정어 하나 빠짐' }, { 분류: '형식', 점수: 4, 이유: '문/답 표시' }, { 분류: '문체', 점수: 3, 이유: '직역투' }],
     changes: [
-      { id: 'P0030', paragraph: 'P0030', reason: '질문인데 A 로 표시', before: 'A: Where were you that day?', after: 'Q: Where were you that day?', result: '반영 안 함', why: '원칙 위반(문/답 표시)' },
+      { id: 'P0030', paragraph: 'P0030', reason: '질문인데 A 로 표시', before: 'A: Where were you that day?', after: 'Q: Where were you that day?', result: '반영', why: '문·답 표시 교정' },
       { id: 'P0150', paragraph: 'P0150', reason: '자연스럽게', before: 'the old wording', after: 'Line 150 the Counsel stated', result: '반영' },
       { id: 'P0077', paragraph: 'P0077', reason: '통화 단위', before: '5,000,000', after: 'KRW 5,000,000', result: '반영 안 함', why: '원칙 위반(통화 단위)' }] },
     trace: { v: 1, edits: [{ id: 'P0190', before: 'Line 190 the counsel said', after: 'Line 190 the Counsel stated that the meeting was held.' }], editRejected: [],
       review: [{ id: 'P0080', severity: '중대', type: '오역', quote: '변호인은', problem: '고소인 쪽 변호사', rebut: '수용', result: '반영', at: 'Line 80 the Counsel stated that the meeting was held.' }],
       back: [{ id: 'P0005', kind: '부정어', quote: '하지 아니하였다', problem: '부정 빠짐', at: 'Line 5 the Counsel stated that' }],
+      qaFixes: [{ id: 'P0030', step: '⑨ 채점기 수정안', before: 'A: Where were you that day?', after: 'Q: Where were you that day?', at: 'A: Where were you that day?' }],
       retranslated: [], sentenceMismatch: [{ id: 'P0120', why: '문장 수 원문 1 → 번역 2(문장을 나누거나 합치지 말 것)', at: 'Line 120 ordinary statement text for the record.' }] } } };
   await ev(`(window.__srOrder = { orderId: 'rec1', aiQualityDetail: ${JSON.stringify(RICH)} }, populateAiScoreSection(window.__srOrder), 1)`);
   check(await ev(`!!document.getElementById('sr-details') && !document.getElementById('sr-details').open && /채점 근거 보기/.test(document.querySelector('#sr-details summary').textContent)`), '점수 아래 [채점 근거 보기] (접힌 채)');
   await click('#sr-details summary'); await sleep(150);
   const srText = await ev(`document.getElementById('score-reasons').textContent`);
-  check(['① 감점 요약', '② 채점기 지적', '③ 고친 곳', '④ 교차 검수·역확인 지적', '⑤ 문장 수가 원문과 다른 문단'].every((x) => srText.includes(x)), '① 감점 요약 ② 채점기 지적 ③ 고친 곳 ④ 교차 검수·역확인 ⑤ 문장 수');
+  check(['① 감점 요약', '② 채점기 지적', '③ 고친 곳', '④ 교차 검수·역확인 지적', '⑤ 문장 수가 원문과 다른 문단', '⑥ 문·답 표시 교정'].every((x) => srText.includes(x)), '① 감점 요약 ② 채점기 지적 ③ 고친 곳 ④ 교차 검수·역확인 ⑤ 문장 수 ⑥ 문·답 표시 교정');
+  check(/⑥ 문·답 표시 교정 \(1\) ?P0030 ⑨ 채점기 수정안 ?A: Where were you that day\? → Q: Where were you that day\?/.test(srText.replace(/\s+/g, ' ')), `⑥ 문·답 표시 교정: 문단 · 단계 · 수정 전 → 후 — ${(srText.replace(/\s+/g, ' ').match(/⑥.{0,120}/) || [''])[0]}`);
   check(/합계 −12 = 100 − 88/.test(srText) && /정확성−5부정어하나빠짐/.test(srText.replace(/\s+/g, '')), '감점 요약: 분류별 점수·이유 · 합계 = 100 − 점수');
-  check(/P0030 질문인데 A 로 표시 반영 안 함 원칙 위반\(문\/답 표시\)/.test(srText.replace(/\s+/g, ' ')) && /P0150 자연스럽게 반영/.test(srText.replace(/\s+/g, ' ')), '채점기 지적: 문단 · 이유 · 결과(반영 / 반영 안 함 + 이유)');
+  check(/P0030 질문인데 A 로 표시 반영 문·답 표시 교정/.test(srText.replace(/\s+/g, ' ')) && /P0077 통화 단위 반영 안 함 원칙 위반\(통화 단위\)/.test(srText.replace(/\s+/g, ' ')) && /P0150 자연스럽게 반영/.test(srText.replace(/\s+/g, ' ')), '채점기 지적: 문단 · 이유 · 결과(반영 / 반영 안 함 + 이유)');
   await ev(`(document.getElementById('panel-translation').scrollTop = 0, 1)`);
   await ev(`[...document.querySelectorAll('#score-reasons .sr-id')].find(b => b.textContent === 'P0150').click(), 1`); await sleep(150);
   w = await where();
   check(w.line === 150 && w.rel >= 0 && w.rel < w.h && /^Line 150 the Counsel stated/i.test(await ev(`document.getElementById('panel-search-inp').value`)), `문단 번호(P0150, 반영된 수정안) 누르면 번역문의 그 자리로 이동·파랑 강조 (줄 ${w.line})`);
   await ev(`[...document.querySelectorAll('#score-reasons .sr-before')].find(b => /^A: Where/.test(b.textContent)).click(), 1`); await sleep(150);
   w = await where();
-  check(w.line === 30 && w.sel === 'A: Where were you that day?', "'수정 전' 글(반영 안 함) 누르면 그 자리 · 글자 선택");
+  check(w.line === 30 && w.sel === 'A: Where were you that day?', "'수정 전' 글 누르면 그 자리 · 글자 선택");
+  await ev(`(document.getElementById('panel-translation').scrollTop = 0, [...document.querySelectorAll('#score-reasons .sr-sec')].find(x => /⑥ 문·답/.test(x.textContent)).querySelector('.sr-id').click(), 1)`); await sleep(150);
+  check((await where()).line === 30, '⑥ 문·답 표시 교정 문단 번호 누르면 그 자리로 이동');
   await ev(`[...document.querySelectorAll('#score-reasons .sr-id')].find(b => b.textContent === 'P0120').click(), 1`); await sleep(150);
   check((await where()).line === 120, '⑤ 문장 수 다른 문단도 눌러서 이동');
   await ev(`[...document.querySelectorAll('#score-reasons .sr-id')].find(b => b.textContent === 'P0077').click(), 1`); await sleep(150);
