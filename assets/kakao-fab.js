@@ -12,9 +12,14 @@
  * ★2026-10-30 네이버 톡톡(초록)·카카오톡(노랑) 두 버튼을 남색 '상담하기' 하나로 합쳤다.
  *   누르면 위로 두 경로가 펼쳐진다(각 서비스 색 그대로). 바깥을 누르거나 Esc 로 닫힌다.
  *   주소는 고객용 talk.naver.com · pf.kakao.com 만 쓴다. 장식 그림자 없이 테두리로 바탕과 구분한다.
+ * ★2026-11-02 본문 안 작은 상담 버튼: window.iummConsult.inline(el, { label }) — el 안에 같은 두 경로(같은 색·아이콘, 새 창)를
+ *   펼치는 작은 버튼을 그린다. 그 자리 아래로 펼쳐지고 바깥 누르기·Esc 로 닫힌다. 오른쪽 아래 '상담하기'와 따로 열리고 닫힌다.
+ *   이 파일은 defer 라 페이지 스크립트보다 늦을 수 있다 — window.iummConsult 가 없으면 'iumm-consult-ready' 이벤트 뒤에 그린다.
+ *     예) function f(){ iummConsult.inline(el, { label: '견적 상담하기' }); }
+ *         window.iummConsult ? f() : window.addEventListener('iumm-consult-ready', f, { once: true });
  */
 (function () {
-  if (document.getElementById('iumm-kakao-fab')) return;
+  if (window.iummConsult) return;
   var KAKAO_URL = 'https://pf.kakao.com/_BlpKX/chat';
   var NTALK_URL = 'https://talk.naver.com/ct/w3r4x3p';
   var me = document.currentScript || {};
@@ -43,6 +48,65 @@
   var BUBBLE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C6.98 3 2.9 6.24 2.9 10.24c0 2.55 1.68 4.79 4.21 6.06-.19.68-.67 2.43-.77 2.81-.12.47.17.47.36.34.15-.1 2.42-1.64 3.4-2.31.61.09 1.24.14 1.9.14 5.02 0 9.1-3.24 9.1-7.04S17.02 3 12 3z"/></svg>';
   var NBOX = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3.5h14A2.5 2.5 0 0 1 21.5 6v9a2.5 2.5 0 0 1-2.5 2.5h-6.3l-4.6 3.6c-.4.3-.9 0-.9-.5v-3.1H5A2.5 2.5 0 0 1 2.5 15V6A2.5 2.5 0 0 1 5 3.5z"/></svg>';
 
+  function links() {
+    return '<a class="ntalk" href="' + NTALK_URL + '" target="_blank" rel="noopener noreferrer" title="네이버 톡톡 상담 (새 창)">' + NBOX + '<span>네이버 톡톡</span></a>' +
+      '<a class="kakao" href="' + KAKAO_URL + '" target="_blank" rel="noopener noreferrer" title="카카오톡 상담 (새 창)">' + BUBBLE + '<span>카카오톡</span></a>';
+  }
+
+  // ── 본문 안 작은 상담 버튼 (2026-11-02) — 떠 있는 '상담하기'보다 작게 ──
+  var inlineCss =
+    '.iumm-consult-inline{display:block}' +
+    '.iumm-consult-inline .ci-main,.iumm-consult-inline .ci-go a{display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;' +
+      'height:34px;padding:0 14px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;line-height:1;letter-spacing:-0.01em;' +
+      'white-space:nowrap;text-decoration:none;cursor:pointer}' +
+    '.iumm-consult-inline .ci-main{border:1px solid rgba(255,255,255,0.35);background:#0F2540;color:#fff;transition:background .15s}' +
+    '@media(hover:hover){.iumm-consult-inline .ci-main:hover{background:#1F4FD1}}' +
+    '.iumm-consult-inline .ci-main:focus-visible,.iumm-consult-inline .ci-go a:focus-visible{outline:3px solid #9DB7F5;outline-offset:2px}' +
+    '.iumm-consult-inline .ci-go{display:none;flex-wrap:wrap;gap:8px;margin-top:8px}' +
+    '.iumm-consult-inline.open .ci-go{display:flex}' +
+    '.iumm-consult-inline .ci-go a{border:1px solid rgba(0,0,0,0.12)}' +
+    '.iumm-consult-inline .ci-go a.ntalk{background:#03C75A;color:#fff}' +
+    '.iumm-consult-inline .ci-go a.kakao{background:#FEE500;color:rgba(0,0,0,0.85)}' +
+    '.iumm-consult-inline svg{width:15px;height:15px;flex:0 0 auto;display:block}';
+  var seq = 0;
+  function inline(el, o) {
+    if (!el) return null;
+    o = o || {};
+    var had = el.querySelector('.iumm-consult-inline');
+    if (had) return had;
+    if (!document.getElementById('iumm-consult-inline-css')) {
+      var st = document.createElement('style');
+      st.id = 'iumm-consult-inline-css';
+      st.textContent = inlineCss;
+      document.head.appendChild(st);
+    }
+    var id = 'iumm-ci-go-' + (++seq);
+    var box = document.createElement('div');
+    box.className = 'iumm-consult-inline';
+    box.innerHTML =
+      '<button type="button" class="ci-main" aria-expanded="false" aria-controls="' + id + '">' + BUBBLE + '<span></span></button>' +
+      '<div class="ci-go" id="' + id + '">' + links() + '</div>';
+    box.querySelector('.ci-main span').textContent = o.label || '상담하기';
+    el.appendChild(box);
+    var main = box.querySelector('.ci-main');
+    function setOpen(on) {
+      box.classList.toggle('open', on);
+      main.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+    main.addEventListener('click', function () { setOpen(!box.classList.contains('open')); });
+    box.querySelector('.ci-go').addEventListener('click', function () { setOpen(false); });
+    // 바깥 누르기 — 오른쪽 아래 '상담하기'를 누른 것은 바깥으로 치지 않는다(서로 따로 열리고 닫힌다)
+    document.addEventListener('click', function (e) {
+      var fab = document.getElementById('iumm-kakao-fab');
+      if (!box.contains(e.target) && !(fab && fab.contains(e.target))) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && box.classList.contains('open')) { setOpen(false); main.focus(); }
+    });
+    return box;
+  }
+  window.iummConsult = { inline: inline };
+
   function mount() {
     if (document.getElementById('iumm-kakao-fab')) return;
     var st = document.createElement('style');
@@ -53,10 +117,7 @@
     var box = document.createElement('div');
     box.id = 'iumm-kakao-fab';
     box.innerHTML =
-      '<div class="fab-go" id="iumm-fab-go">' +
-      '<a class="ntalk" href="' + NTALK_URL + '" target="_blank" rel="noopener noreferrer" title="네이버 톡톡 상담 (새 창)">' + NBOX + '<span>네이버 톡톡</span></a>' +
-      '<a class="kakao" href="' + KAKAO_URL + '" target="_blank" rel="noopener noreferrer" title="카카오톡 상담 (새 창)">' + BUBBLE + '<span>카카오톡</span></a>' +
-      '</div>' +
+      '<div class="fab-go" id="iumm-fab-go">' + links() + '</div>' +
       '<button type="button" class="fab-main" aria-expanded="false" aria-controls="iumm-fab-go">' + BUBBLE + '<span>상담하기</span></button>';
     document.body.appendChild(box);
 
@@ -67,7 +128,10 @@
     }
     main.addEventListener('click', function () { setOpen(!box.classList.contains('open')); });
     box.querySelector('.fab-go').addEventListener('click', function () { setOpen(false); });
-    document.addEventListener('click', function (e) { if (!box.contains(e.target)) setOpen(false); });
+    // 바깥 누르기 — 본문 안 상담 버튼(iummConsult.inline)을 누른 것은 바깥으로 치지 않는다
+    document.addEventListener('click', function (e) {
+      if (!box.contains(e.target) && !(e.target.closest && e.target.closest('.iumm-consult-inline'))) setOpen(false);
+    });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && box.classList.contains('open')) { setOpen(false); main.focus(); }
     });
@@ -104,4 +168,6 @@
     }
   }
   if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+  // 먼저 불러온 페이지 스크립트가 기다리고 있으면 지금 그린다
+  try { window.dispatchEvent(new Event('iumm-consult-ready')); } catch (e) {}
 })();

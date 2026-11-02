@@ -604,7 +604,7 @@ console.log('\n[디자인] 대조 패널 · 글꼴 · 색 · 상담 버튼');
   const fab = fs.readFileSync(path.resolve(HERE, '../assets/kakao-fab.js'), 'utf8');
   check(/<span>상담하기<\/span><\/button>/.test(fab) && /aria-expanded/.test(fab) && /\.fab-main\{[^']*background:#0F2540/.test(fab) && /a\.ntalk\{background:#03C75A/.test(fab) && /a\.kakao\{background:#FEE500/.test(fab) && /Escape/.test(fab) && !/box-shadow/.test(fab),
     "떠 있는 상담 버튼 = 남색 '상담하기' 하나 → 네이버 톡톡·카카오톡 두 경로 펼침 (Esc·바깥 누르면 닫힘)");
-  check(html.includes('/assets/kakao-fab.js?v=5'), '상담 버튼 캐시 버전 v=5');
+  check(html.includes('/assets/kakao-fab.js?v=6') && !html.includes('kakao-fab.js?v=5'), '상담 버튼 캐시 버전 v=6 (2026-11-02 견적 상담하기)');
 }
 
 console.log('\n[공증] 고객 화면 정리 (2026-10-30)');

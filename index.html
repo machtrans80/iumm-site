@@ -3262,6 +3262,11 @@ var SHOW_V3 = false;
           <p style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px">예상 납품 시간 <span style="color:rgba(255,255,255,0.2);font-size:10px">(영업일 기준)</span></p>
           <p id="delivery-time" style="font-size:13px;color:rgba(255,255,255,0.75);font-weight:500">-</p>
         </div>
+        <!-- 담당자 견적 상담 (2026-11-02) — 버튼은 assets/kakao-fab.js 의 iummConsult.inline 이 그린다(상담 주소·색은 그 파일에만) -->
+        <div id="estimate-consult" style="border-top:1px solid rgba(31,79,209,0.15);margin-top:12px;padding-top:12px">
+          <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;margin:0 0 8px;word-break:keep-all">자동 견적 대신 담당자 견적을 원하시면 견적 상담하기를 눌러 대화해 주세요.</p>
+          <div id="estimate-consult-btn"></div>
+        </div>
       </div>
 
       <!-- 번역 방향 (항상 표시) -->
@@ -7142,6 +7147,11 @@ function openTranslationOrder(){
 </script>
 
 <!-- 카카오톡 문의 — 전 화면 공통 조각 (주문 모달·마이페이지·약관이 열려도 보인다) -->
-<script src="/assets/kakao-fab.js?v=5" defer></script>
+<script>
+// 견적 칸 '견적 상담하기' — kakao-fab.js(defer)가 늦게 불러와져도 불러온 뒤 그린다 (2026-11-02)
+(function(){function f(){window.iummConsult.inline(document.getElementById('estimate-consult-btn'),{label:'견적 상담하기'});}
+if(window.iummConsult)f();else window.addEventListener('iumm-consult-ready',f,{once:true});})();
+</script>
+<script src="/assets/kakao-fab.js?v=6" defer></script>
 </body>
 </html>
