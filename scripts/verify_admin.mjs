@@ -108,9 +108,22 @@ const MOCK = String.raw`(() => {
     if (p === '/api/admin/gpt-review-manual') {
       if (S.reviewMode === '402') return J({ ok: false, error: 'budget_exceeded', message: 'Claude 크레딧 예산을 넘었습니다.' }, 402);
       if (S.reviewMode === '503') return J({ ok: false, error: 'budget_unavailable', message: '예산 기록을 확인할 수 없습니다.' }, 503);
-      const eng = (rec.json && rec.json.engine) || 'claude';
-      return J(Object.assign({ ok: true, score: 92, summary: '전체적으로 좋습니다.', revisedTranslation: 'Revised text', changes: [{ paragraph: 1, before: 'pilot use', after: 'pilot operation', reason: '용어 통일' }],
-        processingTimeMs: 3000, engine: eng }, eng === 'claude' ? { costUsd: 0.11 } : {}));
+      const tl = (rec.json && rec.json.targetLang) || '영어';
+      if (S.reviewMode === 'zero') return J({ ok: true, engine: 'claude', mode: 'opinion', score: 100, summary: '좋습니다.', deductions: [], changes: [], termSuggestions: [], terms: [], termSource: '지금 승인 용어(공용)',
+        instruction: '고칠 곳 없음 — 그대로 납품 가능', translatedText: 'Le texte.', processingTimeMs: 2000, costUsd: 0.05, targetLang: tl });
+      return J({ ok: true, engine: 'claude', mode: 'opinion', score: 92, summary: '전체적으로 좋습니다.', deductions: [{ 분류: '정확성', 점수: 5, 이유: '오역 1곳' }, { 분류: '문체', 점수: 3, 이유: '어색함' }],
+        changes: [{ paragraph: 1, before: 'a violé', after: 'a enfreint', reason: '오역', severity: '치명', found: true }, { paragraph: 2, before: 'pozwany', after: 'x', reason: '확인', severity: '경미', found: false, termTouched: ['피고 → partie défenderesse'] }],
+        termSuggestions: [{ source: '피고', current: 'partie défenderesse', suggested: 'défendeur', reason: '형사 사건' }],
+        terms: [{ source: '피고', target: 'partie défenderesse' }], termSource: (rec.json && rec.json.orderNumber) ? '이 주문의 V3 용어표' : '지금 승인 용어(공용)',
+        instruction: "아래 번역문에서 다음 2곳만 고쳐 주세요. 그 밖의 문장·용어·문장부호·줄바꿈은 한 글자도 바꾸지 마세요.\n\n[고칠 곳]\n1. (단락 1) 'a violé' → 'a enfreint' — 오역\n\n고친 전체 번역문만 출력해 주세요.",
+        translatedText: 'La partie défenderesse a violé le contrat.', processingTimeMs: 3000, costUsd: 0.11, targetLang: tl });
+    }
+    if (p === '/api/admin/review-options') return J({ ok: true, langs: ['한국어', '영어', '프랑스어', '폴란드어'], fields: [{ code: 'general', name: '일반' }, { code: 'legal', name: '법률계약' }] });
+    if (p === '/api/admin/review-order') {
+      const no = u.searchParams.get('orderNumber');
+      if (no === 'ORD-DEL') return J({ ok: false, deleted: true, orderNumber: no, message: '본문이 지워진 주문입니다 — 붙여 넣어 주세요' });
+      return J({ ok: true, orderNumber: no, rawText: '[원문] 피고는 계약을 위반하였다.\n[번역] La partie défenderesse a violé le contrat.', basis: 'GPT최종검수본', sourceLang: '한국어', targetLang: '프랑스어',
+        fieldCode: 'legal', scope: 'internal', termCount: 1, termSource: '이 주문의 V3 용어표' });
     }
     if (p === '/api/admin/credit-budget' && S.unlimited) return J({ ok: true, cap: null, remaining: null, unlimited: true, expired: true, spent: 60, monthSpent: 7.25, outsideCap: 0, expires: '2026-11-12', rows: [] });
     if (p === '/api/admin/credit-budget') return J({ ok: true, cap: 50, spent: 3.5, remaining: 46.5, outsideCap: 1.2, expires: '2026-11-12',
@@ -355,19 +368,68 @@ try {
   check(/뽑은 용어40/.test(sum) && /새 후보30/.test(sum) && /확정25/.test(sum) && /AI가 버림2/.test(sum) && /개인정보 — 2건/.test(sum), '결과 요약 (한국어 이름)');
   check(await ev(`document.getElementById('tx-job-cost').textContent === '$0.39' && !!document.querySelector('#tx-job-status .st-done')`), '실제 비용 $0.39 · 완료 = 네이비 배지');
 
-  console.log('\n[6] 검수 — 엔진 선택');
+  console.log('\n[6] 검수 — 언어 선택 · 주문 불러오기 · 의견 + ChatGPT 지시문 (2026-11-09)');
   await click('#tab-gpt');
-  check(await ev(`document.getElementById('review-engine-claude').checked && !document.getElementById('review-engine-gpt').checked`), '기본 엔진 = Claude');
-  check(await ev(`[...document.querySelectorAll('.engine-opt')].map(l => l.textContent.trim()).join() === 'Claude (기본),GPT (기존)'`), "선택지 'Claude (기본)' / 'GPT (기존)'");
-  check(await ev(`document.getElementById('review-engine-info').textContent === '번역한 AI와 다른 회사 AI로 검수하면 놓친 부분을 더 잘 찾습니다.'`), '안내 한 줄');
-  await ev(`document.getElementById('gpt-raw-text').value = '[원문] 시범사용\\n[번역] pilot use'; 1`);
+  check(await until(`document.getElementById('rv-tgt').options.length === 4 && document.getElementById('rv-field').options.length === 2`), '언어·분야 목록 = 서버 review-options');
+  check(await ev(`document.getElementById('rv-src').value === '한국어' && document.getElementById('rv-tgt').value === '영어' && document.getElementById('rv-field').value === 'general' && document.getElementById('rv-scope').value === 'public'`), '기본값 한국어 → 영어 · 일반 · 공용');
+  check(await ev(`!document.getElementById('review-engine-gpt') && !document.querySelector('input[name="review-engine"]')`), 'GPT 엔진 선택 숨김(Claude 하나)');
+  check(await ev(`/어색한 영어 표현/.test(document.getElementById('rv-fixed').value) && !/영문/.test(document.getElementById('rv-fixed').value)`), "설명 문구 '어색한 영어 표현'(영문 아님)");
+  await ev(`document.getElementById('rv-tgt').value = '프랑스어'; reviewLangChanged(); 1`);
+  check(await ev(`/어색한 프랑스어 표현/.test(document.getElementById('rv-fixed').value)`), '도착어 바꾸면 설명도 프랑스어');
+  await ev(`document.getElementById('gpt-raw-text').value = '[원문] 피고는 계약을 위반하였다.\\n[번역] Le défendeur a violé le contrat.'; window.__mock.calls.length = 0; 1`);
   await click('#gpt-submit-btn');
-  check(await until(`document.getElementById('gpt-result-wrap').style.display === 'block'`), 'Claude 검수 실행 → 결과 표시');
-  const rev = await ev(`window.__mock.calls.filter(c => ['/api/admin/review-estimate', '/api/admin/gpt-review-manual'].includes(c.p)).map(c => c.p + ':' + (c.json && c.json.engine))`);
-  check(rev[0] === '/api/admin/review-estimate:undefined' && rev[1] === '/api/admin/gpt-review-manual:claude', '먼저 review-estimate → 그다음 gpt-review-manual(engine:claude)');
-  check(await ev(`/예상 비용 \\$0\\.12 · 남은 예산 \\$46\\.50 \\/ \\$50/.test(document.getElementById('review-estimate').textContent)`), "'예상 비용 $0.12 · 남은 예산 $46.50 / $50'");
-  check(await ev(`/실제 비용 \\$0\\.11/.test(document.getElementById('review-estimate').textContent)`), '실행 뒤 실제 비용 $0.11');
-  check(await ev(`document.getElementById('gpt-result-score').textContent === '92 / 100' && document.getElementById('gpt-result-text').value === 'Revised text' && document.querySelectorAll('#gpt-change-list .gr-change-item').length === 1 && /용어 통일/.test(document.getElementById('gpt-change-list').textContent)`), '결과 그대로: 점수 · 수정본 · 지적 항목');
+  check(await until(`document.getElementById('gpt-result-wrap').style.display === 'block'`), '검수 실행 → 결과 표시');
+  const rv = await ev(`window.__mock.calls.filter(c => ['/api/admin/review-estimate', '/api/admin/gpt-review-manual'].includes(c.p)).map(c => c.json)`);
+  check(rv.length === 2 && rv.every((j) => j.sourceLang === '한국어' && j.targetLang === '프랑스어' && j.fieldCode === 'general' && j.scope === 'public' && !('orderNumber' in j)) && rv[1].engine === 'claude', '예상 → 검수 모두 고른 언어·분야·범위로(주문번호 없음)');
+  check(await ev(`/예상 비용 \\$0\\.12 · 남은 예산 \\$46\\.50 \\/ \\$50/.test(document.getElementById('review-estimate').textContent) && /실제 비용 \\$0\\.11/.test(document.getElementById('review-estimate').textContent)`), '예상 비용·남은 예산·실제 비용');
+  check(await ev(`document.getElementById('gpt-result-score').textContent === '92 / 100' && /정확성 −5/.test(document.getElementById('rv-deductions').textContent) && !document.getElementById('gpt-result-text')`), '점수 · 감점 근거 · 전체 수정본 칸 없음');
+  check(await ev(`(() => { const t = document.getElementById('gpt-change-list').textContent; return document.querySelectorAll('#gpt-change-list .gr-change-item').length === 2 && /지금a violé/.test(t) && /고칠 안a enfreint/.test(t) && /치명/.test(t) && /글자 그대로 없습니다/.test(t) && t.includes('지정 용어(피고 → partie défenderesse)가 바뀝니다'); })()`), '고칠 곳 — 문단·지금·고칠 안·이유·심각도 + 확인 표시');
+  check(await ev(`document.getElementById('rv-sugg-wrap').style.display === 'block' && /défendeur/.test(document.getElementById('rv-sugg-list').textContent)`), '용어 변경 제안(화면에만)');
+  check(await ev(`/^아래 번역문에서 다음 2곳만 고쳐 주세요/.test(document.getElementById('rv-instruction').value) && !document.getElementById('rv-instruction').value.includes('[번역문]')`), 'ChatGPT 지시문(기본: 번역문 안 붙임)');
+  await ev(`window.__clip = null; navigator.clipboard.writeText = async (t) => { window.__clip = t; }; 1`);
+  await click('#rv-copy-btn');
+  check(await until(`window.__clip && window.__clip === document.getElementById('rv-instruction').value`), '[복사] → 지시문 그대로 클립보드');
+  await click('#rv-include-full');
+  check(await ev(`document.getElementById('rv-instruction').value.endsWith('[번역문]\\nLa partie défenderesse a violé le contrat.')`), '[번역문 전체 함께 넣기] → 끝에 번역문 전체');
+  await click('#rv-copy-btn');
+  check(await until(`window.__clip.endsWith('a violé le contrat.')`), '켜고 복사하면 번역문까지');
+  {
+    await ev(`(document.getElementById('gpt-result-wrap').scrollIntoView({ block: 'start' }), 1)`); await sleep(200);
+    const r = await ev(`(() => { const p = document.getElementById('gpt-result-wrap').getBoundingClientRect(); return { x: Math.max(0, p.left - 8), y: Math.max(0, p.top + scrollY - 8), width: p.width + 16, height: Math.min(p.height + 16, 2400) }; })()`);
+    const sh = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { ...r, scale: 1 } });
+    fs.writeFileSync(path.join(SHOT_DIR, 'admin_review_opinion_result.png'), Buffer.from(sh.result.data, 'base64'));
+  }
+  await ev(`window.__mock.reviewMode = 'zero'; 1`);
+  await click('#gpt-submit-btn');
+  check(await until(`/고칠 곳 없음 — 그대로 납품 가능/.test(document.getElementById('gpt-change-list').textContent) && document.getElementById('rv-instruction').value === '고칠 곳 없음 — 그대로 납품 가능'`), '고칠 곳 0 → 한 줄(번역문 붙이기 켜져 있어도)');
+  await ev(`window.__mock.reviewMode = 'ok'; 1`);
+
+  console.log('\n[6-1] 주문번호로 불러오기');
+  await ev(`document.getElementById('rv-order-no').value = 'IUMM-FR-1'; window.__mock.calls.length = 0; 1`);
+  await click('#rv-order-btn');
+  check(await until(`/IUMM-FR-1 불러옴/.test(document.getElementById('rv-order-msg').textContent)`), '불러오기 → 안내');
+  check(await ev(`document.getElementById('gpt-raw-text').value.startsWith('[원문] 피고는') && document.getElementById('rv-tgt').value === '프랑스어' && document.getElementById('rv-field').value === 'legal' && document.getElementById('rv-scope').value === 'internal' && /이 주문의 V3 용어표 1개/.test(document.getElementById('rv-order-msg').textContent)`), '원문·번역·번역방향·분야·내부전용·용어표 채움');
+  {
+    await ev(`(document.querySelector('#gpt-review-wrap .gr-section').scrollIntoView({ block: 'start' }), 1)`); await sleep(200);
+    const r = await ev(`(() => { const a = document.querySelector('#gpt-review-wrap .gr-section').getBoundingClientRect(); const b = document.getElementById('gpt-raw-text').getBoundingClientRect(); return { x: Math.max(0, a.left - 8), y: Math.max(0, a.top + scrollY - 8), width: a.width + 16, height: b.bottom - a.top + 24 }; })()`);
+    const sh = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { ...r, scale: 1 } });
+    fs.writeFileSync(path.join(SHOT_DIR, 'admin_review_opinion_input.png'), Buffer.from(sh.result.data, 'base64'));
+  }
+  await ev(`window.__mock.calls.length = 0; 1`);
+  await click('#gpt-submit-btn');
+  await until(`window.__mock.calls.some(c => c.p === '/api/admin/gpt-review-manual')`);
+  const ro = await ev(`window.__mock.calls.filter(c => c.p === '/api/admin/gpt-review-manual').map(c => c.json)[0]`);
+  check(ro && ro.orderNumber === 'IUMM-FR-1' && ro.targetLang === '프랑스어' && ro.scope === 'internal', '불러온 주문 → 검수 때 주문번호 함께(서버가 그 주문 용어표 사용)');
+  await ev(`document.getElementById('rv-order-no').value = 'ORD-DEL'; reviewOrderInput(); 1`);
+  check(await ev(`/불러온 주문을 풀었습니다/.test(document.getElementById('rv-order-msg').textContent)`), '주문번호 바꾸면 불러온 주문 풀림');
+  await click('#rv-order-btn');
+  check(await until(`document.getElementById('rv-order-msg').textContent === '본문이 지워진 주문입니다 — 붙여 넣어 주세요' && document.getElementById('rv-order-msg').classList.contains('rv-warn')`), '지워진 주문 → 안내');
+  await ev(`window.__mock.calls.length = 0; 1`);
+  await click('#gpt-submit-btn');
+  await until(`window.__mock.calls.some(c => c.p === '/api/admin/gpt-review-manual')`);
+  check(await ev(`!('orderNumber' in window.__mock.calls.filter(c => c.p === '/api/admin/gpt-review-manual')[0].json)`), '지워진 주문은 주문번호 안 보냄(지금 승인 용어)');
+
+  console.log('\n[6-2] 예산');
   await ev(`window.__mock.reviewAllowed = false; window.__mock.calls.length = 0; 1`);
   await click('#gpt-submit-btn');
   check(await until(`/남은 예산이 부족합니다/.test(document.getElementById('review-estimate').textContent)`), 'allowed=false → 안내 문구');
@@ -378,11 +440,7 @@ try {
   await ev(`window.__mock.reviewMode = '503'; 1`);
   await click('#gpt-submit-btn');
   check(await until(`/예산 기록을 확인할 수 없습니다/.test(document.getElementById('review-estimate').textContent)`), '503 → 예산 확인 불가 안내');
-  await ev(`window.__mock.reviewMode = 'ok'; window.__mock.calls.length = 0; document.getElementById('review-engine-gpt').click(); 1`);
-  await click('#gpt-submit-btn');
-  check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/gpt-review-manual')`), 'GPT 검수 실행');
-  const g = await ev(`window.__mock.calls.filter(c => ['/api/admin/review-estimate', '/api/admin/gpt-review-manual'].includes(c.p)).map(c => c.p + ':' + (c.json && c.json.engine))`);
-  check(g.length === 1 && g[0] === '/api/admin/gpt-review-manual:gpt', 'GPT → engine:gpt 로 보내고 예상 비용 API는 안 부름');
+  await ev(`window.__mock.reviewMode = 'ok'; 1`);
 
   console.log('\n[7] 우회 번역 접수 · 번역공증 편집 열기');
   await click('#work-bypass');
