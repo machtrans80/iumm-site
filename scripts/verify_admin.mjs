@@ -878,6 +878,30 @@ try {
   await ev(`closeAdminSearch(), populateAiScoreSection({ orderId: 'rec1', aiScore: 90 }), 1`);
   check(await ev(`document.getElementById('score-reasons').style.display === 'none'`), 'V3 기록 없는 주문(V1·V2)은 채점 근거 없음');
   check(!(await ev(`/claude|opus|gpt|모델/i.test(document.getElementById('score-reasons').innerHTML)`)), '채점 근거 영역에 모델 이름 없음');
+  // 2026-11-10 — 'AI 종합점수' 칸: 검수 승인 기록이 있으면 AI종합점수(최신 승인) + 바뀐 과정, 없으면 V3 번역 채점 / V1·V2 AI종합점수
+  {
+    const badge = `({ n: document.getElementById('ai-score-total').textContent, label: document.getElementById('ai-score-total-label').textContent, color: document.getElementById('ai-score-total').style.color,
+      hist: document.getElementById('ai-score-history').style.display === 'none' ? '' : document.getElementById('ai-score-history').textContent })`;
+    const twoRv = [{ label: '관리자 검수 반영(2026-11-10 13:00)', score: 100, prevAiScore: 94 }, { label: '관리자 검수 반영(2026-11-10 09:00)', score: 94, prevAiScore: 89 }];
+    await ev(`(populateAiScoreSection({ orderId: 'rec1', aiScore: 100, aiQualityDetail: { v3: { score: { total: 89 } }, adminReviews: ${JSON.stringify(twoRv)} } }), 1)`);
+    let b = await ev(badge);
+    check(b.n === '100' && b.label === 'AI 종합점수' && b.hist === '번역 채점 89 → 검수 94 → 검수 100' && b.color === 'var(--green)', `승인 기록 있는 V3 — AI종합점수 100 · '번역 채점 89 → 검수 94 → 검수 100' · 색은 이 점수 기준 (${JSON.stringify(b)})`);
+    await ev(`(populateAiScoreSection({ orderId: 'rec1', aiScore: 100, gptFinalScore: 95, aiQualityDetail: { v3: { score: { total: 89 } }, adminReviews: ${JSON.stringify(twoRv)} } }), 1)`);
+    b = await ev(badge);
+    check(b.n === '100' && b.label === 'AI 종합점수', 'GPT 최종 검수 점수가 있어도 같은 기준(이름 AI 종합점수)');
+    await ev(`(populateAiScoreSection({ orderId: 'rec1', aiScore: 70, aiQualityDetail: { v3: { score: { total: 72 } } } }), 1)`);
+    b = await ev(badge);
+    check(b.n === '72' && b.label === 'Claude 채점' && !b.hist && b.color === 'var(--red)', `승인 기록 없는 V3 — 지금처럼 번역 채점 72 · 과정 줄 없음 (${JSON.stringify(b)})`);
+    await ev(`(populateAiScoreSection({ orderId: 'rec1', aiScore: 85, aiQualityDetail: { v2: { score: { total: 85 } } } }), 1)`);
+    b = await ev(badge);
+    check(b.n === '85' && b.label === 'AI 종합점수' && !b.hist && b.color === 'var(--gold)', `V2 — AI종합점수 85 그대로 (${JSON.stringify(b)})`);
+    await ev(`(populateAiScoreSection({ orderId: 'rec1', aiScore: 91 }), 1)`);
+    b = await ev(badge);
+    check(b.n === '91' && b.label === 'AI 종합점수' && !b.hist, 'V1 — AI종합점수 그대로');
+    await ev(`(populateAiScoreSection({ orderId: 'rec1', aiScore: 96, aiQualityDetail: { adminReviews: [{ score: 96, prevAiScore: 88 }] } }), 1)`);
+    b = await ev(badge);
+    check(b.n === '96' && b.hist === '번역 채점 88 → 검수 96', 'V1·V2 에 승인 기록 → 번역 채점은 승인 전 AI종합점수');
+  }
 
   console.log('\n[16] 우회 주문 — 전문 분야 목록 · 내부전용 기본 분야 (2026-11-02)');
   {

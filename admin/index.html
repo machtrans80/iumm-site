@@ -281,6 +281,7 @@ body.admin-focus .focus-exit-hint{display:inline}
 .ref-badge.ref-success{background:rgba(157,183,245,0.15);color:#9DB7F5;border:1px solid rgba(157,183,245,0.4)}
 .ref-badge.ref-fail{background:rgba(176,141,87,0.15);color:#D9BC8C;border:1px solid rgba(176,141,87,0.4)}
 /* ── AI 점수 섹션 ── */
+.score-badge-hist{font-size:10.5px;line-height:1.4;color:rgba(255,255,255,0.45);margin-top:4px;word-break:keep-all}
 #ai-score-section{padding:14px 20px;border-top:1px solid rgba(157,183,245,0.12);background:rgba(157,183,245,0.03)}
 .score-grid{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
 .score-badge{text-align:center;min-width:72px}
@@ -1440,6 +1441,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
             <div class="score-badge-label" id="ai-score-total-label">AI 종합점수</div>
             <div id="ai-score-total" class="score-badge-num">—</div>
             <div class="score-badge-sub">/ 100점</div>
+            <div id="ai-score-history" class="score-badge-hist" style="display:none"></div>
           </div>
           <div class="score-badge">
             <div class="score-badge-label" id="ai-score-reverse-label">역번역 일치도</div>
@@ -3612,6 +3614,31 @@ function renderReferenceStatus(order) {
   return '';
 }
 
+/** 관리자 검수 승인 기록(최신이 앞) — 점수가 있는 것만 */
+function _aiAdminReviews(order) {
+  var q = order && order.aiQualityDetail;
+  var a = q && Array.isArray(q.adminReviews) ? q.adminReviews : [];
+  return a.filter(function (x) { return x && x.score != null && !isNaN(Number(x.score)); });
+}
+/** 'AI 종합점수' 칸에 보일 점수 — 승인 기록이 있으면 AI종합점수(없으면 최신 승인 점수), 없으면 V3 번역 채점 / V1·V2 AI종합점수. 목록 등 다른 화면도 이 기준 */
+function aiShownScore(order) {
+  if (!order) return null;
+  var ar = _aiAdminReviews(order);
+  if (ar.length) return order.aiScore != null ? Number(order.aiScore) : Number(ar[0].score);
+  var v3 = order.aiQualityDetail && order.aiQualityDetail.v3;
+  if (v3) return v3.score && v3.score.total != null ? v3.score.total : null;
+  return order.aiScore != null ? order.aiScore : null;
+}
+/** 점수가 바뀐 과정 — '번역 채점 89 → 검수 94 → 검수 100'(승인 순서대로) */
+function aiScoreHistoryText(order) {
+  var ar = _aiAdminReviews(order).slice().reverse();   // 오래된 것부터
+  if (!ar.length) return '';
+  var v3 = order.aiQualityDetail && order.aiQualityDetail.v3;
+  var first = v3 && v3.score && v3.score.total != null ? v3.score.total : ar[0].prevAiScore;
+  var parts = (first != null ? ['번역 채점 ' + first] : []).concat(ar.map(function (x) { return '검수 ' + Number(x.score); }));
+  return parts.join(' → ');
+}
+
 function populateAiScoreSection(order) {
   var scoreSection = document.getElementById('ai-score-section');
   if (!scoreSection) return;
@@ -3634,10 +3661,20 @@ function populateAiScoreSection(order) {
   var revLabel = document.getElementById('ai-score-reverse-label');
   if (revLabel) revLabel.textContent = v3 ? '용어 일치(%)' : v2 ? '교차 검수' : '역번역 일치도';
   var v3s = v3 && v3.score ? v3.score : {};
-  totalEl.textContent = v3 ? (v3s.total != null ? v3s.total : '—') : (order.aiScore != null ? order.aiScore : '—');
+  // 2026-11-10 — 관리자 검수 승인 기록(AI품질상세.adminReviews, 최신이 앞)이 있으면 'AI 종합점수' = AI종합점수(최신 승인 점수).
+  //   없으면 지금처럼 V3 는 번역 채점(v3.score.total), V1·V2 는 AI종합점수
+  var adminRv = _aiAdminReviews(order);
+  var shown = aiShownScore(order);
+  totalEl.textContent = shown != null ? shown : '—';
+  var histEl = document.getElementById('ai-score-history');
+  if (histEl) {
+    var hist = adminRv.length ? aiScoreHistoryText(order) : '';
+    histEl.textContent = hist;
+    histEl.style.display = hist ? '' : 'none';
+  }
   revEl.textContent   = v3 ? (v3.terms && v3.terms.agreement && v3.terms.agreement.rate != null ? v3.terms.agreement.rate : '—')
     : v2 ? (v2.score && v2.score.crossReview != null ? v2.score.crossReview : '—') : (order.aiReverseScore != null ? order.aiReverseScore : '—');
-  var sc = v3 ? v3s.total : order.aiScore;
+  var sc = shown;
   totalEl.style.color = sc >= 90 ? 'var(--green)' : sc >= 75 ? 'var(--gold)' : sc != null ? 'var(--red)' : 'var(--gold)';
 
   var DETAIL_KEYS = [
@@ -3714,11 +3751,11 @@ function populateAiScoreSection(order) {
       gptDetailTxt.textContent = 'GPT-5.5 thinking 검수 완료';
     }
     if (v3) gptDetailTxt.textContent = 'GPT 최종 검수 ' + gS + '점 (Claude 채점과 별개)';
-    if (labelEl) labelEl.textContent = v3 ? 'Claude 채점' : 'AI 자동 검수';
+    if (labelEl) labelEl.textContent = adminRv.length ? 'AI 종합점수' : v3 ? 'Claude 채점' : 'AI 자동 검수';
     gptBanner.style.display = 'block';
   } else {
     gptBanner.style.display = 'none';
-    if (labelEl) labelEl.textContent = v3 ? 'Claude 채점' : 'AI 종합점수';
+    if (labelEl) labelEl.textContent = adminRv.length || !v3 ? 'AI 종합점수' : 'Claude 채점';
   }
 }
 
