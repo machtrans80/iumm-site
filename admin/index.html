@@ -415,6 +415,7 @@ body.admin-focus .work-bar{display:none}
 .rv-approved{margin-top:12px;padding:10px 14px;border-left:3px solid #1F4FD1;background:rgba(31,79,209,0.1);border-radius:0 6px 6px 0}
 .rv-ap-title{font-size:12px;color:#9DB7F5;font-weight:600;margin-bottom:4px}
 .rv-ap-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:rgba(250,250,247,0.85);line-height:1.8}
+.rv-ap-warn{color:#EEF3FB;font-weight:600}
 .rv-check-row{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
 .rv-check-row input{margin-top:12px;accent-color:#1F4FD1;width:16px;height:16px;flex:0 0 auto}
 .rv-round{display:inline-block;margin-left:6px;font-size:10.5px;color:#9DB7F5;border:1px solid rgba(157,183,245,0.35);border-radius:9px;padding:0 6px}
@@ -2645,8 +2646,14 @@ async function saveTranslationDraft(silent) {
       selectedOrder.aiTranslation = text;
       selectedOrder.reviewerTranslation = text;
       var timeStr = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
-      if (statusEl) statusEl.textContent = (silent ? '자동 저장됨 ' : '저장됨 ') + timeStr;
-      if (!silent) showToast('✅ 임시저장 완료', 'success');
+      // 직함 음역 경고(2026-11-09) — 저장은 그대로 됨, 알림만
+      var tw = res.titleWarning;
+      if (statusEl) {
+        statusEl.textContent = (silent ? '자동 저장됨 ' : '저장됨 ') + timeStr + (tw ? ' · ⚠ 직함 음역 ' + tw.count + '곳' : '');
+        statusEl.title = tw ? tw.message : '';
+        statusEl.style.color = tw ? '#9DB7F5' : '';
+      }
+      if (!silent) showToast(tw ? '⚠️ 저장됨 — ' + tw.message : '✅ 임시저장 완료', tw ? 'error' : 'success');
     } else {
       if (!silent) showToast('⚠️ 저장 실패: ' + (res.error || ''), 'error');
       else if (statusEl) statusEl.textContent = '자동 저장 실패 — 수동 저장 권장';
@@ -4401,7 +4408,8 @@ function reviewRenderApproved() {
     '<div class="rv-ap-line"><span class="rv-k">점수</span>반영됨 — AI종합점수 ' + _rvScore(a.score && a.score.before) + ' → ' + _rvScore(a.score && a.score.after) + '</div>' +
     '<div class="rv-ap-line"><span class="rv-k">상태</span>' + _rvEsc((a.status && a.status.text) || '') + '</div>' +
     '<div class="rv-ap-line"><span class="rv-k">용어 추출</span>' + _rvEsc(termLine) +
-    (t.file ? ' <button type="button" class="gr-btn-sm gr-btn-copy" onclick="reviewSaveTermFile()">용어 파일 저장</button>' : '') + '</div>';
+    (t.file ? ' <button type="button" class="gr-btn-sm gr-btn-copy" onclick="reviewSaveTermFile()">용어 파일 저장</button>' : '') + '</div>' +
+    (a.titleWarning ? '<div class="rv-ap-line rv-ap-warn"><span class="rv-k">경고</span>' + _rvEsc(a.titleWarning.message || ('직함 음역 ' + a.titleWarning.count + '곳')) + '</div>' : '');
   el.style.display = 'block';
 }
 async function reviewToggleCheck(box) {

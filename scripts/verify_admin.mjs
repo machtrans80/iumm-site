@@ -137,8 +137,8 @@ const MOCK = String.raw`(() => {
       return J(Object.assign({ ok: true, final: { score: 94, deductions: [{ 분류: '용어', 점수: 6, 이유: '확인' }], summary: '다시 채점', changes: [] }, scoreAfter: 94, needsCheck: false, approveScored: rec.json.approve, stale: false, termSuggestions: [], costUsd: 0.1 }, rvFinal(ap))); }
     if (p === '/api/admin/review-approve-estimate') return J({ ok: true, orderStatus: '확인필요', scoreAfter: 96, aiScore: 70, termEstimate: { usd: 0.07, chunks: 1 }, budget: { remaining: 46.5, ok: true }, stale: false, approved: false });
     if (p === '/api/admin/review-approve') { S.approvedAt = '2026-11-09T06:00:00Z';
-      return J({ ok: true, approved: { at: S.approvedAt, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' }, terms: { status: '처리 중', estimate: 0.07 } } }); }
-    if (p === '/api/admin/review-approval') return J({ ok: true, approved: { at: S.approvedAt, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' },
+      return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' }, terms: { status: '처리 중', estimate: 0.07 } } }); }
+    if (p === '/api/admin/review-approval') return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' },
       terms: { status: '완료', counts: { 새용어: 6, 승인: 2, 후보: 3, 충돌: 1, 거절: 1, 건너뜀: 0 }, costUsd: 0.06, file: { name: 'term_extracted_IUMM-FR-1_2026-11-09.txt', text: '원고 → demandeur | 승인 | 내부전용\n' } } } });
     if (p === '/api/admin/review-options') return J({ ok: true, langs: ['한국어', '영어', '프랑스어', '폴란드어'], fields: [{ code: 'general', name: '일반' }, { code: 'legal', name: '법률계약' }] });
     if (p === '/api/admin/review-order') {
@@ -471,6 +471,7 @@ try {
   check(await ev(`(() => { const t = document.getElementById('rv-approved').textContent; return /납품본반영됨/.test(t) && /점수반영됨 — AI종합점수 70 → 96/.test(t) && /상태확인필요 → 납품대기/.test(t) && /용어 추출처리 중/.test(t); })()`), "승인 뒤 '납품본 반영됨 · 점수 반영됨 · 상태 · 용어 추출' 한 줄씩");
   check(await ev(`document.getElementById('rv-approve-btn').style.display === 'none' && document.querySelector('#rv-check-list input') && document.querySelector('#rv-check-list input').disabled`), '승인 뒤 [승인]·체크 잠김');
   check(await until(`/완료 — 승인 2 · 충돌 1 · 후보 3 · 거절 1/.test(document.getElementById('rv-approved').textContent) && /용어 파일 저장/.test(document.getElementById('rv-approved').textContent)`, 9000), '용어 추출 결과 요약 · [용어 파일 저장]');
+  check(await ev(`/경고직함 음역 2곳/.test(document.getElementById('rv-approved').textContent)`), "승인 뒤 '직함 음역 n곳' 경고 줄(2026-11-09 — 막지 않음)");
   check(await ev(`_rvState.approved.terms.file.name === 'term_extracted_IUMM-FR-1_2026-11-09.txt' && /승인됨/.test(document.getElementById('rv-history').textContent) && /최종본 만들기/.test(document.getElementById('rv-history').textContent) && !/order|paste/.test(document.getElementById('rv-history').textContent)`), '파일 이름 term_extracted_<주문번호>_<날짜>.txt · 목록에 승인됨');
   {
     await ev(`(document.getElementById('gpt-result-wrap').scrollIntoView({ block: 'start' }), 1)`); await sleep(200);
