@@ -400,7 +400,39 @@ body.admin-focus .work-bar{display:none}
 .rv-terms{display:inline;margin-left:6px}
 .rv-terms summary{display:inline;cursor:pointer;color:#9DB7F5}
 .rv-terms div{font-size:12px;color:rgba(250,250,247,0.7);padding-left:4px}
-@media (max-width:760px){.rv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* 검수 2차(2026-11-09) — 최종본 · 확인 필요 · 승인 · 지난 검수 (파랑) */
+.rv-final-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.rv-final-btns{display:flex;gap:8px;flex-wrap:wrap}
+.rv-final{white-space:pre-wrap;word-break:break-word;font-size:13.5px;line-height:1.75;color:rgba(250,250,247,0.88);background:rgba(12,30,60,0.55);border:1px solid rgba(91,127,224,0.35);border-radius:6px;padding:12px 14px;max-height:520px;overflow-y:auto}
+.rv-mark{background:rgba(31,79,209,0.55);color:#FFFFFF;border-radius:2px;padding:0 1px}
+.rv-approve-btn{background:#1F4FD1;color:#FFFFFF;border:1px solid #5B7FE0}
+.rv-approve-btn:hover{background:#2A5DE6}
+.rv-approve-btn:disabled{opacity:0.6;cursor:default}
+.rv-confirm{margin-top:12px;padding:12px 14px;border:1px solid #5B7FE0;border-radius:6px;background:rgba(31,79,209,0.14)}
+.rv-cf-msg{font-size:13.5px;color:#EEF3FB;font-weight:500;margin-bottom:6px}
+.rv-cf-sub{font-size:12.5px;color:#C9D7FB;margin-bottom:4px}
+.rv-cf-btns{display:flex;gap:8px;margin-top:10px}
+.rv-approved{margin-top:12px;padding:10px 14px;border-left:3px solid #1F4FD1;background:rgba(31,79,209,0.1);border-radius:0 6px 6px 0}
+.rv-ap-title{font-size:12px;color:#9DB7F5;font-weight:600;margin-bottom:4px}
+.rv-ap-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:rgba(250,250,247,0.85);line-height:1.8}
+.rv-check-row{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.rv-check-row input{margin-top:12px;accent-color:#1F4FD1;width:16px;height:16px;flex:0 0 auto}
+.rv-round{display:inline-block;margin-left:6px;font-size:10.5px;color:#9DB7F5;border:1px solid rgba(157,183,245,0.35);border-radius:9px;padding:0 6px}
+.rv-flag-line{display:inline-block;margin-top:8px;font-size:12px;color:#C9D7FB}
+.rv-warn-inline{color:#C9D7FB;font-weight:500}
+.rv-history{margin-top:10px}
+.rv-hist-title{font-size:11px;color:#9DB7F5;letter-spacing:0.5px;margin-bottom:6px}
+.rv-hist-empty{font-size:12px;color:rgba(201,215,251,0.5)}
+.rv-hist-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-top:1px dashed rgba(91,127,224,0.25);font-size:12.5px;color:rgba(250,250,247,0.82)}
+.rv-hist-at{color:#C9D7FB}
+.rv-hist-kind{color:rgba(201,215,251,0.7)}
+.rv-hist-score{font-weight:600;color:#EEF3FB}
+.rv-hist-btns{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.rv-hist-btns .gr-btn-sm{height:28px;padding:0 10px}
+.rv-badge{display:inline-block;padding:0 8px;border-radius:9px;font-size:10.5px;background:rgba(157,183,245,0.12);color:#C9D7FB;border:1px solid rgba(157,183,245,0.3)}
+.rv-b-ok{background:#1F4FD1;color:#FFFFFF;border-color:#1F4FD1}
+.rv-b-warn{background:rgba(91,127,224,0.3);color:#EEF3FB;border-color:#5B7FE0}
+@media (max-width:760px){.rv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rv-hist-btns{margin-left:0}}
 
 /* 용어 추출 */
 .tx-rule{padding:12px 14px;border-left:3px solid #9DB7F5;background:rgba(157,183,245,0.07);border-radius:6px;font-size:13px;line-height:1.7;color:rgba(250,250,247,0.88);margin-bottom:16px}
@@ -1237,6 +1269,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <button class="gr-btn-sm gr-btn-copy" id="rv-order-btn" type="button" onclick="loadReviewOrder()">주문번호로 불러오기</button>
         </div>
         <p class="gr-info" id="rv-order-msg">주문번호로 불러오면 그 주문을 번역할 때 쓴 용어표를 그대로 씁니다. 붙여 넣으면 고른 언어쌍 · 분야 · 범위의 지금 승인 용어 중 원문에 나오는 것을 씁니다.</p>
+        <div id="rv-history" class="rv-history"></div>
       </div>
 
       <!-- 고정 프롬프트 표시 -->
@@ -1265,7 +1298,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
       <!-- 검수 엔진 — Claude(Opus) 하나로 고정(2026-11-09). 실행 전에 예상 비용·남은 예산을 확인한다 -->
       <div class="gr-section">
         <div class="gr-label">검수 엔진</div>
-        <p class="gr-info" id="review-engine-info">Claude (Opus) — 고칠 곳만 짚고 다시 쓰지 않습니다. 고치기는 아래 지시문을 ChatGPT에 붙여 넣어 합니다.</p>
+        <p class="gr-info" id="review-engine-info">Claude (Opus) — 고칠 곳만 짚습니다. 최종본은 그 곳만 코드로 바꿔 만들고(나머지 글자는 그대로) 다시 채점합니다. 90점 미만이면 한 번 더(최대 2회). 개인정보 번호는 가려서 보냅니다.</p>
         <div id="review-budget" class="tx-budget"></div>
         <div id="review-estimate" class="gr-estimate" role="status"></div>
       </div>
@@ -1276,35 +1309,54 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         <span id="gpt-status-msg" style="font-size:13px;color:rgba(255,255,255,0.45)"></span>
       </div>
 
-      <!-- 결과 영역 (초기 숨김) -->
+      <!-- 결과 영역 (초기 숨김) — 2026-11-09 2차: 검수 → 최종본(고칠 곳만 코드로) → 재채점 → 승인 -->
       <div id="gpt-result-wrap" style="display:none">
         <div class="gr-section" style="text-align:center">
           <div class="gr-score" id="gpt-result-score">—</div>
-          <div class="gr-score-label">검수 점수 / 100</div>
+          <div class="gr-score-label">검수 점수 전 → 후 (최종본 재채점) / 100</div>
+          <div id="rv-score-flags"></div>
           <div class="gr-summary" id="gpt-result-summary"></div>
           <div id="rv-deductions" class="rv-deductions"></div>
         </div>
 
         <div class="gr-section">
-          <div class="gr-section-title">고칠 곳 <span id="gpt-change-count" style="color:rgba(255,255,255,0.4);font-size:11px"></span></div>
-          <div id="rv-terms-info" class="gr-info" style="margin-bottom:10px"></div>
-          <div id="gpt-change-list" style="max-height:420px;overflow-y:auto"></div>
-        </div>
-
-        <div class="gr-section" id="rv-sugg-wrap" style="display:none">
-          <div class="gr-section-title">용어 변경 제안 <span style="color:rgba(255,255,255,0.4);font-size:11px">(화면에만 표시 — 용어집은 바뀌지 않습니다)</span></div>
-          <div id="rv-sugg-list"></div>
+          <div class="rv-final-head">
+            <div class="gr-section-title" style="margin:0">최종본 <span id="rv-final-count" style="color:rgba(255,255,255,0.4);font-size:11px"></span></div>
+            <div class="rv-final-btns">
+              <button class="gr-btn-sm gr-btn-copy" id="rv-copy-final" type="button" onclick="reviewCopyFinal()"><i class="ti ti-clipboard-list" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>복사</button>
+              <button class="gr-btn-sm gr-btn-copy" id="rv-rescore-btn" type="button" onclick="reviewRescore()">다시 채점</button>
+              <button class="gr-btn-sm rv-approve-btn" id="rv-approve-btn" type="button" onclick="reviewApproveAsk()" style="display:none">승인</button>
+            </div>
+          </div>
+          <div id="rv-terms-info" class="gr-info" style="margin-bottom:8px"></div>
+          <div id="rv-final" class="rv-final" aria-label="최종본 — 바뀐 곳은 파란 배경"></div>
+          <div id="rv-confirm" class="rv-confirm" style="display:none" role="dialog" aria-label="승인 확인"></div>
+          <div id="rv-approved" class="rv-approved" style="display:none" role="status"></div>
         </div>
 
         <div class="gr-section">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-            <div class="gr-section-title" style="margin:0">ChatGPT에 붙여 넣을 수정 지시문</div>
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-              <label class="engine-opt" style="font-size:12.5px"><input type="checkbox" id="rv-include-full" onchange="reviewRenderInstruction()"> 번역문 전체 함께 넣기</label>
-              <button class="gr-btn-sm gr-btn-copy" id="rv-copy-btn" onclick="reviewCopyInstruction()"><i class="ti ti-clipboard-list" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>복사</button>
-            </div>
-          </div>
-          <textarea class="gr-ta" id="rv-instruction" rows="12" readonly style="font-size:13px"></textarea>
+          <div class="gr-section-title">바뀐 곳 <span id="gpt-change-count" style="color:rgba(255,255,255,0.4);font-size:11px"></span></div>
+          <div id="gpt-change-list" style="max-height:420px;overflow-y:auto"></div>
+        </div>
+
+        <div class="gr-section" id="rv-check-wrap" style="display:none">
+          <div class="gr-section-title">확인 필요 <span style="color:rgba(255,255,255,0.4);font-size:11px">(지정 용어를 지우거나 바꾸는 수정 — 체크하면 최종본에 적용, 재채점은 [다시 채점])</span></div>
+          <div id="rv-check-list"></div>
+        </div>
+
+        <div class="gr-section" id="rv-fail-wrap" style="display:none">
+          <div class="gr-section-title">적용 못 함 <span style="color:rgba(255,255,255,0.4);font-size:11px">('지금'이 번역에 글자 그대로 없거나 그 단락에 두 곳 이상)</span></div>
+          <div id="rv-fail-list"></div>
+        </div>
+
+        <div class="gr-section" id="rv-left-wrap" style="display:none">
+          <div class="gr-section-title">재채점이 짚은 남은 곳 <span style="color:rgba(255,255,255,0.4);font-size:11px">(적용하지 않음)</span></div>
+          <div id="rv-left-list"></div>
+        </div>
+
+        <div class="gr-section" id="rv-sugg-wrap" style="display:none">
+          <div class="gr-section-title">용어 변경 제안 <span style="color:rgba(255,255,255,0.4);font-size:11px">(적용하지 않음 — 용어집도 그대로)</span></div>
+          <div id="rv-sugg-list"></div>
         </div>
       </div>
     </div>
@@ -4016,7 +4068,7 @@ async function submitBypassOrder() {
 }
 
 // ── 검수 탭 (예전 'GPT 검수') ─────────────────────────────
-// 2026-11-09 대표 명령: 언어·분야·용어 범위 선택 · 주문번호로 불러오기(그 주문 용어표 고정) · Claude(Opus) 의견만 + ChatGPT 붙여넣기 지시문.
+// 2026-11-09 대표 명령: 언어·분야·용어 범위 선택 · 주문번호로 불러오기(그 주문 용어표 고정) · Claude(Opus) 의견 → 최종본(코드) → 재채점 → 승인(2차, 아래).
 // 엔진은 Claude 하나(GPT 선택은 숨김). 실행 전에 /api/admin/review-estimate 로 예상 비용·남은 예산을 보고, 예산을 넘으면 실행하지 않는다.
 var REVIEW_LANGS_FALLBACK = ['한국어', '영어', '일본어', '중국어간체', '중국어번체', '베트남어', '스페인어', '러시아어', '태국어', '프랑스어', '인도네시아어', '독일어', '이탈리아어', '포르투갈어',
   '말레이어', '터키어', '폴란드어', '네덜란드어', '우크라이나어', '체코어', '스웨덴어', '아랍어', '힌디어', '노르웨이어', '핀란드어', '덴마크어', '헝가리어', '루마니아어', '그리스어',
@@ -4026,7 +4078,8 @@ var REVIEW_FIELDS_FALLBACK = [['general', '일반'], ['legal', '법률계약'], 
   ['literary', '문학출판'], ['arts', '예술문화'], ['gaming', '게임엔터'], ['construction', '건설엔지니어링'], ['esg', '환경ESG']].map(function (x) { return { code: x[0], name: x[1] }; });
 var _rvOptsLoaded = false;
 var _rvOrder = null;      // 불러온 주문 { orderNumber, termCount, termSource }
-var _rvResult = null;     // 마지막 검수 결과(지시문 다시 그리기용)
+var _rvState = null;      // 지금 화면의 검수 결과 { ...서버 결과, via:'order'|'paste', rawText, body }
+var _rvHistory = [];      // 불러온 주문의 지난 검수(검수기록JSON)
 function _rvEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function reviewEngine() { return 'claude'; }
 function _rvFill(id, items, value) {
@@ -4044,6 +4097,7 @@ function _rvVal(id) { var el = document.getElementById(id); return el ? el.value
 async function loadReviewOptions() {
   if (!document.getElementById('rv-src').options.length) _rvSetLangs(REVIEW_LANGS_FALLBACK, REVIEW_FIELDS_FALLBACK);
   reviewLangChanged();
+  reviewRenderHistory();
   if (_rvOptsLoaded) return;
   try {
     var r = await authFetch(API_BASE + '/api/admin/review-options', { headers: { 'Authorization': 'Bearer ' + adminToken() } });
@@ -4055,20 +4109,20 @@ async function loadReviewOptions() {
 function reviewLangChanged() {
   var tgt = _rvVal('rv-tgt') || '영어';
   var el = document.getElementById('rv-fixed');
-  if (el) el.value = '정부 조달 제출용 최종 검수자 · Claude(Opus) 의견만 — 번역을 다시 쓰지 않습니다.\n' +
+  if (el) el.value = '정부 조달 제출용 최종 검수자 · Claude(Opus) — AI는 번역을 다시 쓰지 않습니다.\n' +
     '1. 문체 통일 (격식체 일관)\n' +
     '2. 혼재 표현 정리 (동일 의미 다른 표현 통일) — 지정 용어표 밖의 표현에만\n' +
     '3. 어색한 ' + tgt + ' 표현\n' +
     '4. 누락/오역 검출\n' +
     '5. 지정 용어표는 같은 뜻으로 쓰인 자리에서 바꾸지 않음 — 용어가 틀렸다고 보면 \'용어 변경 제안\'으로 따로\n' +
-    '6. 결과: 점수 · 감점 근거 · 고칠 곳(문단 · 지금 · 고칠 안 · 이유 · 심각도) · ChatGPT 수정 지시문';
+    '6. 결과: 점수 · 감점 근거 · 고칠 곳(문단 · 지금 · 고칠 안 · 이유 · 심각도) → 최종본(고칠 곳만 코드로 바꿈) → 재채점(90점 미만이면 한 번 더, 최대 2회)';
   var est = document.getElementById('review-estimate');
   if (est) { est.textContent = ''; est.className = 'gr-estimate'; }
 }
 /** 주문번호 칸을 바꾸면 불러온 주문은 풀린다(그 주문 용어표를 다른 글에 쓰지 않게) */
 function reviewOrderInput() {
   if (_rvOrder && _rvVal('rv-order-no').trim() !== _rvOrder.orderNumber) {
-    _rvOrder = null;
+    _rvOrder = null; _rvHistory = []; reviewRenderHistory();
     document.getElementById('rv-order-msg').textContent = '불러온 주문을 풀었습니다 — 지금 승인 용어로 검수합니다.';
   }
 }
@@ -4082,8 +4136,9 @@ async function loadReviewOrder() {
     var r = await authFetch(API_BASE + '/api/admin/review-order?orderNumber=' + encodeURIComponent(no), { headers: { 'Authorization': 'Bearer ' + adminToken() } });
     var j = {};
     try { j = await r.json(); } catch (e) { j = { ok: false, error: '응답을 읽지 못했습니다' }; }
-    if (j.deleted) { _rvOrder = null; msg.className = 'gr-info rv-warn'; msg.textContent = j.message || '본문이 지워진 주문입니다 — 붙여 넣어 주세요'; return; }
-    if (!r.ok || !j.ok) { _rvOrder = null; msg.className = 'gr-info rv-warn'; msg.textContent = j.error || ('불러오지 못했습니다 (HTTP ' + r.status + ')'); return; }
+    _rvHistory = [];
+    if (j.deleted) { _rvOrder = null; reviewRenderHistory(); msg.className = 'gr-info rv-warn'; msg.textContent = j.message || '본문이 지워진 주문입니다 — 붙여 넣어 주세요'; return; }
+    if (!r.ok || !j.ok) { _rvOrder = null; reviewRenderHistory(); msg.className = 'gr-info rv-warn'; msg.textContent = j.error || ('불러오지 못했습니다 (HTTP ' + r.status + ')'); return; }
     var ta = document.getElementById('gpt-raw-text');
     ta.value = j.rawText || '';
     ta.dispatchEvent(new Event('input'));
@@ -4093,6 +4148,8 @@ async function loadReviewOrder() {
     document.getElementById('rv-scope').value = j.scope;
     reviewLangChanged();
     _rvOrder = { orderNumber: j.orderNumber, termCount: j.termCount, termSource: j.termSource };
+    _rvHistory = j.history || [];
+    reviewRenderHistory();
     msg.textContent = j.orderNumber + ' 불러옴 — 번역: ' + j.basis + ' · ' + j.sourceLang + ' → ' + j.targetLang + ' · 지정 용어표: ' + j.termSource + ' ' + (j.termCount || 0) + '개 (지금 승인 용어와 섞지 않음)';
   } catch (e) { msg.className = 'gr-info rv-warn'; msg.textContent = '불러오지 못했습니다: ' + e.message; }
   finally { btn.disabled = false; }
@@ -4142,11 +4199,15 @@ function reviewRequestBody(rawText, extraInstruction) {
   return b;
 }
 
-async function submitGptReview() {
+/** 검수 실행 — opts.mode 'fromRecord' + recordId = 그 기록의 고칠 곳으로 최종본만 다시 만들고 재채점 1회(재검수 없음) */
+async function submitGptReview(opts) {
+  opts = opts || {};
+  var fromRecord = opts.mode === 'fromRecord';
   var rawText = (document.getElementById('gpt-raw-text')?.value || '').trim();
   if (!rawText) { showToast('검수 대상 텍스트를 입력하세요', 'error'); return; }
   var extraInstruction = (document.getElementById('gpt-extra-instruction')?.value || '').trim();
   var body = reviewRequestBody(rawText, extraInstruction);
+  if (fromRecord) { body.mode = 'fromRecord'; body.recordId = opts.recordId; }
   var btn = document.getElementById('gpt-submit-btn');
   var msg = document.getElementById('gpt-status-msg');
   var est = document.getElementById('review-estimate');
@@ -4161,15 +4222,16 @@ async function submitGptReview() {
     var e1 = await adminPostJson('/api/admin/review-estimate', body);
     var ed = e1.data;
     if (e1.status !== 200 || !ed.ok) throw Object.assign(new Error(reviewErrorText(e1.status, ed)), { shown: true });
-    var b = ed.budget || {};
-    est.textContent = '예상 비용 ' + _usd(ed.estimate && ed.estimate.usd) + (b.unlimited ? ' · 상한 없음 · 이번 달 사용액 ' + _usd(b.monthSpent) : ' · 남은 예산 ' + _usd(b.remaining) + ' / ' + _usdCap(b.cap != null ? b.cap : 50));
+    var b = ed.budget || {}, e = ed.estimate || {};
+    est.textContent = '예상 비용 최대 ' + _usd(e.usd) + ' (Claude Opus ' + (fromRecord ? '재채점 1회' : e.calls + '회 — 검수 1 + 재채점 최대 2') + ')' +
+      (b.unlimited ? ' · 상한 없음 · 이번 달 사용액 ' + _usd(b.monthSpent) : ' · 남은 예산 ' + _usd(b.remaining) + ' / ' + _usdCap(b.cap != null ? b.cap : 50));
     if (!ed.allowed) {
       est.textContent += ' — ' + (ed.message || '남은 예산이 부족해 실행하지 않습니다.');
       est.className = 'gr-estimate warn';
       throw Object.assign(new Error(ed.message || '남은 예산이 부족해 실행하지 않습니다.'), { shown: true });
     }
-    btn.textContent = '검수 중…';
-    msg.textContent = '검수 중… 30~120초 예상';
+    btn.textContent = fromRecord ? '최종본 만드는 중…' : '검수 중…';
+    msg.textContent = fromRecord ? '기록의 고칠 곳으로 최종본 → 재채점 중… 30~90초 예상' : '검수 → 최종본 → 재채점 중… 1~4분 예상';
     var r = await adminPostJson('/api/admin/gpt-review-manual', Object.assign({ engine: 'claude' }, body));
     var data = r.data;
     if (r.status !== 200 || !data.ok) {
@@ -4177,12 +4239,13 @@ async function submitGptReview() {
       if (r.status === 402 || r.status === 503) { est.textContent = t; est.className = 'gr-estimate warn'; }
       throw Object.assign(new Error(t), { shown: r.status === 402 || r.status === 503 });
     }
-    gptShowResult(data);
-    var secs = Math.round((data.processingTimeMs || 0) / 1000);
-    msg.textContent = '완료 — ' + secs + '초 소요 · Claude';
-    if (data.costUsd != null) {
-      est.textContent = (est.textContent ? est.textContent + ' · ' : '') + '실제 비용 ' + _usd(data.costUsd);
-    }
+    _rvState = Object.assign({}, data, { via: _rvOrder ? 'order' : 'paste', rawText: rawText, body: reviewRequestBody(rawText, extraInstruction) });
+    if (_rvOrder) _rvHistory = [data].concat(_rvHistory.filter(function (x) { return x.id !== data.id; })).slice(0, 5);
+    else _rvSaveSession();
+    reviewRenderHistory();
+    reviewRender();
+    msg.textContent = '완료 — Claude ' + (data.calls || 0) + '회' + (data.logError ? ' · ' + data.logError : '');
+    if (data.costUsd != null) est.textContent = (est.textContent ? est.textContent + ' · ' : '') + '실제 비용 ' + _usd(data.costUsd);
   } catch(e) {
     msg.textContent = '';
     if (e && e.shown) { est.className = 'gr-estimate warn'; if (!est.textContent) est.textContent = e.message; }
@@ -4193,34 +4256,122 @@ async function submitGptReview() {
   }
 }
 
-var RV_SEV_CLASS = { '치명': 'rv-sev-1', '중대': 'rv-sev-2', '경미': 'rv-sev-3' };
-function gptShowResult(data) {
-  _rvResult = data;
-  document.getElementById('gpt-result-score').textContent = (data.score != null ? data.score : '—') + ' / 100';
-  document.getElementById('gpt-result-summary').textContent = data.summary || '';
-  var ded = data.deductions || [];
-  document.getElementById('rv-deductions').innerHTML = ded.length
-    ? '<div class="rv-ded-title">감점 근거</div>' + ded.map(function (d) { return '<div class="rv-ded"><span class="rv-ded-k">' + _rvEsc(d.분류) + ' −' + _rvEsc(d.점수) + '</span> ' + _rvEsc(d.이유) + '</div>'; }).join('')
-    : '';
-  var terms = data.terms || [];
-  document.getElementById('rv-terms-info').innerHTML = '지정 용어표: ' + _rvEsc(data.termSource || '') + ' · ' + terms.length + '개' +
-    (terms.length ? ' <details class="rv-terms"><summary>보기</summary>' + terms.map(function (t) { return '<div>' + _rvEsc(t.source) + ' → ' + _rvEsc(t.target) + '</div>'; }).join('') + '</details>' : '');
-  var changes = data.changes || [];
-  document.getElementById('gpt-change-count').textContent = changes.length ? '(' + changes.length + '곳)' : '(없음)';
-  var listEl = document.getElementById('gpt-change-list');
-  listEl.innerHTML = !changes.length
-    ? '<div class="rv-none">고칠 곳 없음 — 그대로 납품 가능</div>'
-    : changes.map(function (c, i) {
-      return '<div class="gr-change-item">' +
-        '<div class="gr-change-para">' + (i + 1) + '. 단락 ' + _rvEsc(c.paragraph || '?') + ' <span class="rv-sev ' + (RV_SEV_CLASS[c.severity] || 'rv-sev-3') + '">' + _rvEsc(c.severity || '경미') + '</span></div>' +
-        '<div class="rv-row"><span class="rv-k">지금</span><span class="gr-change-before">' + _rvEsc(c.before) + '</span></div>' +
-        '<div class="rv-row"><span class="rv-k">고칠 안</span><span class="gr-change-after">' + _rvEsc(c.after) + '</span></div>' +
-        (c.reason ? '<div class="gr-change-reason">' + _rvEsc(c.reason) + '</div>' : '') +
-        (c.found === false ? '<div class="rv-flag">\'지금\' 글이 번역에 글자 그대로 없습니다 — 확인 필요</div>' : '') +
-        (c.termTouched ? '<div class="rv-flag">지정 용어(' + _rvEsc(c.termTouched.join(', ')) + ')가 바뀝니다 — 뜻이 다른 자리인지 확인</div>' : '') +
-        '</div>';
+// 2026-11-09 2차: 검수 → 최종본(고칠 곳만 코드로 바꿈) → 재채점 → 승인. ChatGPT 지시문은 없앰.
+//   주문번호로 불러온 검수 = 서버 '검수기록JSON'(지난 검수 목록) · 붙여 넣은 검수 = 이 탭 sessionStorage 에만
+var RV_SS_KEY = 'iumm_review_paste_v1';
+function _rvSessionList() { try { var a = JSON.parse(sessionStorage.getItem(RV_SS_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function _rvSaveSession() {
+  if (!_rvState || _rvState.via !== 'paste') return;
+  try {
+    var list = _rvSessionList().filter(function (x) { return x.id !== _rvState.id; });
+    sessionStorage.setItem(RV_SS_KEY, JSON.stringify([_rvState].concat(list).slice(0, 5)));
+  } catch (e) { /* 저장 못 해도 화면은 그대로 */ }
+}
+function _rvTime(iso) {
+  try { return new Date(iso).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }); } catch (e) { return String(iso || ''); }
+}
+function _rvScore(v) { return v == null ? '—' : String(v); }
+/** 지난 검수 목록 — 주문을 불러왔으면 그 주문 기록, 아니면 이 탭에서 붙여 넣은 검수 */
+function reviewRenderHistory() {
+  var el = document.getElementById('rv-history');
+  if (!el) return;
+  var isOrder = !!_rvOrder;
+  var list = isOrder ? _rvHistory : _rvSessionList();
+  if (!list.length) { el.innerHTML = isOrder ? '<div class="rv-hist-empty">지난 검수 없음</div>' : ''; return; }
+  el.innerHTML = '<div class="rv-hist-title">' + (isOrder ? '지난 검수 (' + _rvEsc(_rvOrder.orderNumber) + ' · 최근 5회)' : '이 탭에서 붙여 넣은 검수 (탭을 닫으면 사라짐)') + '</div>' +
+    list.map(function (r) {
+      var st = r.approved ? '<span class="rv-badge rv-b-ok">승인됨</span>' : r.needsCheck ? '<span class="rv-badge rv-b-warn">확인 필요</span>' : '<span class="rv-badge">승인 전</span>';
+      var id = _rvEsc(r.id);
+      return '<div class="rv-hist-row"><span class="rv-hist-at">' + _rvEsc(_rvTime(r.at)) + '</span> <span class="rv-hist-kind">' + _rvEsc(r.kind || '검수') + '</span> ' +
+        '<span class="rv-hist-score">' + _rvScore(r.scoreBefore) + ' → ' + _rvScore(r.scoreAfter) + '</span> ' + st +
+        '<span class="rv-hist-btns"><button type="button" class="gr-btn-sm gr-btn-copy" onclick="reviewOpenRecord(\'' + id + '\')">열기</button>' +
+        (isOrder ? '<button type="button" class="gr-btn-sm gr-btn-copy" onclick="submitGptReview({ mode: \'fromRecord\', recordId: \'' + id + '\' })">이 검수로 최종본 만들기</button>' +
+          '<button type="button" class="gr-btn-sm gr-btn-copy" onclick="submitGptReview()">다시 검수</button>' +
+          (r.approved ? '' : '<button type="button" class="gr-btn-sm rv-approve-btn" onclick="reviewOpenRecord(\'' + id + '\', true)">승인</button>') : '') +
+        '</span></div>';
     }).join('');
-  var sugg = data.termSuggestions || [];
+}
+/** [열기] — 저장된 결과를 그대로 보여 준다(AI 호출 없음). 최종본 글이 기록에서 빠졌으면(길어서) 서버가 다시 만든다(AI 호출 없음) */
+async function reviewOpenRecord(id, thenApprove) {
+  var isOrder = !!_rvOrder;
+  var rec = (isOrder ? _rvHistory : _rvSessionList()).filter(function (x) { return x.id === id; })[0];
+  if (!rec) { showToast('기록을 찾지 못했습니다', 'error'); return; }
+  if (!isOrder && rec.rawText) { var ta = document.getElementById('gpt-raw-text'); ta.value = rec.rawText; ta.dispatchEvent(new Event('input')); }
+  var rawText = (document.getElementById('gpt-raw-text').value || '').trim();
+  _rvState = Object.assign({}, rec, { via: isOrder ? 'order' : 'paste', rawText: isOrder ? rawText : rec.rawText, body: isOrder ? reviewRequestBody(rawText, '') : rec.body });
+  if (isOrder && !_rvState.finalText) {
+    var r = await adminPostJson('/api/admin/review-apply', Object.assign({}, _rvState.body, { recordId: id }));
+    if (r.status !== 200 || !r.data.ok) { showToast('최종본을 다시 만들지 못했습니다: ' + reviewErrorText(r.status, r.data), 'error'); return; }
+    Object.assign(_rvState, { finalText: r.data.finalText, marks: r.data.marks, rounds: r.data.rounds, stale: r.data.stale });
+  }
+  reviewRender();
+  document.getElementById('gpt-status-msg').textContent = '지난 검수를 열었습니다 — ' + _rvTime(rec.at) + ' (비용 없음)';
+  if (thenApprove) reviewApproveAsk();
+}
+var RV_SEV_CLASS = { '치명': 'rv-sev-1', '중대': 'rv-sev-2', '경미': 'rv-sev-3' };
+function _rvChangeHtml(c, n, extra) {
+  return '<div class="gr-change-item">' +
+    '<div class="gr-change-para">' + n + '. 단락 ' + _rvEsc(c.paragraph || '?') + ' <span class="rv-sev ' + (RV_SEV_CLASS[c.severity] || 'rv-sev-3') + '">' + _rvEsc(c.severity || '경미') + '</span>' + (extra || '') + '</div>' +
+    '<div class="rv-row"><span class="rv-k">지금</span><span class="gr-change-before">' + _rvEsc(c.before) + '</span></div>' +
+    '<div class="rv-row"><span class="rv-k">고친 것</span><span class="gr-change-after">' + _rvEsc(c.after) + '</span></div>' +
+    (c.reason ? '<div class="gr-change-reason">' + _rvEsc(c.reason) + '</div>' : '') +
+    (c.why ? '<div class="rv-flag">' + _rvEsc(c.why) + '</div>' : '') + '</div>';
+}
+/** 최종본 — 바뀐 곳(marks)은 파란 배경 */
+function _rvFinalHtml(text, marks) {
+  var out = '', from = 0;
+  (marks || []).forEach(function (m) {
+    if (m.start < from || m.end > text.length) return;
+    out += _rvEsc(text.slice(from, m.start)) + '<mark class="rv-mark">' + _rvEsc(text.slice(m.start, m.end)) + '</mark>';
+    from = m.end;
+  });
+  return out + _rvEsc(text.slice(from));
+}
+function reviewRender() {
+  var d = _rvState;
+  if (!d) return;
+  var fin = d.final || {};
+  var approved = !!d.approved;
+  document.getElementById('gpt-result-score').textContent = _rvScore(d.scoreBefore) + ' → ' + _rvScore(d.scoreAfter);
+  document.getElementById('rv-score-flags').innerHTML =
+    (d.needsCheck ? '<div class="rv-warn rv-flag-line">90점 미만 — ' + ((d.rounds || []).length >= 2 ? '2회 고친 뒤에도' : '') + ' 확인 필요</div>' : '') +
+    (d.stale ? '<div class="rv-flag-line">체크를 바꿔 최종본이 바뀌었습니다 — 점수는 바뀌기 전 최종본 기준 · [다시 채점]으로 새 점수</div>' : '');
+  document.getElementById('gpt-result-summary').textContent = fin.summary || '';
+  var ded = fin.deductions || [];
+  document.getElementById('rv-deductions').innerHTML = ded.length
+    ? '<div class="rv-ded-title">감점 근거 (최종본 기준)</div>' + ded.map(function (x) { return '<div class="rv-ded"><span class="rv-ded-k">' + _rvEsc(x.분류) + ' −' + _rvEsc(x.점수) + '</span> ' + _rvEsc(x.이유) + '</div>'; }).join('')
+    : '';
+  var terms = d.terms || [];
+  document.getElementById('rv-terms-info').innerHTML = '지정 용어표: ' + _rvEsc(d.termSource || '') + ' · ' + (d.termCount != null ? d.termCount : terms.length) + '개' +
+    (terms.length ? ' <details class="rv-terms"><summary>보기</summary>' + terms.map(function (t) { return '<div>' + _rvEsc(t.source) + ' → ' + _rvEsc(t.target) + '</div>'; }).join('') + '</details>' : '') +
+    (d.via === 'order' && d.exactBase === false ? ' · <span class="rv-warn-inline">불러온 뒤 고친 글 기준</span>' : '');
+  document.getElementById('rv-final').innerHTML = _rvFinalHtml(String(d.finalText || ''), d.marks);
+  // 회차별 결과 → 바뀐 곳 · 확인 필요 · 적용 못 함
+  var applied = [], check = [], failed = [];
+  (d.rounds || []).forEach(function (round, k) {
+    (round || []).forEach(function (c) {
+      var key = k + ':' + c.idx, tag = (d.rounds.length > 1 ? ' <span class="rv-round">' + (k + 1) + '회차</span>' : '');
+      if (c.status === '적용' || c.status === '확인 후 적용') applied.push({ c: c, tag: tag });
+      if (c.status === '확인 필요' || c.status === '확인 후 적용') check.push({ c: c, key: key, on: c.status === '확인 후 적용', tag: tag });
+      if (c.status === '적용 못 함') failed.push({ c: c, tag: tag });
+    });
+  });
+  document.getElementById('rv-final-count').textContent = applied.length ? '(바뀐 곳 ' + applied.length + ' · 파란 배경)' : '(바뀐 곳 없음)';
+  document.getElementById('gpt-change-count').textContent = applied.length ? '(' + applied.length + '곳)' : '(없음)';
+  document.getElementById('gpt-change-list').innerHTML = applied.length
+    ? applied.map(function (x, i) { return _rvChangeHtml(x.c, i + 1, x.tag); }).join('')
+    : '<div class="rv-none">' + ((d.rounds || []).flat().length ? '바뀐 곳 없음' : '고칠 곳 없음 — 그대로 납품 가능') + '</div>';
+  document.getElementById('rv-check-wrap').style.display = check.length ? 'block' : 'none';
+  document.getElementById('rv-check-list').innerHTML = check.map(function (x, i) {
+    return '<label class="rv-check-row"><input type="checkbox" data-key="' + _rvEsc(x.key) + '"' + (x.on ? ' checked' : '') + (approved ? ' disabled' : '') + ' onchange="reviewToggleCheck(this)">' +
+      '<div style="flex:1;min-width:0">' + _rvChangeHtml(Object.assign({}, x.c, { why: '지정 용어(' + (x.c.termTouched || []).join(', ') + ')를 지우거나 바꿈 — 뜻이 다른 자리일 때만 체크' }), i + 1, x.tag) + '</div></label>';
+  }).join('');
+  document.getElementById('rv-fail-wrap').style.display = failed.length ? 'block' : 'none';
+  document.getElementById('rv-fail-list').innerHTML = failed.map(function (x, i) { return _rvChangeHtml(x.c, i + 1, x.tag); }).join('');
+  var left = d.needsCheck ? (fin.changes || []) : [];
+  document.getElementById('rv-left-wrap').style.display = left.length ? 'block' : 'none';
+  document.getElementById('rv-left-list').innerHTML = left.map(function (c, i) { return _rvChangeHtml(c, i + 1); }).join('');
+  var sugg = d.termSuggestions || [];
   document.getElementById('rv-sugg-wrap').style.display = sugg.length ? 'block' : 'none';
   document.getElementById('rv-sugg-list').innerHTML = sugg.map(function (s) {
     return '<div class="gr-change-item"><div class="rv-row"><span class="rv-k">원어</span>' + _rvEsc(s.source) + '</div>' +
@@ -4228,32 +4379,144 @@ function gptShowResult(data) {
       '<div class="rv-row"><span class="rv-k">제안</span><span class="gr-change-after">' + _rvEsc(s.suggested) + '</span></div>' +
       (s.reason ? '<div class="gr-change-reason">' + _rvEsc(s.reason) + '</div>' : '') + '</div>';
   }).join('');
-  reviewRenderInstruction();
+  // 승인은 주문번호로 불러온 검수만 · 승인한 기록은 다시 채점·체크 변경 없음
+  document.getElementById('rv-approve-btn').style.display = d.via === 'order' && !approved ? '' : 'none';
+  document.getElementById('rv-rescore-btn').style.display = approved ? 'none' : '';
+  document.getElementById('rv-confirm').style.display = 'none';
+  reviewRenderApproved();
   document.getElementById('gpt-result-wrap').style.display = 'block';
 }
-/** 지시문 — [번역문 전체 함께 넣기]를 켜면 끝에 번역문 전체(고칠 곳이 0이면 한 줄 그대로) */
-function reviewInstructionText() {
-  var d = _rvResult || {};
-  var t = d.instruction || '';
-  var full = document.getElementById('rv-include-full');
-  if (full && full.checked && (d.changes || []).length && d.translatedText) t += '\n\n[번역문]\n' + d.translatedText;
-  return t;
+/** 승인 결과 한 줄씩 — 납품본 · 점수 · 상태 · 용어 추출 */
+function reviewRenderApproved() {
+  var el = document.getElementById('rv-approved');
+  var a = _rvState && _rvState.approved;
+  if (!a) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  var t = a.terms || {};
+  var c = t.counts || null;
+  var termLine = t.status === '완료' && c ? '완료 — 승인 ' + (c.승인 || 0) + ' · 충돌 ' + (c.충돌 || 0) + ' · 후보 ' + (c.후보 || 0) + ' · 거절 ' + (c.거절 || 0) + (t.costUsd != null ? ' · ' + _usd(t.costUsd) : '')
+    : t.status === '처리 중' ? '처리 중…' + (t.estimate != null ? ' (예상 ' + _usd(t.estimate) + ')' : '') + ' — 배치 처리라 몇 분 걸릴 수 있습니다'
+    : (t.status || '—') + (t.message || t.error ? ' — ' + (t.message || t.error) : '');
+  el.innerHTML = '<div class="rv-ap-title">승인됨 · ' + _rvEsc(_rvTime(a.at)) + '</div>' +
+    '<div class="rv-ap-line"><span class="rv-k">납품본</span>반영됨 — 전문가검수완료본 ' + ((a.saved && a.saved.chars) || 0).toLocaleString() + '자</div>' +
+    '<div class="rv-ap-line"><span class="rv-k">점수</span>반영됨 — AI종합점수 ' + _rvScore(a.score && a.score.before) + ' → ' + _rvScore(a.score && a.score.after) + '</div>' +
+    '<div class="rv-ap-line"><span class="rv-k">상태</span>' + _rvEsc((a.status && a.status.text) || '') + '</div>' +
+    '<div class="rv-ap-line"><span class="rv-k">용어 추출</span>' + _rvEsc(termLine) +
+    (t.file ? ' <button type="button" class="gr-btn-sm gr-btn-copy" onclick="reviewSaveTermFile()">용어 파일 저장</button>' : '') + '</div>';
+  el.style.display = 'block';
 }
-function reviewRenderInstruction() {
-  var ta = document.getElementById('rv-instruction');
-  if (ta) ta.value = reviewInstructionText();
-}
-async function reviewCopyInstruction() {
-  var text = reviewInstructionText();
-  if (!text) { showToast('복사할 내용이 없습니다', 'error'); return; }
+async function reviewToggleCheck(box) {
+  var d = _rvState;
+  if (!d || d.approved) return;
+  var key = box.getAttribute('data-key');
+  var set = (d.approve || []).filter(function (k) { return k !== key; });
+  if (box.checked) set.push(key);
+  var body = Object.assign({}, d.body, { approve: set });
+  if (d.via === 'order') body.recordId = d.id; else { body.opinions = d.opinions; body.approveScored = d.approveScored || []; }
+  box.disabled = true;
   try {
-    await navigator.clipboard.writeText(text);
-    showToast('지시문을 복사했습니다', 'ok');
-  } catch(e) {
-    var ta = document.getElementById('rv-instruction');
-    try { ta.focus(); ta.select(); if (document.execCommand('copy')) { showToast('지시문을 복사했습니다', 'ok'); return; } } catch (e2) { /* 아래 */ }
-    showToast('복사 실패: ' + e.message, 'error');
+    var r = await adminPostJson('/api/admin/review-apply', body);
+    if (r.status !== 200 || !r.data.ok) throw new Error(reviewErrorText(r.status, r.data));
+    Object.assign(d, { approve: r.data.approve, finalText: r.data.finalText, marks: r.data.marks, rounds: r.data.rounds, stale: r.data.stale });
+    _rvSyncHistory(); reviewRender();
+    showToast('최종본을 다시 만들었습니다 (비용 없음)', 'ok');
+  } catch (e) { box.checked = !box.checked; box.disabled = false; showToast(e.message, 'error'); }
+}
+function _rvSyncHistory() {
+  if (!_rvState) return;
+  if (_rvState.via === 'paste') { _rvSaveSession(); }
+  else _rvHistory = _rvHistory.map(function (x) { return x.id === _rvState.id ? Object.assign({}, x, _rvState) : x; });
+  reviewRenderHistory();
+}
+/** [다시 채점] — 지금 최종본을 1회 채점(Claude Opus) */
+async function reviewRescore() {
+  var d = _rvState;
+  if (!d) return;
+  var btn = document.getElementById('rv-rescore-btn');
+  var body = Object.assign({}, d.body, { approve: d.approve || [] });
+  if (d.via === 'order') body.recordId = d.id; else body.opinions = d.opinions;
+  btn.disabled = true; btn.textContent = '채점 중…';
+  try {
+    var r = await adminPostJson('/api/admin/review-rescore', body);
+    if (r.status !== 200 || !r.data.ok) throw new Error(reviewErrorText(r.status, r.data));
+    var x = r.data;
+    Object.assign(d, { final: x.final, scoreAfter: x.scoreAfter, needsCheck: x.needsCheck, approveScored: x.approveScored, stale: false, finalText: x.finalText, marks: x.marks, rounds: x.rounds, termSuggestions: x.termSuggestions });
+    _rvSyncHistory(); reviewRender();
+    showToast('다시 채점: ' + x.scoreAfter + '점' + (x.costUsd != null ? ' · ' + _usd(x.costUsd) : ''), 'ok');
+  } catch (e) { showToast('다시 채점 실패: ' + e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '다시 채점'; }
+}
+async function reviewCopyFinal() {
+  var text = (_rvState && _rvState.finalText) || '';
+  if (!text) { showToast('복사할 최종본이 없습니다', 'error'); return; }
+  try { await navigator.clipboard.writeText(text); showToast('최종본을 복사했습니다', 'ok'); }
+  catch (e) {
+    var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    document.body.removeChild(ta);
+    showToast(ok ? '최종본을 복사했습니다' : '복사 실패: ' + e.message, ok ? 'ok' : 'error');
   }
+}
+/** [승인] 전 확인 — 화면 안 확인창(용어 추출 예상 비용·남은 예산 함께) */
+async function reviewApproveAsk() {
+  var d = _rvState;
+  if (!d || d.via !== 'order' || d.approved) return;
+  var box = document.getElementById('rv-confirm');
+  box.style.display = 'block';
+  box.innerHTML = '<div class="rv-cf-msg">확인 중…</div>';
+  try {
+    var r = await authFetch(API_BASE + '/api/admin/review-approve-estimate?orderNumber=' + encodeURIComponent(d.orderNumber) + '&recordId=' + encodeURIComponent(d.id), { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+    var j = await r.json();
+    if (!r.ok || !j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+    var te = j.termEstimate || {}, b = j.budget || {};
+    box.innerHTML = '<div class="rv-cf-msg">이 최종본을 납품본으로 저장하고, 점수 반영 · 용어 추출을 진행합니다.</div>' +
+      '<div class="rv-cf-sub">AI종합점수 ' + _rvScore(j.aiScore) + ' → ' + _rvScore(j.scoreAfter) + ' · 주문 상태 ' + _rvEsc(j.orderStatus || '—') + (j.orderStatus === '확인필요' ? ' → 납품대기' : ' 그대로') + '</div>' +
+      '<div class="rv-cf-sub">용어 추출 예상 ' + _usd(te.usd) + (b.unlimited ? '' : ' · 남은 예산 ' + _usd(b.remaining)) + (b.ok === false ? ' — <strong>예산을 넘어 용어 추출은 건너뜁니다</strong>' : '') + '</div>' +
+      (j.stale ? '<div class="rv-cf-sub rv-warn-inline">체크를 바꾼 뒤 다시 채점하지 않았습니다 — 점수는 바뀌기 전 최종본 기준입니다</div>' : '') +
+      '<div class="rv-cf-btns"><button type="button" class="gr-btn-sm rv-approve-btn" id="rv-approve-go" onclick="reviewApproveGo()">승인 진행</button><button type="button" class="gr-btn-sm gr-btn-copy" onclick="document.getElementById(\'rv-confirm\').style.display=\'none\'">취소</button></div>';
+  } catch (e) { box.innerHTML = '<div class="rv-cf-msg rv-warn-inline">승인할 수 없습니다: ' + _rvEsc(e.message) + '</div>'; }
+}
+var _rvPoll = null;
+async function reviewApproveGo() {
+  var d = _rvState;
+  var go = document.getElementById('rv-approve-go');
+  if (go) { go.disabled = true; go.textContent = '승인 중…'; }
+  var r = await adminPostJson('/api/admin/review-approve', { orderNumber: d.orderNumber, recordId: d.id });
+  if (r.status !== 200 || !r.data.ok) {
+    if (go) { go.disabled = false; go.textContent = '승인 진행'; }
+    showToast('승인 실패: ' + reviewErrorText(r.status, r.data), 'error');
+    return;
+  }
+  d.approved = r.data.approved;
+  _rvSyncHistory(); reviewRender();
+  showToast('승인했습니다 — 납품본 · 점수 반영', 'ok');
+  reviewPollApproval();
+}
+/** 용어 추출(배치) 끝날 때까지 결과 확인 — 10분까지 */
+function reviewPollApproval() {
+  clearTimeout(_rvPoll);
+  var d = _rvState, tries = 0;
+  if (!d || !d.approved || !d.approved.terms || d.approved.terms.status !== '처리 중') return;
+  var tick = async function () {
+    if (_rvState !== d) return;
+    tries++;
+    try {
+      var r = await authFetch(API_BASE + '/api/admin/review-approval?orderNumber=' + encodeURIComponent(d.orderNumber) + '&recordId=' + encodeURIComponent(d.id), { headers: { 'Authorization': 'Bearer ' + adminToken() } });
+      var j = await r.json();
+      if (j.ok && j.approved) { d.approved = j.approved; _rvSyncHistory(); reviewRenderApproved(); }
+    } catch (e) { /* 다음에 다시 */ }
+    if (d.approved.terms && d.approved.terms.status === '처리 중' && tries < 120) _rvPoll = setTimeout(tick, 5000);
+  };
+  _rvPoll = setTimeout(tick, 3000);
+}
+/** 용어만 담은 요약 — term_extracted_<주문번호>_<날짜>.txt */
+function reviewSaveTermFile() {
+  var f = _rvState && _rvState.approved && _rvState.approved.terms && _rvState.approved.terms.file;
+  if (!f) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([f.text], { type: 'text/plain;charset=utf-8' }));
+  a.download = f.name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
 }
 
 // ── [E-2] 회원 관리 ─────────────────────────────────────
@@ -4910,7 +5173,7 @@ async function loadNotaryDirect() {
 <script src="/admin/lang_scores.js?v=1"></script>
 <script src="/admin/order_terms.js?v=2"></script>
 <script src="/admin/bp_destination.js?v=2"></script>
-<script src="/admin/score_reasons.js?v=2"></script>
+<script src="/admin/score_reasons.js?v=3"></script>
 <script src="/admin/run_state.js?v=1"></script>
 <script src="/admin/bp_draft.js?v=1"></script>
 </body>

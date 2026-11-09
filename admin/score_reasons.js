@@ -4,6 +4,7 @@
 //   기록: 주문 AI품질상세 v3.score(changes·deductions) · v3.trace (pipeline_v3.js)
 //   문단 번호·'수정 전' 글을 누르면 번역문의 그 자리로 이동·파랑 강조(index.html adminJumpToText = 검색 이동 재사용)
 //   예전 주문(trace 없음)은 저장된 이유 목록만 + "자세한 기록 없음" — 문단 번호가 화면 문단과 다를 수 있어 이유마다 검색어 입력칸
+//   2026-11-09: 관리자 '검수' 탭 [승인]의 근거(AI품질상세.adminReviews, 최신 먼저)를 맨 위에 — 엔진 점수 근거는 그 아래
 (function () {
   var J = [];   // 이동 후보 글 목록(버튼 번호 → 후보)
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -29,7 +30,11 @@
     J = [];
     var v3 = order && order.aiQualityDetail && order.aiQualityDetail.v3;
     var sc = v3 && v3.score;
-    if (!sc) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    var ar = (order && order.aiQualityDetail && order.aiQualityDetail.adminReviews) || [];
+    if (!sc && !ar.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    // 관리자 검수 반영(2026-11-09 2차) — 최신 근거를 먼저, 엔진 점수는 아래
+    var ah = ar.length ? adminReviewHtml(ar[0], ar.length) : '';
+    if (!sc) { el.innerHTML = '<details id="sr-details" class="sr"><summary>채점 근거 보기</summary><div class="sr-body">' + ah + '<div class="sr-note">엔진(⑨) 채점 기록 없음</div><div class="sr-msg" id="sr-msg" role="status"></div></div></details>'; el.style.display = ''; return; }
     var t = v3.trace || null;
     var changes = Array.isArray(sc.changes) ? sc.changes : [];
     var rich = !!t && changes.every(function (c) { return c && c.result; });
@@ -78,10 +83,21 @@
       h += sec('⑥', '문·답 표시 교정', qf.length, qf.length ? qf.map(function (q) { return '<div class="sr-item">' + jumpBtn(q.id, [q.after, q.at, q.before]) + ' ' + dim(esc(q.step)) + ba(q.before, q.after, [q.after, q.at, q.before]) + '</div>'; }).join('') : none());
       if (t.trimmed) h += '<div class="sr-note">기록이 길어 일부 목록은 앞부분만 저장했습니다.</div>';
     }
+    if (ah) h = ah + '<div class="sr-sub sr-engine">엔진 점수(⑨ 채점) ' + dim(sc.total != null ? sc.total + '점' : '') + '</div>' + h;
     el.innerHTML = '<details id="sr-details" class="sr"><summary>채점 근거 보기' + (rich ? '' : ' ' + dim('(예전 주문 — 이유 목록만)')) + '</summary><div class="sr-body">' + h +
       '<div class="sr-msg" id="sr-msg" role="status"></div></div></details>';
     el.style.display = '';
   };
+
+  /** 관리자 '검수' 탭 [승인]이 덧붙인 근거 — AI품질상세.adminReviews[0](최신) */
+  function adminReviewHtml(a, n) {
+    var ded = Array.isArray(a.deductions) ? a.deductions : [], ch = Array.isArray(a.changes) ? a.changes : [];
+    return sec('★', esc(a.label || '관리자 검수 반영'), null,
+      '<div class="sr-note">점수 ' + esc(a.scoreBefore) + ' → ' + esc(a.score) + ' (AI종합점수 ' + esc(a.prevAiScore == null ? '—' : a.prevAiScore) + ' → ' + esc(a.score) + ')' + (a.stale ? ' · 체크를 바꾼 뒤 다시 채점하지 않음' : '') + (n > 1 ? ' · 반영 ' + n + '회 중 최근' : '') + '</div>' +
+      (ded.length ? '<table class="sr-tbl">' + ded.map(function (d) { return '<tr><td class="sr-k">' + esc(d['분류']) + '</td><td class="sr-pt">−' + esc(d['점수']) + '</td><td>' + esc(d['이유']) + '</td></tr>'; }).join('') + '</table>' : none('감점 없음')) +
+      '<div class="sr-sub">검수로 바꾼 곳 ' + dim(ch.length + '곳') + '</div>' +
+      (ch.length ? ch.map(function (c) { return '<div class="sr-item">' + (c.paragraph != null && c.paragraph !== '' ? dim('단락 ' + esc(c.paragraph)) + ' ' : '') + esc(c.reason) + ba(c.before, c.after, [c.after, c.before]) + '</div>'; }).join('') : none()));
+  }
 
   function msg(t) { var m = document.getElementById('sr-msg'); if (m) m.textContent = t || ''; }
   document.addEventListener('click', function (e) {
@@ -136,6 +152,7 @@
     '.sr-q{flex:1;min-width:0;padding:4px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(74,144,226,0.35);border-radius:4px;color:#fff;font-size:12px;font-family:inherit}',
     '.sr-go{padding:4px 10px;background:rgba(31,79,209,0.35);border:1px solid rgba(74,144,226,0.5);color:#cfe1ff;border-radius:4px;cursor:pointer;font-size:12px;font-family:inherit}',
     '.sr-msg{color:#a9cdff;min-height:1em}',
+    '.sr-engine{margin-top:14px;padding-top:8px;border-top:1px solid rgba(74,144,226,0.3)}',
   ].join('\n');
   document.head.appendChild(css);
 })();
