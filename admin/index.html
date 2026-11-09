@@ -416,6 +416,8 @@ body.admin-focus .work-bar{display:none}
 .rv-ap-title{font-size:12px;color:#9DB7F5;font-weight:600;margin-bottom:4px}
 .rv-ap-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:rgba(250,250,247,0.85);line-height:1.8}
 .rv-ap-warn{color:#EEF3FB;font-weight:600}
+.rv-spot{font-size:12px;margin-top:3px;font-weight:400}
+.rv-term-fixes summary{font-weight:600}
 .rv-check-row{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
 .rv-check-row input{margin-top:12px;accent-color:#1F4FD1;width:16px;height:16px;flex:0 0 auto}
 .rv-round{display:inline-block;margin-left:6px;font-size:10.5px;color:#9DB7F5;border:1px solid rgba(157,183,245,0.35);border-radius:9px;padding:0 6px}
@@ -4334,6 +4336,17 @@ function _rvFinalHtml(text, marks) {
   });
   return out + _rvEsc(text.slice(from));
 }
+/** 코드가 찾은 의심 자리(2026-11-10) — 미해결(최종본에 남음) · 검수가 놓친 자리 · 점수 상한 */
+function _rvSpotList(list) {
+  return (list || []).map(function (s) { return '<div class="rv-spot">단락 ' + _rvEsc(s.paragraph) + ' · ' + _rvEsc(s.kind) + ' — <span class="gr-change-before">' + _rvEsc(s.word) + '</span> → ' + _rvEsc(s.fix || '') + '</div>'; }).join('');
+}
+function _rvSpotFlags(d) {
+  var sp = d.suspects, fin = d.final || {}, out = '';
+  if (sp && sp.leftCount) out += '<div class="rv-warn rv-flag-line">미해결 ' + sp.leftCount + '곳 — 코드가 찾은 치명 의심 자리가 최종본에 남아 있습니다' + (fin.capped ? ' (점수 상한 89)' : '') + _rvSpotList(sp.left) + '</div>';
+  else if (fin.capped) out += '<div class="rv-warn rv-flag-line">코드가 찾은 치명 의심 자리가 남아 점수 상한 89</div>';
+  if (sp && sp.missed && sp.missed.length) out += '<div class="rv-flag-line">검수가 고칠 곳으로 내지 않은 의심 자리 ' + sp.missed.length + '곳(코드가 찾음)' + _rvSpotList(sp.missed) + '</div>';
+  return out;
+}
 function reviewRender() {
   var d = _rvState;
   if (!d) return;
@@ -4342,7 +4355,8 @@ function reviewRender() {
   document.getElementById('gpt-result-score').textContent = _rvScore(d.scoreBefore) + ' → ' + _rvScore(d.scoreAfter);
   document.getElementById('rv-score-flags').innerHTML =
     (d.needsCheck ? '<div class="rv-warn rv-flag-line">90점 미만 — ' + ((d.rounds || []).length >= 2 ? '2회 고친 뒤에도' : '') + ' 확인 필요</div>' : '') +
-    (d.stale ? '<div class="rv-flag-line">체크를 바꿔 최종본이 바뀌었습니다 — 점수는 바뀌기 전 최종본 기준 · [다시 채점]으로 새 점수</div>' : '');
+    (d.stale ? '<div class="rv-flag-line">체크를 바꿔 최종본이 바뀌었습니다 — 점수는 바뀌기 전 최종본 기준 · [다시 채점]으로 새 점수</div>' : '') +
+    _rvSpotFlags(d);
   document.getElementById('gpt-result-summary').textContent = fin.summary || '';
   var ded = fin.deductions || [];
   document.getElementById('rv-deductions').innerHTML = ded.length
@@ -4351,7 +4365,9 @@ function reviewRender() {
   var terms = d.terms || [];
   document.getElementById('rv-terms-info').innerHTML = '지정 용어표: ' + _rvEsc(d.termSource || '') + ' · ' + (d.termCount != null ? d.termCount : terms.length) + '개' +
     (terms.length ? ' <details class="rv-terms"><summary>보기</summary>' + terms.map(function (t) { return '<div>' + _rvEsc(t.source) + ' → ' + _rvEsc(t.target) + '</div>'; }).join('') + '</details>' : '') +
-    (d.via === 'order' && d.exactBase === false ? ' · <span class="rv-warn-inline">불러온 뒤 고친 글 기준</span>' : '');
+    (d.via === 'order' && d.exactBase === false ? ' · <span class="rv-warn-inline">불러온 뒤 고친 글 기준</span>' : '') +
+    ((d.termFixes || []).length ? '<details class="rv-terms rv-term-fixes" open><summary>이 주문 용어표 고침 ' + d.termFixes.length + '건 — 잠금 용어에서 빼거나 고침</summary>' +
+      d.termFixes.map(function (f) { return '<div>' + _rvEsc(f.source) + ': <span class="gr-change-before">' + _rvEsc(f.from) + '</span> → ' + (f.to ? '<span class="gr-change-after">' + _rvEsc(f.to) + '</span>' : '(잠금 용어에서 뺌)') + ' <span class="rv-k">' + _rvEsc(f.why || '') + '</span></div>'; }).join('') + '</details>' : '');
   document.getElementById('rv-final').innerHTML = _rvFinalHtml(String(d.finalText || ''), d.marks);
   // 회차별 결과 → 바뀐 곳 · 확인 필요 · 적용 못 함
   var applied = [], check = [], failed = [];
@@ -4409,7 +4425,8 @@ function reviewRenderApproved() {
     '<div class="rv-ap-line"><span class="rv-k">상태</span>' + _rvEsc((a.status && a.status.text) || '') + '</div>' +
     '<div class="rv-ap-line"><span class="rv-k">용어 추출</span>' + _rvEsc(termLine) +
     (t.file ? ' <button type="button" class="gr-btn-sm gr-btn-copy" onclick="reviewSaveTermFile()">용어 파일 저장</button>' : '') + '</div>' +
-    (a.titleWarning ? '<div class="rv-ap-line rv-ap-warn"><span class="rv-k">경고</span>' + _rvEsc(a.titleWarning.message || ('직함 음역 ' + a.titleWarning.count + '곳')) + '</div>' : '');
+    (a.titleWarning ? '<div class="rv-ap-line rv-ap-warn"><span class="rv-k">경고</span>' + _rvEsc(a.titleWarning.message || ('직함 음역 ' + a.titleWarning.count + '곳')) + '</div>' : '') +
+    (a.fatalWarning ? '<div class="rv-ap-line rv-ap-warn"><span class="rv-k">경고</span>' + _rvEsc(a.fatalWarning.message || ('치명 ' + a.fatalWarning.count + '곳 남음')) + '</div>' : '');
   el.style.display = 'block';
 }
 async function reviewToggleCheck(box) {
@@ -4447,7 +4464,7 @@ async function reviewRescore() {
     var r = await adminPostJson('/api/admin/review-rescore', body);
     if (r.status !== 200 || !r.data.ok) throw new Error(reviewErrorText(r.status, r.data));
     var x = r.data;
-    Object.assign(d, { final: x.final, scoreAfter: x.scoreAfter, needsCheck: x.needsCheck, approveScored: x.approveScored, stale: false, finalText: x.finalText, marks: x.marks, rounds: x.rounds, termSuggestions: x.termSuggestions });
+    Object.assign(d, { final: x.final, scoreAfter: x.scoreAfter, needsCheck: x.needsCheck, approveScored: x.approveScored, stale: false, finalText: x.finalText, marks: x.marks, rounds: x.rounds, termSuggestions: x.termSuggestions, suspects: x.suspects });
     _rvSyncHistory(); reviewRender();
     showToast('다시 채점: ' + x.scoreAfter + '점' + (x.costUsd != null ? ' · ' + _usd(x.costUsd) : ''), 'ok');
   } catch (e) { showToast('다시 채점 실패: ' + e.message, 'error'); }
@@ -4480,7 +4497,8 @@ async function reviewApproveAsk() {
       '<div class="rv-cf-sub">AI종합점수 ' + _rvScore(j.aiScore) + ' → ' + _rvScore(j.scoreAfter) + ' · 주문 상태 ' + _rvEsc(j.orderStatus || '—') + (j.orderStatus === '확인필요' ? ' → 납품대기' : ' 그대로') + '</div>' +
       '<div class="rv-cf-sub">용어 추출 예상 ' + _usd(te.usd) + (b.unlimited ? '' : ' · 남은 예산 ' + _usd(b.remaining)) + (b.ok === false ? ' — <strong>예산을 넘어 용어 추출은 건너뜁니다</strong>' : '') + '</div>' +
       (j.stale ? '<div class="rv-cf-sub rv-warn-inline">체크를 바꾼 뒤 다시 채점하지 않았습니다 — 점수는 바뀌기 전 최종본 기준입니다</div>' : '') +
-      '<div class="rv-cf-btns"><button type="button" class="gr-btn-sm rv-approve-btn" id="rv-approve-go" onclick="reviewApproveGo()">승인 진행</button><button type="button" class="gr-btn-sm gr-btn-copy" onclick="document.getElementById(\'rv-confirm\').style.display=\'none\'">취소</button></div>';
+      (j.fatalWarning ? '<div class="rv-cf-sub rv-warn-inline rv-cf-fatal"><strong>⚠ ' + _rvEsc(j.fatalWarning.message) + '</strong> — 그래도 승인하면 이대로 납품본이 됩니다' + _rvSpotList(j.fatalWarning.list) + '</div>' : '') +
+      '<div class="rv-cf-btns"><button type="button" class="gr-btn-sm rv-approve-btn" id="rv-approve-go" onclick="reviewApproveGo()">' + (j.fatalWarning ? '그래도 승인' : '승인 진행') + '</button><button type="button" class="gr-btn-sm gr-btn-copy" onclick="document.getElementById(\'rv-confirm\').style.display=\'none\'">취소</button></div>';
   } catch (e) { box.innerHTML = '<div class="rv-cf-msg rv-warn-inline">승인할 수 없습니다: ' + _rvEsc(e.message) + '</div>'; }
 }
 var _rvPoll = null;

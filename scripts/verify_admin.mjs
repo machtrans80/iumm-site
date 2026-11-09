@@ -129,16 +129,20 @@ const MOCK = String.raw`(() => {
       else out = Object.assign(base, { opinions: [{ score: 70, deductions: [{ 분류: '정확성', 점수: 30, 이유: '오역' }], summary: 's', changes: RV_C }],
         final: { score: 96, deductions: [{ 분류: '문체', 점수: 4, 이유: '어색함' }], summary: '좋아졌습니다.', changes: [] }, scoreBefore: 70, scoreAfter: 96, needsCheck: false,
         termSuggestions: [{ source: '피고', current: 'partie défenderesse', suggested: 'défendeur', reason: '형사 사건' }] }, rvFinal(false));
+      // 2026-11-10 — 주문 검수: 이 주문 용어표 고침 · 코드 의심 자리(미해결·놓침) · 점수 상한
+      if (j.orderNumber && S.reviewMode !== 'zero') Object.assign(out, { termFixes: [{ source: '경장', from: 'gyeongjang (grade de la police coréenne)', to: 'agent de police principal', why: '직함 음역 + 설명 괄호' }],
+        suspects: { found: 2, list: [], missed: [{ paragraph: 1, kind: '용어표 오류', word: 'gyeongjang', fix: 'agent de police principal' }], left: [{ paragraph: 1, kind: '용어표 오류', word: 'gyeongjang', fix: 'agent de police principal' }], leftCount: 1 } }, { final: Object.assign({}, out.final, { score: 89, capped: true }), scoreAfter: 89 });
       if (j.orderNumber) S.rvHistory = [out].concat(S.rvHistory || []).slice(0, 5);
       return J(out);
     }
     if (p === '/api/admin/review-apply') { const ap = (rec.json.approve || []).includes('0:1'); return J(Object.assign({ ok: true, approve: rec.json.approve, stale: ap }, rvFinal(ap))); }
     if (p === '/api/admin/review-rescore') { const ap = (rec.json.approve || []).includes('0:1');
       return J(Object.assign({ ok: true, final: { score: 94, deductions: [{ 분류: '용어', 점수: 6, 이유: '확인' }], summary: '다시 채점', changes: [] }, scoreAfter: 94, needsCheck: false, approveScored: rec.json.approve, stale: false, termSuggestions: [], costUsd: 0.1 }, rvFinal(ap))); }
-    if (p === '/api/admin/review-approve-estimate') return J({ ok: true, orderStatus: '확인필요', scoreAfter: 96, aiScore: 70, termEstimate: { usd: 0.07, chunks: 1 }, budget: { remaining: 46.5, ok: true }, stale: false, approved: false });
+    if (p === '/api/admin/review-approve-estimate') return J({ ok: true, orderStatus: '확인필요', scoreAfter: 96, aiScore: 70, termEstimate: { usd: 0.07, chunks: 1 }, budget: { remaining: 46.5, ok: true }, stale: false, approved: false,
+      fatalWarning: { count: 1, message: '치명 1곳 남음 — 직함 음역 "gyeongjang"', list: [{ paragraph: 1, kind: '용어표 오류', word: 'gyeongjang', fix: 'agent de police principal' }] } });
     if (p === '/api/admin/review-approve') { S.approvedAt = '2026-11-09T06:00:00Z';
-      return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' }, terms: { status: '처리 중', estimate: 0.07 } } }); }
-    if (p === '/api/admin/review-approval') return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' },
+      return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, fatalWarning: { count: 1, message: '치명 1곳 남음 — 직함 음역 "gyeongjang"' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' }, terms: { status: '처리 중', estimate: 0.07 } } }); }
+    if (p === '/api/admin/review-approval') return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, fatalWarning: { count: 1, message: '치명 1곳 남음 — 직함 음역 "gyeongjang"' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' },
       terms: { status: '완료', counts: { 새용어: 6, 승인: 2, 후보: 3, 충돌: 1, 거절: 1, 건너뜀: 0 }, costUsd: 0.06, file: { name: 'term_extracted_IUMM-FR-1_2026-11-09.txt', text: '원고 → demandeur | 승인 | 내부전용\n' } } } });
     if (p === '/api/admin/review-options') return J({ ok: true, langs: ['한국어', '영어', '프랑스어', '폴란드어'], fields: [{ code: 'general', name: '일반' }, { code: 'legal', name: '법률계약' }] });
     if (p === '/api/admin/review-order') {
@@ -448,8 +452,10 @@ try {
   const ro = await ev(`window.__mock.calls.filter(c => c.p === '/api/admin/gpt-review-manual').map(c => c.json)[0]`);
   check(ro && ro.orderNumber === 'IUMM-FR-1' && ro.targetLang === '프랑스어' && ro.scope === 'internal', '불러온 주문 → 검수 때 주문번호 함께');
   check(await until(`document.getElementById('rv-approve-btn').style.display === ''`), '주문번호로 불러온 검수 = [승인] 보임');
+  check(await ev(`(() => { const t = document.getElementById('rv-terms-info').textContent; return /이 주문 용어표 고침 1건/.test(t) && t.includes('gyeongjang (grade de la police coréenne) → agent de police principal'); })()`), "'이 주문 용어표 고침' — 옛 번역어 → 고친 번역어(2026-11-10)");
+  check(await ev(`(() => { const t = document.getElementById('rv-score-flags').textContent; return /미해결 1곳/.test(t) && /점수 상한 89/.test(t) && /검수가 고칠 곳으로 내지 않은 의심 자리 1곳/.test(t) && /gyeongjang → agent de police principal/.test(t); })()`), '미해결 · 점수 상한 89 · 검수가 놓친 의심 자리 표시');
   await click('#rv-order-btn');   // 새로 불러오기 = 새로고침 뒤와 같음(서버 기록)
-  check(await until(`document.querySelectorAll('#rv-history .rv-hist-row').length === 1 && /70 → 96/.test(document.getElementById('rv-history').textContent) && /승인 전/.test(document.getElementById('rv-history').textContent)`), "다시 불러오면 '지난 검수'에 보임(시각 · 점수 전→후 · 승인 여부)");
+  check(await until(`document.querySelectorAll('#rv-history .rv-hist-row').length === 1 && /70 → 89/.test(document.getElementById('rv-history').textContent) && /승인 전/.test(document.getElementById('rv-history').textContent)`), "다시 불러오면 '지난 검수'에 보임(시각 · 점수 전→후 · 승인 여부)");
   check(await ev(`['열기', '이 검수로 최종본 만들기', '다시 검수', '승인'].every(t => [...document.querySelectorAll('#rv-history button')].some(b => b.textContent === t))`), '지난 검수 버튼 — 열기 · 이 검수로 최종본 만들기 · 다시 검수 · 승인');
   await ev(`window.__mock.calls.length = 0; document.getElementById('gpt-result-wrap').style.display = 'none'; 1`);
   await ev(`[...document.querySelectorAll('#rv-history button')].find(b => b.textContent === '열기').click(), 1`);
@@ -464,6 +470,7 @@ try {
   await click('#rv-approve-btn');
   check(await until(`/이 최종본을 납품본으로 저장하고, 점수 반영 · 용어 추출을 진행합니다\\./.test(document.getElementById('rv-confirm').textContent) && /용어 추출 예상 \\$0\\.07/.test(document.getElementById('rv-confirm').textContent)`), '승인 전 확인창(화면 안) — 문구 · 용어 추출 예상 비용');
   check(!(await ev(`window.__mock.calls.some(c => c.p === '/api/admin/review-approve')`)), '확인 전에는 승인 안 함');
+  check(await ev(`/⚠ 치명 1곳 남음/.test(document.getElementById('rv-confirm').textContent) && document.getElementById('rv-approve-go').textContent === '그래도 승인'`), "승인 확인창 — '치명 n곳 남음' 경고 · [그래도 승인](막지 않음)");
   await click('#rv-approve-go');
   check(await until(`document.getElementById('rv-approved').style.display === 'block'`), '[승인 진행] → 승인');
   const apr = (await calls('^/api/admin/review-approve$'))[0];
@@ -472,6 +479,7 @@ try {
   check(await ev(`document.getElementById('rv-approve-btn').style.display === 'none' && document.querySelector('#rv-check-list input') && document.querySelector('#rv-check-list input').disabled`), '승인 뒤 [승인]·체크 잠김');
   check(await until(`/완료 — 승인 2 · 충돌 1 · 후보 3 · 거절 1/.test(document.getElementById('rv-approved').textContent) && /용어 파일 저장/.test(document.getElementById('rv-approved').textContent)`, 9000), '용어 추출 결과 요약 · [용어 파일 저장]');
   check(await ev(`/경고직함 음역 2곳/.test(document.getElementById('rv-approved').textContent)`), "승인 뒤 '직함 음역 n곳' 경고 줄(2026-11-09 — 막지 않음)");
+  check(await ev(`/경고치명 1곳 남음/.test(document.getElementById('rv-approved').textContent)`), "승인 뒤 '치명 n곳 남음' 경고 줄(2026-11-10)");
   check(await ev(`_rvState.approved.terms.file.name === 'term_extracted_IUMM-FR-1_2026-11-09.txt' && /승인됨/.test(document.getElementById('rv-history').textContent) && /최종본 만들기/.test(document.getElementById('rv-history').textContent) && !/order|paste/.test(document.getElementById('rv-history').textContent)`), '파일 이름 term_extracted_<주문번호>_<날짜>.txt · 목록에 승인됨');
   {
     await ev(`(document.getElementById('gpt-result-wrap').scrollIntoView({ block: 'start' }), 1)`); await sleep(200);
