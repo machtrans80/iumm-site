@@ -1396,6 +1396,8 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
       </div>
       <!-- 확인필요(납품 보류) 사유 — held.js holdShowPanel -->
       <div id="hold-notice"></div>
+      <!-- 납품 전 점검(2026-11-10) — predelivery.js pdShow · 본문 없이 항목·문단 번호만 -->
+      <div id="predelivery-box" style="display:none"></div>
       <div class="panel-body">
         <div class="panel-pane">
           <div class="panel-pane-label">원문 (읽기 전용)</div>
@@ -1882,6 +1884,7 @@ function renderOrderTable() {
       var planTag = (o.plan||'').includes('plus') || (o.plan||'').includes('플러스') ? '<span class="tag tag-pp">프리미엄+</span>' : '<span class="tag tag-ap">AI</span>';
       var statusTag = o.status === '납품완료' ? ' <span class="st st-done">납품완료</span>' : '';
       statusTag += holdTagHtml(o);
+      if (window.pdBadgeHtml) statusTag += pdBadgeHtml(o);   // 납품 전 점검 통과·보류(2026-11-10)
       statusTag += b2bTagsHtml(o);
       if (window.runBadgeHtml) statusTag += runBadgeHtml(o);   // 번역 중 · 단계(2026-11-02)
       var ratingCell = o.isEvaluated && o.customerRating != null ? '⭐ ' + o.customerRating + '.0' + (o.isReviewConfirmed ? ' ✅' : '') : '—';
@@ -1969,9 +1972,10 @@ async function loadFailedOrders() {
         '<div style="font-size:13px;font-weight:600;color:#EEF3FB">' + _bpEsc(o.orderNumber || o.orderId.slice(0,12)) + (window.runBadgeHtml ? runBadgeHtml(o) : '') + '</div>' +
         '<div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px">' + _bpEsc(o.customerEmail || '이메일 없음') + ' · ' + (o.charCount || 0).toLocaleString() + '자 · ' + _bpEsc(o.direction || '') + ' · 번역 중입니다 — 끝나면 자동으로 새로 고칩니다(재실행·불러오기 잠김)</div>' +
       '</div>';
-      var badge = h
+      var badge = (h
         ? '<span class="st st-check" style="margin-top:5px">' + _bpEsc(h.label) + '</span>'
-        : '<span class="st st-error" style="margin-top:5px">파이프라인 오류' + (o.status && o.status !== '번역실패' ? ' · ' + _bpEsc(o.status) : '') + '</span>';
+        : '<span class="st st-error" style="margin-top:5px">파이프라인 오류' + (o.status && o.status !== '번역실패' ? ' · ' + _bpEsc(o.status) : '') + '</span>')
+        + (window.pdBadgeHtml ? pdBadgeHtml(o) : '');
       return '<div style="padding:16px 20px;border:1px solid ' + (h ? 'rgba(157,183,245,0.4)' : 'rgba(31,79,209,0.75)') + ';border-radius:6px;background:rgba(157,183,245,' + (h ? '0.04' : '0.08') + ')">' +
         '<div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">' +
           '<div style="flex:1;min-width:200px">' +
@@ -2332,6 +2336,7 @@ function selectOrder(id, row) {
   _lastSavedText = document.getElementById('panel-translation')?.value || '';
   initAutoSave();
   holdShowPanel(order);
+  if (window.pdShow) pdShow(order);
   if (window.otxShow) otxShow(order);
   if (window.destShowOrder) destShowOrder(order);
   if (window.runShowOrder) runShowOrder(order);
@@ -2648,9 +2653,16 @@ async function saveTranslationDraft(silent) {
   try {
     var res = await adminFetch('/api/admin/orders/' + selectedOrder.orderId + '/save-translation', {
       method: 'POST',
-      body: JSON.stringify({ translation: text, isFinal: false }),
+      body: JSON.stringify({ translation: text, isFinal: false, check: !silent }),
     });
     if (res.ok) {
+      // 납품 전 점검이 코드로 고친 글(2026-11-10) — 그 사이 손대지 않았으면 칸을 고친 글로 바꾼다
+      var taNow = document.getElementById('panel-translation');
+      if (res.fixedText != null && taNow) {
+        if (taNow.value === text) { taNow.value = res.fixedText; taNow.dispatchEvent(new Event('input')); }
+        text = res.fixedText;
+      }
+      var pdNote = window.pdSaveNote ? pdSaveNote(res) : '';
       _lastSavedText = text; // 자동저장 변경감지 기준점 업데이트
       selectedOrder.aiTranslation = text;
       selectedOrder.reviewerTranslation = text;
@@ -2658,11 +2670,12 @@ async function saveTranslationDraft(silent) {
       // 직함 음역 경고(2026-11-09) — 저장은 그대로 됨, 알림만
       var tw = res.titleWarning;
       if (statusEl) {
-        statusEl.textContent = (silent ? '자동 저장됨 ' : '저장됨 ') + timeStr + (tw ? ' · ⚠ 직함 음역 ' + tw.count + '곳' : '');
+        statusEl.textContent = (silent ? '자동 저장됨 ' : '저장됨 ') + timeStr + (tw ? ' · ⚠ 직함 음역 ' + tw.count + '곳' : '') + (pdNote ? ' · ' + pdNote : '');
         statusEl.title = tw ? tw.message : '';
-        statusEl.style.color = tw ? '#9DB7F5' : '';
+        statusEl.style.color = tw || (res.preDelivery && !res.preDelivery.ok) ? '#9DB7F5' : '';
       }
-      if (!silent) showToast(tw ? '⚠️ 저장됨 — ' + tw.message : '✅ 임시저장 완료', tw ? 'error' : 'success');
+      var pdHeld = res.preDelivery && !res.preDelivery.ok;
+      if (!silent) showToast(tw ? '⚠️ 저장됨 — ' + tw.message : pdHeld ? '⏸ 저장됨 — ' + pdNote + ' (납품 보류)' : '✅ 임시저장 완료' + (pdNote ? ' · ' + pdNote : ''), tw || pdHeld ? 'error' : 'success');
     } else {
       if (!silent) showToast('⚠️ 저장 실패: ' + (res.error || ''), 'error');
       else if (statusEl) statusEl.textContent = '자동 저장 실패 — 수동 저장 권장';
@@ -4202,8 +4215,31 @@ async function loadReviewOrder() {
     _rvHistory = j.history || [];
     reviewRenderHistory();
     msg.textContent = j.orderNumber + ' 불러옴 — 번역: ' + j.basis + ' · ' + j.sourceLang + ' → ' + j.targetLang + ' · 지정 용어표: ' + j.termSource + ' ' + (j.termCount || 0) + '개 (지금 승인 용어와 섞지 않음)';
+    reviewResumeJob(j.orderNumber);
   } catch (e) { msg.className = 'gr-info rv-warn'; msg.textContent = '불러오지 못했습니다: ' + e.message; }
   finally { btn.disabled = false; }
+}
+/** 주문의 검수·재채점 작업이 서버에서 돌고 있으면(새로 고침·다른 탭) 진행을 보이고, 끝나면 지난 검수 목록을 다시 읽어 그 결과를 연다 */
+var _rvResuming = null;
+async function reviewResumeJob(orderNumber) {
+  if (!window.rvJobResume || _rvResuming === orderNumber) return;
+  _rvResuming = orderNumber;
+  var smsg = document.getElementById('gpt-status-msg'), btn = document.getElementById('gpt-submit-btn');
+  try {
+    var out = await rvJobResume(orderNumber, function (job) { if (smsg) smsg.textContent = rvJobProgressText(job); if (btn) { btn.disabled = true; btn.textContent = '검수 중…'; } });
+    if (!out) return;
+    if (smsg) smsg.textContent = '';
+    if (!_rvOrder || _rvOrder.orderNumber !== orderNumber) return;
+    if (out.status !== 200 || !out.data.ok) { showToast((out.kind || '검수') + ' 실패: ' + reviewErrorText(out.status, out.data), 'error'); return; }
+    _rvResuming = null;
+    await loadReviewOrder();
+    var id = out.data.id || (_rvState && _rvState.id) || (_rvHistory[0] && _rvHistory[0].id);
+    if (id && _rvHistory.some(function (x) { return x.id === id; })) reviewOpenRecord(id);
+    showToast((out.kind || '검수') + ' 끝남 — ' + (out.data.scoreAfter != null ? out.data.scoreAfter + '점' : '결과 반영'), 'ok');
+  } finally {
+    if (_rvResuming === orderNumber) _rvResuming = null;
+    if (btn) { btn.disabled = false; btn.textContent = '검수 시작'; }
+  }
 }
 // 이번 크레딧 주기 남은 예산·주기 만료일(2026-11-01) — 검수 화면을 열 때 · GET /api/admin/credit-budget
 async function loadReviewBudget() {
@@ -4283,8 +4319,9 @@ async function submitGptReview(opts) {
     }
     btn.textContent = fromRecord ? '최종본 만드는 중…' : '검수 중…';
     msg.textContent = fromRecord ? '기록의 고칠 곳으로 최종본 → 재채점 중… 30~90초 예상' : '검수 → 최종본 → 재채점 중… 1~4분 예상';
-    var r = await adminPostJson('/api/admin/gpt-review-manual', Object.assign({ engine: 'claude' }, body));
+    var r = await rvJobRun('/api/admin/gpt-review-manual', Object.assign({ engine: 'claude' }, body), function (job) { msg.textContent = rvJobProgressText(job); });
     var data = r.data;
+    if (r.status === 410 && _rvOrder) { msg.textContent = data.error; await loadReviewOrder(); return; }
     if (r.status !== 200 || !data.ok) {
       var t = reviewErrorText(r.status, data);
       if (r.status === 402 || r.status === 503) { est.textContent = t; est.className = 'gr-estimate warn'; }
@@ -4475,6 +4512,8 @@ function reviewRenderApproved() {
     '<div class="rv-ap-line"><span class="rv-k">납품본</span>반영됨 — 전문가검수완료본 ' + ((a.saved && a.saved.chars) || 0).toLocaleString() + '자</div>' +
     '<div class="rv-ap-line"><span class="rv-k">점수</span>반영됨 — AI종합점수 ' + _rvScore(a.score && a.score.before) + ' → ' + _rvScore(a.score && a.score.after) + '</div>' +
     '<div class="rv-ap-line"><span class="rv-k">상태</span>' + _rvEsc((a.status && a.status.text) || '') + '</div>' +
+    (a.preDelivery ? '<div class="rv-ap-line"><span class="rv-k">납품 전 점검</span>' + _rvEsc(pdLabel(a.preDelivery)) +
+      (a.preDelivery.codeFixed || a.preDelivery.edited ? ' · 고친 곳 ' + ((a.preDelivery.codeFixed || 0) + (a.preDelivery.edited || 0)) : '') + '</div>' : '') +
     '<div class="rv-ap-line"><span class="rv-k">용어 추출</span>' + _rvEsc(termLine) +
     (t.file ? ' <button type="button" class="gr-btn-sm gr-btn-copy" onclick="reviewSaveTermFile()">용어 파일 저장</button>' : '') + '</div>' +
     (a.titleWarning ? '<div class="rv-ap-line rv-ap-warn"><span class="rv-k">경고</span>' + _rvEsc(a.titleWarning.message || ('직함 음역 ' + a.titleWarning.count + '곳')) + '</div>' : '') +
@@ -4496,7 +4535,10 @@ async function reviewRescore() {
   if (d.via === 'order') body.recordId = d.id; else { body.opinions = d.opinions; body.judged = d.judged || {}; }
   btn.disabled = true; btn.textContent = '채점 중…';
   try {
-    var r = await adminPostJson('/api/admin/review-rescore', body);
+    var rmsg = document.getElementById('gpt-status-msg');
+    var r = await rvJobRun('/api/admin/review-rescore', body, function (job) { if (rmsg) rmsg.textContent = rvJobProgressText(job); });
+    if (rmsg) rmsg.textContent = '';
+    if (r.status === 410 && d.via === 'order') { showToast(r.data.error, 'error'); await loadReviewOrder(); return; }
     if (r.status !== 200 || !r.data.ok) throw new Error(reviewErrorText(r.status, r.data));
     var x = r.data;
     Object.assign(d, { final: x.final, scoreAfter: x.scoreAfter, needsCheck: x.needsCheck, approveScored: x.approveScored, stale: false, finalText: x.finalText, marks: x.marks, rounds: x.rounds, termSuggestions: x.termSuggestions, suspects: x.suspects,
@@ -4532,6 +4574,8 @@ async function reviewApproveAsk() {
     box.innerHTML = '<div class="rv-cf-msg">이 최종본을 납품본으로 저장하고, 점수 반영 · 용어 추출을 진행합니다.</div>' +
       '<div class="rv-cf-sub">AI종합점수 ' + _rvScore(j.aiScore) + ' → ' + _rvScore(j.scoreAfter) + ' · 주문 상태 ' + _rvEsc(j.orderStatus || '—') + (j.orderStatus === '확인필요' ? ' → 납품대기' : ' 그대로') + '</div>' +
       '<div class="rv-cf-sub">용어 추출 예상 ' + _usd(te.usd) + (b.unlimited ? '' : ' · 남은 예산 ' + _usd(b.remaining)) + (b.ok === false ? ' — <strong>예산을 넘어 용어 추출은 건너뜁니다</strong>' : '') + '</div>' +
+      (j.preDelivery ? '<div class="rv-cf-sub' + (j.preDelivery.ok ? '' : ' rv-warn-inline') + '">' + _rvEsc(pdLabel(j.preDelivery)) +
+        (j.preDelivery.ok ? '' : ' — 승인하면 코드 고침 → 그 문단만 고침 1회 → 다시 점검, 그래도 남으면 저장하지 않고 납품 보류') + '</div>' : '') +
       (j.stale ? '<div class="rv-cf-sub rv-warn-inline">체크를 바꾼 뒤 다시 채점하지 않았습니다 — 점수는 바뀌기 전 최종본 기준입니다</div>' : '') +
       (j.fatalWarning ? '<div class="rv-cf-sub rv-warn-inline rv-cf-fatal"><strong>⚠ ' + _rvEsc(j.fatalWarning.message) + '</strong> — 그래도 승인하면 이대로 납품본이 됩니다' + _rvSpotList(j.fatalWarning.list) + '</div>' : '') +
       '<div class="rv-cf-btns"><button type="button" class="gr-btn-sm rv-approve-btn" id="rv-approve-go" onclick="reviewApproveGo()">' + (j.fatalWarning ? '그래도 승인' : '승인 진행') + '</button><button type="button" class="gr-btn-sm gr-btn-copy" onclick="document.getElementById(\'rv-confirm\').style.display=\'none\'">취소</button></div>';
@@ -4543,6 +4587,17 @@ async function reviewApproveGo() {
   var go = document.getElementById('rv-approve-go');
   if (go) { go.disabled = true; go.textContent = '승인 중…'; }
   var r = await adminPostJson('/api/admin/review-approve', { orderNumber: d.orderNumber, recordId: d.id });
+  if (r.status === 409 && r.data.hold) {
+    // 납품 전 점검 보류(2026-11-10) — 납품본은 저장하지 않았고 주문은 확인필요(납품 보류 — 사유)
+    d.preDelivery = r.data.preDelivery;
+    var box = document.getElementById('rv-confirm');
+    if (box) box.innerHTML = '<div class="rv-cf-msg rv-warn-inline"><strong>⏸ 납품 보류 — 승인하지 않았습니다</strong></div>' +
+      '<div class="rv-cf-sub">' + _rvEsc(pdLabel(r.data.preDelivery)) + '</div>' + pdItemsHtml(r.data.preDelivery) +
+      '<div class="rv-cf-btns"><button type="button" class="gr-btn-sm gr-btn-copy" onclick="document.getElementById(\'rv-confirm\').style.display=\'none\'">닫기</button></div>';
+    _rvSyncHistory();
+    showToast('납품 보류 — ' + pdLabel(r.data.preDelivery), 'error');
+    return;
+  }
   if (r.status !== 200 || !r.data.ok) {
     if (go) { go.disabled = false; go.textContent = '승인 진행'; }
     showToast('승인 실패: ' + reviewErrorText(r.status, r.data), 'error');
@@ -5228,7 +5283,9 @@ async function loadNotaryDirect() {
 <script src="/admin/terms_old_commits.js?v=1"></script>
 <script src="/admin/terms.js?v=7"></script>
 <!-- 확인필요(납품 보류) 주문 표시 -->
-<script src="/admin/held.js?v=2"></script>
+<script src="/admin/held.js?v=3"></script>
+<!-- 납품 전 점검 · 긴 검수 작업 진행(2026-11-10) -->
+<script src="/admin/predelivery.js?v=1"></script>
 <!-- 용어 추출 · 크레딧 사용 기록 (2026-10-31) -->
 <script src="/admin/term_extract.js?v=1"></script>
 <script src="/admin/credit_budget.js?v=1"></script>

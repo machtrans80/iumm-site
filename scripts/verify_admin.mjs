@@ -103,6 +103,23 @@ const MOCK = String.raw`(() => {
       ? { ok: true, jobId: 'job1', status: '완료', startedAt: '2026-10-31T01:00:00Z', finishedAt: '2026-10-31T01:20:00Z', progress: ['조각 4개 보냄', '확정 끝'], rejected: [], estimate: { usd: 0.42 },
           result: { ok: true, stat: { 뽑음: 40, 대조탈락: 3, 새후보: 30, 기존가산: 7, 제외: 2, 조각실패: 0 }, result: { 묶음: 30, 확정: 25, AI가_버림: 2, 응답누락: 0 }, excludedReasons: { 개인정보: 2 }, costUsd: 0.39 } }
       : { ok: true, jobId: 'job1', status: '진행 중', startedAt: '2026-10-31T01:00:00Z', progress: ['조각 4개 보냄', '배치 대기 중'], rejected: [], estimate: { usd: 0.42 } });
+    // 납품 전 점검(2026-11-10) — 본문 없이 항목·문단 번호만
+    const PD_ITEMS = [['①', '문단 1:1'], ['②', '보호 값'], ['③', '한글 잔존'], ['④', '직함·성씨·설명 괄호'], ['⑤', '주소·도시명'], ['⑥', '지정 용어'], ['⑦', '검수 고침 반영'], ['⑧', '숫자']];
+    const pdRep = (bad, by) => { const items = PD_ITEMS.map(([no, label]) => { const l = bad[no] || []; return { no, label, ok: !l.length, n: l.length, list: l }; });
+      const n = items.reduce((a, x) => a + x.n, 0);
+      return { v: 1, ok: !n, at: '2026-11-10T05:00:00Z', by, blocks: { src: 3, trg: 3 }, items, held: !!n, codeFixed: 1, edited: 0, first: { ok: false, n: n + 1 },
+        reason: n ? '납품 보류 — 납품 전 점검 ' + n + '건(' + items.filter((x) => !x.ok).map((x) => x.no + ' ' + x.label + ' ' + x.n).join(' · ') + '; 문단 2,3)' : '' }; };
+    S.PD_HOLD = pdRep({ '②': [{ paragraph: 2, kind: '이메일 빠짐(원문 1 · 번역 0)' }], '⑥': [{ paragraph: 2, kind: '지정 용어 없음' }, { paragraph: 3, kind: '지정 용어 없음' }] }, '승인');
+    S.PD_OK = pdRep({}, '승인');
+    if (/\/save-translation$/.test(p)) { const j = rec.json || {};
+      if (j.check && S.saveFix) return J({ ok: true, isFinal: false, preDelivery: pdRep(S.saveFix === 'hold' ? { '⑥': [{ paragraph: 1, kind: '지정 용어 없음' }] } : {}, '저장'), fixedText: j.translation + ' [code-fixed]' });
+      return J({ ok: true, isFinal: !!j.isFinal }); }
+    // 긴 검수 = 작업(2026-11-10) — 요청은 바로 작업 번호, 화면은 진행 조회
+    const jobView = (jb) => Object.assign({ id: jb.id, kind: jb.kind, orderNumber: jb.orderNumber, status: jb.status, startedAt: jb.startedAt, progress: jb.progress }, jb.status !== '진행' ? { code: 200, result: jb.result } : {});
+    if (p === '/api/admin/review-job') { const jb = S.rvJob, qi = u.searchParams.get('id'), qn = u.searchParams.get('orderNumber');
+      if (!jb || (qi && qi !== jb.id) || (qn && qn !== jb.orderNumber)) return J({ ok: false, error: '작업을 찾지 못했습니다 — 서버가 다시 시작됐을 수 있습니다' }, 404);
+      if (jb.status === '진행') { jb.left--; jb.progress = Object.assign({}, jb.progress, { calls: 4 - Math.max(jb.left, 0), part: '단락 1~2/2' }); if (jb.left <= 0) jb.status = '완료'; S.jobPolls = (S.jobPolls || 0) + 1; }
+      return J({ ok: true, job: jobView(jb) }); }
     if (p === '/api/admin/review-estimate') { const one = rec.json && rec.json.mode === 'fromRecord';
       return J({ ok: true, estimate: { inTok: 3000, outTok: 2000, perCall: 0.12, calls: one ? 3 : 4, parts: 1, usd: one ? 0.2 : 0.36 }, budget, allowed: S.reviewAllowed,
         message: S.reviewAllowed ? '' : '남은 예산이 부족합니다.' }); }
@@ -135,18 +152,21 @@ const MOCK = String.raw`(() => {
       if (j.orderNumber && S.reviewMode !== 'zero') Object.assign(out, { termFixes: [{ source: '경장', from: 'gyeongjang (grade de la police coréenne)', to: 'agent de police principal', why: '직함 음역 + 설명 괄호' }],
         suspects: { found: 2, list: [], missed: [{ paragraph: 1, kind: '용어표 오류', word: 'gyeongjang', fix: 'agent de police principal' }], left: [{ paragraph: 1, kind: '용어표 오류', word: 'gyeongjang', fix: 'agent de police principal' }], leftCount: 1 } }, { final: Object.assign({}, out.final, { score: 89, capped: true }), scoreAfter: 89 });
       if (j.orderNumber) S.rvHistory = [out].concat(S.rvHistory || []).slice(0, 5);
+      if (j.async && S.rvAsync) { S.rvJob = { id: 'RJ-' + S.rvSeq, kind: '검수', orderNumber: j.orderNumber || null, status: '진행', startedAt: new Date().toISOString(), left: 3, result: out, progress: { calls: 0, maxCalls: 4, label: '검수', usd: 0.12 } };
+        return J({ ok: true, async: true, job: jobView(S.rvJob) }); }
       return J(out);
     }
     if (p === '/api/admin/review-apply') { const ap = (rec.json.approve || []).includes('0:1'); return J(Object.assign({ ok: true, approve: rec.json.approve, stale: ap }, rvFinal(ap))); }
     if (p === '/api/admin/review-rescore') { const ap = (rec.json.approve || []).includes('0:1');
       return J(Object.assign({ ok: true, final: { score: 94, deductions: [{ 분류: '용어', 점수: 6, 이유: '확인' }], summary: '다시 채점', changes: [] }, scoreAfter: 94, needsCheck: false, approveScored: [], stale: false, termSuggestions: [], costUsd: 0.1,
         rules: 2, judged: { '0:1': '같음' }, rescores: 2, unresolved: [], approve: [] }, rvFinal(ap))); }
-    if (p === '/api/admin/review-approve-estimate') return J({ ok: true, orderStatus: '확인필요', scoreAfter: 96, aiScore: 70, termEstimate: { usd: 0.07, chunks: 1 }, budget: { remaining: 46.5, ok: true }, stale: false, approved: false,
+    if (p === '/api/admin/review-approve-estimate') return J({ ok: true, preDelivery: S.approveHold ? S.PD_HOLD : S.PD_OK, orderStatus: '확인필요', scoreAfter: 96, aiScore: 70, termEstimate: { usd: 0.07, chunks: 1 }, budget: { remaining: 46.5, ok: true }, stale: false, approved: false,
       fatalWarning: { count: 1, message: '미해결 1곳 남음 — 직함 음역 "gyeongjang"', list: [{ paragraph: 1, kind: '용어표 오류', word: 'gyeongjang', fix: 'agent de police principal' }] } });
+    if (p === '/api/admin/review-approve' && S.approveHold) return J({ ok: false, hold: true, error: S.PD_HOLD.reason, preDelivery: S.PD_HOLD }, 409);
     if (p === '/api/admin/review-approve') { S.approvedAt = '2026-11-09T06:00:00Z';
-      return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, fatalWarning: { count: 1, message: '미해결 1곳 남음 — 직함 음역 "gyeongjang"' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' }, terms: { status: '처리 중', estimate: 0.07 } } }); }
+      return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, fatalWarning: { count: 1, message: '미해결 1곳 남음 — 직함 음역 "gyeongjang"' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' }, terms: { status: '처리 중', estimate: 0.07 }, preDelivery: S.PD_OK } }); }
     if (p === '/api/admin/review-approval') return J({ ok: true, approved: { at: S.approvedAt, titleWarning: { count: 2, titles: ['경장'], message: '직함 음역 2곳 — 계급·직함을 뜻으로 고쳐 주세요(경장 → gyeongjang)' }, fatalWarning: { count: 1, message: '미해결 1곳 남음 — 직함 음역 "gyeongjang"' }, saved: { ok: true, chars: 76 }, score: { ok: true, before: 70, after: 96 }, status: { ok: true, text: '확인필요 → 납품대기(최종검토중)' },
-      terms: { status: '완료', counts: { 새용어: 6, 승인: 2, 후보: 3, 충돌: 1, 거절: 1, 건너뜀: 0 }, costUsd: 0.06, file: { name: 'term_extracted_IUMM-FR-1_2026-11-09.txt', text: '원고 → demandeur | 승인 | 내부전용\n' } } } });
+      preDelivery: S.PD_OK, terms: { status: '완료', counts: { 새용어: 6, 승인: 2, 후보: 3, 충돌: 1, 거절: 1, 건너뜀: 0 }, costUsd: 0.06, file: { name: 'term_extracted_IUMM-FR-1_2026-11-09.txt', text: '원고 → demandeur | 승인 | 내부전용\n' } } } });
     if (p === '/api/admin/review-options') return J({ ok: true, langs: ['한국어', '영어', '프랑스어', '폴란드어'], fields: [{ code: 'general', name: '일반' }, { code: 'legal', name: '법률계약' }] });
     if (p === '/api/admin/review-order') {
       const no = u.searchParams.get('orderNumber');
@@ -484,6 +504,7 @@ try {
   check(await until(`/완료 — 승인 2 · 충돌 1 · 후보 3 · 거절 1/.test(document.getElementById('rv-approved').textContent) && /용어 파일 저장/.test(document.getElementById('rv-approved').textContent)`, 9000), '용어 추출 결과 요약 · [용어 파일 저장]');
   check(await ev(`/경고직함 음역 2곳/.test(document.getElementById('rv-approved').textContent)`), "승인 뒤 '직함 음역 n곳' 경고 줄(2026-11-09 — 막지 않음)");
   check(await ev(`/경고미해결 1곳 남음/.test(document.getElementById('rv-approved').textContent)`), "승인 뒤 '미해결 n곳 남음' 경고 줄(2026-11-10)");
+  check(await ev(`/납품 전 점검납품 전 점검: 통과/.test(document.getElementById('rv-approved').textContent.replace(/\\s+/g, ''))`) || await ev(`/납품 전 점검\\s*납품 전 점검: 통과/.test(document.getElementById('rv-approved').textContent)`), "승인 뒤 '납품 전 점검: 통과' 줄");
   check(await ev(`_rvState.approved.terms.file.name === 'term_extracted_IUMM-FR-1_2026-11-09.txt' && /승인됨/.test(document.getElementById('rv-history').textContent) && /최종본 만들기/.test(document.getElementById('rv-history').textContent) && !/order|paste/.test(document.getElementById('rv-history').textContent)`), '파일 이름 term_extracted_<주문번호>_<날짜>.txt · 목록에 승인됨');
   {
     await ev(`(document.getElementById('gpt-result-wrap').scrollIntoView({ block: 'start' }), 1)`); await sleep(200);
@@ -503,6 +524,35 @@ try {
   await click('#gpt-submit-btn');
   await until(`window.__mock.calls.some(c => c.p === '/api/admin/gpt-review-manual')`);
   check(await ev(`!('orderNumber' in window.__mock.calls.filter(c => c.p === '/api/admin/gpt-review-manual')[0].json)`), '지워진 주문은 주문번호 안 보냄(지금 승인 용어)');
+
+  console.log('\n[6-3] 긴 검수 = 작업(진행 표시 · 새로 고쳐도 이어보기) · 납품 전 점검 보류(2026-11-10)');
+  await ev(`window.RV_JOB_POLL_MS = 120; window.__mock.rvAsync = true; window.__mock.calls.length = 0; document.getElementById('rv-order-no').value = 'IUMM-PL-9'; 1`);
+  await click('#rv-order-btn');
+  await until(`/IUMM-PL-9 불러옴/.test(document.getElementById('rv-order-msg').textContent)`);
+  await click('#gpt-submit-btn');
+  check(await until(`/검수 진행 중 — 검수 · Claude \\d\\/4회/.test(document.getElementById('gpt-status-msg').textContent) && /새로 고쳐도 이어서 봅니다/.test(document.getElementById('gpt-status-msg').textContent)`), "검수 = 작업 — '검수 진행 중 · Claude n/4회 · 경과' 표시");
+  check(await ev(`window.__mock.calls.find(c => c.p === '/api/admin/gpt-review-manual').json.async === true`), '검수 요청에 async:true');
+  check(await ev(`(() => { try { return JSON.parse(localStorage.getItem('iumm_review_job_v1')).orderNumber === 'IUMM-PL-9'; } catch (e) { return false; } })()`), '진행 중 작업 번호를 브라우저에 기억(새로 고침 대비)');
+  check(await until(`/완료 — Claude/.test(document.getElementById('gpt-status-msg').textContent) && document.getElementById('gpt-result-wrap').style.display === 'block'`, 6000), '작업 끝 → 결과 화면(오류 없음)');
+  check(await ev(`window.__mock.calls.some(c => c.p === '/api/admin/review-job') && !localStorage.getItem('iumm_review_job_v1')`), '진행 조회(/api/admin/review-job) · 끝나면 기억 지움');
+  // 새로 고침 흉내 — 서버에서 작업이 돌고 있는 주문을 다시 불러오면 이어서 본다
+  await ev(`(() => { const S = window.__mock; S.rvSeq++; const r = Object.assign({}, S.rvHistory[0], { id: 'RV-' + S.rvSeq, at: '2026-11-10T06:00:00Z', scoreAfter: 97 }); S.rvHistory = [r].concat(S.rvHistory).slice(0, 5);
+    S.rvJob = { id: 'RJ-R', kind: '다시 채점', orderNumber: 'IUMM-PL-9', status: '진행', startedAt: new Date(Date.now() - 330e3).toISOString(), left: 3, result: Object.assign({}, r), progress: { calls: 1, maxCalls: 4, label: '다시 채점' } };
+    _rvState = null; document.getElementById('gpt-result-wrap').style.display = 'none'; S.calls.length = 0; return 1; })()`);
+  await click('#rv-order-btn');
+  check(await until(`/다시 채점 진행 중/.test(document.getElementById('gpt-status-msg').textContent) && /5분/.test(document.getElementById('gpt-status-msg').textContent) && document.getElementById('gpt-submit-btn').disabled`), '다시 불러오면 진행 중 작업을 이어서 표시(5분 넘음 · 버튼 잠김)');
+  check(await until(`_rvState && _rvState.id === window.__mock.rvJob.result.id && document.getElementById('gpt-result-wrap').style.display === 'block' && !document.getElementById('gpt-submit-btn').disabled`, 6000), '끝나면 지난 검수 목록을 다시 읽어 그 결과를 연다');
+  // 서버가 다시 시작돼 작업을 잃음(404) → 지난 검수 목록을 다시 읽음
+  await ev(`window.__mock.rvJob = null; 1`);
+  // 승인 — 납품 전 점검 미리 보기 · 남으면 보류(저장 안 함)
+  await ev(`window.__mock.approveHold = true; window.__mock.calls.length = 0; 1`);
+  await click('#rv-approve-btn');
+  check(await until(`/납품 전 점검: 보류 3건\\(② 보호 값, ⑥ 지정 용어\\)/.test(document.getElementById('rv-confirm').textContent) && /그래도 남으면 저장하지 않고 납품 보류/.test(document.getElementById('rv-confirm').textContent)`), '승인 확인창 — 납품 전 점검 미리 보기(보류 n건 · 항목명)');
+  await click('#rv-approve-go');
+  check(await until(`/납품 보류 — 승인하지 않았습니다/.test(document.getElementById('rv-confirm').textContent)`), '승인 → 409 보류 → 승인하지 않았다고 표시');
+  check(await ev(`(() => { const t = document.getElementById('rv-confirm').textContent; return /②보호 값보류 1건문단 2 이메일 빠짐/.test(t.replace(/\\s+/g, '')) || /② ?보호 값 ?보류 1건 ?문단 2 이메일 빠짐/.test(t); })()`), '보류 항목별 — 문단 번호 · 종류(본문 없음)');
+  check(await ev(`document.getElementById('rv-approved').style.display !== 'block' && document.getElementById('rv-approve-btn').style.display === ''`), '보류면 승인됨 표시 없음 · [승인] 그대로');
+  await ev(`window.__mock.approveHold = false; window.__mock.rvAsync = false; document.getElementById('rv-confirm').style.display = 'none'; 1`);
 
   console.log('\n[6-2] 예산');
   await ev(`window.__mock.reviewAllowed = false; window.__mock.calls.length = 0; 1`);
@@ -606,6 +656,36 @@ try {
   check(!(await ev(`window.__mock.calls.some(c => c.p === '/api/admin/orders' && /gpt_review/.test(c.q))`)), '검수 탭: /api/admin/orders?tab=gpt_review 를 부르지 않음(예전 400)');
   check(await ev(`document.getElementById('gpt-review-wrap').style.display === 'block'`), '검수 화면은 그대로 보임');
   check(errors.length === err0, '검수 탭을 눌러도 콘솔 오류 0');
+
+  console.log('\n[11-0] 주문 상세 납품 전 점검 · 목록 배지 · 저장(Ctrl+S) 점검 (2026-11-10)');
+  await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
+  await until(`!!document.querySelector('#orders-tbody tr[data-id="rec1"]')`);
+  await click('#orders-tbody tr[data-id="rec1"]'); await sleep(200);
+  check(await ev(`document.getElementById('predelivery-box').style.display === 'none'`), '점검 기록 없는 주문 = 상자 없음');
+  await ev(`(pdShow({ aiQualityDetail: { preDelivery: window.__mock.PD_HOLD } }), 1)`);
+  {
+    const t = await ev(`document.getElementById('predelivery-box').textContent`);
+    check(/납품 전 점검: 보류 3건\(② 보호 값, ⑥ 지정 용어\)/.test(t) && /검수 승인/.test(t) && /문단 3\/3/.test(t), `상세 상자 — '보류 3건(항목명)' · 누가 · 문단 수`);
+    check(['① 문단 1:1', '⑧ 숫자'].every((x) => t.replace(/\s+/g, ' ').includes(x.split(' ')[0])) && /통과/.test(t) && /문단 2 지정 용어 없음 · 문단 3 지정 용어 없음/.test(t), '항목 8개마다 통과/보류 · 보류는 문단 번호 · 종류');
+    check(await ev(`document.querySelector('#predelivery-box details').open`), '보류면 펼친 채');
+    const col = await ev(`(() => { const out = []; document.querySelectorAll('#predelivery-box *').forEach(el => { const cs = getComputedStyle(el); [cs.color, cs.backgroundColor].forEach(c => { const m = c.match(/\\d+(\\.\\d+)?/g); if (!m) return; const [r, g, b, a] = m.map(Number); if (a === 0) return; if (r > g + 40 && r > b + 40) out.push(c); if (g > b + 40 && g > r + 20) out.push(c); }); }); return out; })()`);
+    check(col.length === 0, '파란색 계열만(빨강·초록 없음)' + (col.length ? ' — ' + col.slice(0, 3).join(' | ') : ''));
+  }
+  await ev(`(pdShow({ aiQualityDetail: { preDelivery: window.__mock.PD_OK } }), 1)`);
+  check(await ev(`/납품 전 점검: 통과/.test(document.getElementById('predelivery-box').textContent) && !document.querySelector('#predelivery-box details').open`), "통과 = '납품 전 점검: 통과'(접힌 채)");
+  check(await ev(`/점검 보류 3/.test(pdBadgeHtml({ aiQualityDetail: { preDelivery: window.__mock.PD_HOLD } })) && /점검 통과/.test(pdBadgeHtml({ aiQualityDetail: { preDelivery: window.__mock.PD_OK } })) && pdBadgeHtml({}) === ''`), '목록 배지 — 점검 통과 / 점검 보류 n · 기록 없으면 없음');
+  check(await ev(`/납품 전 점검/.test(holdInfo({ orderStatus: '확인필요', failReason: window.__mock.PD_HOLD.reason }).label)`), "확인필요 사유 이름 = '납품 전 점검'");
+  // 저장(Ctrl+S) = 점검(코드 고침만) · 자동 저장은 점검 안 함
+  await ev(`(window.__pdOrig = document.getElementById('panel-translation').value, window.__mock.saveFix = 'ok', window.__mock.calls.length = 0, 1)`);
+  await ev(`(document.getElementById('panel-translation').value = window.__pdOrig + ' X', saveTranslationDraft(false), 1)`);
+  check(await until(`/납품 전 점검 통과\\(코드 고침 1\\)/.test(document.getElementById('save-status').textContent)`), "저장 → '납품 전 점검 통과(코드 고침 1)'");
+  check(await ev(`(() => { const c = window.__mock.calls.find(c => /save-translation$/.test(c.p)); return c && c.json.check === true; })()`), '저장(Ctrl+S) 요청에 check:true');
+  check(await ev(`document.getElementById('panel-translation').value === window.__pdOrig + ' X [code-fixed]' && _lastSavedText === window.__pdOrig + ' X [code-fixed]'`), '코드가 고친 글로 번역 칸 바꿈(손대지 않았을 때)');
+  await ev(`(window.__mock.saveFix = 'hold', window.__mock.calls.length = 0, saveTranslationDraft(false), 1)`);
+  check(await until(`/납품 전 점검 보류 1건/.test(document.getElementById('save-status').textContent) && /보류 1건\\(⑥ 지정 용어\\)/.test(document.getElementById('predelivery-box').textContent)`), '저장 → 보류 n건 · 상세 상자 갱신');
+  await ev(`(window.__mock.calls.length = 0, saveTranslationDraft(true), 1)`); await sleep(150);
+  check(await ev(`(() => { const c = window.__mock.calls.find(c => /save-translation$/.test(c.p)); return c && c.json.check === false; })()`), '자동 저장 = 점검 안 함(check:false)');
+  await ev(`(window.__mock.saveFix = null, document.getElementById('panel-translation').value = window.__pdOrig, _lastSavedText = window.__pdOrig, selectedOrder.aiQualityDetail = null, pdShow(selectedOrder), 1)`);
 
   console.log('\n[11] 주문 상세 [이 번역 용어 추출 → 용어집 업데이트] (2026-11-02)');
   await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);

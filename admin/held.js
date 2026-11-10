@@ -47,6 +47,7 @@
         return;
       }
       var k = credit ? 'API 잔액 부족'
+        : /납품 보류 — 납품 전 점검/.test(line) ? '납품 전 점검'
         : /번역 조각 .*실패/.test(line) ? '번역 조각 실패'
         : /번역 못 한 문단/.test(line) ? '번역 못 한 문단'
         : /교차 검수 못 한/.test(line) ? '교차 검수 누락'
