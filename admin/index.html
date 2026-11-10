@@ -1367,8 +1367,9 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         </div>
 
         <div class="gr-section" id="rv-sugg-wrap" style="display:none">
-          <div class="gr-section-title">용어 변경 제안 <span style="color:rgba(255,255,255,0.4);font-size:11px">(적용하지 않음 — 용어집도 그대로)</span></div>
+          <div class="gr-section-title">용어 변경 제안 <span style="color:rgba(255,255,255,0.4);font-size:11px">(참고 — 승인을 막지 않음)</span></div>
           <div id="rv-sugg-list"></div>
+          <div id="rv-sugg-done" style="margin-top:8px"></div>
         </div>
       </div>
     </div>
@@ -4489,8 +4490,11 @@ function reviewRender() {
   var left = d.needsCheck && !d.rules ? (fin.changes || []) : [];   // 새 규칙은 '미해결'에
   document.getElementById('rv-left-wrap').style.display = left.length ? 'block' : 'none';
   document.getElementById('rv-left-list').innerHTML = left.map(function (c, i) { return _rvChangeHtml(c, i + 1); }).join('');
-  var sugg = d.termSuggestions || [];
-  document.getElementById('rv-sugg-wrap').style.display = sugg.length ? 'block' : 'none';
+  var sugg = d.termSuggestions || [], suggDone = d.termSuggestionsDone || [];
+  document.getElementById('rv-sugg-wrap').style.display = sugg.length || suggDone.length ? 'block' : 'none';
+  // 코드로 고침 · 자동 반영 · 기록만 — 할 일 아님(2026-11-10 2차)
+  document.getElementById('rv-sugg-done').innerHTML = suggDone.length ? '<div style="color:rgba(255,255,255,0.45);font-size:12px">처리됨 ' + suggDone.length + '건(할 일 아님): ' +
+    suggDone.map(function (s) { return '<span class="rv-auto-tag" style="margin:0 4px 0 0">' + _rvEsc(s.status) + '</span>' + _rvEsc(String(s.source).slice(0, 40)); }).join(' · ') + '</div>' : '';
   document.getElementById('rv-sugg-list').innerHTML = sugg.map(function (s) {
     return '<div class="gr-change-item"><div class="rv-row"><span class="rv-k">원어</span>' + _rvEsc(s.source) + '</div>' +
       '<div class="rv-row"><span class="rv-k">지금 번역어</span>' + _rvEsc(s.current) + '</div>' +
@@ -4547,7 +4551,7 @@ async function reviewRescore() {
     if (r.status === 410 && d.via === 'order') { showToast(r.data.error, 'error'); await loadReviewOrder(); return; }
     if (r.status !== 200 || !r.data.ok) throw new Error(reviewErrorText(r.status, r.data));
     var x = r.data;
-    Object.assign(d, { final: x.final, scoreAfter: x.scoreAfter, needsCheck: x.needsCheck, approveScored: x.approveScored, stale: false, finalText: x.finalText, marks: x.marks, rounds: x.rounds, termSuggestions: x.termSuggestions, suspects: x.suspects,
+    Object.assign(d, { final: x.final, scoreAfter: x.scoreAfter, needsCheck: x.needsCheck, approveScored: x.approveScored, stale: false, finalText: x.finalText, marks: x.marks, rounds: x.rounds, termSuggestions: x.termSuggestions, termSuggestionsDone: x.termSuggestionsDone || [], suspects: x.suspects,
       opinions: x.opinions || d.opinions, judged: x.judged || d.judged, unresolved: x.unresolved || [], rules: x.rules || d.rules, rescores: x.rescores, approve: x.approve || d.approve });
     _rvSyncHistory(); reviewRender();
     showToast('다시 채점: ' + x.scoreAfter + '점' + (x.rescores ? ' · ' + x.rescores + '회' : '') + ((x.unresolved || []).length ? ' · 미해결 ' + x.unresolved.length : '') + (x.costUsd != null ? ' · ' + _usd(x.costUsd) : ''), 'ok');
