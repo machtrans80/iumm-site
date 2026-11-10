@@ -4387,6 +4387,8 @@ function _rvSpotFlags(d) {
   if (sp && sp.leftCount) out += '<div class="rv-warn rv-flag-line">미해결 ' + sp.leftCount + '곳 — 코드가 찾은 치명 의심 자리가 최종본에 남아 있습니다' + (fin.capped ? ' (점수 상한 89)' : '') + _rvSpotList(sp.left) + '</div>';
   else if (fin.capped) out += '<div class="rv-warn rv-flag-line">코드가 찾은 치명 의심 자리가 남아 점수 상한 89</div>';
   if (sp && sp.missed && sp.missed.length) out += '<div class="rv-flag-line">검수가 고칠 곳으로 내지 않은 의심 자리 ' + sp.missed.length + '곳(코드가 찾음)' + _rvSpotList(sp.missed) + '</div>';
+  // 2026-11-10 3차 — 약한 의심 자리(용어 혼동 등) 중 검수가 '오류 아님' 사유를 낸 것 = 해결(미해결·상한 아님)
+  if (sp && sp.notedCount) out += '<div class="rv-flag-line" style="opacity:.75">검수가 오류 아님으로 확인한 확인 자리 ' + sp.notedCount + '곳(해결)</div>';
   return out;
 }
 function reviewRender() {
