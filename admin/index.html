@@ -1008,6 +1008,9 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         <div id="bp-extract-status" style="font-size:12px;margin-top:8px;min-height:16px"></div>
       </div>
 
+      <!-- 원본 틀 번역(시범, 2026-11-10) — layout_tl.js 가 채운다. 방향·분야·제출 국가는 아래 주문 정보 칸 값 -->
+      <div id="lt-section"></div>
+
       <!-- 주문 폼 -->
       <div class="bp-section">
         <div class="bp-section-title"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>우회 주문 정보</div>
@@ -1502,6 +1505,8 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         <button class="btn-dl" id="btn-dl-original" style="display:none" onclick="downloadOriginal()"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>고객 원본</button>
         <button class="btn-dl" id="btn-dl-txt" style="display:none" onclick="downloadTranslationTxt()"><i class="ti ti-file-text" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>원문+번역 .txt</button>
         <button class="btn-dl" id="btn-dl-interleaved" style="display:none" onclick="downloadResult('interleaved')" title="원문/번역 단락 번갈아 표시"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>단락교차 .docx</button>
+        <button class="btn-dl" id="btn-dl-layout-src" style="display:none" onclick="ltDownload('source')"><i class="ti ti-layout" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>원문 틀 워드</button>
+        <button class="btn-dl" id="btn-dl-layout-tr" style="display:none" onclick="ltDownload('translation')" title="승인 뒤 — 번역 블록을 원본과 같은 칸·같은 위치에"><i class="ti ti-layout" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>번역 틀 워드</button>
         <div id="pp-file-actions" style="display:none;gap:6px;align-items:center">
           <button class="btn-dl" onclick="downloadResult('txt')"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>.txt</button>
           <button class="btn-dl" onclick="downloadResult('docx')"><i class="ti ti-download" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>.docx</button>
@@ -2337,6 +2342,7 @@ function selectOrder(id, row) {
   initAutoSave();
   holdShowPanel(order);
   if (window.pdShow) pdShow(order);
+  if (window.ltShowOrder) ltShowOrder(order);
   if (window.otxShow) otxShow(order);
   if (window.destShowOrder) destShowOrder(order);
   if (window.runShowOrder) runShowOrder(order);
@@ -5286,6 +5292,7 @@ async function loadNotaryDirect() {
 <script src="/admin/held.js?v=3"></script>
 <!-- 납품 전 점검 · 긴 검수 작업 진행(2026-11-10) -->
 <script src="/admin/predelivery.js?v=1"></script>
+<script src="/admin/layout_tl.js?v=1"></script>
 <!-- 용어 추출 · 크레딧 사용 기록 (2026-10-31) -->
 <script src="/admin/term_extract.js?v=1"></script>
 <script src="/admin/credit_budget.js?v=1"></script>

@@ -186,6 +186,19 @@ const MOCK = String.raw`(() => {
     if (p === '/api/notary/admin/direct' && m === 'GET') return J({ ok: true, orders: [{ orderNumber: 'NTR-ADM-0001', docType: '가족관계증명서', statusKey: 'done', statusLabel: '완료', receivedAt: '2026-10-30T01:00:00Z' }] });
     if (/^\/api\/notary\/admin\/direct\/[^/]+\/reopen$/.test(p)) return J({ ok: true, editUrl: 'https://iumm.kr/notary/edit.html?t=EDIT_TOKEN' });
     if (p === '/api/notary/admin/shipping') return J({ ok: true, orders: [], manualWaiting: S.manualWaiting, manualOldestDays: S.manualWaiting ? 3 : 0 });
+    // 원본 틀 번역(시범, 2026-11-10) — 작업 진행은 sessionStorage 에 둬서 새로 고쳐도 이어진다(서버 작업 흉내)
+    const ltGet = () => { try { return JSON.parse(sessionStorage.getItem('__mockLt') || 'null'); } catch (e) { return null; } };
+    const ltSet = (x) => sessionStorage.setItem('__mockLt', JSON.stringify(x));
+    const ltView = (x) => { const n = Math.min(x.polls, 5), done = n >= 5;
+      const pageStates = Array.from({ length: 5 }, (_, i) => ({ step: i < n ? (x.hold && i === 1 ? '틀 보류' : '통과') : i === n ? '클로드 읽기' : '대기', ok: i < n ? !(x.hold && i === 1) : null, opus: x.hold && i === 1 && i < n, masked: i === 0 && i < n ? 2 : 0, problems: [] }));
+      const f = { name: '합성_5쪽.pdf', pages: 5, status: done ? (x.hold ? '틀 보류' : '주문 생성') : '읽는 중', pageStates, usd: +(0.0333 * n + (x.hold && n > 1 ? 0.07 : 0)).toFixed(4), blocks: done && !x.hold ? 42 : 0,
+        orderNumber: done && !x.hold ? 'ADMIN-LT-1' : null, hold: done && x.hold ? '틀 보류 — 2쪽: 빠진 칸, 읽는 순서' : null };
+      return { id: x.id, status: done ? (x.hold ? '틀 보류' : '완료') : '진행', direction: '한국어 → 프랑스어', mask: x.mask, startedAt: '2026-11-10T07:00:00Z', files: [f], usd: f.usd, estimate: { usd: 0.3575 } }; };
+    if (p === '/api/admin/layout/estimate') return J({ ok: true, files: [{ name: '합성_5쪽.pdf', pages: 5 }], estimate: { pages: 5, perPage: 0.0715, usd: 0.3575, opusRetryPerPage: 0.07, worstUsd: 0.7075 }, budget, allowed: true, message: '', markLabels: '도착어' });
+    if (p === '/api/admin/layout/start') { const x = { id: 'LT-' + (S.ltSeq = (S.ltSeq || 0) + 1), polls: 0, hold: !!S.ltHold, mask: !!(rec.form && rec.form.mask && rec.form.mask[0] === 'true') }; ltSet(x); return J({ ok: true, job: ltView(x) }); }
+    const ltj = /^\/api\/admin\/layout\/jobs\/([^/]+)$/.exec(p);
+    if (ltj) { const x = ltGet(); if (!x || x.id !== decodeURIComponent(ltj[1])) return J({ ok: false, error: '작업을 찾지 못했습니다 — 서버가 다시 시작됐을 수 있습니다' }, 404); x.polls++; ltSet(x); return J({ ok: true, job: ltView(x) }); }
+    if (/\/layout-docx$/.test(p)) return new Response(new Blob(['PK']), { status: 200, headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } });
     return J({ success: true, ok: true, orders: [], items: [], reviewers: [], members: [] });
   };
 })();`;
@@ -656,6 +669,57 @@ try {
   check(!(await ev(`window.__mock.calls.some(c => c.p === '/api/admin/orders' && /gpt_review/.test(c.q))`)), '검수 탭: /api/admin/orders?tab=gpt_review 를 부르지 않음(예전 400)');
   check(await ev(`document.getElementById('gpt-review-wrap').style.display === 'block'`), '검수 화면은 그대로 보임');
   check(errors.length === err0, '검수 탭을 눌러도 콘솔 오류 0');
+
+  console.log('\n[11-L] 원본 틀 번역(시범) — 끌어다 놓기 · 예상 비용 · [시작] · 새로 고쳐도 이어보기 · 틀 보류 · 주문 상세 버튼 (2026-11-10)');
+  await open(1440, 900, false, { token: 'TEST_TOKEN' });
+  await ev(`(sessionStorage.removeItem('__mockLt'), localStorage.removeItem('iumm_layout_job_v1'), 1)`);
+  await click('#work-bypass');
+  check(await until(`!!document.getElementById('lt-drop') && document.getElementById('lt-mask').checked && document.getElementById('lt-start').disabled`), "우회 번역 화면에 '원본 틀 번역(시범)' — 끌어다 놓기 칸 · [파일 첨부] · 가리고 읽기 기본 켬 · [시작] 꺼짐");
+  check(await ev(`(() => { const w = document.getElementById('bypass-wrap'), all = [...w.querySelectorAll('*')]; return all.indexOf(document.getElementById('lt-section')) > all.indexOf(document.getElementById('bp-extract-file')) && all.indexOf(document.getElementById('lt-section')) < all.indexOf(document.getElementById('bp-direction')); })()`), '기존 OCR(원문 파일 추출) 바로 옆(아래), 주문 정보 칸 위');
+  const ltPdf = path.join(upDir, '합성_5쪽.pdf'); fs.writeFileSync(ltPdf, '%PDF-1.4');
+  const ltTxt = path.join(upDir, '메모.txt'); fs.writeFileSync(ltTxt, 'x');
+  await ev(`(document.getElementById('bp-direction').value = [...document.getElementById('bp-direction').options].find(o => /한국어 → 프랑스어/.test(o.value)).value, document.getElementById('bp-field').value = 'legal', document.getElementById('bp-dest-nation').value = '프랑스', window.__mock.calls.length = 0, 1)`);
+  { const d0 = await send('DOM.getDocument', {}); const nd = await send('DOM.querySelector', { nodeId: d0.result.root.nodeId, selector: '#lt-files' });
+    await send('DOM.setFileInputFiles', { nodeId: nd.result.nodeId, files: [ltPdf, ltTxt] }); }
+  await ev(`document.getElementById('lt-files').dispatchEvent(new Event('change')), 1`);
+  check(await until(`document.getElementById('lt-est').style.display === 'block' && !document.getElementById('lt-start').disabled`), '파일 고르면 시작 전 예상 비용 → [시작] 켜짐');
+  const ltEst = await ev(`document.getElementById('lt-est').textContent`);
+  check(/5쪽 × 쪽당 \$0\.0715 = \$0\.3575/.test(ltEst) && /읽기 약 \$0\.03~0\.04 \+ 틀 점검 약 \$0\.03 \+ 위치 잡기 약 \$0\.0015/.test(ltEst) && /Opus 로 다시 읽어 그 쪽에 약 \$0\.0700/.test(ltEst), '쪽마다 예상 비용(읽기·점검·위치 잡기 · Opus 다시 읽기 추가분)');
+  check(/받지 않는 형식 1개/.test(await ev(`document.getElementById('lt-list').textContent`)), 'JPG·PNG·WebP·PDF 밖 형식은 뺌');
+  const ltE = (await calls('^/api/admin/layout/estimate$')).pop();
+  check(ltE && ltE.form.files.join() === '합성_5쪽.pdf' && ltE.form.direction[0] === '한국어 → 프랑스어' && ltE.form.fieldCode[0] === 'legal' && /제출 국가: 프랑스/.test(ltE.form.referenceNotes[0]) && ltE.form.mask[0] === 'true', '기존 주문 칸 재사용(방향·분야·제출 국가) · 가리기 켬 전송');
+  await ev(`(window.LT_POLL_MS = 150, 1)`);
+  await click('#lt-start');
+  check(await until(`/진행 중/.test(document.getElementById('lt-progress').textContent) && /1쪽 통과/.test(document.getElementById('lt-progress').textContent)`), '쪽마다 진행 상황');
+  check(await ev(`localStorage.getItem('iumm_layout_job_v1') === 'LT-1'`), '작업 번호를 브라우저에 기억');
+  // 새로 고침 — 진행 중 작업을 이어서 본다
+  events.length = 0; await send('Page.reload', {}); for (let i = 0; i < 100 && !events.includes('Page.loadEventFired'); i++) await sleep(100);
+  await ev(`(window.LT_POLL_MS = 150, 1)`);
+  check(await until(`/쪽 /.test((document.getElementById('lt-progress') || {}).textContent || '')`), '새로 고친 뒤에도 진행 화면이 이어짐');
+  check(await until(`/끝 — 완료/.test(document.getElementById('lt-progress').textContent)`, 8000), '끝까지 감(5쪽)');
+  const ltDone = await ev(`document.getElementById('lt-progress').textContent`);
+  check(/ADMIN-LT-1/.test(ltDone) && /틀 점검 통과/.test(ltDone) && /실제 비용 \$0\.1665/.test(ltDone) && /가리고 읽기 켬/.test(ltDone), '끝 → 주문번호 · 틀 점검 통과 · 실제 비용');
+  check(await ev(`!localStorage.getItem('iumm_layout_job_v1')`), '끝나면 기억 지움');
+  check(await ev(`!/176,\\s*141,\\s*87|#B08D57|#c00|red/i.test(document.getElementById('lt-section').innerHTML)`), '색은 파랑 계열(금색·빨강 없음)');
+  // 틀 보류
+  await ev(`(window.__mock.ltHold = true, 1)`);
+  { const d0 = await send('DOM.getDocument', {}); const nd = await send('DOM.querySelector', { nodeId: d0.result.root.nodeId, selector: '#lt-files' });
+    await send('DOM.setFileInputFiles', { nodeId: nd.result.nodeId, files: [ltPdf] }); }
+  await ev(`(document.getElementById('lt-mask').checked = false, document.getElementById('lt-files').dispatchEvent(new Event('change')), 1)`);
+  await until(`!document.getElementById('lt-start').disabled`);
+  await click('#lt-start');
+  check(await until(`/끝 — 틀 보류/.test(document.getElementById('lt-progress').textContent)`, 8000), '틀 점검 못 통과 → 틀 보류');
+  const ltHold = await ev(`document.getElementById('lt-progress').textContent`);
+  check(/틀 보류 — 2쪽: 빠진 칸, 읽는 순서/.test(ltHold) && /번역 주문을 만들지 않았습니다/.test(ltHold) && !/ADMIN-LT/.test(ltHold) && /가리고 읽기 끔/.test(ltHold), '보류 사유(쪽·항목) · 주문 없음 · 끔 기록');
+  // 주문 상세 버튼
+  await ev(`(ltShowOrder({ layout: { pages: 5, blocks: 42, mask: true, approved: false } }), 1)`);
+  check(await ev(`document.getElementById('btn-dl-layout-src').style.display === '' && document.getElementById('btn-dl-layout-tr').style.display === 'none'`), '[원문 틀 워드] 언제든 · [번역 틀 워드]는 승인 전 숨김');
+  await ev(`(ltShowOrder({ layout: { pages: 5, blocks: 42, mask: true, approved: true } }), 1)`);
+  check(await ev(`document.getElementById('btn-dl-layout-tr').style.display === ''`), '승인 뒤 [번역 틀 워드]');
+  await ev(`(ltShowOrder({}), 1)`);
+  check(await ev(`document.getElementById('btn-dl-layout-src').style.display === 'none'`), '원본 틀 주문이 아니면 버튼 없음');
+  await ev(`(selectedOrder = { orderId: 'recLT', orderNumber: 'ADMIN-LT-1' }, window.__mock.calls.length = 0, ltDownload('translation'), 1)`);
+  check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/orders/recLT/layout-docx' && /kind=translation/.test(c.q))`), '[번역 틀 워드] → /api/admin/orders/:id/layout-docx?kind=translation');
 
   console.log('\n[11-0] 주문 상세 납품 전 점검 · 목록 배지 · 저장(Ctrl+S) 점검 (2026-11-10)');
   await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
