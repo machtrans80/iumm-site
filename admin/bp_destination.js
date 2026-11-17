@@ -26,9 +26,14 @@
     var vc = $('bp-dest-variant-col'); if (vc) vc.style.display = isEnglishTarget() ? '' : 'none';
     var n = ($('bp-dest-nation').value || '').trim(), v = $('bp-dest-variant').value;
     var out = $('bp-dest-judge');
-    if (isPortugueseTarget()) { out.textContent = n ? '→ ' + PT_LABEL[ptJudge(n)] : '→ 제출 국가 없음 — 브라질식으로 번역'; return; }
-    if (v === 'auto') out.textContent = '→ ' + LABEL[judge(n)] + (n ? '' : ' (제출 국가 없음 — 기본값)');
-    else out.textContent = '';
+    out.style.color = '#7fb4ff';
+    if (isPortugueseTarget()) {
+      if (n) out.textContent = '→ ' + PT_LABEL[ptJudge(n)];
+      else { out.textContent = '→ 제출 국가 없음 — 브라질식으로 번역'; out.style.color = '#ffcf6b'; }   // 관리자 화면 경고색(destShowOrder 와 같음)
+      return;
+    }
+    if (isEnglishTarget() && v === 'auto') out.textContent = '→ ' + LABEL[judge(n)] + (n ? '' : ' (제출 국가 없음 — 기본값)');
+    else out.textContent = '';   // 영어 직접 지정 · 그 밖 언어 = 비움
   };
   /** 지금 칸 값으로 만든 한 줄('' = 안 씀). 도착어가 영어가 아니면 제출 국가만 */
   window.bpDestLine = function () {

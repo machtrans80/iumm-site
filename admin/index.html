@@ -1121,6 +1121,8 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <div class="bp-col">
             <label class="bp-label">제출 국가 <span style="color:rgba(255,255,255,0.3);font-size:11px">(선택)</span></label>
             <input id="bp-dest-nation" class="bp-inp" type="text" placeholder="예: 캄보디아, 호주, 멕시코" oninput="bpDestRefresh()">
+            <!-- 판정 글자(2026-11-17): 영어=미국식/영국식, 포르투갈어=pt-PT/pt-BR, 그 밖=비움 — 영어 표기 칸 밖에 두어 숨지 않게 -->
+            <div id="bp-dest-judge" style="color:#7fb4ff;font-size:13px;font-weight:600;margin-top:6px;min-height:0"></div>
           </div>
           <div class="bp-col" id="bp-dest-variant-col">
             <label class="bp-label">영어 표기</label>
@@ -1130,7 +1132,6 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
                 <option value="US">미국식</option>
                 <option value="UK">영국식</option>
               </select>
-              <span id="bp-dest-judge" style="color:#7fb4ff;font-size:13px;font-weight:600;white-space:nowrap"></span>
             </div>
           </div>
         </div>
@@ -5302,7 +5303,7 @@ async function loadNotaryDirect() {
 <script src="/admin/credit_budget.js?v=1"></script>
 <script src="/admin/lang_scores.js?v=1"></script>
 <script src="/admin/order_terms.js?v=2"></script>
-<script src="/admin/bp_destination.js?v=3"></script>
+<script src="/admin/bp_destination.js?v=4"></script>
 <script src="/admin/score_reasons.js?v=3"></script>
 <script src="/admin/run_state.js?v=1"></script>
 <script src="/admin/bp_draft.js?v=1"></script>
