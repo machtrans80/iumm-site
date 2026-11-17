@@ -8,6 +8,12 @@
   var COMMONWEALTH_RE = /호주|오스트레일리아|Australia|뉴질랜드|New Zealand|캐나다|Canada|싱가포르|Singapore|인도(?![가-힣])|India|홍콩|Hong Kong|말레이시아|Malaysia|아일랜드|Ireland|남아공|남아프리카|South Africa/i;
   var LINE_RE = /^\s*(제출\s*국가\s*[:：]|영어\s*표기\s*[:：])/;
   var LABEL = { US: '미국식', UK: '영국식' };
+  // 포르투갈어 도착(2026-11-17) — 서버 v2_rules.js ptVariantForNation 과 같은 규칙: 포르투갈어권 8곳 = 유럽(pt-PT), 그 밖·없음 = 브라질(pt-BR)
+  var PT_PT_RE = /포르투갈|Portugal|앙골라|Angola|모잠비크|Mo[çc]ambique|Mozambique|카보\s*베르데|Cabo\s*Verde|Cape\s*Verde|기니\s*비사우|Guin[ée]\s*-?\s*Bissau|Guinea\s*-?\s*Bissau|상투메|S[ãa]o\s*Tom[ée]|Sao\s*Tome|동\s*티모르|Timor|마카오|마카우|Macau|Macao|澳門|澳门/i;
+  var PT_BR_RE = /브라질|Brasil|Brazil/i;
+  var PT_LABEL = { PT: '유럽 포르투갈어(pt-PT)', BR: '브라질 포르투갈어(pt-BR)' };
+  function ptJudge(nation) { return PT_BR_RE.test(nation) ? 'BR' : PT_PT_RE.test(nation) ? 'PT' : 'BR'; }
+  function isPortugueseTarget() { var d = ($('bp-direction') || {}).value || ''; return /→\s*포르투갈어/.test(d); }
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   /** 제출 국가 → 'UK' | 'US' (서버 variantForNation 과 같은 규칙) */
@@ -20,6 +26,7 @@
     var vc = $('bp-dest-variant-col'); if (vc) vc.style.display = isEnglishTarget() ? '' : 'none';
     var n = ($('bp-dest-nation').value || '').trim(), v = $('bp-dest-variant').value;
     var out = $('bp-dest-judge');
+    if (isPortugueseTarget()) { out.textContent = n ? '→ ' + PT_LABEL[ptJudge(n)] : '→ 제출 국가 없음 — 브라질식으로 번역'; return; }
     if (v === 'auto') out.textContent = '→ ' + LABEL[judge(n)] + (n ? '' : ' (제출 국가 없음 — 기본값)');
     else out.textContent = '';
   };
@@ -59,6 +66,13 @@
     var el = $('dest-line'); if (!el) return;
     var q = (order && order.aiQualityDetail) || {};
     var d = (q.v3 && q.v3.destination) || (q.v2 && q.v2.destination) || null;
+    var pv = (q.v3 && q.v3.ptVariant) || (q.v2 && q.v2.ptVariant) || null;
+    if (!d && pv) {   // 포르투갈어 도착 — 변형 한 줄. 제출 국가가 없어 브라질식이면 그 사실을 눈에 띄게(2026-11-17)
+      el.innerHTML = '<i class="ti ti-world" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>' + (pv.nation
+        ? '제출 국가: <strong>' + esc(pv.nation) + '</strong> · 포르투갈어: <strong>' + PT_LABEL[pv.variant === 'PT' ? 'PT' : 'BR'] + '</strong>'
+        : '<strong style="color:#ffcf6b">제출 국가 없음 — 브라질식으로 번역</strong> <span style="color:rgba(255,255,255,0.45)">(유럽 포르투갈어가 필요하면 제출 국가를 넣고 재실행)</span>');
+      el.style.display = ''; return;
+    }
     if (!d) { el.style.display = 'none'; el.innerHTML = ''; return; }
     var basis = /^관리자/.test(d.basis || '') ? '관리자 지정' : /첫머리/.test(d.basis || '') ? '문서 첫머리' : /지시사항/.test(d.basis || '') ? '번역지시사항' : '기본값';
     var label = d.country === 'UK' || d.country === 'OTHER' ? '영국식' : '미국식';
