@@ -71,12 +71,20 @@
       var m = ms[k]; return [esc(DOC_LABEL[k] || k), m.total, m['대표수정'] || 0, m['대표번역'] || 0, m['AI확인'] || 0, m['AI'] || 0];
     })) : muted('문구 기억이 없습니다.');
 
-    h += sub('충돌 (같은 원문, 다른 번역) — 우선순위 대표수정 > 대표번역 > AI확인 > AI');
+    // 충돌은 저장 직후 Opus 가 자동 판정한다(통일 · 문맥별). 여기에는 판정 못 한 것(unsure)만 남는다.
+    h += sub('충돌 — 자동 판정이 못 한 것만 (같은 원문, 다른 번역)');
     var cf = j.conflicts || [];
     h += cf.length ? table(['원문', '쓰이는 번역', '다른 번역'], cf.slice(0, 100).map(function (c) {
       return [esc(c.ko), esc(c.winner) + ' <span style="color:rgba(255,255,255,0.35)">(' + esc(c.winnerSource) + ')</span>',
-        c.options.slice(1).map(function (o) { return esc(o.en) + ' <span style="color:rgba(255,255,255,0.35)">(' + esc(o.source) + (o.docCode ? ' · ' + esc(DOC_LABEL[o.docCode] || o.docCode) : '') + ')</span>'; }).join('<br>')];
-    })) : muted('충돌 없음');
+        c.options.slice(1).map(function (o) { return esc(o.en) + ' <span style="color:rgba(255,255,255,0.35)">(' + esc(o.source) + (o.docCode ? ' · ' + esc(DOC_LABEL[o.docCode] || o.docCode) : '') + (o.variant ? ' · ' + esc(o.variant) : '') + (o.pending ? ' · 판정대기' : '') + ')</span>'; }).join('<br>')];
+    })) : muted('판정 못 한 충돌 없음');
+    var jl = j.judgeLog || [];
+    h += '<details style="margin:6px 0 2px"><summary style="cursor:pointer;font-size:12px;color:#9DB7F5">자동 판정 기록 (' + jl.length + '건)</summary>' +
+      (jl.length ? table(['날짜', '원문', '판정', '고른 값', '다른 값', '이유'], jl.slice(0, 200).map(function (e) {
+        return [esc(e.date), esc(e.ko), esc(e.kind),
+          e.chosen.map(function (c) { return esc(c.en) + (e.kind === '문맥별' ? ' <span style="color:rgba(255,255,255,0.35)">(' + esc(DOC_LABEL[c.docCode] || c.docCode || '공통') + (c.variant ? ' · ' + esc(c.variant) : '') + ')</span>' : ''); }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join('<br>'),
+          esc(e.others), esc(e.reason)];
+      })) : muted('기록 없음')) + '</details>';
 
     h += sub('서류별 처리 비용 추이 — 같은 서류가 쌓일수록 Opus 칸이 줄어야 합니다');
     var tr = j.trend || {};
@@ -167,7 +175,8 @@
       var job = j.job;
       if (job.status === '완료' && job.result) {
         var res = job.result;
-        out.innerHTML = '<div style="font-size:12px;color:#9DB7F5;margin-bottom:4px">완료 — Batch ' + res.calls + '건 · 실패 ' + res.failed + ' · $' + Number(res.usd).toFixed(4) + '</div>' +
+        out.innerHTML = '<div style="font-size:12px;color:#9DB7F5;margin-bottom:4px">완료 — Batch ' + res.calls + '건 · 실패 ' + res.failed + ' · $' + Number(res.usd).toFixed(4) +
+          (res.judge ? ' · 기억 충돌 판정: 통일 ' + (res.judge.unify || 0) + ' · 문맥별 ' + (res.judge.context || 0) + ' · 못 함 ' + (res.judge.unsure || 0) + ' · $' + Number(res.judge.usd || 0).toFixed(4) : '') + '</div>' +
           table(['파일', '방식', '서류', '틀', '문구(저장)', '확정', '후보', '막음(개인정보)', '오류'], res.docs.map(function (d) {
             return [esc(d.file), d.mode === 'pair' ? '짝' : '영문만', esc(DOC_LABEL[d.docCode] || d.docCode || '-'), (d.templates ? '후보 생성' : '-') + (d.variantLine ? '<br><span style="font-size:11px;color:#9DB7F5">' + esc(d.variantLine) + '</span>' : ''),
               d.pairs, d.confirmed, d.candidates, d.blocked, d.error ? '<span style="color:#D9BC8C">' + esc(d.error) + '</span>' : ''];
