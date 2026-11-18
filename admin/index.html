@@ -762,6 +762,17 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
         <div id="ntrd-list"><p style="color:rgba(255,255,255,0.35);font-size:13px">탭 클릭 시 로드됩니다</p></div>
       </div>
 
+      <!-- 틀 자산 · 옛 번역 넣기 (2026-11-18) — 내용은 /admin/notary_assets.js -->
+      <div class="bp-section" id="ntra-sec">
+        <div class="bp-section-title" style="display:flex;align-items:center">
+          <i class="ti ti-template" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>
+          번역공증 틀 자산 · 옛 번역 넣기
+          <span style="flex:1"></span>
+          <button class="tab-btn" onclick="ntraLoad(true)" style="text-transform:none;letter-spacing:0">불러오기</button>
+        </div>
+        <div id="ntra-body"><p style="color:rgba(255,255,255,0.35);font-size:13px">[불러오기]를 누르면 틀 · 문구 기억 · 서류별 비용 추이를 보여 줍니다.</p></div>
+      </div>
+
       <!-- ── 고객 공증 배송 관리 (2026-10-31 통합) — 기본은 접힘. 할 일(발송대기 + 수동 번역 대기)이 있으면 펼쳐서 보여 준다.
            안쪽 목록·필터·새로고침은 예전 '번역공증 작업(공증 배송 관리)' 화면 그대로 -->
       <div class="bp-section" id="ntr-ship-sec">
@@ -5138,12 +5149,14 @@ async function ntrdInit() {
     }
     /* 준비된(ready) 서류·언어만 고를 수 있다 — 서버도 같은 기준으로 막는다 */
     var docSel = document.getElementById('ntrd-doc');
-    var docs = (NTRD_CFG.documents || []).filter(function(d){ return d.ready; });
-    docSel.innerHTML = docs.length
-      ? docs.map(function(d){
-          return '<option value="' + _ne(d.code) + '">' + _ne(d.label) +
-                 ' (' + _ne(d.issuer) + ')</option>'; }).join('')
-      : '<option value="">자동 처리 가능한 서류가 없습니다</option>';
+    /* ★2026-11-18 기본값 = 자동 판별(권장). 고른 값이 있어도 서버가 원본으로 다시 판별한다
+       (기본증명서가 드롭다운 첫 값 '가족관계증명서'로 넘어가 출생 항목이 사라진 사고).
+       고를 수 있는 서류 = 파서 3종(autoTranslate) + 틀 자산 서류(assetEngine) */
+    var docs = (NTRD_CFG.documents || []).filter(function(d){ return d.ready && (d.autoTranslate || d.assetEngine); });
+    docSel.innerHTML = '<option value="auto" selected>자동 판별(권장)</option>' +
+      docs.map(function(d){
+        return '<option value="' + _ne(d.code) + '">' + _ne(d.label) +
+               ' (' + _ne(d.issuer) + ')' + (d.assetEngine ? ' · 틀 자산' : '') + '</option>'; }).join('');
 
     var langSel = document.getElementById('ntrd-lang');
     var langs = (NTRD_CFG.langs || []).filter(function(l){ return l.ready; });
@@ -5215,7 +5228,7 @@ async function ntrdPoll(n) {
     if (!j.ok) throw new Error(j.error || '상태 조회 실패');
 
     var info = document.getElementById('ntrd-result-info');
-    if (j.statusKey === 'failed') {
+    if (j.statusKey === 'failed' || j.status === '확인필요') {
       /* ★대응 방법은 서버가 원인별로 갈라서 넣어 준다(해상도 문제 / 서식 문제).
          여기서 "해상도를 확인하세요" 를 덧붙이면 서식 문제일 때 엉뚱한 안내가 된다. */
       info.innerHTML = '<span style="color:#D9BC8C">인식 실패 — ' +
@@ -5226,6 +5239,8 @@ async function ntrdPoll(n) {
     if (j.editUrl) {
       NTRD_CUR.editUrl = j.editUrl;
       info.innerHTML = '번역 완료 — 아래 버튼으로 확인·수정 후 출력하세요.' +
+        (j.detect ? '<br><span style="color:#9DB7F5">서류 판별: ' + _ne(j.detect) + '</span>' : '') +
+        ntrdVerifyLine(j.verify) +
         (j.hangulWarning ? '<br><span style="color:#B08D57">⚠ 번역되지 않은 한글이 남아 있습니다 — 편집 화면에서 확인해 주세요</span>' : '');
       document.getElementById('ntrd-open').style.display = 'inline-block';
       loadNotaryDirect();
@@ -5239,6 +5254,21 @@ async function ntrdPoll(n) {
     document.getElementById('ntrd-result-info').innerHTML =
       '<span style="color:#D9BC8C">상태 조회 실패: ' + _ne(e.message) + '</span>';
   }
+}
+
+/** 원본 대조 · 비용 한 줄 (개수만 — 값은 편집 화면에서 마우스를 올려 본다) */
+function ntrdVerifyLine(v) {
+  if (!v) return '';
+  var parts = [];
+  if (v.opusSkipped) parts.push('원본 대조 건너뜀(' + _ne(v.opusSkipped) + ')');
+  else parts.push('원본 대조 ' + (v.fixed ? '<b style="color:#E8C66A">' + v.fixed + '칸 AI 대조로 고침</b>(노란 칸 · 마우스 = OCR 값)' : (v.flagged ? v.flagged + '칸 불일치(빨간 칸)' : '불일치 없음')));
+  if (v.reprocessed) parts.push('다시 처리 ' + _ne(v.reprocessed));
+  if (v.codeIssues && v.codeIssues.length) parts.push('<span style="color:#D9BC8C">코드 점검: ' + v.codeIssues.map(_ne).join(' / ') + '</span>');
+  if (v.numbersMissing) parts.push('<span style="color:#D9BC8C">원본 숫자 ' + v.numbersMissing + '개가 번역본에 없음</span>');
+  if (v.cells) parts.push('칸 ' + v.cells.total + ' = 틀 ' + v.cells.template + ' · 기억 ' + v.cells.memory + ' · 코드 ' + v.cells.code + ' · Opus ' + v.cells.opus);
+  if (v.usd != null) parts.push('Opus ' + (v.opusCalls || 0) + '회 $' + Number(v.usd).toFixed(4));
+  if (v.template) parts.push('틀 ' + _ne(v.template.status) + (v.template.version ? ' 판 ' + v.template.version : ''));
+  return '<br><span style="font-size:12px;color:rgba(255,255,255,0.55)">' + parts.join(' · ') + '</span>';
 }
 
 function ntrdOpenCurrent() {
@@ -5277,6 +5307,10 @@ async function loadNotaryDirect() {
       +   '<span style="font-size:12px;color:rgba(255,255,255,0.55);min-width:130px">' + _ne(o.docType || '-') + '</span>'
       +   '<span class="st ' + stCls + '">' + _ne(o.statusLabel) + '</span>'
       +   (o.hangulWarning ? '<span style="font-size:11px;color:#B08D57">⚠ 한글 잔류</span>' : '')
+      +   (o.detect && o.detect.indexOf(' → ') > 0 && o.detect.split(' → ')[0] !== o.detect.split(' → ')[1].split(/[( ·]/)[0]
+            ? '<span style="font-size:11px;color:#9DB7F5" title="' + _ne(o.detect) + '">' + _ne(o.detect.split(' · ')[0]) + '</span>' : '')
+      +   (o.verify && o.verify.fixed ? '<span style="font-size:11px;color:#E8C66A">AI 대조로 고침 ' + o.verify.fixed + '칸</span>' : '')
+      +   (o.verify && o.verify.usd != null ? '<span style="font-size:11px;color:rgba(255,255,255,0.35)">$' + Number(o.verify.usd).toFixed(3) + '</span>' : '')
       +   '<span style="font-size:11px;color:rgba(255,255,255,0.3)">' + _nd(o.receivedAt) + '</span>'
       +   '<span style="flex:1"></span>'
       +   (o.statusKey === 'failed'
@@ -5307,5 +5341,7 @@ async function loadNotaryDirect() {
 <script src="/admin/score_reasons.js?v=3"></script>
 <script src="/admin/run_state.js?v=1"></script>
 <script src="/admin/bp_draft.js?v=1"></script>
+<!-- 번역공증 틀 자산 · 옛 번역 넣기 (2026-11-18) -->
+<script src="/admin/notary_assets.js?v=1"></script>
 </body>
 </html>
