@@ -169,7 +169,7 @@
         var res = job.result;
         out.innerHTML = '<div style="font-size:12px;color:#9DB7F5;margin-bottom:4px">완료 — Batch ' + res.calls + '건 · 실패 ' + res.failed + ' · $' + Number(res.usd).toFixed(4) + '</div>' +
           table(['파일', '방식', '서류', '틀', '문구(저장)', '확정', '후보', '막음(개인정보)', '오류'], res.docs.map(function (d) {
-            return [esc(d.file), d.mode === 'pair' ? '짝' : '영문만', esc(DOC_LABEL[d.docCode] || d.docCode || '-'), d.templates ? '후보 생성' : '-',
+            return [esc(d.file), d.mode === 'pair' ? '짝' : '영문만', esc(DOC_LABEL[d.docCode] || d.docCode || '-'), (d.templates ? '후보 생성' : '-') + (d.variantLine ? '<br><span style="font-size:11px;color:#9DB7F5">' + esc(d.variantLine) + '</span>' : ''),
               d.pairs, d.confirmed, d.candidates, d.blocked, d.error ? '<span style="color:#D9BC8C">' + esc(d.error) + '</span>' : ''];
           })) + muted('틀 후보는 위 [불러오기] → 틀 목록에서 [확정]을 눌러야 쓰입니다.');
         return;
