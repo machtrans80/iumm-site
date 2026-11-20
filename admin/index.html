@@ -254,6 +254,21 @@ body.admin-focus .focus-exit-hint{display:inline}
 .btn-bp-submit{width:100%;padding:15px;background:var(--gold);color:var(--black);border:none;border-radius:3px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;margin-top:4px}
 .btn-bp-submit:hover{background:var(--gold-light)}
 .btn-bp-submit:disabled{opacity:0.4;cursor:not-allowed}
+/* 우회 주문 — 번역 방식 카드 · 고정 안내 · 문서 언어 경고 · 버튼 옆 이유 (2026-11-20, 파랑 계열만) */
+.bp-mode-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.bp-mode-card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:18px 20px;border-radius:8px;cursor:pointer;font-family:inherit;background:rgba(157,183,245,0.05);border:1.5px solid rgba(157,183,245,0.28);color:rgba(255,255,255,0.85);transition:background .15s,border-color .15s}
+.bp-mode-card:hover{background:rgba(157,183,245,0.10);border-color:rgba(157,183,245,0.55)}
+.bp-mode-card:focus-visible{outline:2px solid #9DB7F5;outline-offset:2px}
+.bp-mode-card.on{background:rgba(127,180,255,0.18);border-color:#7FB4FF;box-shadow:0 0 0 1px #7FB4FF inset}
+.bp-mode-name{font-size:16px;font-weight:700;color:#EEF3FB}
+.bp-mode-name .ti{color:#9DB7F5;font-size:17px;vertical-align:-2px;margin-right:2px}
+.bp-mode-desc{font-size:12.5px;line-height:1.6;color:rgba(220,231,255,0.75)}
+.bp-mode-hint{margin-top:12px;font-size:13px;color:#9DB7F5}
+.bp-fixed-note{margin-top:4px;padding:9px 12px;border-radius:6px;font-size:12.5px;background:rgba(157,183,245,0.08);border:1px solid rgba(157,183,245,0.30);color:#C9D8FA}
+.bp-lang-warn{margin-top:16px;padding:12px 14px;border-radius:6px;font-size:13px;line-height:1.6;background:rgba(127,180,255,0.14);border:1px solid rgba(127,180,255,0.6);color:#DCE7FF}
+.bp-lang-ok{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600;cursor:pointer}
+.bp-lang-ok input{accent-color:#7FB4FF;width:16px;height:16px}
+.bp-gate-reason{margin-top:8px;font-size:12.5px;color:#9DB7F5}
 .bp-result{display:none;margin-top:16px;padding:16px 20px;background:rgba(157,183,245,0.06);border:1px solid rgba(157,183,245,0.2);border-radius:4px}
 .bp-result-order{font-size:18px;font-weight:700;color:var(--green);margin-bottom:6px}
 .bp-result-info{font-size:13px;color:rgba(255,255,255,0.6)}
@@ -996,34 +1011,33 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
     <!-- ── 우회 주문 탭 콘텐츠 ── -->
     <div id="bypass-wrap" style="display:none">
 
-      <!-- 통합 파일 추출 섹션 -->
-      <div class="bp-section">
-        <div class="bp-section-title">📂 원문 파일 추출 (자동추출 + OCR)</div>
-        <div style="padding:10px 14px;background:rgba(176,141,87,0.1);border-left:3px solid #B08D57;border-radius:6px;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
-          지원: Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT, 50MB 이하<br>
-          <strong style="color:#D9BC8C">⚠ HWP(한글) 파일</strong> — HWP 한글 파일의 형식은 본문 텍스트를 복사하여 아래 원문 텍스트 입력란에 붙여넣기<br>
-          📌 <strong>여러 파일은 파일별로 별도 주문해 주세요.</strong><br>
-          <strong style="color:#E6D3B0">⚠ 본문 직접 확인 + 수정 필수.</strong>
+      <!-- ① 번역 방식(2026-11-20) — bp_mode.js. 처음엔 아무것도 고르지 않음 · 고른 값은 sessionStorage -->
+      <div class="bp-section" id="bp-mode-section">
+        <div class="bp-section-title">① 어떤 번역인가요?</div>
+        <div class="bp-mode-cards">
+          <button type="button" class="bp-mode-card" id="bp-mode-text" data-mode="text" aria-pressed="false" onclick="bpSetMode('text')">
+            <span class="bp-mode-name"><i class="ti ti-file-text"></i> 텍스트 번역</span>
+            <span class="bp-mode-desc">파일에서 글자를 뽑아 원문을 확인·수정한 뒤 번역합니다.</span>
+          </button>
+          <button type="button" class="bp-mode-card" id="bp-mode-layout" data-mode="layout" aria-pressed="false" onclick="bpSetMode('layout')">
+            <span class="bp-mode-name"><i class="ti ti-layout-board"></i> 원본 틀 번역</span>
+            <span class="bp-mode-desc">서류 모양 그대로. 파일을 올리고 [번역 시작]을 누르면 읽기 → 틀 점검 → 번역 주문 생성 → 번역까지 자동으로 진행합니다.</span>
+          </button>
         </div>
-        <input type="file" id="bp-extract-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="bpExtractFileChange(this)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <label for="bp-extract-file" style="padding:8px 16px;background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:13px">파일 선택</label>
-          <span id="bp-extract-filename" style="font-size:12px;color:rgba(255,255,255,0.7)"></span>
-        </div>
-        <div id="bp-extract-status" style="font-size:12px;margin-top:8px;min-height:16px"></div>
+        <div id="bp-mode-hint" class="bp-mode-hint">번역 방식을 고르세요</div>
       </div>
 
-      <!-- 원본 틀 번역(시범, 2026-11-10) — layout_tl.js 가 채운다. 방향·분야·제출 국가는 아래 주문 정보 칸 값 -->
-      <div id="lt-section"></div>
+      <div id="bp-body" style="display:none">
 
-      <!-- 주문 폼 -->
-      <div class="bp-section">
-        <div class="bp-section-title"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>우회 주문 정보</div>
+      <!-- ② 번역 설정(두 방식 공통) — ★요소 ID 그대로(bp_destination.js · bp_draft.js · layout_tl.js · term_extract.js 가 찾는다) -->
+      <div class="bp-section" id="bp-settings">
+        <div class="bp-section-title">② 번역 설정</div>
 
         <div class="bp-row">
           <div class="bp-col">
             <label class="bp-label">번역 방향 *</label>
             <select id="bp-direction" class="bp-inp">
+              <option value="" selected disabled>번역 방향을 고르세요</option>
               <optgroup label="── 한국어 → 외국어 ──">
                 <option>한국어 → 영어</option>
                 <option>한국어 → 일본어</option>
@@ -1067,7 +1081,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
                 <option>프랑스어 → 한국어</option>
                 <option>독일어 → 한국어</option>
                 <option>이탈리아어 → 한국어</option>
-                <option selected>포르투갈어 → 한국어</option>
+                <option>포르투갈어 → 한국어</option>
                 <option>러시아어 → 한국어</option>
                 <option>베트남어 → 한국어</option>
                 <option>인도네시아어 → 한국어</option>
@@ -1141,6 +1155,32 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           </div>
         </div>
 
+        <div id="bp-layout-internal" class="bp-fixed-note" style="display:none"><i class="ti ti-lock"></i> 원본 틀 번역 주문은 항상 내부전용입니다</div>
+      </div>
+
+      <!-- 텍스트 번역: ③ 추출 → ④ 원문 텍스트 → ⑤ 나머지 → [우회 주문 시작] -->
+      <div id="bp-text-mode" style="display:none">
+
+      <!-- 통합 파일 추출 섹션 -->
+      <div class="bp-section">
+        <div class="bp-section-title">③ 원문 파일 추출 (자동추출 + OCR)</div>
+        <div style="padding:10px 14px;background:rgba(176,141,87,0.1);border-left:3px solid #B08D57;border-radius:6px;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6">
+          지원: Word · Excel · PDF · 이미지(JPG/PNG/TIFF) · TXT, 50MB 이하<br>
+          <strong style="color:#D9BC8C">⚠ HWP(한글) 파일</strong> — HWP 한글 파일의 형식은 본문 텍스트를 복사하여 바로 아래 ④ 원문 텍스트 칸에 붙여넣기<br>
+          📌 <strong>여러 파일은 파일별로 별도 주문해 주세요.</strong><br>
+          <strong style="color:#E6D3B0">⚠ 본문 직접 확인 + 수정 필수.</strong>
+        </div>
+        <input type="file" id="bp-extract-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="bpExtractFileChange(this)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label for="bp-extract-file" style="padding:8px 16px;background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:13px">파일 선택</label>
+          <span id="bp-extract-filename" style="font-size:12px;color:rgba(255,255,255,0.7)"></span>
+        </div>
+        <div id="bp-extract-status" style="font-size:12px;margin-top:8px;min-height:16px"></div>
+      </div>
+
+      <!-- ④ 원문 텍스트 — 추출 결과가 바로 여기에 들어간다 -->
+      <div class="bp-section" id="bp-text-section">
+        <div class="bp-section-title">④ 원문 텍스트</div>
         <div class="bp-row single">
           <div class="bp-col">
             <label class="bp-label">원문 텍스트 * <span style="color:rgba(255,255,255,0.3);font-size:11px">(OCR 추출 결과가 자동 입력됩니다)</span></label>
@@ -1148,6 +1188,12 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
             <div class="char-hint" id="bp-char-hint">0자</div>
           </div>
         </div>
+
+      </div>
+
+      <!-- ⑤ 주문 폼(텍스트 번역) -->
+      <div class="bp-section">
+        <div class="bp-section-title"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:4px;color:var(--gold)"></i>⑤ 주문 정보</div>
 
         <div class="bp-row">
           <div class="bp-col">
@@ -1233,7 +1279,15 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <button onclick="exitReprocessMode()" style="padding:4px 10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:3px;cursor:pointer;font-size:12px;white-space:nowrap">모드 해제</button>
         </div>
 
+        <!-- 문서 언어 확인(2026-11-20) — 서버가 409 lang_mismatch 를 주면 보여 준다(bp_mode.js bpLangShow). 체크해야 버튼이 켜진다 -->
+        <div id="bp-lang-warn" class="bp-lang-warn" style="display:none">
+          <div>⚠ <span id="bp-lang-msg"></span></div>
+          <label class="bp-lang-ok"><input type="checkbox" id="bp-lang-ok"> 문서 언어를 확인했습니다 — 이대로 진행</label>
+        </div>
+
         <button class="btn-bp-submit" id="btn-bp-submit" onclick="submitBypassOrder()"><i class="ti ti-lock" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>우회 주문 시작 (결제 없이 파이프라인 실행)</button>
+
+        <div id="bp-submit-reason" class="bp-gate-reason" style="display:none"></div>
 
         <!-- 결과 -->
         <div class="bp-result" id="bp-result">
@@ -1241,6 +1295,15 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           <div id="bp-result-run" style="display:none;margin:4px 0"></div>
           <div class="bp-result-info" id="bp-result-info"></div>
         </div>
+      </div>
+
+      </div>
+
+      <!-- 원본 틀 번역: ③ 파일 올리기 + 개인정보 칸 가리기 → ④ 확인 → [번역 시작] — layout_tl.js 가 채운다 -->
+      <div id="bp-layout-mode" style="display:none">
+        <div id="lt-section"></div>
+      </div>
+
       </div>
 
     </div>
@@ -2109,6 +2172,7 @@ function loadFailedToBypassForm(idx) {
 }
 
 function enterReprocessMode(orderId, orderNumber) {
+  if (window.bpSetMode) bpSetMode('text');   // [폼에 불러오기]·재실행은 텍스트 번역(2026-11-20)
   _bpReprocessOrderId = orderId;
   _bpReprocessOrderNum = orderNumber || '';
   var banner = document.getElementById('bp-reprocess-banner');
@@ -2118,6 +2182,7 @@ function enterReprocessMode(orderId, orderNumber) {
   var btn = document.getElementById('btn-bp-submit');
   if (btn) btn.innerHTML = '<i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:5px"></i>재실행 (기존 레코드 · ' + _bpEsc(orderNumber||'') + ')';
   if (window.bpDraftSave) bpDraftSave();   // 불러온 폼·재실행 주문 — 임시 저장(새로고침 대비)
+  if (window.bpGateRefresh) bpGateRefresh();
 }
 
 function exitReprocessMode() {
@@ -2132,6 +2197,8 @@ function exitReprocessMode() {
   if (window.bpDestClear) bpDestClear();
   if (typeof bpUpdateCharCount === 'function') bpUpdateCharCount();
   if (window.bpDraftClear) bpDraftClear();   // 폼을 비웠으니 임시 저장도
+  if (window.bpLangHide) bpLangHide();
+  if (window.bpGateRefresh) bpGateRefresh();
   showToast('재실행 모드 해제 — 일반 우회주문 모드로 전환', '');
 }
 
@@ -2142,6 +2209,7 @@ async function _doReprocess(orderId, body, orderNumber) {
   _reprocessBusy[orderId] = true;
   try {
     var res = await adminFetch('/api/admin/reprocess/' + orderId, { method: 'POST', body: JSON.stringify(body || {}) });
+    if (res && res.error === 'lang_mismatch') { if (window.bpLangShow) bpLangShow(res); showToast('⚠ 문서 언어를 확인하세요 — 번역 방향과 원문 글자가 다릅니다', 'error'); return false; }
     if (!res || (!res.ok && !res.success)) throw new Error((res && res.error) || '재실행 실패');
     showToast('✅ 재실행 시작: ' + (res.orderNumber || orderNumber || orderId) + ' · 번역 중', 'success');
     if (window.runWatchAdd) runWatchAdd(orderId, res.orderNumber || orderNumber);
@@ -4005,8 +4073,9 @@ async function submitBypassOrder() {
   var plan = document.getElementById('bp-plan').value || 'ai_premium';
   var isPP = plan === 'premium_plus';
 
+  if (!direction) { showToast('⚠️ 번역 방향을 고르세요 (② 번역 설정)', 'error'); return; }
   if (!text) { showToast('⚠️ 원문 텍스트를 입력하세요', 'error'); return; }
-  if (!direction) { showToast('⚠️ 번역 방향을 선택하세요', 'error'); return; }
+  var langConfirmed = window.bpLangConfirmed ? bpLangConfirmed() : false;   // 문서 언어 경고를 보고 체크했을 때만
 
   // ── 재실행 모드: 기존 레코드에 폼 값 반영 후 재실행 (신규 주문번호 생성 X) ──
   if (_bpReprocessOrderId) {
@@ -4032,10 +4101,11 @@ async function submitBypassOrder() {
       notes: notes, wordCount: Math.round(text.length / 2),
       referenceText: rText, referenceGlossary: rGloss, referenceNotes: rNotes,
     };
+    if (langConfirmed) rbody.langConfirmed = true;
     if (email) rbody.customerEmail = email;
     var rok = await _doReprocess(_bpReprocessOrderId, rbody, _bpReprocessOrderNum);
     rbtn.disabled = false;
-    if (rok) { exitReprocessMode(); if (window.bpDraftClear) bpDraftClear(); switchTab('failed'); }
+    if (rok) { if (window.bpLangHide) bpLangHide(); exitReprocessMode(); if (window.bpDraftClear) bpDraftClear(); switchTab('failed'); }
     else { enterReprocessMode(_bpReprocessOrderId, _bpReprocessOrderNum); } // 버튼 라벨 복구
     return;
   }
@@ -4068,6 +4138,7 @@ async function submitBypassOrder() {
       notes: notes || '관리자 우회 주문',
       plan: plan,
     };
+    if (langConfirmed) payload.langConfirmed = true;
     if (email) payload.customerEmail = email;
     if (referenceText)     payload.referenceText     = referenceText;
     if (referenceGlossary) payload.referenceGlossary = referenceGlossary;
@@ -4086,7 +4157,13 @@ async function submitBypassOrder() {
       body: JSON.stringify(payload),
     });
     var data = await res.json();
+    if (res.status === 409 && data.error === 'lang_mismatch') {   // 문서 언어 확인(2026-11-20) — 경고 + 체크칸, 체크 후 다시 누르면 langConfirmed
+      if (window.bpLangShow) bpLangShow(data);
+      showToast('⚠ 문서 언어를 확인하세요 — 번역 방향과 원문 글자가 다릅니다', 'error');
+      return;
+    }
     if (!res.ok || (!data.ok && !data.success)) throw new Error(data.error || '요청 실패 (' + res.status + ')');
+    if (window.bpLangHide) bpLangHide();
 
     var orderNum = data.orderNumber || data.order_number || '생성됨';
     if (window.runWatchAdd) runWatchAdd(data.airtableId, orderNum);   // 그 자리에서 바로 '번역 중'
@@ -4138,6 +4215,7 @@ async function submitBypassOrder() {
   } finally {
     btn.disabled = false;
     btn.textContent = '🔐 우회 주문 시작 (결제 없이 파이프라인 실행)';
+    if (window.bpGateRefresh) bpGateRefresh();
   }
 }
 
@@ -5322,9 +5400,9 @@ async function loadNotaryDirect() {
 <script src="/admin/held.js?v=3"></script>
 <!-- 납품 전 점검 · 긴 검수 작업 진행(2026-11-10) -->
 <script src="/admin/predelivery.js?v=1"></script>
-<script src="/admin/layout_tl.js?v=1"></script>
+<script src="/admin/layout_tl.js?v=2"></script>
 <!-- 용어 추출 · 크레딧 사용 기록 (2026-10-31) -->
-<script src="/admin/term_extract.js?v=1"></script>
+<script src="/admin/term_extract.js?v=2"></script>
 <script src="/admin/credit_budget.js?v=1"></script>
 <script src="/admin/lang_scores.js?v=1"></script>
 <script src="/admin/order_terms.js?v=2"></script>
@@ -5332,6 +5410,7 @@ async function loadNotaryDirect() {
 <script src="/admin/score_reasons.js?v=3"></script>
 <script src="/admin/run_state.js?v=1"></script>
 <script src="/admin/bp_draft.js?v=1"></script>
+<script src="/admin/bp_mode.js?v=1"></script>
 <!-- 번역공증 틀 자산 · 옛 번역 넣기 (2026-11-18) -->
 <script src="/admin/notary_assets.js?v=1"></script>
 </body>

@@ -63,6 +63,9 @@ const MOCK = String.raw`(() => {
     S.running = S.running || {};
     if (p === '/api/admin/orders/run-state') return J({ ok: true, orders: (u.searchParams.get('ids') || '').split(',').filter(Boolean).map((id) => ({ orderId: id, orderNumber: (S.runNum || {})[id] || id, running: !!S.running[id], pipelineStage: S.running[id] || '', aiScore: S.running[id] ? null : 91 })) });
     const rp = /^\/api\/admin\/reprocess\/([^/]+)$/.exec(p);
+    const LANGX = { ok: false, error: 'lang_mismatch', detected: '한글', expected: '라틴', sourceLang: '포르투갈어', message: '올린 문서 글자는 한글인데, 번역 방향의 원문은 포르투갈어(라틴 문자)입니다. 번역 방향을 확인하세요.' };
+    const langBad = (j) => j && /^포르투갈어/.test(j.direction || '') && /[가-힣]/.test(j.text || '') && j.langConfirmed !== true;
+    if (rp && langBad(rec.json)) return J(LANGX, 409);
     if (rp) { if (S.running[rp[1]]) return J({ ok: false, error: '이미 번역 중입니다' }, 409); S.running[rp[1]] = 'V3:시작'; return J({ ok: true, orderNumber: 'ADMIN-RP-' + rp[1] }); }
     if (p === '/health') return J({ ok: true, commit: 'abcdef1' });
     if (p === '/api/admin/orders') {
@@ -181,6 +184,8 @@ const MOCK = String.raw`(() => {
     if (p === '/api/admin/v3-scores') return J({ ok: true, watchBelow: 90, total: { orders: 5, scored: 4, avg: 89.5 },
       rows: [{ pair: '한국어→일본어', orders: 2, scored: 2, unscored: 0, avg: 86, min: 84, last7: { orders: 1, avg: 88 }, watch: true },
              { pair: '한국어→영어', orders: 3, scored: 2, unscored: 1, avg: 93, min: 92, last7: { orders: 0, avg: null }, watch: false }] });
+    if (p === '/api/admin/translate-bypass' && rec.json && !rec.json.direction) return J({ ok: false, error: '번역 방향을 고르세요' }, 400);
+    if (p === '/api/admin/translate-bypass' && langBad(rec.json)) return J(LANGX, 409);
     if (p === '/api/admin/translate-bypass') return J({ success: true, orderNumber: 'IUMM-BP-1', orderId: 'recBP', airtableId: 'recBP' });
     if (p === '/api/notary/config') return J({ ok: true, documents: [{ code: 'family', name: '가족관계증명서', ready: true }], langs: [{ code: 'en', name: '영어', ready: true }] });
     if (p === '/api/notary/admin/direct' && m === 'GET') return J({ ok: true, orders: [{ orderNumber: 'NTR-ADM-0001', docType: '가족관계증명서', statusKey: 'done', statusLabel: '완료', receivedAt: '2026-10-30T01:00:00Z' }] });
@@ -193,10 +198,15 @@ const MOCK = String.raw`(() => {
       const pageStates = Array.from({ length: P }, (_, i) => ({ step: i < R ? '앞 작업에서 통과' : i < n ? (x.hold && i === 1 ? '틀 보류' : '통과') : i === n ? '클로드 읽기' : '대기', ok: i < n ? !(x.hold && i === 1) : null, opus: x.hold && i === 1 && i < n, masked: i === 0 && i < n ? 2 : 0, problems: x.hold && i === 1 ? ['빠진 칸', '읽는 순서'] : [], resumed: i < R }));
       const f = { name: P === 5 ? '합성_5쪽.pdf' : '합성_' + P + '쪽.pdf', pages: P, resumed: R, status: done ? (x.hold ? '틀 보류' : '주문 생성') : '읽는 중', pageStates, usd: +(0.0333 * n + (x.hold && n > 1 ? 0.07 : 0)).toFixed(4), blocks: done && !x.hold ? 42 : 0,
         orderNumber: done && !x.hold ? 'ADMIN-LT-1' : null, hold: done && x.hold ? '틀 보류 — 2쪽: 빠진 칸, 읽는 순서' : null };
-      return { id: x.id, status: done ? (x.hold ? '틀 보류' : '완료') : '진행', direction: '한국어 → 프랑스어', mask: x.mask, startedAt: '2026-11-10T07:00:00Z', files: [f], usd: f.usd, estimate: { usd: 0.3575 } }; };
+      return { id: x.id, status: done ? (x.hold ? '틀 보류' : '완료') : '진행', direction: x.direction || '한국어 → 프랑스어', fieldCode: x.fieldCode || 'general', nation: x.nation || '', mask: x.mask, startedAt: '2026-11-10T07:00:00Z', files: [f], usd: f.usd, estimate: { usd: 0.3575 } }; };
+    const ltForm = (k) => (rec.form && rec.form[k] && rec.form[k][0]) || '';
+    const ltLang = () => /^포르투갈어/.test(ltForm('direction')) ? { ok: false, judged: true, detected: '한글', expected: '라틴', sourceLang: '포르투갈어' } : { ok: true, judged: true, detected: '한글', expected: '한글', sourceLang: ltForm('direction').split('→')[0].trim() };
+    if (/^\/api\/admin\/layout\/(estimate|start)$/.test(p) && !ltForm('direction')) return J({ ok: false, error: '번역 방향을 고르세요' }, 400);
+    if (p === '/api/admin/layout/start' && /^포르투갈어/.test(ltForm('direction')) && ltForm('langConfirmed') !== 'true') return J(Object.assign({}, LANGX, { file: '합성_5쪽.pdf' }), 409);
     if (p === '/api/admin/layout/estimate' && S.ltPages) return J({ ok: true, files: [{ name: '합성_' + S.ltPages + '쪽.pdf', pages: S.ltPages, resume: S.ltResume ? { done: S.ltResume, of: S.ltPages, from: S.ltResume + 1 } : null }], estimate: { pages: S.ltPages - (S.ltResume || 0), perPage: 0.0715, usd: +(0.0715 * (S.ltPages - (S.ltResume || 0))).toFixed(4), opusRetryPerPage: 0.07, worstUsd: 0 }, maxPages: 100, pageStore: true, budget, allowed: true, message: '', markLabels: '도착어' });
-    if (p === '/api/admin/layout/estimate') return J({ ok: true, files: [{ name: '합성_5쪽.pdf', pages: 5 }], estimate: { pages: 5, perPage: 0.0715, usd: 0.3575, opusRetryPerPage: 0.07, worstUsd: 0.7075 }, budget, allowed: true, message: '', markLabels: '도착어' });
-    if (p === '/api/admin/layout/start') { const x = { id: 'LT-' + (S.ltSeq = (S.ltSeq || 0) + 1), polls: 0, hold: !!S.ltHold, pages: S.ltPages || 5, resumed: S.ltResume || 0, mask: !!(rec.form && rec.form.mask && rec.form.mask[0] === 'true') }; ltSet(x); return J({ ok: true, job: ltView(x) }); }
+    if (p === '/api/admin/layout/estimate') return J({ ok: true, files: [{ name: '합성_5쪽.pdf', pages: 5, lang: ltLang() }], estimate: { pages: 5, perPage: 0.0715, usd: 0.3575, opusRetryPerPage: 0.07, worstUsd: 0.7075 }, budget, allowed: true, message: '', markLabels: '도착어' });
+    if (p === '/api/admin/layout/start') { const x = { id: 'LT-' + (S.ltSeq = (S.ltSeq || 0) + 1), polls: 0, hold: !!S.ltHold, pages: S.ltPages || 5, resumed: S.ltResume || 0, mask: !!(rec.form && rec.form.mask && rec.form.mask[0] === 'true'),
+      direction: ltForm('direction'), fieldCode: ltForm('fieldCode'), nation: ((/제출\s*국가\s*[:：]\s*([^·|\n]*)/.exec(ltForm('referenceNotes')) || [])[1] || '').trim() }; ltSet(x); return J({ ok: true, job: ltView(x) }); }
     const ltj = /^\/api\/admin\/layout\/jobs\/([^/]+)$/.exec(p);
     if (ltj) { const x = ltGet(); if (!x || x.id !== decodeURIComponent(ltj[1])) return J({ ok: false, interrupted: true, error: '작업을 찾지 못했습니다 — 서버가 다시 시작돼 끊겼을 수 있습니다. 같은 파일을 다시 올리면 [이어 하기]로 저장된 쪽 다음부터 읽습니다' }, 404); x.polls++; ltSet(x); return J({ ok: true, job: ltView(x) }); }
     if (/\/layout-docx$/.test(p)) return new Response(new Blob(['PK']), { status: 200, headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } });
@@ -583,7 +593,8 @@ try {
 
   console.log('\n[7] 우회 번역 접수 · 번역공증 편집 열기');
   await click('#work-bypass');
-  await ev(`document.getElementById('bp-text').value = '원문입니다'; window.__mock.calls.length = 0; 1`);
+  await ev(`(bpSetMode('text'), document.getElementById('bp-direction').value = '포르투갈어 → 한국어', document.getElementById('bp-direction').dispatchEvent(new Event('change')), 1)`);
+  await ev(`document.getElementById('bp-text').value = 'Texto original do documento'; window.__mock.calls.length = 0; 1`);
   await ev(`submitBypassOrder()`);
   const bp = (await calls('^/api/admin/translate-bypass$'))[0];
   check(bp && bp.m === 'POST' && bp.auth === 'Bearer TEST_TOKEN', '우회 번역 접수 → POST /api/admin/translate-bypass (예전과 같은 주소)');
@@ -675,8 +686,9 @@ try {
   await open(1440, 900, false, { token: 'TEST_TOKEN' });
   await ev(`(sessionStorage.removeItem('__mockLt'), localStorage.removeItem('iumm_layout_job_v1'), 1)`);
   await click('#work-bypass');
+  await ev(`(bpSetMode('layout'), 1)`);
   check(await until(`!!document.getElementById('lt-drop') && document.getElementById('lt-mask').checked && document.getElementById('lt-start').disabled`), "우회 번역 화면에 '원본 틀 번역(시범)' — 끌어다 놓기 칸 · [파일 첨부] · 가리고 읽기 기본 켬 · [시작] 꺼짐");
-  check(await ev(`(() => { const w = document.getElementById('bypass-wrap'), all = [...w.querySelectorAll('*')]; return all.indexOf(document.getElementById('lt-section')) > all.indexOf(document.getElementById('bp-extract-file')) && all.indexOf(document.getElementById('lt-section')) < all.indexOf(document.getElementById('bp-direction')); })()`), '기존 OCR(원문 파일 추출) 바로 옆(아래), 주문 정보 칸 위');
+  check(await ev(`(() => { const all = [...document.getElementById('bypass-wrap').querySelectorAll('*')]; const i = (id) => all.indexOf(document.getElementById(id)); return i('lt-section') > i('bp-direction') && i('lt-section') > i('bp-dest-row') && document.getElementById('lt-section').closest('#bp-layout-mode') && !document.getElementById('bp-extract-file').offsetParent && !document.getElementById('bp-text').offsetParent; })()`), '원본 틀 = ② 번역 설정 아래 · 원문 추출·원문 텍스트 칸은 숨김(추출과 주문 정보 사이에 끼지 않음)');
   const ltPdf = path.join(upDir, '합성_5쪽.pdf'); fs.writeFileSync(ltPdf, '%PDF-1.4');
   const ltTxt = path.join(upDir, '메모.txt'); fs.writeFileSync(ltTxt, 'x');
   await ev(`(document.getElementById('bp-direction').value = [...document.getElementById('bp-direction').options].find(o => /한국어 → 프랑스어/.test(o.value)).value, document.getElementById('bp-field').value = 'legal', document.getElementById('bp-dest-nation').value = '프랑스', window.__mock.calls.length = 0, 1)`);
@@ -702,7 +714,8 @@ try {
   check(/ADMIN-LT-1/.test(ltDone) && /틀 점검 통과/.test(ltDone) && /실제 비용 \$0\.1665/.test(ltDone) && /가리고 읽기 켬/.test(ltDone), '끝 → 주문번호 · 틀 점검 통과 · 실제 비용');
   check(await ev(`!localStorage.getItem('iumm_layout_job_v1')`), '끝나면 기억 지움');
   check(await ev(`!/176,\\s*141,\\s*87|#B08D57|#c00|red/i.test(document.getElementById('lt-section').innerHTML)`), '색은 파랑 계열(금색·빨강 없음)');
-  // 틀 보류
+  // 틀 보류 — 새로 고친 뒤라 번역 방향이 비어 있다(기본값 없음) → 다시 고른다
+  await ev(`(document.getElementById('bp-direction').value = '한국어 → 프랑스어', 1)`);
   await ev(`(window.__mock.ltHold = true, 1)`);
   { const d0 = await send('DOM.getDocument', {}); const nd = await send('DOM.querySelector', { nodeId: d0.result.root.nodeId, selector: '#lt-files' });
     await send('DOM.setFileInputFiles', { nodeId: nd.result.nodeId, files: [ltPdf] }); }
@@ -720,7 +733,7 @@ try {
     const d0 = await send('DOM.getDocument', {}); const nd = await send('DOM.querySelector', { nodeId: d0.result.root.nodeId, selector: '#lt-files' });
     await send('DOM.setFileInputFiles', { nodeId: nd.result.nodeId, files: [big] }); }
   await ev(`(document.getElementById('lt-mask').checked = true, document.getElementById('lt-files').dispatchEvent(new Event('change')), 1)`);
-  check(await until(`/끊긴 작업을 찾았습니다/.test(document.getElementById('lt-est').textContent) && document.getElementById('lt-start').textContent === '이어 하기' && !document.getElementById('lt-start').disabled`), '같은 파일 다시 올림 → 끊긴 작업 · 버튼 [이어 하기]');
+  check(await until(`/끊긴 작업을 찾았습니다/.test(document.getElementById('lt-est').textContent) && document.getElementById('lt-start').textContent === '이어서 번역 시작' && !document.getElementById('lt-start').disabled`), '같은 파일 다시 올림 → 끊긴 작업 · 버튼 [이어서 번역 시작]');
   { const t = await ev(`document.getElementById('lt-est').textContent`);
     check(/100쪽 중 7쪽 저장됨 → 8쪽부터 이어 하기/.test(t) && /남은 93쪽 × 쪽당 \$0\.0715 = \$6\.65/.test(t), `이어 하기 안내 · 남은 쪽만 예상 비용 — ${t.slice(0, 80)}`); }
   await click('#lt-start');
@@ -738,6 +751,104 @@ try {
   await click('#work-bypass');
   check(await until(`/작업이 끊겼습니다/.test((document.getElementById('lt-progress') || {}).textContent || '') && /이어 하기/.test(document.getElementById('lt-progress').textContent)`), '끊긴 작업 → \'작업이 끊겼습니다\' · 같은 파일로 이어 하기 안내');
   check(await ev(`!localStorage.getItem('iumm_layout_job_v1')`), '끊긴 작업 번호는 지움');
+  console.log('\n[11-M] 우회 주문 탭 개편 — ① 번역 방식 · ② 번역 설정 맨 위 · 방향 기본값 없음 · 확인 상자 · 문서 언어 (2026-11-20)');
+  {
+    const vis = (id) => `(() => { const el = document.getElementById('${id}'); return !!(el && el.offsetParent); })()`;
+    const reload = async () => { events.length = 0; await send('Page.reload', {}); for (let i = 0; i < 100 && !events.includes('Page.loadEventFired'); i++) await sleep(100); await click('#work-bypass'); await sleep(150); };
+    await ev(`(sessionStorage.removeItem('iumm.bpMode'), sessionStorage.removeItem('iumm.bpDraft'), sessionStorage.removeItem('__mockLt'), localStorage.removeItem('iumm_layout_job_v1'), 1)`);
+    await reload();
+    check(await ev(`${vis('bp-mode-text')} && ${vis('bp-mode-layout')} && !${vis('bp-body')} && /번역 방식을 고르세요/.test(document.getElementById('bp-mode-hint').textContent) && ${vis('bp-mode-hint')}`), '탭을 열면 ① 방식 카드 2개 + 「번역 방식을 고르세요」만 보임');
+    check(await ev(`(() => { const t = document.getElementById('bp-mode-text').textContent, l = document.getElementById('bp-mode-layout').textContent; return /텍스트 번역/.test(t) && /글자를 뽑아 원문을 확인·수정한 뒤 번역/.test(t) && /원본 틀 번역/.test(l) && /서류 모양 그대로/.test(l) && /읽기 → 틀 점검 → 번역 주문 생성 → 번역까지 자동/.test(l); })()`), '카드 설명 — 텍스트 번역 · 원본 틀 번역(자동 진행)');
+    check(await ev(`document.getElementById('bp-direction').value === '' && document.getElementById('bp-direction').options[0].textContent === '번역 방향을 고르세요' && document.getElementById('bp-direction').options[0].disabled && ![...document.getElementById('bp-direction').options].some((o) => o.defaultSelected && o.value)`), '번역 방향 기본값 없음 — 「번역 방향을 고르세요」 · 포르투갈어 selected 없음');
+    { const shot = await send('Page.captureScreenshot', { format: 'png' }); if (shot.result?.data) fs.writeFileSync(path.join(SHOT_DIR, 'admin_bypass_modes.png'), Buffer.from(shot.result.data, 'base64')); }
+    // 텍스트 번역
+    await click('#bp-mode-text');
+    check(await ev(`${vis('bp-settings')} && ${vis('bp-extract-status')} && ${vis('bp-text')} && ${vis('btn-bp-submit')} && !${vis('lt-section')} && !${vis('bp-mode-hint')} && document.getElementById('bp-mode-text').getAttribute('aria-pressed') === 'true'`), '텍스트 번역 → 설정·원문 텍스트·[우회 주문 시작] 보임 · 원본 틀 안 보임');
+    check(await ev(`(() => { const all = [...document.getElementById('bypass-wrap').querySelectorAll('*')]; const i = (id) => all.indexOf(document.getElementById(id)); return i('bp-direction') < i('bp-field') && i('bp-field') < i('bp-dest-nation') && i('bp-dest-nation') < i('bp-extract-file') && i('bp-extract-file') < i('bp-text') && i('bp-text') < i('bp-char-hint') && i('bp-char-hint') < i('bp-email') && i('bp-email') < i('btn-bp-submit'); })()`), '순서: ② 설정(방향·분야·제출 국가) → ③ 추출 → ④ 원문 텍스트 → ⑤ 이메일… → [우회 주문 시작]');
+    check(await ev(`['bp-direction','bp-field','bp-field-hint','bp-dest-row','bp-dest-nation','bp-dest-judge','bp-dest-variant','bp-dest-variant-col'].every((id) => document.querySelectorAll('#' + id).length === 1 && document.getElementById(id).closest('#bp-settings'))`), '기존 ID 8개 그대로 · 모두 ② 번역 설정 안');
+    check(await ev(`document.getElementById('btn-bp-submit').disabled && /번역 방향을 고르세요/.test(document.getElementById('bp-submit-reason').textContent) && ${vis('bp-submit-reason')}`), '방향 안 고름 → [우회 주문 시작] 꺼짐 · 버튼 옆 이유 한 줄');
+    await ev(`(document.getElementById('bp-direction').value = '한국어 → 영어', document.getElementById('bp-direction').dispatchEvent(new Event('change')), 1)`);
+    check(await ev(`!document.getElementById('btn-bp-submit').disabled && !${vis('bp-submit-reason')}`), '방향 고르면 켜짐');
+    await ev(`(document.getElementById('tx-pair').innerHTML = '', Promise.resolve(window.txInit && txInit()).catch(() => 0).then(() => 1))`);
+    check(await ev(`(() => { const o = [...document.getElementById('tx-pair').options].map((x) => x.value); return !o.includes('') && !o.some((v) => /고르세요/.test(v)) && o.includes('한국어→영어'); })()`), '용어 추출 언어쌍 목록에 빈 값(고르세요) 안 섞임');
+    await reload();
+    check(await ev(`document.getElementById('bp-mode-text').classList.contains('on') && ${vis('bp-text')} && sessionStorage.getItem('iumm.bpMode') === 'text'`), '새로 고쳐도 고른 방식 그대로(sessionStorage)');
+    // 텍스트 번역 — 문서 언어 409 → 경고 + 체크칸 → 체크 후 langConfirmed
+    await ev(`(document.getElementById('bp-direction').value = '포르투갈어 → 한국어', document.getElementById('bp-direction').dispatchEvent(new Event('change')), document.getElementById('bp-text').value = '시험용 문서입니다 홍길동 2026년 11월 3일 서울에서 작성하였습니다', window.__mock.calls.length = 0, 1)`);
+    await ev(`submitBypassOrder().then(() => 1)`);
+    check(await until(`${vis('bp-lang-warn')} && /올린 문서 글자는 한글인데, 번역 방향의 원문은 포르투갈어\\(라틴 문자\\)입니다\\. 번역 방향을 확인하세요\\./.test(document.getElementById('bp-lang-msg').textContent) && !document.getElementById('bp-lang-ok').checked`), '텍스트 번역: 409 lang_mismatch → [우회 주문 시작] 위 경고 + 체크칸');
+    check(await ev(`(() => { const all = [...document.getElementById('bypass-wrap').querySelectorAll('*')]; return all.indexOf(document.getElementById('bp-lang-warn')) < all.indexOf(document.getElementById('btn-bp-submit')); })() && document.getElementById('btn-bp-submit').disabled && /문서 언어를 확인하세요/.test(document.getElementById('bp-submit-reason').textContent)`), '체크 전엔 버튼 꺼짐 · 이유 한 줄');
+    check(await ev(`!document.getElementById('bp-result').style.display || document.getElementById('bp-result').style.display === 'none'`), '409 이면 주문 결과 표시 없음');
+    await ev(`(document.getElementById('bp-lang-ok').click(), 1)`);
+    check(await ev(`!document.getElementById('btn-bp-submit').disabled`), '체크하면 버튼 켜짐');
+    await ev(`(window.__mock.calls.length = 0, 1)`);
+    await ev(`submitBypassOrder().then(() => 1)`);
+    { const c = (await calls('^/api/admin/translate-bypass$'))[0];
+      check(c && c.json.langConfirmed === true && c.json.direction === '포르투갈어 → 한국어', '다시 누르면 langConfirmed=true 로 보냄 → 주문 생성'); }
+    check(await ev(`!${vis('bp-lang-warn')} && /IUMM-BP-1/.test(document.getElementById('bp-result-order').textContent)`), '접수되면 경고 닫힘');
+    // 재실행(폼에 불러오기) → 텍스트 번역으로 · 409 도 같게
+    await click('#bp-mode-layout');
+    await ev(`(window._failedOrders = [{ orderId: 'recLG', orderNumber: 'ADMIN-LG-1', originalText: '한국어 원문입니다 진술서', direction: '포르투갈어 → 한국어', fieldCode: 'criminal', referenceNotes: '' }], loadFailedToBypassForm(0), 1)`); await sleep(150);
+    check(await ev(`document.getElementById('bp-mode-text').classList.contains('on') && ${vis('bp-reprocess-banner')}`), '[폼에 불러오기] → 텍스트 번역으로 자동 전환');
+    await ev(`(window.__mock.calls.length = 0, window.__confirm0 = window.confirm, window.confirm = () => true, 1)`);
+    await ev(`submitBypassOrder().then(() => 1)`);
+    check(await until(`${vis('bp-lang-warn')}`) && (await calls('^/api/admin/reprocess/recLG$')).length === 1, '재실행: 409 lang_mismatch → 같은 경고 + 체크칸');
+    await ev(`(document.getElementById('bp-lang-ok').click(), window.__mock.calls.length = 0, 1)`);
+    await ev(`submitBypassOrder().then(() => 1)`);
+    { const c = (await calls('^/api/admin/reprocess/recLG$'))[0];
+      check(c && c.json.langConfirmed === true, '재실행: 체크 후 langConfirmed=true'); }
+    await ev(`(window.confirm = window.__confirm0, 1)`);
+    await click('#work-bypass'); await sleep(150);
+    // 원본 틀 번역
+    await click('#bp-mode-layout'); await sleep(100);
+    check(await ev(`!${vis('btn-bp-submit')} && !${vis('bp-extract-status')} && !${vis('bp-text')} && !${vis('bp-email')} && ${vis('lt-section')} && ${vis('bp-settings')}`), '원본 틀 번역 → [우회 주문 시작]·추출·원문 텍스트·이메일 숨김 · 설정 + 원본 틀만');
+    check(await ev(`${vis('bp-layout-internal')} && /원본 틀 번역 주문은 항상 내부전용입니다/.test(document.getElementById('bp-layout-internal').textContent)`), '「원본 틀 번역 주문은 항상 내부전용입니다」 고정 안내');
+    check(await ev(`document.getElementById('lt-mask').checked && document.getElementById('lt-start').textContent === '번역 시작'`), '개인정보 칸 가리기 기본 켬 · 버튼 글자 「번역 시작」');
+    await ev(`(document.getElementById('bp-direction').value = '', document.getElementById('bp-direction').dispatchEvent(new Event('change')), 1)`);
+    check(await ev(`document.getElementById('lt-start').disabled && /번역 방향을 고르세요/.test(document.getElementById('lt-msg').textContent)`), '원본 틀: 방향 비면 [번역 시작] 꺼짐 · 이유 한 줄');
+    await ev(`(document.getElementById('bp-direction').value = '한국어 → 이탈리아어', document.getElementById('bp-field').value = 'criminal', document.getElementById('bp-dest-nation').value = '이탈리아', window.__mock.calls.length = 0, window.LT_POLL_MS = 150, 1)`);
+    { const f5 = path.join(upDir, '합성_5쪽.pdf');
+      const d0 = await send('DOM.getDocument', {}); const nd = await send('DOM.querySelector', { nodeId: d0.result.root.nodeId, selector: '#lt-files' });
+      await send('DOM.setFileInputFiles', { nodeId: nd.result.nodeId, files: [f5] }); }
+    await ev(`(document.getElementById('lt-files').dispatchEvent(new Event('change')), 1)`);
+    check(await until(`!document.getElementById('lt-start').disabled`), '파일 → 예상 비용 → [번역 시작] 켜짐');
+    const conf = await ev(`document.querySelector('#lt-est .lt-confirm').textContent`);
+    check(conf === '이대로 번역합니다 — 한국어 → 이탈리아어 · 범죄수사·공문 · 제출 국가: 이탈리아 · 내부전용 · 5쪽 · 예상 $0.36', `확인 상자 맨 위 — ${conf}`);
+    check(await ev(`/\\[번역 시작\\]을 누르면 끝까지 자동으로 진행됩니다: 읽기 → 틀 점검 → 번역 주문 생성 → 번역\\(끝나면 검수 탭\\)\\. 다른 버튼을 누를 필요 없습니다\\./.test(document.getElementById('lt-est').textContent)`), '자동 진행 안내');
+    { const vp = await ev(`(() => { const p = document.getElementById('bp-settings'); p.scrollIntoView({ block: 'start' }); const a = p.getBoundingClientRect(), b = document.getElementById('lt-start').getBoundingClientRect(); return { x: Math.max(0, a.left - 8), y: Math.max(0, a.top - 8), width: a.width + 16, height: Math.min(b.bottom - a.top + 24, 1400) }; })()`);
+      const shot = await send('Page.captureScreenshot', { format: 'png', clip: { ...vp, scale: 1 }, captureBeyondViewport: true });
+      if (shot.result?.data) fs.writeFileSync(path.join(SHOT_DIR, 'admin_layout_confirm.png'), Buffer.from(shot.result.data, 'base64')); }
+    // 설정 바꾸면 예상 비용 다시(0.5초 디바운스) — 국가는 바로 맨 위 줄에
+    const n0 = (await calls('^/api/admin/layout/estimate$')).length;
+    await ev(`(() => { const n = document.getElementById('bp-dest-nation'); n.value = ''; n.dispatchEvent(new Event('input')); return 1; })()`);
+    check(await ev(`/제출 국가: 없음/.test(document.querySelector('#lt-est .lt-confirm').textContent) && document.getElementById('lt-start').disabled`), '제출 국가 비우면 「제출 국가: 없음」 · 다시 계산하는 동안 버튼 꺼짐');
+    await sleep(200);
+    check((await calls('^/api/admin/layout/estimate$')).length === n0, '0.5초 안에는 다시 부르지 않음(디바운스)');
+    await ev(`(() => { const d = document.getElementById('bp-direction'); d.value = '포르투갈어 → 한국어'; d.dispatchEvent(new Event('change')); return 1; })()`);
+    check(await until(`(${'window.__mock.calls.filter(c => c.p === "/api/admin/layout/estimate").length'}) === ${n0 + 1} && !!document.querySelector('#lt-est .lt-lang-warn')`, 3000), '방향 바꾸면 예상 비용·언어 다시 계산(디바운스로 한 번만)');
+    { const e = (await calls('^/api/admin/layout/estimate$')).pop(); check(e.form.direction[0] === '포르투갈어 → 한국어' && e.form.fieldCode[0] === 'criminal', '다시 부를 때 바뀐 방향·분야로'); }
+    check(await ev(`/⚠ 올린 문서 글자는 한글인데, 번역 방향의 원문은 포르투갈어\\(라틴 문자\\)입니다\\. 번역 방향을 확인하세요\\./.test(document.getElementById('lt-est').textContent) && /문서 언어를 확인했습니다 — 이대로 진행/.test(document.getElementById('lt-est').textContent)`), '원본 틀: 문서 언어 다름 → 경고 + 체크칸');
+    check(await ev(`document.getElementById('lt-start').disabled && /문서 언어를 확인하세요/.test(document.getElementById('lt-msg').textContent)`), '체크 전엔 [번역 시작] 꺼짐');
+    check(await ev(`!/176,\\s*141,\\s*87|#B08D57|#c00|red|rgba\\(2[0-9]{2},\\s*[0-9]{1,2},/i.test(document.getElementById('lt-est').innerHTML + document.getElementById('bp-mode-section').innerHTML)`), '경고·카드도 파랑 계열(빨강·초록·금색 없음)');
+    await ev(`(document.getElementById('lt-lang-ok').click(), 1)`);
+    check(await ev(`!document.getElementById('lt-start').disabled`), '체크하면 켜짐');
+    await ev(`(window.__mock.calls.length = 0, 1)`);
+    await click('#lt-start');
+    check(await until(`/진행 중/.test(document.getElementById('lt-progress').textContent)`), '시작됨');
+    { const st = (await calls('^/api/admin/layout/start$'))[0]; check(st && st.form.langConfirmed && st.form.langConfirmed[0] === 'true', 'start 에 langConfirmed=true'); }
+    check(await ev(`/포르투갈어 → 한국어 · 범죄수사·공문 · 제출 국가: 없음/.test(document.querySelector('#lt-progress .lt-job-set').textContent)`), '진행 중 표시에도 방향·분야·제출 국가');
+    check(await until(`/끝 — 완료/.test(document.getElementById('lt-progress').textContent)`, 8000), '끝까지');
+    check(await ev(`/번역 주문 ADMIN-LT-1 을 만들었고 번역이 진행 중입니다 — 끝나면 검수 탭에서 확인하세요/.test(document.getElementById('lt-progress').textContent) && document.querySelector('#lt-progress .lt-copy').getAttribute('data-num') === 'ADMIN-LT-1' && /주문 번호 복사/.test(document.querySelector('#lt-progress .lt-copy').textContent)`), '끝: 「번역 주문 ADMIN-… 을 만들었고 번역이 진행 중입니다 — 끝나면 검수 탭에서 확인하세요」 + [주문 번호 복사]');
+    // 화면만 믿지 않음 — 체크 없이 start 를 보내면 서버가 409 → 경고 다시
+    { const f5 = path.join(upDir, '합성_5쪽.pdf');
+      const d0 = await send('DOM.getDocument', {}); const nd = await send('DOM.querySelector', { nodeId: d0.result.root.nodeId, selector: '#lt-files' });
+      await send('DOM.setFileInputFiles', { nodeId: nd.result.nodeId, files: [f5] }); }
+    await ev(`(document.getElementById('lt-files').dispatchEvent(new Event('change')), 1)`);
+    check(await until(`!!document.querySelector('#lt-est .lt-lang-warn') && document.getElementById('lt-start').disabled`), '같은 방향으로 다시 올리면 경고 다시(체크 풀림)');
+    await ev(`(document.getElementById('bp-direction').value = '한국어 → 이탈리아어', document.getElementById('bp-direction').dispatchEvent(new Event('change')), 1)`);
+    check(await until(`!document.querySelector('#lt-est .lt-lang-warn') && !document.getElementById('lt-start').disabled`, 3000), '원문 한국어로 바꾸면 경고 없어지고 켜짐');
+    await ev(`(window.__lt0 = 1, 1)`);
+  }
   // 주문 상세 버튼
   await ev(`(ltShowOrder({ layout: { pages: 5, blocks: 42, mask: true, approved: false } }), 1)`);
   check(await ev(`document.getElementById('btn-dl-layout-src').style.display === '' && document.getElementById('btn-dl-layout-tr').style.display === 'none'`), '[원문 틀 워드] 언제든 · [번역 틀 워드]는 승인 전 숨김');

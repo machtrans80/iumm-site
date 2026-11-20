@@ -44,6 +44,7 @@
     var html = '';
     [].forEach.call(src ? src.children : [], function (g) {
       var opts = g.tagName === 'OPTGROUP' ? g.children : [g];
+      opts = [].filter.call(opts, function (o) { return o.value !== ''; });   // '번역 방향을 고르세요'(빈 값, 2026-11-20)는 뺀다
       var inner = [].map.call(opts, function (o) {
         var t = o.textContent.trim();
         return '<option value="' + esc(t.replace(/\s+/g, '')) + '">' + esc(t) + '</option>';
