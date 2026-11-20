@@ -108,6 +108,8 @@ check(html.includes("'/revision',{method:'POST'") && html.includes("REVISION_CLO
 console.log('\n[3-3] 무료 테스트 하나로 · 무상 수정 유료 1회 · 약관 개정 (2026-10-30)');
 const terms = html.slice(html.indexOf('<div id="page-terms"'), html.indexOf('<!-- FAQ 페이지'));
 const priv = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
+// 2026-11-06 판(공고 10-30) — 2026-11-20 개정(CLOVA 제거)으로 보관본으로 옮김. 그 판의 개정 안내는 보관본에서 본다
+const privArch = fs.readFileSync(path.resolve(HERE, '../legal/privacy-2026-11-06.html'), 'utf8');
 check(!/300자|300글자/.test(html), "'300자·300글자' 문구 없음 (주석 포함)");
 check(!/2회/.test(html), "'2회' 없음 (무상 수정 1회)");
 check((html.match(/유료 주문은 납품 후 14일 이내 1회 무료로 수정해 드립니다\./g) || []).length === 3, '카드·랜딩 FAQ·FAQ 페이지 = 유료 주문 14일 이내 1회');
@@ -119,8 +121,8 @@ check(/function handleFreeTrial\(\)\{ openFreeTest\(\); \}/.test(html), '옛 무
 check(/회사명 <span style="color:#e05555">\*<\/span><\/label>\n\s*<input type="text" id="signup-company"/.test(html) && html.includes("if(!companyVal){showToast('회사명을 입력해주세요')"), '가입 정보 입력 — 회사명 필수');
 check(!/수사|진술|사법공조|증거 자료|공문|공증|아포스티유/.test(terms), '이용약관에 수사·진술·사법공조·증거 자료·공문·공증·아포스티유 없음');
 check(!terms.includes('11.4') && terms.includes('11.3 통화 환산 금지 원칙'), '11.3(수사 예외) 삭제 · 통화 환산 = 11.3');
-check(terms.includes('공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일') && priv.includes('공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일'), '약관·개인정보 공고 10-30 · 시행 11-06 (7일 전 공지, main 합친 날 기준)');
-check(terms.includes('href="/legal/terms-2026-10-26"') && priv.includes('href="/legal/privacy-2026-10-26"') && fs.existsSync(path.resolve(HERE, '../legal/terms-2026-10-26.html')) && fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-10-26.html')), '이전 약관·개인정보 보기 = 2026-10-26 시행본 보관 파일');
+check(terms.includes('공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일') && priv.includes('공고일: 2026년 11월 20일 &nbsp;|&nbsp; 시행일: 2026년 11월 20일') && fs.readFileSync(path.resolve(HERE, '../legal/privacy-2026-11-06.html'), 'utf8').includes('공고일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: 2026년 11월 6일'), '약관 공고 10-30 · 시행 11-06 · 개인정보 공고·시행 11-20(CLOVA 제거, 대표 결정) · 11-06 판은 보관본');
+check(terms.includes('href="/legal/terms-2026-10-26"') && priv.includes('href="/legal/privacy-2026-11-06"') && fs.readFileSync(path.resolve(HERE, '../legal/privacy-2026-11-06.html'), 'utf8').includes('href="/legal/privacy-2026-10-26"') && fs.existsSync(path.resolve(HERE, '../legal/terms-2026-10-26.html')) && fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-10-26.html')) && fs.existsSync(path.resolve(HERE, '../legal/privacy-2026-11-06.html')), '이전 약관 = 2026-10-26 · 이전 개인정보 = 2026-11-06 보관본(그 안에 2026-10-26 링크)');
 check(terms.includes('회사당 1회, 1,000자(공백 제외) 이하의 무료 테스트 번역') && terms.includes('무료 테스트 번역은 무상 수정 대상이 아닙니다.'), '약관 5.6 무료 테스트 — 회사당 1회 1,000자 · 수정 대상 아님');
 check(terms.includes('유료 주문은 납품 후 14일 이내 1회 무상으로 수정') && terms.includes('무상 수정 횟수와 별개') && !/5일/.test(terms.slice(terms.indexOf('<h2>제1조')).replace(/15일|25일/g, '')), '약관 5.3·6조·7조 — 14일 1회 · 회사 귀책 별개 · 5일 기한 없음');
 check(terms.includes('제7조의2 (비밀유지계약)'), '약관 제7조의2 비밀유지계약 신설');
@@ -614,7 +616,7 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
   const privAll = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
   const privBody = privAll.slice(privAll.indexOf('</div>', privAll.indexOf('privacy-revision-notice')));
   check(!/공증|아포스티유|등기|영사/.test(privBody), '개인정보처리방침 본문에 공증·아포스티유·등기·영사 없음');
-  check(privAll.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privAll.includes('개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제, 문서 삭제 시점과 외부 처리 내용의 정확한 안내, 기업 문의 개인정보 처리 안내</li>') && !/공증/.test(privAll) && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '더 이상 제공하지 않는 서비스 관련 조항 삭제'(공증 없음) · 번호 ⑤→④");
+  check(privArch.includes('<li>제1조 ④, 제3조, 제5조, 제6조, 제8조: 더 이상 제공하지 않는 서비스 관련 조항 삭제 (제1조 ⑤ 수집 방법 → ④)</li>') && privArch.includes('개정 사유: 무료 테스트 번역 기준 변경 (회사당 1회, 1,000자 이하), 더 이상 제공하지 않는 서비스 관련 조항 삭제, 문서 삭제 시점과 외부 처리 내용의 정확한 안내, 기업 문의 개인정보 처리 안내</li>') && !/공증/.test(privAll) && privBody.includes('④ 수집 방법') && !privBody.includes('⑤ 수집 방법'), "개정 안내 '더 이상 제공하지 않는 서비스 관련 조항 삭제'(공증 없음) · 번호 ⑤→④");
   // 2026-10-30 보안 마무리: 삭제 시점 = cron 실제(납품+21일 지난 뒤), '완전' 금지(Airtable 변경 기록 미확인), 수탁사별 학습·보관·가림, 국외 이전 문의처
   check((privBody.match(/납품 후 21일이 지나면 자동으로 삭제/g) || []).length === 3 && !/21일 이내|완전/.test(privBody), "처리방침 제1조 ③·제3조·제6조 = '납품 후 21일이 지나면 자동으로 삭제' · '21일 이내'·'완전' 없음");
   { const ai = (privBody.match(/<li id="privacy-5-ai">[^]*?<\/ul>/) || [''])[0], ocr = (privBody.match(/<li id="privacy-5-ocr">[^]*?<\/ul>/) || [''])[0];
@@ -622,7 +624,7 @@ console.log('\n[공증] 고객 화면 정리 (2026-10-30)');
     check(ocr.includes('AI 학습에 사용하지 않습니다') && ocr.includes('이미지와 인식 결과를 저장하지 않고') && ocr.includes('원본 이미지가 가림 처리 없이 전송됩니다'), '제5조 문서 OCR — 학습 안 함 · 저장 안 함 · 원본 이미지 전송(가림은 AI 전)'); }
   { const c = (privBody.match(/<li id="privacy-6-contacts">[^]*?<\/ul>/) || [''])[0];
     check(['privacy@airtable.com', 'dsar@openai.com', 'dpo@openai.com', 'privacy@anthropic.com', 'privacy@railway.com', 'support.google.com/policies?p=privpol_privts'].every(s => c.includes(s)), '제6조 이전 받는 자별 문의처 (공식 문서 확인분)'); }
-  check(privAll.includes("<li>제5조: AI 번역·검수, 문서 OCR(문자인식) 수탁사별 AI 학습 사용 여부, 수탁사 측 보관 기간, 보내기 전 처리(개인정보 번호 가림) 명시</li>") && privAll.includes('<li>제6조: 이전 받는 자별 개인정보 문의처 추가</li>') && (privAll.match(/공고일: 2026년 10월 30일 &nbsp;\|&nbsp; 시행일: 2026년 11월 6일/g) || []).length === 1 && privAll.includes('공지일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 6일</span>') && privBody.includes('변경 시 시행 7일 전 서비스 내 공지합니다'), '개정 안내 — 삭제 시점·제5조·제6조 항목 · 공고 10-30 · 시행 11-06 (제11조 7일 전 공지)');
+  check(privArch.includes("<li>제5조: AI 번역·검수, 문서 OCR(문자인식) 수탁사별 AI 학습 사용 여부, 수탁사 측 보관 기간, 보내기 전 처리(개인정보 번호 가림) 명시</li>") && privArch.includes('<li>제6조: 이전 받는 자별 개인정보 문의처 추가</li>') && (privArch.match(/공고일: 2026년 10월 30일 &nbsp;\|&nbsp; 시행일: 2026년 11월 6일/g) || []).length === 1 && privArch.includes('공지일: 2026년 10월 30일 &nbsp;|&nbsp; 시행일: <span class="highlight">2026년 11월 6일</span>') && privBody.includes('변경 시 시행 7일 전 서비스 내 공지합니다'), '개정 안내 — 삭제 시점·제5조·제6조 항목 · 공고 10-30 · 시행 11-06 (제11조 7일 전 공지)');
   check(!/서버에서 완전히 삭제|회원 정보 완전 삭제/.test(html) && !/완전히 삭제/.test(fs.readFileSync(path.resolve(HERE, '../notary/edit.html'), 'utf8')), "고객 화면 '완전히 삭제' 없음 → '자동으로 삭제'");
   const outside = strip(html).replace(privAll, '');
   check(!/공증|아포스티유|번역공증|사본공증|등기/.test(outside), '메인 index.html(개인정보 개정 안내 밖)에 공증·아포스티유·등기 없음');
@@ -652,9 +654,23 @@ console.log('\n[기업 문의] 처리방침·양식 문구 — 접수 후 21일 
   check(sec.includes('이용 목적: 견적·상담') && sec.includes('접수 후 21일이 지나면 자동으로 삭제'), '목적 견적·상담 · 보유 접수 후 21일');
   check(html.includes('기업 문의 기록: 접수 후 21일이 지나면 자동으로 삭제'), '제3조 보유 기간');
   check(html.includes('문의 내용은 견적·상담에만 사용되며, 접수 후 21일이 지나면 자동으로 삭제됩니다.') && !html.includes('영업 목적으로만'), '기업 문의 양식 문구가 처리방침과 같음');
-  const notice = html.slice(html.indexOf('id="privacy-revision-notice"'), html.indexOf('이전 개인정보처리방침 보기'));
-  check(notice.includes('id="privacy-rev-biz"') && notice.includes('시행일: <span class="highlight">2026년 11월 6일</span>'), '개정 안내에 기업 문의 항목 · 시행일 2026-11-06(공고 10-30 + 7일)');
+  const notice = privArch.slice(privArch.indexOf('id="privacy-revision-notice"'), privArch.indexOf('이전 개인정보처리방침 보기'));
+  check(notice.includes('id="privacy-rev-biz"') && notice.includes('시행일: <span class="highlight">2026년 11월 6일</span>'), '(11-06 보관본) 개정 안내에 기업 문의 항목 · 시행일 2026-11-06(공고 10-30 + 7일)');
   check(!/완전 삭제|완전히 삭제/.test(sec), "'완전 삭제' 표현 없음");
+}
+
+console.log('\n[개인정보] 2026-11-20 개정 — 문서 OCR 은 Google Cloud Vision 만(CLOVA 제거)');
+{
+  const pa = html.slice(html.indexOf('<div id="page-privacy"'), html.indexOf('<!-- 기업회원 추가 약관 페이지 -->'));
+  const body = pa.slice(pa.indexOf('</div>', pa.indexOf('privacy-revision-notice')));
+  const ocr = (body.match(/<li id="privacy-5-ocr">[^]*?<\/ul>/) || [''])[0];
+  check(ocr.includes('Google LLC (Google Cloud Vision) — 이미지·스캔본·PDF에서 텍스트 자동 추출') && !/CLOVA|네이버/.test(ocr) && ocr.includes('AI 학습에 사용하지 않습니다') && ocr.includes('이미지와 인식 결과를 저장하지 않고') && ocr.includes('원본 이미지가 가림 처리 없이 전송됩니다'), '제5조 문서 OCR = Google Cloud Vision 만 · 학습 안 함 · 저장 안 함 · 원본 이미지 전송');
+  check(!/CLOVA|네이버클라우드/.test(body), '처리방침 본문(개정 안내 밖)에 CLOVA·네이버클라우드 없음(제5조·제6조)');
+  check(body.includes('이전 받는 자: Airtable, Inc. / OpenAI, L.L.C. / Anthropic PBC / Railway Corp / Google LLC'), '제6조 이전 받는 자 그대로');
+  const nt = pa.slice(pa.indexOf('id="privacy-revision-notice"'), pa.indexOf('이전 개인정보처리방침 보기'));
+  check(nt.includes('id="privacy-rev-ocr"') && /네이버클라우드 주식회사\(CLOVA OCR\) 삭제/.test(nt) && nt.includes('시행일: <span class="highlight">2026년 11월 20일</span>'), '개정 안내 = 제5조 OCR 수탁사 삭제 · 제6조 · 시행 2026-11-20');
+  const ar = privArch;
+  check(ar.includes('네이버클라우드 주식회사 (CLOVA OCR)') && ar.includes('2026년 11월 6일부터 2026년 11월 19일까지 적용') && ar.includes('href="/#privacy"') && !/onclick/.test(ar) && ar.includes('<meta name="robots" content="noindex">'), '11-06 판 보관본 — 그때 문구 그대로 · 적용 기간 · 현행 보기 링크 · noindex');
 }
 
 // ── 8. FAQ 낡은 문구 ──

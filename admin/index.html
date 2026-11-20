@@ -1005,12 +1005,6 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           📌 <strong>여러 파일은 파일별로 별도 주문해 주세요.</strong><br>
           <strong style="color:#E6D3B0">⚠ 본문 직접 확인 + 수정 필수.</strong>
         </div>
-        <div style="margin-bottom:10px;padding:8px 10px;background:rgba(157,183,245,0.06);border:1px solid rgba(157,183,245,0.2);border-radius:4px">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8)">
-            <input type="checkbox" id="bp-extract-hanja-mode" style="accent-color:#9DB7F5">
-            <span><strong style="color:#9DB7F5">한자어 혼용 문서</strong> — 체크 시 Google Vision 사용 (한자 인식 강함)</span>
-          </label>
-        </div>
         <input type="file" id="bp-extract-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp,.tiff,.tif" style="display:none" onchange="bpExtractFileChange(this)">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <label for="bp-extract-file" style="padding:8px 16px;background:rgba(157,183,245,0.12);color:var(--gold);border:1px solid rgba(157,183,245,0.3);border-radius:3px;cursor:pointer;font-size:13px">파일 선택</label>
@@ -3530,14 +3524,12 @@ async function bpExtractFileChange(input) {
   if (statusEl) statusEl.innerHTML = '<span style="color:rgba(176,141,87,0.9)">⏳ 추출 중...</span>';
   var direction = document.getElementById('bp-direction')?.value || '한국어 → 영어';
   var sourceLang = direction.split('→')[0].trim() || '한국어';
-  var hanjaMode = document.getElementById('bp-extract-hanja-mode')?.checked || false;
   try {
     var text, charCount;
     if (BP_IMAGE_EXTS.includes(ext)) {
       var fd = new FormData();
       fd.append('files', file);
       fd.append('sourceLang', sourceLang);
-      fd.append('hanjaMode', String(hanjaMode));
       var r = await authFetch(API_BASE + '/api/admin/ocr', { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken() }, body: fd });
       var d = await r.json();
       if (!r.ok || !d.ok) throw new Error(d.error || 'OCR 실패');
@@ -3614,7 +3606,6 @@ async function runBypassOcr() {
     bpSelectedFiles.forEach(function(f){ formData.append('files', f); });
     var bpDirectionVal = document.getElementById('bp-direction')?.value || '한국어 → 영어';
     formData.append('sourceLang', bpDirectionVal.split('→')[0].trim() || '한국어');
-    formData.append('hanjaMode', String(document.getElementById('bp-ocr-hanja-mode')?.checked || false));
     var res = await authFetch(API_BASE + '/api/admin/ocr', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + adminToken() },
