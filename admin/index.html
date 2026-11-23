@@ -2844,10 +2844,25 @@ function downloadTranslationTxt() {
   URL.revokeObjectURL(url);
 }
 
-async function downloadWithAuth(path, filename) {
+// 2026-11-23 번역 틀 워드: 조판·검수(1~2분)가 도는 중이면 서버가 202 {state:"running"} → 알림 1번 + 10초마다 다시(최대 6분)
+//   파일과 함께 온 X-Typeset-Notice(원본 그림 없음 · 남은 차이 · 기본 서식)는 알림으로 보여 준다
+var DL_RETRY_MS = 10000, DL_RETRY_MAX = 36;
+async function downloadWithAuth(path, filename, _tries) {
+  _tries = _tries || 0;
   try {
     var r = await authFetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + adminToken() } });
-    if (!r.ok) { showToast('⚠️ 다운로드 실패 (' + r.status + ')', 'error'); return; }
+    if (r.status === 202) {
+      if (_tries >= DL_RETRY_MAX) { showToast('⚠️ 조판·검수가 너무 오래 걸려요 — 잠시 뒤 다시 눌러 주세요', 'error'); return; }
+      if (!_tries) showToast('조판·검수 중이에요(1~2분) — 끝나면 자동으로 받아요', 'info');
+      setTimeout(function(){ downloadWithAuth(path, filename, _tries + 1); }, DL_RETRY_MS);
+      return;
+    }
+    if (!r.ok) {
+      var msg = ''; try { msg = (await r.json()).error || ''; } catch (_) {}
+      showToast('⚠️ 다운로드 실패 (' + r.status + ')' + (msg ? ' — ' + msg : ''), 'error'); return;
+    }
+    var notice = r.headers.get('X-Typeset-Notice');
+    if (notice) { try { notice = decodeURIComponent(notice); } catch (_) {} showToast('ℹ️ ' + notice, 'info'); }
     var blob = await r.blob();
     var url  = URL.createObjectURL(blob);
     var a    = document.createElement('a');

@@ -209,7 +209,11 @@ const MOCK = String.raw`(() => {
       direction: ltForm('direction'), fieldCode: ltForm('fieldCode'), nation: ((/제출\s*국가\s*[:：]\s*([^·|\n]*)/.exec(ltForm('referenceNotes')) || [])[1] || '').trim() }; ltSet(x); return J({ ok: true, job: ltView(x) }); }
     const ltj = /^\/api\/admin\/layout\/jobs\/([^/]+)$/.exec(p);
     if (ltj) { const x = ltGet(); if (!x || x.id !== decodeURIComponent(ltj[1])) return J({ ok: false, interrupted: true, error: '작업을 찾지 못했습니다 — 서버가 다시 시작돼 끊겼을 수 있습니다. 같은 파일을 다시 올리면 [이어 하기]로 저장된 쪽 다음부터 읽습니다' }, 404); x.polls++; ltSet(x); return J({ ok: true, job: ltView(x) }); }
-    if (/\/layout-docx$/.test(p)) return new Response(new Blob(['PK']), { status: 200, headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' } });
+    if (/\/layout-docx$/.test(p)) {
+      const D = window.__ltDocx || {};   // 2026-11-23 조판·검수 중이면 202 → 끝나면 파일 + X-Typeset-Notice
+      if (D.pending > 0) { D.pending--; return J({ ok: true, state: 'running', since: Date.now() }, 202); }
+      return new Response(new Blob(['PK']), { status: 200, headers: Object.assign({ 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }, D.notice ? { 'X-Typeset-Notice': encodeURIComponent(D.notice) } : {}) });
+    }
     return J({ success: true, ok: true, orders: [], items: [], reviewers: [], members: [] });
   };
 })();`;
@@ -858,6 +862,12 @@ try {
   check(await ev(`document.getElementById('btn-dl-layout-src').style.display === 'none'`), '원본 틀 주문이 아니면 버튼 없음');
   await ev(`(selectedOrder = { orderId: 'recLT', orderNumber: 'ADMIN-LT-1' }, window.__mock.calls.length = 0, ltDownload('translation'), 1)`);
   check(await until(`window.__mock.calls.some(c => c.p === '/api/admin/orders/recLT/layout-docx' && /kind=translation/.test(c.q))`), '[번역 틀 워드] → /api/admin/orders/:id/layout-docx?kind=translation');
+  // 2026-11-23 조판·검수 중(202) → 알림 1번 + 자동 다시 → 파일을 받으면 X-Typeset-Notice 알림
+  await ev(`(window.__toasts = [], window.__st0 = window.__st0 || showToast, showToast = function (m, t) { window.__toasts.push(m); window.__st0(m, t); }, DL_RETRY_MS = 60, window.__ltDocx = { pending: 2, notice: '검수 남은 차이 1곳 — 상자(1쪽)' }, window.__mock.calls.length = 0, ltDownload('translation'), 1)`);
+  check(await until(`window.__toasts.some(m => m.indexOf('검수 남은 차이 1곳 — 상자(1쪽)') >= 0)`), '파일과 온 X-Typeset-Notice → 알림(남은 차이)');
+  const dl = await ev(`({ n: window.__mock.calls.filter(c => c.p === '/api/admin/orders/recLT/layout-docx').length, busy: window.__toasts.filter(m => m.indexOf('조판·검수 중이에요(1~2분)') >= 0).length })`);
+  check(dl.n === 3 && dl.busy === 1, `202 두 번 → 「조판·검수 중이에요(1~2분)」 1번 · 자동으로 다시 받음 (${dl.n}회 · 알림 ${dl.busy})`);
+  await ev(`(window.__ltDocx = {}, DL_RETRY_MS = 10000, showToast = window.__st0, 1)`);
 
   console.log('\n[11-0] 주문 상세 납품 전 점검 · 목록 배지 · 저장(Ctrl+S) 점검 (2026-11-10)');
   await ev(`setAdminMode('orders', true), switchTab('ai_premium'), 1`);
