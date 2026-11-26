@@ -5315,8 +5315,11 @@ async function ntrdPoll(n) {
     if (j.statusKey === 'failed' || j.status === '확인필요') {
       /* ★대응 방법은 서버가 원인별로 갈라서 넣어 준다(해상도 문제 / 서식 문제).
          여기서 "해상도를 확인하세요" 를 덧붙이면 서식 문제일 때 엉뚱한 안내가 된다. */
-      info.innerHTML = '<span style="color:#D9BC8C">인식 실패 — ' +
-        _ne(j.failReason || '사유 확인 중').replace(/\n/g, '<br>') + '</span>';
+      var isHold = /^\[ROWS_HOLD\]/.test(j.failReason || '');
+      info.innerHTML = isHold
+        ? '<span style="color:#F28B82">' + _ne(String(j.failReason).replace(/^\[ROWS_HOLD\]\s*/, '')) + '</span>' + ntrdVerifyLine(j.verify)
+        : '<span style="color:#D9BC8C">인식 실패 — ' +
+          _ne(j.failReason || '사유 확인 중').replace(/\n/g, '<br>') + '</span>';
       loadNotaryDirect();
       return;
     }
@@ -5347,6 +5350,12 @@ function ntrdVerifyLine(v) {
   if (v.opusSkipped) parts.push('원본 대조 건너뜀(' + _ne(v.opusSkipped) + ')');
   else parts.push('원본 대조 ' + (v.fixed ? '<b style="color:#E8C66A">' + v.fixed + '칸 AI 대조로 고침</b>(노란 칸 · 마우스 = OCR 값)' : (v.flagged ? v.flagged + '칸 불일치(빨간 칸)' : '불일치 없음')));
   if (v.reprocessed) parts.push('다시 처리 ' + _ne(v.reprocessed));
+  /* 판독 불가 — "판독 불가 N곳: 위치·원문 조각" (고치기 전에는 확정·Word·인쇄가 막힌다) */
+  if (v.illegible && v.illegible.count) parts.push('<b style="color:#F28B82">⚠ ' + _ne(v.illegible.msg) + '</b>');
+  /* 사람 수 — 재판독으로 맞춤 / 그래도 다름(보류) */
+  if (v.rowCheck) parts.push(v.rowCheck.action === 'fixed'
+    ? '<span style="color:#9DB7F5">사람 수 불일치 → Opus 재판독으로 맞춤(' + _ne(v.rowCheck.after || '') + ')</span>'
+    : '<b style="color:#F28B82">⚠ 보류 — ' + _ne(v.rowCheck.msg) + (v.rowCheck.suspects && v.rowCheck.suspects.length ? ' · 의심 행: ' + v.rowCheck.suspects.map(_ne).join(' / ') : '') + '</b>');
   if (v.codeIssues && v.codeIssues.length) parts.push('<span style="color:#D9BC8C">코드 점검: ' + v.codeIssues.map(_ne).join(' / ') + '</span>');
   if (v.numbersMissing) parts.push('<span style="color:#D9BC8C">원본 숫자 ' + v.numbersMissing + '개가 번역본에 없음</span>');
   if (v.cells) parts.push('칸 ' + v.cells.total + ' = 틀 ' + v.cells.template + ' · 기억 ' + v.cells.memory + ' · 코드 ' + v.cells.code + ' · Opus ' + v.cells.opus);
@@ -5394,6 +5403,8 @@ async function loadNotaryDirect() {
       +   (o.detect && o.detect.indexOf(' → ') > 0 && o.detect.split(' → ')[0] !== o.detect.split(' → ')[1].split(/[( ·]/)[0]
             ? '<span style="font-size:11px;color:#9DB7F5" title="' + _ne(o.detect) + '">' + _ne(o.detect.split(' · ')[0]) + '</span>' : '')
       +   (o.verify && o.verify.fixed ? '<span style="font-size:11px;color:#E8C66A">AI 대조로 고침 ' + o.verify.fixed + '칸</span>' : '')
+      +   (/^\[ROWS_HOLD\]/.test(o.failReason || '') ? '<span style="font-size:11px;color:#F28B82" title="' + _ne(String(o.failReason).replace(/^\[ROWS_HOLD\]\s*/, '')) + '">⚠ 보류 · ' + _ne(o.verify && o.verify.rowCheck ? o.verify.rowCheck.msg : '사람 수 불일치') + '</span>' : '')
+      +   (o.verify && o.verify.illegible && o.verify.illegible.count ? '<span style="font-size:11px;color:#F28B82" title="' + _ne(o.verify.illegible.msg) + '">⚠ 판독 불가 ' + o.verify.illegible.count + '곳</span>' : '')
       +   (o.verify && o.verify.usd != null ? '<span style="font-size:11px;color:rgba(255,255,255,0.35)">$' + Number(o.verify.usd).toFixed(3) + '</span>' : '')
       +   '<span style="font-size:11px;color:rgba(255,255,255,0.3)">' + _nd(o.receivedAt) + '</span>'
       +   '<span style="flex:1"></span>'

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/notary/notary.css?v=42">
+<link rel="stylesheet" href="/notary/notary.css?v=43">
 <!-- ★메인·주문 페이지와 같은 v1 SDK. 편집토큰이 없을 때는 카카오 토큰으로 인증하는데,
      버전이 다르면 같은 로그인 상태인데도 토큰을 읽지 못한다. -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js"></script>
@@ -360,6 +360,7 @@ async function loadDoc(finalized){
   document.body.classList.add('editing');
   $('edit-guide').style.display = '';
   $('actions').style.display = '';
+  showIllegible(d.illegible || []);
 
   /* ── 빨간 항목 안내 ──────────────────────────────────────
      빨강 = 사전에 없거나 인식되지 않은 값. 한자(본관·이름)는 OCR 오독이
@@ -406,6 +407,28 @@ async function loadDoc(finalized){
     if (document.body.classList.contains('editing')) { ev.preventDefault(); ev.returnValue = ''; }
   });
 }
+
+// ─── 판독 불가 [?] — 편집 화면에서만 알리고, 남아 있으면 인쇄를 막는다 (2026-11-26) ───
+// 확정·Word 는 서버가 409 로 막는다. 문서 안에는 어떤 표시도 넣지 않는다.
+var ILLEGIBLE_RE = /\[\s*[?？]+\s*\]|［\s*[?？]+\s*］|\[\s*(?:illegible|unreadable|판독\s*불가)\s*\]/i;
+function showIllegible(spots){
+  var box = $('illegible-box');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'illegible-box'; box.className = 'ntr-msg err no-print'; box.style.marginTop = '10px';
+    $('edit-guide').appendChild(box);
+  }
+  if (!spots.length) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  box.innerHTML = '<strong>판독 불가 ' + spots.length + '곳</strong> — 원본에서 읽지 못한 글자([?])가 있습니다. 원본과 대조해 고쳐 주세요. ' +
+    '고치기 전에는 확정·Word·인쇄가 되지 않습니다.<br>' +
+    spots.slice(0, 12).map(function(x){ return esc(x.where) + ' 「' + esc(x.snippet) + '」' + (x.source ? ' (원문: ' + esc(x.source) + ')' : ''); }).join('<br>');
+}
+window.addEventListener('beforeprint', function(){
+  var doc = $('doc');
+  document.body.classList.toggle('ntr-print-blocked', !!(doc && ILLEGIBLE_RE.test(doc.textContent || '')));
+});
+window.addEventListener('afterprint', function(){ document.body.classList.remove('ntr-print-blocked'); });
 
 // ─── 인쇄 머리글 억제 ────────────────────────────────────
 // 브라우저 인쇄 머리글에는 document.title 이 찍힌다. 공증 서류에 사이트 제목이
