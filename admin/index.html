@@ -744,9 +744,23 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none}
           </div>
         </div>
 
+        <!-- ★여권 영문 이름 — 고객 주문과 같은 필드(영문이름·가족영문이름). 여기 넣은 이름이 번역 칸에 그대로 들어간다 (2026-11-26) -->
         <div class="bp-row single">
           <div class="bp-col">
-            <label class="bp-label" for="ntrd-memo">메모 (선택 — 손님 이름·연락처 등, 관리자만 봅니다)</label>
+            <label class="bp-label" for="ntrd-en">본인 영문이름 (여권 철자 — 번역에 그대로 들어갑니다)</label>
+            <input class="bp-inp" id="ntrd-en" type="text" maxlength="80" placeholder="예: HONG GILDONG" autocomplete="off">
+          </div>
+        </div>
+        <div class="bp-row single">
+          <div class="bp-col">
+            <label class="bp-label" for="ntrd-family">가족 영문이름 (선택 — 한 줄에 '관계: 이름')</label>
+            <textarea class="bp-inp" id="ntrd-family" rows="2" maxlength="1000" placeholder="배우자: KIM YOUNGHEE&#10;자녀: HONG MINSU" style="resize:vertical"></textarea>
+          </div>
+        </div>
+
+        <div class="bp-row single">
+          <div class="bp-col">
+            <label class="bp-label" for="ntrd-memo">메모 (선택 — 손님 연락처 등, 관리자만 봅니다 · 번역에 쓰이지 않습니다)</label>
             <input class="bp-inp" id="ntrd-memo" type="text" maxlength="200" placeholder="예: 홍길동님 방문 접수">
           </div>
         </div>
@@ -4969,6 +4983,49 @@ async function loadNotaryShipping() {
   }
 }
 
+/* ★보류 꼬리표 (서버 notary/index.js HOLD_TAG_RE 와 같다 · 2026-11-26)
+   ROWS_HOLD 사람 수 · MASK_BLOCKED Opus 검수 안 됨 · GENDER_HOLD 성별 판독 실패 · ITEMS_HOLD 상세내용 줄 누락 */
+var NTRD_HOLD_RE = /^\[(ROWS_HOLD|MASK_BLOCKED|GENDER_HOLD|ITEMS_HOLD)\]\s*/;
+function ntrdHoldBadge(o) {
+  var why = String(o.failReason || '');
+  var m = why.match(NTRD_HOLD_RE);
+  var v = o.verify || {};
+  /* 예전 처리분 — 번호 가림 실패로 Opus 검수 없이 편집대기에 온 건도 같은 표시 (확정이 막힌다) */
+  if (!m && v.maskBlocked) return '<span style="font-size:11px;color:#F28B82;font-weight:600" title="번호 가림을 확인하지 못해 Opus 원본 대조를 하지 않았습니다 — 확정이 막힙니다. [다시 처리] 하세요">⚠ Opus 검수 안 됨 — 보류</span>';
+  if (!m) return '';
+  var label = m[1] === 'MASK_BLOCKED' ? 'Opus 검수 안 됨 — 보류'
+    : m[1] === 'ROWS_HOLD' ? '보류 · ' + (v.rowCheck ? v.rowCheck.msg : '사람 수 불일치')
+    : m[1] === 'GENDER_HOLD' ? '보류 · 성별 판독 실패'
+    : '보류 · 상세내용 줄 누락';
+  return '<span style="font-size:11px;color:#F28B82;font-weight:600" title="' + _ne(why.replace(NTRD_HOLD_RE, '')) + '">⚠ ' + _ne(label) + '</span>';
+}
+/** 보류 — 대표가 원본과 대조한 뒤 매핑부터 이어서 (편집대기로) */
+async function ntrdResumeHold(orderNumber){
+  if (!confirm(orderNumber + '\n\n원본과 직접 대조하셨나요?\n보류를 풀고 편집 화면으로 넘깁니다.')) return;
+  var el = document.getElementById('ntrd-rs-' + orderNumber);
+  try {
+    var r = await authFetch(API_BASE + '/api/notary/admin/orders/' + encodeURIComponent(orderNumber) + '/resume',
+      { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' }, body: '{}' });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '실패');
+    if (el) el.textContent = '이어서 처리 시작';
+    setTimeout(loadNotaryDirect, 3000);
+  } catch (e) { if (el) el.textContent = e.message; }
+}
+/** 다시 처리 — 저장된 원본으로 처음부터 (확정 전만 · 편집 화면에서 고친 값은 지워진다) */
+async function ntrdRerun(orderNumber){
+  if (!confirm(orderNumber + '\n\n저장된 원본으로 처음부터 다시 처리합니다.\n편집 화면에서 고친 값은 지워집니다. 진행할까요?')) return;
+  var el = document.getElementById('ntrd-rr-' + orderNumber);
+  try {
+    var r = await authFetch(API_BASE + '/api/notary/admin/orders/' + encodeURIComponent(orderNumber) + '/rerun',
+      { method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken(), 'Content-Type': 'application/json' }, body: '{}' });
+    var j = await r.json();
+    if (!j.ok) throw new Error(j.error || '실패');
+    if (el) el.textContent = '다시 처리 시작';
+    setTimeout(loadNotaryDirect, 5000);
+  } catch (e) { if (el) el.textContent = e.message; }
+}
+
 /** API 잔액 부족으로 멈춘 공증 주문 — 충전 후 매핑부터 이어서 처리 */
 async function ntrResumeCredit(orderNumber){
   if (!confirm(orderNumber + '\n\nAPI 잔액을 충전하셨나요?\n용어 매핑부터 이어서 처리합니다.')) return;
@@ -5266,6 +5323,14 @@ async function ntrdSubmit() {
   var inp     = document.getElementById('ntrd-files');
   if (!docCode) { _ntrdMsg('서류 종류를 선택해 주세요', false); return; }
   if (!inp.files.length) { _ntrdMsg('서류 파일을 선택해 주세요', false); return; }
+  var enName  = (document.getElementById('ntrd-en').value || '').replace(/\s+/g, ' ').trim();
+  var famName = (document.getElementById('ntrd-family').value || '').trim();
+  var memoTxt = document.getElementById('ntrd-memo').value || '';
+  if (enName && !/^[A-Za-z][A-Za-z .,'\-]*[A-Za-z.]$/.test(enName)) { _ntrdMsg('본인 영문이름은 영문·공백·하이픈만 넣어 주세요', false); return; }
+  /* ★메모에 적은 영문 이름은 번역에 쓰이지 않는다 — 같은 실수 방지 (서버도 같은 검사) */
+  if (!enName && !famName && /\b[A-Z][A-Z'\-]+(?:\s+[A-Z][A-Z'\-]+)+\b/.test(memoTxt)) {
+    _ntrdMsg('영문 이름은 영문이름 칸에 넣어 주세요 (메모에 적은 이름은 번역에 쓰이지 않습니다)', false); return;
+  }
 
   var btn = document.getElementById('ntrd-submit');
   btn.disabled = true;
@@ -5276,7 +5341,9 @@ async function ntrdSubmit() {
   var fd = new FormData();
   fd.append('docType', docCode);
   fd.append('lang', lang || 'en');
-  fd.append('memo', document.getElementById('ntrd-memo').value || '');
+  fd.append('memo', memoTxt);
+  fd.append('englishName', enName);
+  fd.append('familyNames', famName);
   for (var i = 0; i < inp.files.length; i++) fd.append('files', inp.files[i]);
 
   try {
@@ -5315,9 +5382,9 @@ async function ntrdPoll(n) {
     if (j.statusKey === 'failed' || j.status === '확인필요') {
       /* ★대응 방법은 서버가 원인별로 갈라서 넣어 준다(해상도 문제 / 서식 문제).
          여기서 "해상도를 확인하세요" 를 덧붙이면 서식 문제일 때 엉뚱한 안내가 된다. */
-      var isHold = /^\[ROWS_HOLD\]/.test(j.failReason || '');
+      var isHold = NTRD_HOLD_RE.test(j.failReason || '');
       info.innerHTML = isHold
-        ? '<span style="color:#F28B82">' + _ne(String(j.failReason).replace(/^\[ROWS_HOLD\]\s*/, '')) + '</span>' + ntrdVerifyLine(j.verify)
+        ? '<span style="color:#F28B82">' + _ne(String(j.failReason).replace(NTRD_HOLD_RE, '').trim()) + '</span>' + ntrdVerifyLine(j.verify)
         : '<span style="color:#D9BC8C">인식 실패 — ' +
           _ne(j.failReason || '사유 확인 중').replace(/\n/g, '<br>') + '</span>';
       loadNotaryDirect();
@@ -5403,7 +5470,7 @@ async function loadNotaryDirect() {
       +   (o.detect && o.detect.indexOf(' → ') > 0 && o.detect.split(' → ')[0] !== o.detect.split(' → ')[1].split(/[( ·]/)[0]
             ? '<span style="font-size:11px;color:#9DB7F5" title="' + _ne(o.detect) + '">' + _ne(o.detect.split(' · ')[0]) + '</span>' : '')
       +   (o.verify && o.verify.fixed ? '<span style="font-size:11px;color:#E8C66A">AI 대조로 고침 ' + o.verify.fixed + '칸</span>' : '')
-      +   (/^\[ROWS_HOLD\]/.test(o.failReason || '') ? '<span style="font-size:11px;color:#F28B82" title="' + _ne(String(o.failReason).replace(/^\[ROWS_HOLD\]\s*/, '')) + '">⚠ 보류 · ' + _ne(o.verify && o.verify.rowCheck ? o.verify.rowCheck.msg : '사람 수 불일치') + '</span>' : '')
+      +   ntrdHoldBadge(o)
       +   (o.verify && o.verify.illegible && o.verify.illegible.count ? '<span style="font-size:11px;color:#F28B82" title="' + _ne(o.verify.illegible.msg) + '">⚠ 판독 불가 ' + o.verify.illegible.count + '곳</span>' : '')
       +   (o.verify && o.verify.usd != null ? '<span style="font-size:11px;color:rgba(255,255,255,0.35)">$' + Number(o.verify.usd).toFixed(3) + '</span>' : '')
       +   '<span style="font-size:11px;color:rgba(255,255,255,0.3)">' + _nd(o.receivedAt) + '</span>'
@@ -5412,6 +5479,11 @@ async function loadNotaryDirect() {
             ? '<span style="font-size:11px;color:#D9BC8C;max-width:380px" title="' + _ne(o.failReason || '') + '">' +
               _ne(String(o.failReason || '').split('\n')[0]) + '</span>'
             : '<button class="tab-btn" onclick="ntrdReopen(\'' + _ne(o.orderNumber) + '\')" style="text-transform:none;letter-spacing:0">열기</button>')
+      /* ★보류 — 원본과 대조한 뒤 이어서 처리 · 엔진을 고친 뒤 원본으로 다시 처리 (확정 전만) */
+      +   (NTRD_HOLD_RE.test(o.failReason || '')
+            ? '<button class="tab-btn" id="ntrd-rs-' + _ne(o.orderNumber) + '" onclick="ntrdResumeHold(\'' + _ne(o.orderNumber) + '\')" style="text-transform:none;letter-spacing:0;color:#F28B82">원본 대조 끝 → 이어서 처리</button>' : '')
+      +   (['접수', 'OCR실패', '확인필요', '편집대기'].indexOf(o.status) >= 0
+            ? '<button class="tab-btn" id="ntrd-rr-' + _ne(o.orderNumber) + '" onclick="ntrdRerun(\'' + _ne(o.orderNumber) + '\')" style="text-transform:none;letter-spacing:0;color:rgba(255,255,255,0.5)">다시 처리</button>' : '')
       + '</div>';
     }).join('');
   } catch (e) {
