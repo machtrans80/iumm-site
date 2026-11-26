@@ -388,11 +388,11 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 .ntr-doc .ntr-head th{width:22%;text-align:center}
 .ntr-doc .ntr-head td{text-align:left}
 .ntr-doc .ntr-persons td{text-align:center}
-/* ★'기록할 사항이 없습니다' 자리의 N/A 한 줄 — 원본처럼 칸 가운데에 놓는다.
-   본인표·배우자표(.ntr-persons)는 위 규칙으로 이미 가운데였는데,
-   혼인 상세표(.ntr-entries)에는 그 규칙이 없어 같은 클래스인데도 왼쪽에 붙었다.
-   표 종류와 무관하게 N/A 칸만 가운데로 못 박는다 — 다른 셀은 건드리지 않는다. */
+/* ★빈칸 원칙(2026-11-26 대표 확정) — 원본 표가 비어 있으면 머리글 + 글자 없는 빈 줄 1개.
+   N/A 등 표시를 찍지 않는다. 빈 칸은 내용이 없어 줄이 납작해지므로
+   값 칸(.ntr-f)과 같은 보이지 않는 한 줄을 세운다 — 데이터 한 줄·DOCX 빈 문단 한 줄과 같은 높이 (글자는 없다). */
 .ntr-doc td.ntr-none-cell{text-align:center}
+.ntr-doc tr.ntr-empty-row td.ntr-none-cell::after{content:"\00a0";display:inline-block;padding:1px 3px}
 /* ── 성명란 상태 표기 (사망·국적상실·실종선고·부재선고) ──────────
    원본은 이름 아래에 테두리 친 작은 칸으로 찍힌다. 그 배치를 그대로 재현한다.
    ★세로로 쌓이므로 좁은 이름 칸에서도 옆으로 밀려 잘리지 않는다.
@@ -548,7 +548,8 @@ textarea.ntr-inp{min-height:84px;resize:vertical}
 body.editing .ntr-doc .ntr-f{background:rgba(31,79,209,.10);box-shadow:inset 0 -1px 0 rgba(31,79,209,.5)}
 body.editing .ntr-doc .ntr-f:hover{background:rgba(31,79,209,.18)}
 body.editing .ntr-doc .ntr-f:focus{background:#fff8d8;box-shadow:0 0 0 2px #E0A73A}
-body.editing .ntr-doc .ntr-f:empty::before{content:'—';color:#c00}
+/* ★빈칸 원칙(2026-11-26) — 빈 칸에 '—' 같은 글자를 보이지 않는다. 편집 중에만 빨간 점선 테두리로 자리만 알린다 */
+body.editing .ntr-doc .ntr-f:empty{box-shadow:inset 0 0 0 1px rgba(204,0,0,.55);background:rgba(204,0,0,.05)}
 /* 확인이 필요한 값 — 사전 미등록·음역 자동생성·미인식
    ★글자까지 빨갛게 한다. OCR 이 한자를 오독한 값(慶州 → 慶卅)이 여기 걸리는데,
      배경색만으로는 표 안에서 눈에 잘 띄지 않아 그냥 확정해 버리기 쉽다.
